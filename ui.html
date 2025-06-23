@@ -1,17 +1,38 @@
-<h2>Rectangle Creator</h2>
-<p>Count: <input id="count" type="number" value="5"></p>
-<button id="create">Create</button>
+<h2>Add Emoji to Layer Name</h2>
+<p>Select a layer and choose an emoji to add to its name:</p>
+<div id="emoji-buttons">
+  <button class="emoji-button">🔴</button>
+  <button class="emoji-button">🟠</button>
+  <button class="emoji-button">🟡</button>
+  <button class="emoji-button">🟢</button>
+  <button class="emoji-button">🔵</button>
+  <button class="emoji-button">🟣</button>
+  <button class="emoji-button">⚫️</button>
+  <button class="emoji-button">⚪️</button>
+</div>
 <button id="cancel">Cancel</button>
+
+<style>
+  #emoji-buttons {
+    margin-bottom: 10px;
+  }
+  .emoji-button {
+    font-size: 16px;
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+  }
+</style>
+
 <script>
+  document.querySelectorAll('.emoji-button').forEach(button => {
+    button.onclick = () => {
+      const emoji = button.textContent;
+      parent.postMessage({ pluginMessage: { type: 'add-emoji', emoji } }, '*')
+    }
+  });
 
-document.getElementById('create').onclick = () => {
-  const textbox = document.getElementById('count');
-  const count = parseInt(textbox.value, 10);
-  parent.postMessage({ pluginMessage: { type: 'create-shapes', count } }, '*')
-}
-
-document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
-}
-
+  document.getElementById('cancel').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+  }
 </script>
