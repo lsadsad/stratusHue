@@ -1,10 +1,7 @@
 // This plugin allows the user to add a colored emoji to the beginning of a layer's name.
 
-// This file holds the main code for the plugin. It has access to the figma document.
-// You can access browser APIs in the <script> tag inside "ui.html".
-
-// Show the HTML page in "ui.html".
-figma.showUI(__html__, { width: 240, height: 180 });
+// Show the HTML page in "ui.html". This now allows the window to be resized.
+figma.showUI(__html__);
 
 // Handle messages from the HTML page.
 figma.ui.onmessage = (msg: { type: string, emoji: string }) => {
@@ -18,15 +15,12 @@ figma.ui.onmessage = (msg: { type: string, emoji: string }) => {
         // Prepend the emoji to the layer name.
         layer.name = msg.emoji + ' ' + layer.name;
       }
+      // Notify the user that the emoji was added.
+      figma.notify('Emoji added!');
     }
   }
 
   if (msg.type === 'cancel') {
-    figma.closePlugin();
-  }
-  
-  // Close the plugin after adding the emoji.
-  if (msg.type === 'add-emoji') {
     figma.closePlugin();
   }
 };
