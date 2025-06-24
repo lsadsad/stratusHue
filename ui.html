@@ -1,5 +1,5 @@
 <h2>Add Emoji to Layer Name</h2>
-<p>Select a layer and choose an emoji to add to its name:</p>
+<p>Select a layer and choose an emoji to add, replace, or clear:</p>
 <div id="emoji-buttons">
   <button class="emoji-button">🔴</button>
   <button class="emoji-button">🟠</button>
@@ -10,11 +10,15 @@
   <button class="emoji-button">⚫️</button>
   <button class="emoji-button">⚪️</button>
 </div>
-<button id="cancel">Cancel</button>
+<div id="action-buttons">
+    <button id="clear">Clear Emoji</button>
+    <button id="cancel">Cancel</button>
+</div>
 
 <style>
   body {
     padding: 10px;
+    box-sizing: border-box;
   }
   #emoji-buttons {
     margin-bottom: 10px;
@@ -28,9 +32,15 @@
     margin-bottom: 5px;
     cursor: pointer;
   }
+  #action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
 </style>
 
 <script>
+  // Send message to add/replace emoji
   document.querySelectorAll('.emoji-button').forEach(button => {
     button.onclick = () => {
       const emoji = button.textContent;
@@ -38,6 +48,12 @@
     }
   });
 
+  // Send message to clear emoji
+  document.getElementById('clear').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'clear-emoji' } }, '*')
+  }
+
+  // Send message to close plugin
   document.getElementById('cancel').onclick = () => {
     parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
   }
