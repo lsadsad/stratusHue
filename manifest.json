@@ -3,6 +3,7 @@
   "id": "1518431272803973529",
   "api": "1.0.0",
   "main": "code.js",
+  "icon": "icon.svg",
   "capabilities": [],
   "enableProposedApi": false,
   "documentAccess": "dynamic-page",
