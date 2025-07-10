@@ -1,4 +1,6 @@
-<p><b>Select Layer</b></p>
+<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700&display=swap" rel="stylesheet">
+
+<p>Select a layer:</p>
 <div id="emoji-buttons">
   <button class="emoji-button">🔴</button>
   <button class="emoji-button">🟠</button>
@@ -10,40 +12,37 @@
   <button class="emoji-button">⚪️</button>
 </div>
 <div id="action-buttons">
-    <button id="clear">Clear</button>
+    <button id="clear">Clear Emoji</button>
 </div>
 
 <style>
-  @import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700&display=swap');
+  body, button, p {
+    font-family: 'Source Code Pro','Courier New', Courier, monospace;
+    font-weight: bold;
+  }
   body {
     padding: 8px;
-    font-family: 'Source Code Pro', monospace;
-    font-size: 12px; /* or any size you prefer */
+  }
+  p {
+    font-size: 16px;
   }
   #emoji-buttons {
-    margin-bottom: 16px; /* Space between emojis and clear button */
     display: flex;
     flex-wrap: wrap;
   }
   .emoji-button {
     font-size: 16px;
-    padding: 5px 8px;
+    padding: 8px 8px;
     cursor: pointer;
-    font-family: 'Source Code Pro', monospace;
   }
   #action-buttons {
     display: flex;
-    justify-content: center; /* Center the Clear button */
-    margin-top: 0;
+    justify-content: space-between;
+    margin-top: 16px;
   }
   #clear {
-    width: auto;
-    min-width: 64px;
-    padding: 5px 16px;
-    font-family: 'Source Code Pro', monospace;
-  }
-  p {
-    font-family: 'Source Code Pro', monospace;
+    padding: 4px 8px;
+    font-size: 16px;
   }
 </style>
 

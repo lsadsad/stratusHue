@@ -4,7 +4,7 @@ const EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '�
 
 // Show the HTML page in "ui.html", setting an initial size.
 // The Figma plugin window is resizable by the user from this initial size.
-figma.showUI(__html__, { width: 116, height: 248 });
+figma.showUI(__html__, { width: 200, height: 200 });
 
 // Handle messages from the HTML page.
 figma.ui.onmessage = (msg: { type: string, emoji?: string }) => {
