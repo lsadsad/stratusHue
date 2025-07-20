@@ -51,12 +51,14 @@
   document.querySelectorAll('.emoji-button').forEach(button => {
     button.onclick = () => {
       const emoji = button.textContent;
-      parent.postMessage({ pluginMessage: { type: 'add-emoji', emoji } }, '*')
+      if (emoji && emoji.trim()) {
+        parent.postMessage({ pluginMessage: { type: 'add-emoji', emoji: emoji.trim() } }, '*');
+      }
     }
   });
 
   // Send message to clear emoji
   document.getElementById('clear').onclick = () => {
-    parent.postMessage({ pluginMessage: { type: 'clear-emoji' } }, '*')
+    parent.postMessage({ pluginMessage: { type: 'clear-emoji' } }, '*');
   }
 </script>
