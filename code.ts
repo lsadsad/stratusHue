@@ -15,6 +15,13 @@ figma.ui.onmessage = (msg: { type: string, emoji?: string }) => {
       figma.notify('Please select at least one layer.');
       return;
     }
+    
+    // Check if emoji is provided and valid
+    if (!msg.emoji) {
+      figma.notify('No emoji provided.');
+      return;
+    }
+    
     for (const layer of selectedLayers) {
       const currentName = layer.name;
       let oldEmojiFound = false;
