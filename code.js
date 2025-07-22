@@ -1,36 +1,116 @@
 "use strict";
-// This plugin allows the user to add, replace, or clear a colored emoji at the beginning of a layer's name.
+// StrateHue: A Figma plugin for layer tagging and navigation.
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'];
-// Show the HTML page in "ui.html", setting an initial size.
-// The Figma plugin window is resizable by the user from this initial size.
-figma.showUI(__html__, { width: 200, height: 200 });
-// Handle messages from the HTML page.
-figma.ui.onmessage = (msg) => {
+// --- Helper functions for file-specific bookmark storage ---
+function getBookmarks() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const data = figma.root.getPluginData('bookmarks');
+        return data ? JSON.parse(data) : [];
+    });
+}
+function setBookmarks(bookmarks) {
+    return __awaiter(this, void 0, void 0, function* () {
+        figma.root.setPluginData('bookmarks', JSON.stringify(bookmarks));
+    });
+}
+// --- Helper to send bookmarks to the UI ---
+function sendBookmarksToUI() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const bookmarks = yield getBookmarks();
+        figma.ui.postMessage({ type: 'bookmarks', bookmarks });
+    });
+}
+// --- Plugin UI Setup ---
+figma.showUI(__html__, { width: 260, height: 420 });
+// --- Main Message Handler ---
+figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
     const selectedLayers = figma.currentPage.selection;
-    if (msg.type === 'add-emoji') {
+    // --- Initial UI Load ---
+    if (msg.type === 'ui-ready') {
+        yield sendBookmarksToUI();
+    }
+    // --- Bookmark Logic ---
+    else if (msg.type === 'save-bookmark') {
+        if (selectedLayers.length === 0) {
+            figma.notify('Please select a layer to bookmark.');
+            return;
+        }
+        const node = selectedLayers[0];
+        const bookmarks = yield getBookmarks();
+        if (bookmarks.some(b => b.id === node.id)) {
+            figma.notify('Layer already bookmarked.');
+            return;
+        }
+        const fileKey = figma.fileKey;
+        bookmarks.push({ id: node.id, name: node.name });
+        yield setBookmarks(bookmarks);
+        yield sendBookmarksToUI();
+        figma.notify('Bookmark saved!');
+    }
+    else if (msg.type === 'remove-bookmark') {
+        const bookmarks = yield getBookmarks();
+        const newBookmarks = bookmarks.filter(b => b.id !== msg.id);
+        yield setBookmarks(newBookmarks);
+        yield sendBookmarksToUI();
+        figma.notify('Bookmark removed.');
+    }
+    else if (msg.type === 'jump-to-bookmark') {
+        const node = yield figma.getNodeByIdAsync(msg.id);
+        if (!node || !('parent' in node)) {
+            figma.notify('Layer not found. It may have been deleted.');
+            // Clean up the broken bookmark
+            const bookmarks = yield getBookmarks();
+            const newBookmarks = bookmarks.filter(b => b.id !== msg.id);
+            yield setBookmarks(newBookmarks);
+            yield sendBookmarksToUI();
+            return;
+        }
+        // Find the page containing the node by traversing up the tree
+        let parent = node.parent;
+        while (parent && parent.type !== 'PAGE') {
+            parent = parent.parent;
+        }
+        if (parent && parent.type === 'PAGE') {
+            yield figma.setCurrentPageAsync(parent);
+            // Yield to allow Figma to switch pages before selecting/zooming
+            yield Promise.resolve();
+            if ('visible' in node && typeof node.visible === 'boolean') {
+                figma.currentPage.selection = [node];
+                figma.viewport.scrollAndZoomIntoView([node]);
+                figma.notify('Jumped to bookmark!');
+            }
+            else {
+                figma.notify('This bookmark is not a visible layer.');
+            }
+        }
+        else {
+            figma.notify('Could not find the page for this layer.');
+        }
+    }
+    // --- Emoji Logic ---
+    else if (msg.type === 'add-emoji') {
         if (selectedLayers.length === 0) {
             figma.notify('Please select at least one layer.');
             return;
         }
-        // Check if emoji is provided and valid
-        if (!msg.emoji) {
-            figma.notify('No emoji provided.');
-            return;
-        }
         for (const layer of selectedLayers) {
-            const currentName = layer.name;
-            let oldEmojiFound = false;
+            let name = layer.name;
             for (const oldEmoji of EMOJI_LIST) {
-                if (currentName.startsWith(oldEmoji)) {
-                    const restOfName = currentName.substring(oldEmoji.length).replace(/^\s+/, '');
-                    layer.name = msg.emoji + ' ' + restOfName;
-                    oldEmojiFound = true;
+                if (name.startsWith(oldEmoji + ' ')) {
+                    name = name.substring((oldEmoji + ' ').length);
                     break;
                 }
             }
-            if (!oldEmojiFound) {
-                layer.name = msg.emoji + ' ' + currentName;
-            }
+            layer.name = msg.emoji + ' ' + name;
         }
         figma.notify('Emoji updated!');
     }
@@ -41,14 +121,19 @@ figma.ui.onmessage = (msg) => {
             return;
         }
         for (const layer of selectedLayers) {
-            const currentName = layer.name;
+            let name = layer.name;
+            let emojiCleared = false;
             for (const emoji of EMOJI_LIST) {
-                if (currentName.startsWith(emoji)) {
-                    layer.name = currentName.substring(emoji.length).replace(/^\s+/, '');
-                    anEmojiWasCleared = true;
+                if (name.startsWith(emoji + ' ')) {
+                    name = name.substring((emoji + ' ').length);
+                    emojiCleared = true;
                     break;
                 }
             }
+            if (emojiCleared) {
+                anEmojiWasCleared = true;
+            }
+            layer.name = name;
         }
         if (anEmojiWasCleared) {
             figma.notify('Emoji cleared!');
@@ -60,4 +145,4 @@ figma.ui.onmessage = (msg) => {
     else if (msg.type === 'cancel') {
         figma.closePlugin();
     }
-};
+});
