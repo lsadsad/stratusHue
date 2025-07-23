@@ -13,9 +13,9 @@
   <button id="clear-color">Clear Color</button>
 </div>
 
-<p class="section-header">Bookmarks:</p>
+<p class="section-header">Anchors:</p>
 <div id="bookmark-section">
-  <button id="save-bookmark">Save Bookmark</button>
+  <button id="save-bookmark">Drop Anchor</button>
   <ul id="bookmark-list"></ul>
 </div>
 
@@ -134,6 +134,16 @@
     border-radius: 4px;
     padding: 4px 8px;
   }
+  .bookmark-item:hover {
+    background: #0099ff;
+    color: #fff;
+  }
+  .bookmark-item:hover .bookmark-name {
+    color: #fff;
+  }
+  .bookmark-item:hover .bookmark-icon {
+    color: #fff;
+  }
   .bookmark-icon {
     color: #0099ff;
     margin-right: 6px;
@@ -146,6 +156,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .bookmark-name:hover {
+    background: #0099ff;
+    color: #fff;
+    border-radius: 3px;
   }
   .bookmark-remove {
     color: #e74c3c;
@@ -197,7 +212,7 @@
       const li = document.createElement('li');
       li.className = 'bookmark-item';
       li.innerHTML = `
-        <span class="bookmark-icon">🔖</span>
+        <span class="bookmark-icon">⚓</span>
         <span class="bookmark-name" title="${b.name}">${b.name}</span>
         <button class="bookmark-remove" title="Remove">❌</button>
       `;
