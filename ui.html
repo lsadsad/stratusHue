@@ -1,23 +1,29 @@
-<h3 class="section-header">Add Color</h3>
-<div id="color-emoji-buttons">
-  <button class="emoji-button">🔴</button>
-  <button class="emoji-button">🟠</button>
-  <button class="emoji-button">🟡</button>
-  <button class="emoji-button">🟢</button>
-  <button class="emoji-button">🔵</button>
-  <button class="emoji-button">🟣</button>
-  <button class="emoji-button">⚫️</button>
-  <button class="emoji-button">⚪️</button>
-</div>
-<div id="clear-color-section">
-  <button id="clear-color">Clear Color</button>
+<h3 class="section-header collapsible" data-target="color-section">
+  <span>## Add Color</span>
+  <span class="arrow">+</span>
+</h3>
+<div id="color-section" class="collapsible-content">
+  <div id="color-emoji-buttons">
+    <button class="emoji-button">🔴</button>
+    <button class="emoji-button">🟠</button>
+    <button class="emoji-button">🟡</button>
+    <button class="emoji-button">🟢</button>
+    <button class="emoji-button">🔵</button>
+    <button class="emoji-button">🟣</button>
+    <button class="emoji-button">⚫️</button>
+    <button class="emoji-button">⚪️</button>
+  </div>
+  <div id="clear-color-section">
+    <button id="clear-color">Clear Color</button>
+  </div>
 </div>
 
-<h3 class="section-header">Anchors</h3>
-<div id="bookmark-section">
-  <button id="save-bookmark">Drop Anchor</button>
-  <ul id="bookmark-list"></ul>
-</div>
+<h3 class="section-header collapsible" style="pointer-events: none;">
+  <span>## Anchors</span>
+  <span class="arrow" style="opacity: 0;">+</span>
+</h3>
+<button id="save-bookmark">⚓ Drop Anchor</button>
+<ul id="bookmark-list"></ul>
 
 <style>
   html, body {
@@ -29,13 +35,15 @@
     box-sizing: border-box;
   }
   body {
-    padding: 16px 8px 8px 8px;
+    padding: 12px;
     min-width: 176px;
     min-height: 256px;
-    max-width: 208px;
-    max-height: 336px;
+    max-width: 192px;
+    max-height: 352px;
     overflow-y: auto;
     overflow-x: hidden;
+    background: #1a1a1a;
+    color: #e0e0e0;
   }
 
   /* Custom scrollbar styling */
@@ -44,24 +52,24 @@
   }
 
   body::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #2a2a2a;
     border-radius: 4px;
   }
 
   body::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
+    background: #4a4a4a;
     border-radius: 4px;
     transition: background 0.2s ease;
   }
 
   body::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+    background: #5a5a5a;
   }
 
   /* Firefox scrollbar styling */
   body {
     scrollbar-width: thin;
-    scrollbar-color: #c1c1c1 #f1f1f1;
+    scrollbar-color: #4a4a4a #2a2a2a;
   }
   body, button, h3 {
     font-family: 'Source Code Pro', 'Courier New', Courier, monospace;
@@ -71,10 +79,8 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-gap: 6px;
-    margin-bottom: 6px;
+    margin: 8px auto 6px auto;
     max-width: 144px;
-    margin-left: auto;
-    margin-right: auto;
   }
   .emoji-button {
     font-size: 12px;
@@ -86,19 +92,19 @@
     text-align: center;
     cursor: pointer;
     border-radius: 5px;
-    border: 1px solid #ddd;
-    background: #fff;
+    border: 1px solid #3b3b3b;
+    background: #2a2a2a;
     transition: background 0.2s, border 0.2s;
     box-sizing: border-box;
     padding: 0;
     margin: 0;
   }
   .emoji-button:hover {
-    background: #f0f0f0;
-    border: 1px solid #aaa;
+    background: #3a3a3a;
+    border: 1px solid #484848;
   }
   #clear-color-section {
-    margin-bottom: 0;
+    margin-bottom: 8px;
     display: flex;
     justify-content: center;
   }
@@ -111,30 +117,70 @@
     padding: 5px 10px;
     font-size: 9px;
     border-radius: 5px;
-    border: 1px solid #ddd;
+    border: 1px solid #3b3b3b;
     background: transparent;
-    color: #ddd;
+    color: #a0a0a0;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s ease;
+    width: 144px;
   }
   #clear-color:hover {
-    background: #f7f7f7;
-    border: 1px solid #bbb;
-    color: #bbb;
+    background: #2a2a2a;
+    border: 1px solid #484848;
+    color: #666666;
     transform: translateY(-1px);
   }
 
   .section-header {
     font-size: 10px;
-    margin: 16px 0 10px 0;
+    margin: 0 0 10px 0;
     font-weight: bold;
     letter-spacing: 0.5px;
-    color: #333;
+    color: #e0e0e0;
     text-transform: uppercase;
-    border-bottom: 2px solid #0099ff;
     padding-bottom: 3px;
-    text-align: center;
+    text-align: left;
+  }
+  
+
+  
+  .collapsible {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 8px 4px;
+    margin: 0;
+  }
+  
+  .arrow {
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .collapsible:hover {
+    background: #3a3a3a;
+    border: 1px solid #3b3b3b;
+  }
+  
+  .collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    max-height: 200px;
+    opacity: 1;
+  }
+  
+  .collapsible-content.collapsed {
+    max-height: 0;
+    opacity: 0;
   }
   .section-header:first-child {
     margin-top: 0;
@@ -144,27 +190,28 @@
     border-top: 1px solid #e0e0e0;
     margin: 18px 0 10px 0;
   }
-  #bookmark-section {
-    margin-bottom: 0;
-  }
+
   #save-bookmark {
     margin-bottom: 10px;
-    padding: 6px 12px;
+    padding: 5px 12px;
     font-size: 10px;
-    border-radius: 5px;
-    border: 1px solid #0099ff;
-    background: #0099ff;
+    border-radius: 16px;
+    border: 1px solid #0052a3;
+    background: #0066cc;
     color: white;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s ease;
-    width: 100%;
+    width: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
   #save-bookmark:hover {
-    background: #007acc;
-    border: 1px solid #007acc;
+    background: #0052a3;
+    border: 1px solid #004080;
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 153, 255, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.3);
   }
   #bookmark-list {
     list-style: none;
@@ -176,42 +223,34 @@
     align-items: center;
     margin-bottom: 4px;
     font-size: 9px;
-    background: white;
+    background: #222222;
     border-radius: 4px;
     padding: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
-    border: 1px solid #e8e8e8;
+    border: 1px solid #2a2a2a;
   }
   .bookmark-item:hover {
-    background: #0099ff;
+    background: #0066cc;
     color: #fff;
-    border-color: #0099ff;
+    border-color: #0052a3;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 153, 255, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 102, 204, 0.3);
   }
   .bookmark-item:hover .bookmark-name {
     color: #fff;
   }
-  .bookmark-item:hover .bookmark-icon {
-    color: #fff;
-  }
-  .bookmark-icon {
-    color: #0099ff;
-    margin-right: 4px;
-    font-size: 7px;
-    flex-shrink: 0;
-  }
+
   .bookmark-name {
     flex: 1;
-    font-weight: 500;
+    font-weight: bold;
     line-height: 1.2;
     word-wrap: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
   }
   .bookmark-remove {
-    color: #e74c3c;
+    color: #ff6b6b;
     background: none;
     border: none;
     font-size: 6px;
@@ -224,7 +263,7 @@
     flex-shrink: 0;
   }
   .bookmark-remove:hover {
-    background: #ffeaea;
+    background: #3a2a2a;
     opacity: 1;
     transform: scale(1.1);
   }
@@ -256,6 +295,24 @@
     parent.postMessage({ pluginMessage: { type: 'save-bookmark' } }, '*');
   };
 
+  // Collapsible sections
+  document.querySelectorAll('.collapsible').forEach(header => {
+    header.addEventListener('click', () => {
+      const targetId = header.getAttribute('data-target');
+      const content = document.getElementById(targetId);
+      const arrow = header.querySelector('.arrow');
+      const isCollapsed = content.classList.contains('collapsed');
+      
+      if (isCollapsed) {
+        content.classList.remove('collapsed');
+        arrow.textContent = '+';
+      } else {
+        content.classList.add('collapsed');
+        arrow.textContent = '-';
+      }
+    });
+  });
+
   // Render bookmarks list
   function renderBookmarks(bookmarks) {
     const list = document.getElementById('bookmark-list');
@@ -263,11 +320,10 @@
     bookmarks.forEach(b => {
       const li = document.createElement('li');
       li.className = 'bookmark-item';
-      li.innerHTML = `
-        <span class="bookmark-icon">⚓</span>
-        <span class="bookmark-name" title="${b.name}">${b.name}</span>
-        <button class="bookmark-remove" title="Remove">❌</button>
-      `;
+             li.innerHTML = `
+         <span class="bookmark-name" title="${b.name}">${b.name}</span>
+         <button class="bookmark-remove" title="Remove">❌</button>
+       `;
       // Jump to bookmark on list item click
       li.onclick = (event) => {
         // Don't trigger if clicking the remove button

@@ -30,7 +30,7 @@ function sendBookmarksToUI() {
     });
 }
 // --- Plugin UI Setup ---
-figma.showUI(__html__, { width: 208, height: 336 });
+figma.showUI(__html__, { width: 192, height: 352 });
 // --- Main Message Handler ---
 figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
     const selectedLayers = figma.currentPage.selection;

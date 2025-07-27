@@ -1,3 +1,15 @@
+# StrateHue
+
+A Figma plugin for strategic color coding and bookmarking of design elements.
+
+## Features
+- **Color Coding**: Add emoji colors to layers for visual organization
+- **Smart Bookmarks**: Create and manage bookmarks to quickly navigate your design
+- **Collapsible Interface**: Clean, organized UI with collapsible sections
+- **Dark Mode**: Modern dark theme with cobalt accents
+
+## Getting Started
+
 Below are the steps to get your plugin running. You can also find instructions at:
 
   https://www.figma.com/plugin-docs/plugin-quickstart-guide/
