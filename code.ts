@@ -26,6 +26,30 @@ async function sendBookmarksToUI() {
   figma.ui.postMessage({ type: 'bookmarks', bookmarks });
 }
 
+// --- Helper to update bookmark names when they change ---
+
+async function updateBookmarkNames() {
+  const bookmarks = await getBookmarks();
+  let hasChanges = false;
+  
+  for (const bookmark of bookmarks) {
+    try {
+      const node = await figma.getNodeByIdAsync(bookmark.id);
+      if (node && 'name' in node && node.name !== bookmark.name) {
+        bookmark.name = node.name;
+        hasChanges = true;
+      }
+    } catch (error) {
+      // Node no longer exists, will be cleaned up later
+    }
+  }
+  
+  if (hasChanges) {
+    await setBookmarks(bookmarks);
+    await sendBookmarksToUI();
+  }
+}
+
 // --- Plugin UI Setup ---
 figma.showUI(__html__, { width: 192, height: 352 });
 
@@ -46,15 +70,25 @@ figma.ui.onmessage = async (msg) => {
     }
     const node = selectedLayers[0];
     const bookmarks = await getBookmarks();
-    if (bookmarks.some(b => b.id === node.id)) {
-      figma.notify('Layer already bookmarked.');
-      return;
+    const existingBookmarkIndex = bookmarks.findIndex(b => b.id === node.id);
+    
+    if (existingBookmarkIndex !== -1) {
+      // Update existing bookmark name if it has changed
+      if (bookmarks[existingBookmarkIndex].name !== node.name) {
+        bookmarks[existingBookmarkIndex].name = node.name;
+        await setBookmarks(bookmarks);
+        await sendBookmarksToUI();
+        figma.notify('Bookmark name updated!');
+      } else {
+        figma.notify('Layer already bookmarked.');
+      }
+    } else {
+      // Create new bookmark
+      bookmarks.push({ id: node.id, name: node.name });
+      await setBookmarks(bookmarks);
+      await sendBookmarksToUI();
+      figma.notify('Bookmark saved!');
     }
-    const fileKey = figma.fileKey;
-    bookmarks.push({ id: node.id, name: node.name });
-    await setBookmarks(bookmarks);
-    await sendBookmarksToUI();
-    figma.notify('Bookmark saved!');
   }
 
   else if (msg.type === 'remove-bookmark') {
@@ -76,6 +110,16 @@ figma.ui.onmessage = async (msg) => {
       await sendBookmarksToUI();
       return;
     }
+    
+    // Update bookmark name if it has changed
+    const bookmarks = await getBookmarks();
+    const bookmark = bookmarks.find(b => b.id === msg.id);
+    if (bookmark && bookmark.name !== node.name) {
+      bookmark.name = node.name;
+      await setBookmarks(bookmarks);
+      await sendBookmarksToUI();
+    }
+    
     // Find containing page
     let currentNode = node;
     while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
@@ -113,6 +157,11 @@ figma.ui.onmessage = async (msg) => {
       figma.notify('Please select at least one layer.');
       return;
     }
+    
+    // Get current bookmarks to check for updates
+    const bookmarks = await getBookmarks();
+    let bookmarkUpdates = false;
+    
     for (const layer of selectedLayers) {
       let name = layer.name;
       for (const oldEmoji of EMOJI_LIST) {
@@ -121,8 +170,24 @@ figma.ui.onmessage = async (msg) => {
           break;
         }
       }
-      layer.name = msg.emoji + ' ' + name;
+      const newName = msg.emoji + ' ' + name;
+      layer.name = newName;
+      
+      // Check if this layer is bookmarked and update it
+      const bookmark = bookmarks.find(b => b.id === layer.id);
+      if (bookmark && bookmark.name !== newName) {
+        figma.notify('Bookmark updated.');
+        bookmark.name = newName;
+        bookmarkUpdates = true;
+      }
     }
+    
+    // Save bookmark updates if any
+    if (bookmarkUpdates) {
+      await setBookmarks(bookmarks);
+      await sendBookmarksToUI();
+    }
+    
     figma.notify('Emoji updated!');
   }
   
@@ -132,6 +197,11 @@ figma.ui.onmessage = async (msg) => {
       figma.notify('Please select at least one layer.');
       return;
     }
+    
+    // Get current bookmarks to check for updates
+    const bookmarks = await getBookmarks();
+    let bookmarkUpdates = false;
+    
     for (const layer of selectedLayers) {
       let name = layer.name;
       let emojiCleared = false;
@@ -144,9 +214,24 @@ figma.ui.onmessage = async (msg) => {
       }
       if (emojiCleared) {
         anEmojiWasCleared = true;
+        layer.name = name;
+        
+        // Check if this layer is bookmarked and update it
+        const bookmark = bookmarks.find(b => b.id === layer.id);
+        if (bookmark && bookmark.name !== name) {
+          figma.notify('Bookmark updated.');
+          bookmark.name = name;
+          bookmarkUpdates = true;
+        }
       }
-      layer.name = name;
     }
+    
+    // Save bookmark updates if any
+    if (bookmarkUpdates) {
+      await setBookmarks(bookmarks);
+      await sendBookmarksToUI();
+    }
+    
     if (anEmojiWasCleared) {
       figma.notify('Emoji cleared!');
     } else {
