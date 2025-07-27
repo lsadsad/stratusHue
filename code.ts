@@ -6,13 +6,42 @@ const EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '�
 interface Bookmark {
   id: string; // node id
   name: string;
+  pageName: string; // page name where the anchor is located
 }
 
 // --- Helper functions for file-specific bookmark storage ---
 
 async function getBookmarks(): Promise<Bookmark[]> {
   const data = figma.root.getPluginData('bookmarks');
-  return data ? JSON.parse(data) : [];
+  const bookmarks = data ? JSON.parse(data) : [];
+  
+  // Migrate old bookmarks that don't have pageName
+  const migratedBookmarks = await Promise.all(bookmarks.map(async (bookmark: any) => {
+    if (!bookmark.pageName) {
+      try {
+        const node = await figma.getNodeByIdAsync(bookmark.id);
+        if (node && 'parent' in node) {
+          let currentNode: BaseNode = node;
+          while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
+            currentNode = currentNode.parent;
+          }
+          bookmark.pageName = currentNode.parent?.type === 'PAGE' ? currentNode.parent.name : 'Unknown Page';
+        } else {
+          bookmark.pageName = 'Unknown Page';
+        }
+      } catch (error) {
+        bookmark.pageName = 'Unknown Page';
+      }
+    }
+    return bookmark as Bookmark;
+  }));
+  
+  // Save migrated bookmarks if any were updated
+  if (migratedBookmarks.some((bookmark, index) => !bookmarks[index]?.pageName)) {
+    await setBookmarks(migratedBookmarks);
+  }
+  
+  return migratedBookmarks;
 }
 
 async function setBookmarks(bookmarks: Bookmark[]) {
@@ -52,6 +81,19 @@ async function updateBookmarkIfExists(layerId: string, newName: string): Promise
   
   if (bookmark && bookmark.name !== newName) {
     bookmark.name = newName;
+    // Also update page name if the node still exists
+    try {
+      const node = await figma.getNodeByIdAsync(layerId);
+      if (node && 'parent' in node) {
+        let currentNode: BaseNode = node;
+        while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
+          currentNode = currentNode.parent;
+        }
+        bookmark.pageName = currentNode.parent?.type === 'PAGE' ? currentNode.parent.name : 'Unknown Page';
+      }
+    } catch (error) {
+      // If we can't get the node, keep the existing page name
+    }
     await updateAndSaveBookmarks(bookmarks);
     return true;
   }
@@ -87,7 +129,7 @@ async function navigateToNode(node: BaseNode & { name: string }) {
     if ('visible' in node && node.visible) {
       figma.currentPage.selection = [node as SceneNode];
       figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
-      figma.notify('Jumped to: ' + node.name);
+      figma.notify('Jumped to: ' + node.name + ' (Page: ' + targetPage.name + ')');
     }
   } else {
     figma.notify('Could not locate page for this bookmark.');
@@ -109,10 +151,18 @@ async function handleSaveBookmark(selectedLayers: readonly SceneNode[]) {
   const bookmarks = await getBookmarks();
   const existingBookmarkIndex = bookmarks.findIndex(b => b.id === node.id);
   
+  // Get the page name
+  let currentNode: BaseNode = node;
+  while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
+    currentNode = currentNode.parent;
+  }
+  const pageName = currentNode.parent?.type === 'PAGE' ? currentNode.parent.name : 'Unknown Page';
+  
   if (existingBookmarkIndex !== -1) {
     // Update existing bookmark name if it has changed
     if (bookmarks[existingBookmarkIndex].name !== node.name) {
       bookmarks[existingBookmarkIndex].name = node.name;
+      bookmarks[existingBookmarkIndex].pageName = pageName;
       await updateAndSaveBookmarks(bookmarks);
       figma.notify('Bookmark name updated!');
     } else {
@@ -120,7 +170,7 @@ async function handleSaveBookmark(selectedLayers: readonly SceneNode[]) {
     }
   } else {
     // Create new bookmark
-    bookmarks.push({ id: node.id, name: node.name });
+    bookmarks.push({ id: node.id, name: node.name, pageName: pageName });
     await updateAndSaveBookmarks(bookmarks);
     figma.notify('Bookmark saved!');
   }

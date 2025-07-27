@@ -1,6 +1,6 @@
 <h3 class="section-header collapsible" data-target="color-section">
   <span>## Add Color</span>
-  <span class="arrow">+</span>
+  <span class="arrow">-</span>
 </h3>
 <div id="color-section" class="collapsible-content">
   <div id="color-emoji-buttons">
@@ -18,12 +18,14 @@
   </div>
 </div>
 
-<h3 class="section-header collapsible" style="pointer-events: none;">
+<h3 class="section-header collapsible" data-target="anchors-section">
   <span>## Anchors</span>
-  <span class="arrow" style="opacity: 0;">+</span>
+  <span class="arrow">-</span>
 </h3>
-<button id="save-bookmark">⚓ Drop Anchor</button>
-<ul id="bookmark-list"></ul>
+<div id="anchors-section" class="collapsible-content">
+  <button id="save-bookmark">⚓ Drop Anchor</button>
+  <ul id="bookmark-list"></ul>
+</div>
 
 <style>
   html, body {
@@ -44,21 +46,23 @@
     overflow-x: hidden;
     background: #1a1a1a;
     color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
   }
 
   /* Custom scrollbar styling */
   body::-webkit-scrollbar {
-    width: 8px;
+    width: 2px;
   }
 
   body::-webkit-scrollbar-track {
     background: #2a2a2a;
-    border-radius: 4px;
+    border-radius: 2px;
   }
 
   body::-webkit-scrollbar-thumb {
     background: #4a4a4a;
-    border-radius: 4px;
+    border-radius: 2px;
     transition: background 0.2s ease;
   }
 
@@ -157,7 +161,7 @@
     background: transparent;
     border: 1px solid transparent;
     border-radius: 4px;
-    padding: 8px 4px;
+    padding: 8px 6px 8px 4px;
     margin: 0;
   }
   
@@ -178,6 +182,39 @@
     opacity: 1;
   }
   
+  #anchors-section.collapsible-content {
+    max-height: none;
+    flex: 1;
+  }
+  
+  #anchors-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  #bookmark-list {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding-bottom: 50px;
+  }
+  
+  #save-bookmark {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    margin: 0;
+    border-radius: 16px;
+    background: #1a1a1a;
+    border-top: 1px solid #2a2a2a;
+  }
+  
   .collapsible-content.collapsed {
     max-height: 0;
     opacity: 0;
@@ -192,20 +229,16 @@
   }
 
   #save-bookmark {
-    margin-bottom: 10px;
-    padding: 5px 12px;
+    padding: 6px 8px 6px 8px;
     font-size: 10px;
-    border-radius: 16px;
     border: 1px solid #0052a3;
     background: #0066cc;
     color: white;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s ease;
-    width: auto;
+    width: 100%;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
   }
   #save-bookmark:hover {
     background: #0052a3;
@@ -225,10 +258,12 @@
     font-size: 9px;
     background: #222222;
     border-radius: 4px;
-    padding: 4px;
+    padding: 0;
     cursor: pointer;
     transition: all 0.2s ease;
     border: 1px solid #2a2a2a;
+    position: relative;
+    overflow: hidden;
   }
   .bookmark-item:hover {
     background: #0066cc;
@@ -237,33 +272,66 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 102, 204, 0.3);
   }
+  
+
   .bookmark-item:hover .bookmark-name {
     color: #fff;
   }
 
-  .bookmark-name {
+  .bookmark-content {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 4px 28px 4px 4px;
+    cursor: pointer;
+  }
+  
+  .bookmark-name {
     font-weight: bold;
     line-height: 1.2;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bookmark-page {
+    font-size: 8px;
+    color: #a0a0a0;
+    font-weight: normal;
+    margin-top: 1px;
+    opacity: 0.9;
+    padding-left: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    line-height: 1.2;
   }
   .bookmark-remove {
-    color: #ff6b6b;
+    color: #ffffff;
     background: none;
     border: none;
-    font-size: 6px;
+    font-size: 10px;
+    font-weight: normal;
     cursor: pointer;
-    margin-left: 4px;
-    padding: 2px;
-    border-radius: 2px;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
     transition: all 0.2s ease;
-    opacity: 0.7;
+    opacity: 0.5;
     flex-shrink: 0;
+    width: 24px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 0;
+    top: 0;
   }
   .bookmark-remove:hover {
     background: #3a2a2a;
+    color: #ff6b6b;
     opacity: 1;
     transform: scale(1.1);
   }
@@ -280,6 +348,19 @@
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  // Helper function to truncate text with ellipsis in the middle
+  function truncateWithMiddleEllipsis(text, maxLength = 20) {
+    if (text.length <= maxLength) {
+      return text;
+    }
+    
+    const halfLength = Math.floor(maxLength / 2);
+    const start = text.substring(0, halfLength);
+    const end = text.substring(text.length - halfLength);
+    
+    return start + '...' + end;
   }
 
   // Initialize UI when DOM is ready
@@ -336,10 +417,10 @@
     
     if (isCollapsed) {
       content.classList.remove('collapsed');
-      arrow.textContent = '+';
+      arrow.textContent = '-';
     } else {
       content.classList.add('collapsed');
-      arrow.textContent = '-';
+      arrow.textContent = '+';
     }
   }
 
@@ -353,19 +434,26 @@
     bookmarks.forEach(bookmark => {
       const li = document.createElement('li');
       li.className = 'bookmark-item';
+      const pageName = bookmark.pageName || 'Unknown Page';
+      const truncatedPageName = pageName.length > 20 ? truncateWithMiddleEllipsis(pageName, 20) : pageName;
+      
       li.innerHTML = `
-        <span class="bookmark-name" title="${escapeHtml(bookmark.name)}">${escapeHtml(bookmark.name)}</span>
-        <button class="bookmark-remove" title="Remove">❌</button>
+        <div class="bookmark-content">
+          <span class="bookmark-name" title="${escapeHtml(bookmark.name)}">${escapeHtml(bookmark.name)}</span>
+          <span class="bookmark-page" title="${escapeHtml(pageName)}">${escapeHtml(truncatedPageName)}</span>
+        </div>
+        <button class="bookmark-remove" title="Remove">x</button>
       `;
       
-      // Jump to bookmark on list item click
-      li.addEventListener('click', (event) => {
-        if (!event.target.classList.contains('bookmark-remove')) {
+      // Jump to bookmark on content area click
+      const contentArea = li.querySelector('.bookmark-content');
+      if (contentArea) {
+        contentArea.addEventListener('click', () => {
           sendMessage('jump-to-bookmark', { id: bookmark.id });
-        }
-      });
+        });
+      }
       
-      // Remove bookmark on ❌ click
+      // Remove bookmark on remove button click
       const removeButton = li.querySelector('.bookmark-remove');
       if (removeButton) {
         removeButton.addEventListener('click', (event) => {
