@@ -29,41 +29,75 @@ function sendBookmarksToUI() {
         figma.ui.postMessage({ type: 'bookmarks', bookmarks });
     });
 }
-// --- Helper to update bookmark names when they change ---
-function updateBookmarkNames() {
+// --- Helper to update and persist bookmarks ---
+function updateAndSaveBookmarks(bookmarks) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield setBookmarks(bookmarks);
+        yield sendBookmarksToUI();
+    });
+}
+// --- Helper to remove emoji prefix from layer name ---
+function removeEmojiPrefix(name) {
+    for (const emoji of EMOJI_LIST) {
+        if (name.startsWith(emoji + ' ')) {
+            return name.substring((emoji + ' ').length);
+        }
+    }
+    return name;
+}
+// --- Helper to update bookmark name if it exists ---
+function updateBookmarkIfExists(layerId, newName) {
     return __awaiter(this, void 0, void 0, function* () {
         const bookmarks = yield getBookmarks();
-        let hasChanges = false;
-        for (const bookmark of bookmarks) {
-            try {
-                const node = yield figma.getNodeByIdAsync(bookmark.id);
-                if (node && 'name' in node && node.name !== bookmark.name) {
-                    bookmark.name = node.name;
-                    hasChanges = true;
-                }
+        const bookmark = bookmarks.find(b => b.id === layerId);
+        if (bookmark && bookmark.name !== newName) {
+            bookmark.name = newName;
+            yield updateAndSaveBookmarks(bookmarks);
+            return true;
+        }
+        return false;
+    });
+}
+// --- Helper to clean up invalid bookmarks ---
+function cleanupBookmark(bookmarkId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const bookmarks = yield getBookmarks();
+        const newBookmarks = bookmarks.filter(b => b.id !== bookmarkId);
+        yield updateAndSaveBookmarks(newBookmarks);
+    });
+}
+// --- Helper to navigate to a node ---
+function navigateToNode(node) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        // Find containing page
+        let currentNode = node;
+        while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
+            currentNode = currentNode.parent;
+        }
+        if (((_a = currentNode.parent) === null || _a === void 0 ? void 0 : _a.type) === 'PAGE') {
+            const targetPage = currentNode.parent;
+            // Switch to correct page if needed
+            if (figma.currentPage !== targetPage) {
+                yield figma.setCurrentPageAsync(targetPage);
             }
-            catch (error) {
-                // Node no longer exists, will be cleaned up later
+            // Navigate to node
+            if ('visible' in node && node.visible) {
+                figma.currentPage.selection = [node];
+                figma.viewport.scrollAndZoomIntoView([node]);
+                figma.notify('Jumped to: ' + node.name);
             }
         }
-        if (hasChanges) {
-            yield setBookmarks(bookmarks);
-            yield sendBookmarksToUI();
+        else {
+            figma.notify('Could not locate page for this bookmark.');
         }
     });
 }
 // --- Plugin UI Setup ---
 figma.showUI(__html__, { width: 192, height: 352 });
-// --- Main Message Handler ---
-figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const selectedLayers = figma.currentPage.selection;
-    // --- Initial UI Load ---
-    if (msg.type === 'ui-ready') {
-        yield sendBookmarksToUI();
-    }
-    // --- Bookmark Logic ---
-    else if (msg.type === 'save-bookmark') {
+// --- Message Handlers ---
+function handleSaveBookmark(selectedLayers) {
+    return __awaiter(this, void 0, void 0, function* () {
         if (selectedLayers.length === 0) {
             figma.notify('Please select a layer to bookmark.');
             return;
@@ -75,8 +109,7 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             // Update existing bookmark name if it has changed
             if (bookmarks[existingBookmarkIndex].name !== node.name) {
                 bookmarks[existingBookmarkIndex].name = node.name;
-                yield setBookmarks(bookmarks);
-                yield sendBookmarksToUI();
+                yield updateAndSaveBookmarks(bookmarks);
                 figma.notify('Bookmark name updated!');
             }
             else {
@@ -86,147 +119,124 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
         else {
             // Create new bookmark
             bookmarks.push({ id: node.id, name: node.name });
-            yield setBookmarks(bookmarks);
-            yield sendBookmarksToUI();
+            yield updateAndSaveBookmarks(bookmarks);
             figma.notify('Bookmark saved!');
         }
-    }
-    else if (msg.type === 'remove-bookmark') {
-        const bookmarks = yield getBookmarks();
-        const newBookmarks = bookmarks.filter(b => b.id !== msg.id);
-        yield setBookmarks(newBookmarks);
-        yield sendBookmarksToUI();
+    });
+}
+function handleRemoveBookmark(bookmarkId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield cleanupBookmark(bookmarkId);
         figma.notify('Bookmark removed.');
-    }
-    else if (msg.type === 'jump-to-bookmark') {
-        const node = yield figma.getNodeByIdAsync(msg.id);
-        if (!node || !('parent' in node)) {
-            figma.notify('Bookmark no longer exists. Cleaning up...');
-            // Clean up broken bookmark
-            const bookmarks = yield getBookmarks();
-            const newBookmarks = bookmarks.filter(b => b.id !== msg.id);
-            yield setBookmarks(newBookmarks);
-            yield sendBookmarksToUI();
-            return;
-        }
-        // Update bookmark name if it has changed
-        const bookmarks = yield getBookmarks();
-        const bookmark = bookmarks.find(b => b.id === msg.id);
-        if (bookmark && bookmark.name !== node.name) {
-            bookmark.name = node.name;
-            yield setBookmarks(bookmarks);
-            yield sendBookmarksToUI();
-        }
-        // Find containing page
-        let currentNode = node;
-        while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
-            currentNode = currentNode.parent;
-        }
-        if (((_a = currentNode.parent) === null || _a === void 0 ? void 0 : _a.type) === 'PAGE') {
-            const targetPage = currentNode.parent;
-            if (figma.currentPage === targetPage) {
-                // Already on the correct page, no delay needed
-                if ('visible' in node && node.visible) {
-                    figma.currentPage.selection = [node];
-                    figma.viewport.scrollAndZoomIntoView([node]);
-                    figma.notify('Jumped to: ' + node.name);
-                }
+    });
+}
+function handleJumpToBookmark(bookmarkId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const node = yield figma.getNodeByIdAsync(bookmarkId);
+            if (!node || !('parent' in node)) {
+                figma.notify('Bookmark no longer exists. Cleaning up...');
+                yield cleanupBookmark(bookmarkId);
+                return;
             }
-            else {
-                // Switch to correct page asynchronously
-                yield figma.setCurrentPageAsync(targetPage);
-                // Small delay to ensure page switch completes
-                setTimeout(() => {
-                    if ('visible' in node && node.visible) {
-                        figma.currentPage.selection = [node];
-                        figma.viewport.scrollAndZoomIntoView([node]);
-                        figma.notify('Jumped to: ' + node.name);
-                    }
-                }, 100);
-            }
+            // Update bookmark name if it has changed
+            yield updateBookmarkIfExists(bookmarkId, node.name);
+            // Navigate to the node
+            yield navigateToNode(node);
         }
-        else {
-            figma.notify('Could not locate page for this bookmark.');
+        catch (error) {
+            figma.notify('Error accessing bookmark. Cleaning up...');
+            yield cleanupBookmark(bookmarkId);
         }
-    }
-    // --- Emoji Logic ---
-    else if (msg.type === 'add-emoji') {
+    });
+}
+function handleAddEmoji(selectedLayers, emoji) {
+    return __awaiter(this, void 0, void 0, function* () {
         if (selectedLayers.length === 0) {
             figma.notify('Please select at least one layer.');
             return;
         }
-        // Get current bookmarks to check for updates
-        const bookmarks = yield getBookmarks();
         let bookmarkUpdates = false;
         for (const layer of selectedLayers) {
-            let name = layer.name;
-            for (const oldEmoji of EMOJI_LIST) {
-                if (name.startsWith(oldEmoji + ' ')) {
-                    name = name.substring((oldEmoji + ' ').length);
-                    break;
-                }
-            }
-            const newName = msg.emoji + ' ' + name;
+            const cleanName = removeEmojiPrefix(layer.name);
+            const newName = emoji + ' ' + cleanName;
             layer.name = newName;
-            // Check if this layer is bookmarked and update it
-            const bookmark = bookmarks.find(b => b.id === layer.id);
-            if (bookmark && bookmark.name !== newName) {
-                figma.notify('Bookmark updated.');
-                bookmark.name = newName;
+            // Update bookmark if it exists
+            if (yield updateBookmarkIfExists(layer.id, newName)) {
                 bookmarkUpdates = true;
             }
         }
-        // Save bookmark updates if any
+        const messages = ['Emoji updated!'];
         if (bookmarkUpdates) {
-            yield setBookmarks(bookmarks);
-            yield sendBookmarksToUI();
+            messages.push('Bookmarks updated.');
         }
-        figma.notify('Emoji updated!');
-    }
-    else if (msg.type === 'clear-emoji') {
-        let anEmojiWasCleared = false;
+        figma.notify(messages.join(' '));
+    });
+}
+function handleClearEmoji(selectedLayers) {
+    return __awaiter(this, void 0, void 0, function* () {
         if (selectedLayers.length === 0) {
             figma.notify('Please select at least one layer.');
             return;
         }
-        // Get current bookmarks to check for updates
-        const bookmarks = yield getBookmarks();
+        let anEmojiWasCleared = false;
         let bookmarkUpdates = false;
         for (const layer of selectedLayers) {
-            let name = layer.name;
-            let emojiCleared = false;
-            for (const emoji of EMOJI_LIST) {
-                if (name.startsWith(emoji + ' ')) {
-                    name = name.substring((emoji + ' ').length);
-                    emojiCleared = true;
-                    break;
-                }
-            }
-            if (emojiCleared) {
+            const originalName = layer.name;
+            const cleanName = removeEmojiPrefix(originalName);
+            if (cleanName !== originalName) {
                 anEmojiWasCleared = true;
-                layer.name = name;
-                // Check if this layer is bookmarked and update it
-                const bookmark = bookmarks.find(b => b.id === layer.id);
-                if (bookmark && bookmark.name !== name) {
-                    figma.notify('Bookmark updated.');
-                    bookmark.name = name;
+                layer.name = cleanName;
+                // Update bookmark if it exists
+                if (yield updateBookmarkIfExists(layer.id, cleanName)) {
                     bookmarkUpdates = true;
                 }
             }
         }
-        // Save bookmark updates if any
-        if (bookmarkUpdates) {
-            yield setBookmarks(bookmarks);
-            yield sendBookmarksToUI();
-        }
         if (anEmojiWasCleared) {
-            figma.notify('Emoji cleared!');
+            const messages = ['Emoji cleared!'];
+            if (bookmarkUpdates) {
+                messages.push('Bookmarks updated.');
+            }
+            figma.notify(messages.join(' '));
         }
         else {
             figma.notify('No matching emoji to clear.');
         }
+    });
+}
+// --- Main Message Handler ---
+figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
+    const selectedLayers = figma.currentPage.selection;
+    try {
+        switch (msg.type) {
+            case 'ui-ready':
+                yield sendBookmarksToUI();
+                break;
+            case 'save-bookmark':
+                yield handleSaveBookmark(selectedLayers);
+                break;
+            case 'remove-bookmark':
+                yield handleRemoveBookmark(msg.id);
+                break;
+            case 'jump-to-bookmark':
+                yield handleJumpToBookmark(msg.id);
+                break;
+            case 'add-emoji':
+                yield handleAddEmoji(selectedLayers, msg.emoji);
+                break;
+            case 'clear-emoji':
+                yield handleClearEmoji(selectedLayers);
+                break;
+            case 'cancel':
+                figma.closePlugin();
+                break;
+            default:
+                console.warn('Unknown message type:', msg.type);
+        }
     }
-    else if (msg.type === 'cancel') {
-        figma.closePlugin();
+    catch (error) {
+        console.error('Error handling message:', error);
+        figma.notify('An error occurred. Please try again.');
     }
 });

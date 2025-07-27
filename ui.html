@@ -270,82 +270,125 @@
 </style>
 
 <script>
-  // Notify plugin UI is ready
+  // Helper function to send messages to plugin
+  function sendMessage(type, data = {}) {
+    parent.postMessage({ pluginMessage: { type, ...data } }, '*');
+  }
+
+  // Helper function to escape HTML
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Initialize UI when DOM is ready
   window.addEventListener('DOMContentLoaded', () => {
-    parent.postMessage({ pluginMessage: { type: 'ui-ready' } }, '*');
+    sendMessage('ui-ready');
+    
+    // Set up event listeners
+    setupEventListeners();
   });
 
-  // Color emoji buttons
-  document.querySelectorAll('.emoji-button').forEach(button => {
-    button.onclick = () => {
-      const emoji = button.textContent;
-      if (emoji && emoji.trim()) {
-        parent.postMessage({ pluginMessage: { type: 'add-emoji', emoji: emoji.trim() } }, '*');
-      }
-    };
-  });
-
-  // Clear Color button
-  document.getElementById('clear-color').onclick = () => {
-    parent.postMessage({ pluginMessage: { type: 'clear-emoji' } }, '*');
-  };
-
-  // Save Bookmark button
-  document.getElementById('save-bookmark').onclick = () => {
-    parent.postMessage({ pluginMessage: { type: 'save-bookmark' } }, '*');
-  };
-
-  // Collapsible sections
-  document.querySelectorAll('.collapsible').forEach(header => {
-    header.addEventListener('click', () => {
-      const targetId = header.getAttribute('data-target');
-      const content = document.getElementById(targetId);
-      const arrow = header.querySelector('.arrow');
-      const isCollapsed = content.classList.contains('collapsed');
-      
-      if (isCollapsed) {
-        content.classList.remove('collapsed');
-        arrow.textContent = '+';
-      } else {
-        content.classList.add('collapsed');
-        arrow.textContent = '-';
-      }
+  function setupEventListeners() {
+    // Color emoji buttons
+    document.querySelectorAll('.emoji-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const emoji = button.textContent?.trim();
+        if (emoji) {
+          sendMessage('add-emoji', { emoji });
+        }
+      });
     });
-  });
+
+    // Clear Color button
+    const clearButton = document.getElementById('clear-color');
+    if (clearButton) {
+      clearButton.addEventListener('click', () => {
+        sendMessage('clear-emoji');
+      });
+    }
+
+    // Save Bookmark button
+    const saveButton = document.getElementById('save-bookmark');
+    if (saveButton) {
+      saveButton.addEventListener('click', () => {
+        sendMessage('save-bookmark');
+      });
+    }
+
+    // Collapsible sections
+    document.querySelectorAll('.collapsible').forEach(header => {
+      header.addEventListener('click', () => {
+        toggleCollapsible(header);
+      });
+    });
+  }
+
+  function toggleCollapsible(header) {
+    const targetId = header.getAttribute('data-target');
+    const content = document.getElementById(targetId);
+    const arrow = header.querySelector('.arrow');
+    
+    if (!content || !arrow) return;
+    
+    const isCollapsed = content.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+      content.classList.remove('collapsed');
+      arrow.textContent = '+';
+    } else {
+      content.classList.add('collapsed');
+      arrow.textContent = '-';
+    }
+  }
 
   // Render bookmarks list
   function renderBookmarks(bookmarks) {
     const list = document.getElementById('bookmark-list');
+    if (!list) return;
+    
     list.innerHTML = '';
-    bookmarks.forEach(b => {
+    
+    bookmarks.forEach(bookmark => {
       const li = document.createElement('li');
       li.className = 'bookmark-item';
-             li.innerHTML = `
-         <span class="bookmark-name" title="${b.name}">${b.name}</span>
-         <button class="bookmark-remove" title="Remove">❌</button>
-       `;
+      li.innerHTML = `
+        <span class="bookmark-name" title="${escapeHtml(bookmark.name)}">${escapeHtml(bookmark.name)}</span>
+        <button class="bookmark-remove" title="Remove">❌</button>
+      `;
+      
       // Jump to bookmark on list item click
-      li.onclick = (event) => {
-        // Don't trigger if clicking the remove button
+      li.addEventListener('click', (event) => {
         if (!event.target.classList.contains('bookmark-remove')) {
-          parent.postMessage({ pluginMessage: { type: 'jump-to-bookmark', id: b.id } }, '*');
+          sendMessage('jump-to-bookmark', { id: bookmark.id });
         }
-      };
+      });
+      
       // Remove bookmark on ❌ click
-      li.querySelector('.bookmark-remove').onclick = (event) => {
-        event.stopPropagation(); // Prevent triggering the list item click
-        parent.postMessage({ pluginMessage: { type: 'remove-bookmark', id: b.id } }, '*');
-      };
+      const removeButton = li.querySelector('.bookmark-remove');
+      if (removeButton) {
+        removeButton.addEventListener('click', (event) => {
+          event.stopPropagation();
+          sendMessage('remove-bookmark', { id: bookmark.id });
+        });
+      }
+      
       list.appendChild(li);
     });
   }
 
   // Listen for messages from plugin
-  window.onmessage = (event) => {
+  window.addEventListener('message', (event) => {
     const msg = event.data.pluginMessage;
     if (!msg) return;
-    if (msg.type === 'bookmarks') {
-      renderBookmarks(msg.bookmarks);
+    
+    switch (msg.type) {
+      case 'bookmarks':
+        renderBookmarks(msg.bookmarks);
+        break;
+      default:
+        console.warn('Unknown message type:', msg.type);
     }
-  };
+  });
 </script>
