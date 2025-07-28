@@ -23,8 +23,8 @@
   <span class="arrow">-</span>
 </h3>
 <div id="anchors-section" class="collapsible-content">
-  <button id="save-bookmark">⚓ Drop Anchor</button>
   <ul id="bookmark-list"></ul>
+  <button id="save-bookmark">⚓ Drop Anchor</button>
 </div>
 
 <style>
@@ -135,6 +135,8 @@
     color: #666666;
     transform: translateY(-1px);
   }
+  
+
 
   .section-header {
     font-size: 10px;
@@ -193,26 +195,21 @@
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
-    position: relative;
   }
   
   #bookmark-list {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
-    padding-bottom: 50px;
+    margin-bottom: 8px;
   }
   
   #save-bookmark {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
     margin: 0;
     border-radius: 16px;
     background: #1a1a1a;
     border-top: 1px solid #2a2a2a;
+    flex-shrink: 0;
   }
   
   .collapsible-content.collapsed {
@@ -351,17 +348,28 @@
   }
 
   // Helper function to truncate text with ellipsis in the middle
-  function truncateWithMiddleEllipsis(text, maxLength = 20) {
-    if (text.length <= maxLength) {
-      return text;
+  function truncateWithMiddleEllipsis(text, maxLength = 24) {
+    // Trim leading spaces to preserve actual title content
+    const trimmedText = text.replace(/^\s+/, '');
+    const leadingSpaces = text.length - trimmedText.length;
+    
+    if (trimmedText.length <= maxLength) {
+      return text; // Return original if trimmed text fits
     }
     
-    const halfLength = Math.floor(maxLength / 2);
-    const start = text.substring(0, halfLength);
-    const end = text.substring(text.length - halfLength);
+    // Keep 10 characters on the back end, rest goes to front
+    const endLength = 10;
+    const startLength = maxLength - endLength - 1; // 1 for "…"
+    const start = trimmedText.substring(0, startLength);
+    const end = trimmedText.substring(trimmedText.length - endLength);
     
-    return start + '...' + end;
+    // Reconstruct with original leading spaces
+    const originalLeadingSpaces = text.substring(0, leadingSpaces);
+    return originalLeadingSpaces + start + '…' + end;
   }
+
+  // Track currently selected emoji for page operations
+
 
   // Initialize UI when DOM is ready
   window.addEventListener('DOMContentLoaded', () => {
@@ -389,6 +397,8 @@
         sendMessage('clear-emoji');
       });
     }
+
+
 
     // Save Bookmark button
     const saveButton = document.getElementById('save-bookmark');
@@ -435,7 +445,7 @@
       const li = document.createElement('li');
       li.className = 'bookmark-item';
       const pageName = bookmark.pageName || 'Unknown Page';
-      const truncatedPageName = pageName.length > 20 ? truncateWithMiddleEllipsis(pageName, 20) : pageName;
+      const truncatedPageName = pageName.length > 24 ? truncateWithMiddleEllipsis(pageName, 24) : pageName;
       
       li.innerHTML = `
         <div class="bookmark-content">

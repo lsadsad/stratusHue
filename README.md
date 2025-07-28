@@ -1,52 +1,98 @@
 # StrateHue
 
-A Figma plugin for strategic color coding and bookmarking of design elements.
+A powerful Figma plugin for strategic color coding and intelligent bookmarking of design elements. StrateHue helps designers organize their work with visual color indicators and quick navigation tools.
 
-## Features
-- **Color Coding**: Add emoji colors to layers for visual organization
-- **Smart Bookmarks**: Create and manage bookmarks to quickly navigate your design
-- **Collapsible Interface**: Clean, organized UI with collapsible sections
-- **Dark Mode**: Modern dark theme with cobalt accents
+## ✨ Features
 
-## Getting Started
+### 🎨 Smart Color Coding
+- **Layer & Page Emoji Support**: Add color emojis to both individual layers and entire pages
+- **Intelligent Replacement**: Automatically replaces existing color emojis while preserving position
+- **8 Color Options**: 🔴 🟠 🟡 🟢 🔵 🟣 ⚫️ ⚪️
+- **Context-Aware**: Automatically detects whether you're working with layers or pages
 
-Below are the steps to get your plugin running. You can also find instructions at:
+### 📍 Intelligent Bookmarking
+- **One-Click Bookmarks**: Save important design elements with a single click
+- **Page Context**: Each bookmark shows which page it's located on
+- **Smart Navigation**: Jump directly to bookmarked elements across pages
+- **Visual Organization**: Clean, scrollable list with hover effects
 
-  https://www.figma.com/plugin-docs/plugin-quickstart-guide/
+### 🎯 User Experience
+- **Collapsible Interface**: Clean, organized UI with expandable sections
+- **Dark Mode Design**: Modern dark theme with cobalt blue accents
+- **Responsive Layout**: Optimized for the Figma plugin window
+- **Smart Truncation**: Intelligent text handling for long names and titles
 
-This plugin template uses Typescript and NPM, two standard tools in creating JavaScript applications.
+## 🚀 Getting Started
 
-First, download Node.js which comes with NPM. This will allow you to install TypeScript and other
-libraries. You can find the download link here:
+### Installation
+1. Open Figma and go to **Plugins > Browse plugins in Community**
+2. Search for "StrateHue" and click **Install**
+3. Or install manually by copying the plugin files to your Figma plugins directory
 
-  https://nodejs.org/en/download/
+### Basic Usage
 
-Next, install TypeScript using the command:
+#### Adding Color Codes
+1. **For Layers**: Select one or more layers, then click any color emoji
+2. **For Pages**: Deselect all layers, then click any color emoji to apply to the current page
+3. **Clear Colors**: Use the "Clear Color" button to remove emojis from selected elements
 
-  npm install -g typescript
+#### Creating Bookmarks
+1. Select any layer you want to bookmark
+2. Click the **"⚓ Drop Anchor"** button
+3. Your bookmark will appear in the scrollable list below
 
-Finally, in the directory of your plugin, get the latest type definitions for the plugin API by running:
+#### Navigating with Bookmarks
+1. Click on any bookmark in the list to jump directly to that element
+2. The plugin will automatically switch to the correct page and select the element
+3. Use the **"x"** button to remove bookmarks you no longer need
 
-  npm install --save-dev @figma/plugin-typings
+## 🛠 Development
 
-If you are familiar with JavaScript, TypeScript will look very familiar. In fact, valid JavaScript code
-is already valid Typescript code.
+This plugin is built with TypeScript and uses modern web technologies for optimal performance.
 
-TypeScript adds type annotations to variables. This allows code editors such as Visual Studio Code
-to provide information about the Figma API while you are writing code, as well as help catch bugs
-you previously didn't notice.
+### Prerequisites
+- Node.js (download from https://nodejs.org/en/download/)
+- TypeScript: `npm install -g typescript`
 
-For more information, visit https://www.typescriptlang.org/
+### Setup
+1. Clone this repository
+2. Install dependencies: `npm install`
+3. Install Figma plugin typings: `npm install --save-dev @figma/plugin-typings`
+4. Build the project: `npm run build`
 
-Using TypeScript requires a compiler to convert TypeScript (code.ts) into JavaScript (code.js)
-for the browser to run.
+### Development Workflow
+1. Open the project in Visual Studio Code
+2. Run `npm run build` to compile TypeScript to JavaScript
+3. Use `npm run watch` for automatic compilation on file changes
+4. Test your changes in Figma by reloading the plugin
 
-We recommend writing TypeScript code using Visual Studio code:
+## 📁 Project Structure
 
-1. Download Visual Studio Code if you haven't already: https://code.visualstudio.com/.
-2. Open this directory in Visual Studio Code.
-3. Compile TypeScript to JavaScript: Run the "Terminal > Run Build Task..." menu item,
-    then select "npm: watch". You will have to do this again every time
-    you reopen Visual Studio Code.
+```
+StrateHue/
+├── code.ts          # Main plugin logic (TypeScript)
+├── ui.html          # Plugin interface (HTML/CSS/JS)
+├── manifest.json    # Plugin configuration
+├── package.json     # Dependencies and scripts
+└── README.md        # This file
+```
 
-That's it! Visual Studio Code will regenerate the JavaScript file every time you save.
+## 🎨 Design Philosophy
+
+StrateHue is designed with the modern designer in mind:
+- **Minimalist Interface**: Clean, distraction-free UI
+- **Intuitive Workflow**: Actions that feel natural and efficient
+- **Visual Hierarchy**: Clear organization with proper spacing and typography
+- **Responsive Feedback**: Immediate visual feedback for all interactions
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+**Made with ❤️ for the Figma community**

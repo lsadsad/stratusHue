@@ -73,6 +73,21 @@ function removeEmojiPrefix(name: string): string {
   return name;
 }
 
+// --- Helper to replace any color emoji in a string with a new one ---
+
+function replaceColorEmoji(name: string, newEmoji: string): string {
+  // Find any existing color emoji in the string
+  for (const emoji of EMOJI_LIST) {
+    if (name.includes(emoji)) {
+      // Replace the existing emoji with the new one, keeping it in the same position
+      return name.replace(emoji, newEmoji);
+    }
+  }
+  
+  // If no color emoji found, add the new emoji at the beginning
+  return newEmoji + ' ' + name;
+}
+
 // --- Helper to update bookmark name if it exists ---
 
 async function updateBookmarkIfExists(layerId: string, newName: string): Promise<boolean> {
@@ -201,67 +216,141 @@ async function handleJumpToBookmark(bookmarkId: string) {
   }
 }
 
-async function handleAddEmoji(selectedLayers: readonly SceneNode[], emoji: string) {
-  if (selectedLayers.length === 0) {
-    figma.notify('Please select at least one layer.');
-    return;
-  }
-  
-  let bookmarkUpdates = false;
-  
-  for (const layer of selectedLayers) {
-    const cleanName = removeEmojiPrefix(layer.name);
-    const newName = emoji + ' ' + cleanName;
-    layer.name = newName;
-    
-    // Update bookmark if it exists
-    if (await updateBookmarkIfExists(layer.id, newName)) {
-      bookmarkUpdates = true;
-    }
-  }
-  
-  const messages = ['Emoji updated!'];
-  if (bookmarkUpdates) {
-    messages.push('Bookmarks updated.');
-  }
-  
-  figma.notify(messages.join(' '));
-}
+// --- Helper to add emoji to selected layers or current page ---
 
-async function handleClearEmoji(selectedLayers: readonly SceneNode[]) {
-  if (selectedLayers.length === 0) {
-    figma.notify('Please select at least one layer.');
-    return;
-  }
-  
-  let anEmojiWasCleared = false;
-  let bookmarkUpdates = false;
-  
-  for (const layer of selectedLayers) {
-    const originalName = layer.name;
-    const cleanName = removeEmojiPrefix(originalName);
+async function handleAddEmoji(selectedLayers: readonly SceneNode[], emoji: string) {
+  // Check if any layers are selected
+  if (selectedLayers.length > 0) {
+    // Apply emoji to selected layers
+    let bookmarkUpdates = false;
     
-    if (cleanName !== originalName) {
-      anEmojiWasCleared = true;
-      layer.name = cleanName;
+    for (const layer of selectedLayers) {
+      const cleanName = removeEmojiPrefix(layer.name);
+      const newName = emoji + ' ' + cleanName;
+      layer.name = newName;
       
       // Update bookmark if it exists
-      if (await updateBookmarkIfExists(layer.id, cleanName)) {
+      if (await updateBookmarkIfExists(layer.id, newName)) {
         bookmarkUpdates = true;
       }
     }
-  }
-  
-  if (anEmojiWasCleared) {
-    const messages = ['Emoji cleared!'];
+    
+    const messages = ['Layer emoji updated!'];
     if (bookmarkUpdates) {
       messages.push('Bookmarks updated.');
     }
+    
     figma.notify(messages.join(' '));
   } else {
-    figma.notify('No matching emoji to clear.');
+    // No layers selected, apply emoji to current page
+    const currentPage = figma.currentPage;
+    const newName = replaceColorEmoji(currentPage.name, emoji);
+    currentPage.name = newName;
+    
+    // Update all bookmarks on this page to reflect the new page name
+    const bookmarks = await getBookmarks();
+    let bookmarkUpdates = false;
+    
+    for (const bookmark of bookmarks) {
+      try {
+        const node = await figma.getNodeByIdAsync(bookmark.id);
+        if (node && 'parent' in node) {
+          let currentNode: BaseNode = node;
+          while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
+            currentNode = currentNode.parent;
+          }
+          if (currentNode.parent?.id === currentPage.id) {
+            bookmark.pageName = newName;
+            bookmarkUpdates = true;
+          }
+        }
+      } catch (error) {
+        // Skip if node doesn't exist
+      }
+    }
+    
+    if (bookmarkUpdates) {
+      await updateAndSaveBookmarks(bookmarks);
+    }
+    
+    figma.notify(`Page emoji updated! ${bookmarkUpdates ? 'Bookmarks updated.' : ''}`);
   }
 }
+
+async function handleClearEmoji(selectedLayers: readonly SceneNode[]) {
+  // Check if any layers are selected
+  if (selectedLayers.length > 0) {
+    // Clear emoji from selected layers
+    let anEmojiWasCleared = false;
+    let bookmarkUpdates = false;
+    
+    for (const layer of selectedLayers) {
+      const originalName = layer.name;
+      const cleanName = removeEmojiPrefix(originalName);
+      
+      if (cleanName !== originalName) {
+        anEmojiWasCleared = true;
+        layer.name = cleanName;
+        
+        // Update bookmark if it exists
+        if (await updateBookmarkIfExists(layer.id, cleanName)) {
+          bookmarkUpdates = true;
+        }
+      }
+    }
+    
+    if (anEmojiWasCleared) {
+      const messages = ['Layer emoji cleared!'];
+      if (bookmarkUpdates) {
+        messages.push('Bookmarks updated.');
+      }
+      figma.notify(messages.join(' '));
+    } else {
+      figma.notify('No matching emoji to clear from layers.');
+    }
+  } else {
+    // No layers selected, clear emoji from current page
+    const currentPage = figma.currentPage;
+    const originalName = currentPage.name;
+    const cleanName = removeEmojiPrefix(originalName);
+    
+    if (cleanName !== originalName) {
+      currentPage.name = cleanName;
+      
+      // Update all bookmarks on this page to reflect the new page name
+      const bookmarks = await getBookmarks();
+      let bookmarkUpdates = false;
+      
+      for (const bookmark of bookmarks) {
+        try {
+          const node = await figma.getNodeByIdAsync(bookmark.id);
+          if (node && 'parent' in node) {
+            let currentNode: BaseNode = node;
+            while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
+              currentNode = currentNode.parent;
+            }
+            if (currentNode.parent?.id === currentPage.id) {
+              bookmark.pageName = cleanName;
+              bookmarkUpdates = true;
+            }
+          }
+        } catch (error) {
+          // Skip if node doesn't exist
+        }
+      }
+      
+      if (bookmarkUpdates) {
+        await updateAndSaveBookmarks(bookmarks);
+      }
+      
+      figma.notify(`Page emoji cleared! ${bookmarkUpdates ? 'Bookmarks updated.' : ''}`);
+    } else {
+      figma.notify('No matching emoji to clear from page title.');
+    }
+  }
+}
+
+
 
 // --- Main Message Handler ---
 figma.ui.onmessage = async (msg) => {
