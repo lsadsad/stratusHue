@@ -11,22 +11,63 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'];
 // --- Helper functions for file-specific bookmark storage ---
+// Helper to find the containing page for any node
+function getContainingPage(node) {
+    var _a;
+    let currentNode = node;
+    while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
+        currentNode = currentNode.parent;
+    }
+    return ((_a = currentNode.parent) === null || _a === void 0 ? void 0 : _a.type) === 'PAGE' ? currentNode.parent : null;
+}
+// Helper to get page name for a node
+function getPageName(node) {
+    const page = getContainingPage(node);
+    return (page === null || page === void 0 ? void 0 : page.name) || 'Unknown Page';
+}
+// Helper to update bookmarks for a specific page
+function updateBookmarksForPage(pageId, newPageName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const bookmarks = yield getBookmarks();
+        let bookmarkUpdates = false;
+        for (const bookmark of bookmarks) {
+            try {
+                const node = yield figma.getNodeByIdAsync(bookmark.id);
+                if (node && 'parent' in node) {
+                    const page = getContainingPage(node);
+                    if ((page === null || page === void 0 ? void 0 : page.id) === pageId) {
+                        bookmark.pageName = newPageName;
+                        bookmarkUpdates = true;
+                    }
+                }
+            }
+            catch (error) {
+                // Skip if node doesn't exist
+                console.log('Node not found during bookmark update:', bookmark.id);
+            }
+        }
+        if (bookmarkUpdates) {
+            yield updateAndSaveBookmarks(bookmarks);
+        }
+        return bookmarkUpdates;
+    });
+}
 function getBookmarks() {
     return __awaiter(this, void 0, void 0, function* () {
         const data = figma.root.getPluginData('bookmarks');
         const bookmarks = data ? JSON.parse(data) : [];
+        // Check if migration is needed
+        const migrationVersion = figma.root.getPluginData('migrationVersion') || '0';
+        if (migrationVersion === '1') {
+            return bookmarks;
+        }
         // Migrate old bookmarks that don't have pageName
         const migratedBookmarks = yield Promise.all(bookmarks.map((bookmark) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
             if (!bookmark.pageName) {
                 try {
                     const node = yield figma.getNodeByIdAsync(bookmark.id);
                     if (node && 'parent' in node) {
-                        let currentNode = node;
-                        while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
-                            currentNode = currentNode.parent;
-                        }
-                        bookmark.pageName = ((_a = currentNode.parent) === null || _a === void 0 ? void 0 : _a.type) === 'PAGE' ? currentNode.parent.name : 'Unknown Page';
+                        bookmark.pageName = getPageName(node);
                     }
                     else {
                         bookmark.pageName = 'Unknown Page';
@@ -34,14 +75,14 @@ function getBookmarks() {
                 }
                 catch (error) {
                     bookmark.pageName = 'Unknown Page';
+                    console.log('Failed to migrate bookmark:', bookmark.id, error);
                 }
             }
             return bookmark;
         })));
-        // Save migrated bookmarks if any were updated
-        if (migratedBookmarks.some((bookmark, index) => { var _a; return !((_a = bookmarks[index]) === null || _a === void 0 ? void 0 : _a.pageName); })) {
-            yield setBookmarks(migratedBookmarks);
-        }
+        // Save migrated bookmarks and mark migration as complete
+        yield setBookmarks(migratedBookmarks);
+        figma.root.setPluginData('migrationVersion', '1');
         return migratedBookmarks;
     });
 }
@@ -88,7 +129,6 @@ function replaceColorEmoji(name, newEmoji) {
 // --- Helper to update bookmark name if it exists ---
 function updateBookmarkIfExists(layerId, newName) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         const bookmarks = yield getBookmarks();
         const bookmark = bookmarks.find(b => b.id === layerId);
         if (bookmark && bookmark.name !== newName) {
@@ -97,15 +137,12 @@ function updateBookmarkIfExists(layerId, newName) {
             try {
                 const node = yield figma.getNodeByIdAsync(layerId);
                 if (node && 'parent' in node) {
-                    let currentNode = node;
-                    while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
-                        currentNode = currentNode.parent;
-                    }
-                    bookmark.pageName = ((_a = currentNode.parent) === null || _a === void 0 ? void 0 : _a.type) === 'PAGE' ? currentNode.parent.name : 'Unknown Page';
+                    bookmark.pageName = getPageName(node);
                 }
             }
             catch (error) {
                 // If we can't get the node, keep the existing page name
+                console.log('Failed to update bookmark page name:', layerId, error);
             }
             yield updateAndSaveBookmarks(bookmarks);
             return true;
@@ -124,14 +161,9 @@ function cleanupBookmark(bookmarkId) {
 // --- Helper to navigate to a node ---
 function navigateToNode(node) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         // Find containing page
-        let currentNode = node;
-        while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
-            currentNode = currentNode.parent;
-        }
-        if (((_a = currentNode.parent) === null || _a === void 0 ? void 0 : _a.type) === 'PAGE') {
-            const targetPage = currentNode.parent;
+        const targetPage = getContainingPage(node);
+        if (targetPage) {
             // Switch to correct page if needed
             if (figma.currentPage !== targetPage) {
                 yield figma.setCurrentPageAsync(targetPage);
@@ -140,7 +172,7 @@ function navigateToNode(node) {
             if ('visible' in node && node.visible) {
                 figma.currentPage.selection = [node];
                 figma.viewport.scrollAndZoomIntoView([node]);
-                figma.notify('Jumped to: ' + node.name + ' (Page: ' + targetPage.name + ')');
+                figma.notify(`Jumped to: ${node.name} (Page: ${targetPage.name})`);
             }
         }
         else {
@@ -153,7 +185,6 @@ figma.showUI(__html__, { width: 192, height: 352 });
 // --- Message Handlers ---
 function handleSaveBookmark(selectedLayers) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         if (selectedLayers.length === 0) {
             figma.notify('Please select a layer to bookmark.');
             return;
@@ -162,11 +193,7 @@ function handleSaveBookmark(selectedLayers) {
         const bookmarks = yield getBookmarks();
         const existingBookmarkIndex = bookmarks.findIndex(b => b.id === node.id);
         // Get the page name
-        let currentNode = node;
-        while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
-            currentNode = currentNode.parent;
-        }
-        const pageName = ((_a = currentNode.parent) === null || _a === void 0 ? void 0 : _a.type) === 'PAGE' ? currentNode.parent.name : 'Unknown Page';
+        const pageName = getPageName(node);
         if (existingBookmarkIndex !== -1) {
             // Update existing bookmark name if it has changed
             if (bookmarks[existingBookmarkIndex].name !== node.name) {
@@ -214,22 +241,35 @@ function handleJumpToBookmark(bookmarkId) {
     });
 }
 // --- Helper to add emoji to selected layers or current page ---
+function updateLayerEmojis(layers, emoji) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let bookmarkUpdates = false;
+        for (const layer of layers) {
+            const cleanName = removeEmojiPrefix(layer.name);
+            const newName = emoji + ' ' + cleanName;
+            layer.name = newName;
+            // Update bookmark if it exists
+            if (yield updateBookmarkIfExists(layer.id, newName)) {
+                bookmarkUpdates = true;
+            }
+        }
+        return bookmarkUpdates;
+    });
+}
+function updatePageEmoji(page, emoji) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const newName = replaceColorEmoji(page.name, emoji);
+        page.name = newName;
+        // Update all bookmarks on this page to reflect the new page name
+        return yield updateBookmarksForPage(page.id, newName);
+    });
+}
 function handleAddEmoji(selectedLayers, emoji) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         // Check if any layers are selected
         if (selectedLayers.length > 0) {
             // Apply emoji to selected layers
-            let bookmarkUpdates = false;
-            for (const layer of selectedLayers) {
-                const cleanName = removeEmojiPrefix(layer.name);
-                const newName = emoji + ' ' + cleanName;
-                layer.name = newName;
-                // Update bookmark if it exists
-                if (yield updateBookmarkIfExists(layer.id, newName)) {
-                    bookmarkUpdates = true;
-                }
-            }
+            const bookmarkUpdates = yield updateLayerEmojis(selectedLayers, emoji);
             const messages = ['Layer emoji updated!'];
             if (bookmarkUpdates) {
                 messages.push('Bookmarks updated.');
@@ -238,58 +278,50 @@ function handleAddEmoji(selectedLayers, emoji) {
         }
         else {
             // No layers selected, apply emoji to current page
-            const currentPage = figma.currentPage;
-            const newName = replaceColorEmoji(currentPage.name, emoji);
-            currentPage.name = newName;
-            // Update all bookmarks on this page to reflect the new page name
-            const bookmarks = yield getBookmarks();
-            let bookmarkUpdates = false;
-            for (const bookmark of bookmarks) {
-                try {
-                    const node = yield figma.getNodeByIdAsync(bookmark.id);
-                    if (node && 'parent' in node) {
-                        let currentNode = node;
-                        while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
-                            currentNode = currentNode.parent;
-                        }
-                        if (((_a = currentNode.parent) === null || _a === void 0 ? void 0 : _a.id) === currentPage.id) {
-                            bookmark.pageName = newName;
-                            bookmarkUpdates = true;
-                        }
-                    }
-                }
-                catch (error) {
-                    // Skip if node doesn't exist
-                }
-            }
-            if (bookmarkUpdates) {
-                yield updateAndSaveBookmarks(bookmarks);
-            }
+            const bookmarkUpdates = yield updatePageEmoji(figma.currentPage, emoji);
             figma.notify(`Page emoji updated! ${bookmarkUpdates ? 'Bookmarks updated.' : ''}`);
         }
     });
 }
+function clearLayerEmojis(layers) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let anEmojiWasCleared = false;
+        let bookmarkUpdates = false;
+        for (const layer of layers) {
+            const originalName = layer.name;
+            const cleanName = removeEmojiPrefix(originalName);
+            if (cleanName !== originalName) {
+                anEmojiWasCleared = true;
+                layer.name = cleanName;
+                // Update bookmark if it exists
+                if (yield updateBookmarkIfExists(layer.id, cleanName)) {
+                    bookmarkUpdates = true;
+                }
+            }
+        }
+        return { emojiCleared: anEmojiWasCleared, bookmarkUpdates };
+    });
+}
+function clearPageEmoji(page) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const originalName = page.name;
+        const cleanName = removeEmojiPrefix(originalName);
+        if (cleanName !== originalName) {
+            page.name = cleanName;
+            // Update all bookmarks on this page to reflect the new page name
+            const bookmarkUpdates = yield updateBookmarksForPage(page.id, cleanName);
+            return { emojiCleared: true, bookmarkUpdates };
+        }
+        return { emojiCleared: false, bookmarkUpdates: false };
+    });
+}
 function handleClearEmoji(selectedLayers) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         // Check if any layers are selected
         if (selectedLayers.length > 0) {
             // Clear emoji from selected layers
-            let anEmojiWasCleared = false;
-            let bookmarkUpdates = false;
-            for (const layer of selectedLayers) {
-                const originalName = layer.name;
-                const cleanName = removeEmojiPrefix(originalName);
-                if (cleanName !== originalName) {
-                    anEmojiWasCleared = true;
-                    layer.name = cleanName;
-                    // Update bookmark if it exists
-                    if (yield updateBookmarkIfExists(layer.id, cleanName)) {
-                        bookmarkUpdates = true;
-                    }
-                }
-            }
-            if (anEmojiWasCleared) {
+            const { emojiCleared, bookmarkUpdates } = yield clearLayerEmojis(selectedLayers);
+            if (emojiCleared) {
                 const messages = ['Layer emoji cleared!'];
                 if (bookmarkUpdates) {
                     messages.push('Bookmarks updated.');
@@ -302,35 +334,8 @@ function handleClearEmoji(selectedLayers) {
         }
         else {
             // No layers selected, clear emoji from current page
-            const currentPage = figma.currentPage;
-            const originalName = currentPage.name;
-            const cleanName = removeEmojiPrefix(originalName);
-            if (cleanName !== originalName) {
-                currentPage.name = cleanName;
-                // Update all bookmarks on this page to reflect the new page name
-                const bookmarks = yield getBookmarks();
-                let bookmarkUpdates = false;
-                for (const bookmark of bookmarks) {
-                    try {
-                        const node = yield figma.getNodeByIdAsync(bookmark.id);
-                        if (node && 'parent' in node) {
-                            let currentNode = node;
-                            while (currentNode.parent && currentNode.parent.type !== 'PAGE') {
-                                currentNode = currentNode.parent;
-                            }
-                            if (((_a = currentNode.parent) === null || _a === void 0 ? void 0 : _a.id) === currentPage.id) {
-                                bookmark.pageName = cleanName;
-                                bookmarkUpdates = true;
-                            }
-                        }
-                    }
-                    catch (error) {
-                        // Skip if node doesn't exist
-                    }
-                }
-                if (bookmarkUpdates) {
-                    yield updateAndSaveBookmarks(bookmarks);
-                }
+            const { emojiCleared, bookmarkUpdates } = yield clearPageEmoji(figma.currentPage);
+            if (emojiCleared) {
                 figma.notify(`Page emoji cleared! ${bookmarkUpdates ? 'Bookmarks updated.' : ''}`);
             }
             else {

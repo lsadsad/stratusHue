@@ -37,17 +37,18 @@
     box-sizing: border-box;
   }
   body {
-    padding: 12px;
+    padding: 0px;
     min-width: 176px;
     min-height: 256px;
     max-width: 192px;
     max-height: 352px;
     overflow-y: auto;
     overflow-x: hidden;
-    background: #1a1a1a;
+    background: #0f0f0f;
     color: #e0e0e0;
     display: flex;
     flex-direction: column;
+    border: 1px solid #2a2a2a;
   }
 
   /* Custom scrollbar styling */
@@ -56,29 +57,32 @@
   }
 
   body::-webkit-scrollbar-track {
-    background: #2a2a2a;
+    background: #0f0f0f;
     border-radius: 2px;
   }
 
   body::-webkit-scrollbar-thumb {
-    background: #4a4a4a;
+    background: #404040;
     border-radius: 2px;
     transition: background 0.2s ease;
   }
 
   body::-webkit-scrollbar-thumb:hover {
-    background: #5a5a5a;
+    background: #505050;
   }
 
   /* Firefox scrollbar styling */
   body {
     scrollbar-width: thin;
-    scrollbar-color: #4a4a4a #2a2a2a;
+    scrollbar-color: #404040 #0f0f0f;
   }
+  
   body, button, h3 {
     font-family: 'Source Code Pro', 'Courier New', Courier, monospace;
     font-weight: bold;
+    font-size: 12px;
   }
+  
   #color-emoji-buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -86,8 +90,9 @@
     margin: 8px auto 6px auto;
     max-width: 144px;
   }
+  
   .emoji-button {
-    font-size: 12px;
+    font-size: 14px;
     width: 32px;
     height: 32px;
     display: flex;
@@ -95,66 +100,65 @@
     justify-content: center;
     text-align: center;
     cursor: pointer;
-    border-radius: 5px;
-    border: 1px solid #3b3b3b;
-    background: #2a2a2a;
-    transition: background 0.2s, border 0.2s;
+    border-radius: 3px;
+    border: none;
+    background: #1a1a1a;
+    transition: all 0.2s ease;
     box-sizing: border-box;
     padding: 0;
     margin: 0;
   }
+  
   .emoji-button:hover {
-    background: #3a3a3a;
-    border: 1px solid #484848;
+    background: #2a2a2a;
+    color: #ffffff;
   }
+  
   #clear-color-section {
     margin-bottom: 8px;
     display: flex;
     justify-content: center;
   }
+  
   #action-buttons {
     display: flex;
     justify-content: space-between;
     margin-top: 16px;
   }
+  
   #clear-color {
     padding: 5px 10px;
-    font-size: 9px;
-    border-radius: 5px;
-    border: 1px solid #3b3b3b;
-    background: transparent;
-    color: #a0a0a0;
+    font-size: 11px;
+    border-radius: 3px;
+    border: none;
+    background: #1a1a1a;
+    color: #b0b0b0;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s ease;
     width: 144px;
   }
+  
   #clear-color:hover {
     background: #2a2a2a;
-    border: 1px solid #484848;
-    color: #666666;
-    transform: translateY(-1px);
+    color: #ffffff;
   }
-  
-
 
   .section-header {
-    font-size: 10px;
-    margin: 0 0 10px 0;
+    font-size: 12px;
+    margin: 0 0 12px 0;
     font-weight: bold;
     letter-spacing: 0.5px;
-    color: #e0e0e0;
+    color: #b0b0b0;
     text-transform: uppercase;
     padding-bottom: 3px;
     text-align: left;
   }
   
-
-  
   .collapsible {
     cursor: pointer;
     user-select: none;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -162,19 +166,24 @@
     box-sizing: border-box;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 4px;
-    padding: 8px 6px 8px 4px;
+    border-radius: 3px;
+    padding: 8px 6px 8px 6px;
     margin: 0;
   }
   
   .arrow {
     font-size: 12px;
     font-weight: bold;
+    color: #b0b0b0;
   }
   
   .collapsible:hover {
-    background: #3a3a3a;
-    border: 1px solid #3b3b3b;
+    background: #2a2a2a;
+    border: 1px solid #404040;
+  }
+  
+  .collapsible:hover .arrow {
+    color: #ffffff;
   }
   
   .collapsible-content {
@@ -206,9 +215,9 @@
   
   #save-bookmark {
     margin: 0;
-    border-radius: 16px;
+    border-radius: 3px;
     background: #1a1a1a;
-    border-top: 1px solid #2a2a2a;
+    border-top: 1px solid #404040;
     flex-shrink: 0;
   }
   
@@ -216,70 +225,79 @@
     max-height: 0;
     opacity: 0;
   }
+  
   .section-header:first-child {
     margin-top: 0;
   }
+  
   .section-divider {
     border: none;
-    border-top: 1px solid #e0e0e0;
-    margin: 18px 0 10px 0;
+    border-top: 1px solid #404040;
+    margin: 18px 0 12px 0;
   }
 
   #save-bookmark {
     padding: 6px 8px 6px 8px;
-    font-size: 10px;
-    border: 1px solid #0052a3;
-    background: #0066cc;
-    color: white;
+    font-size: 11px;
+    border: none;
+    background: #2a2a2a;
+    color: #ffffff;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s ease;
     width: 100%;
     display: block;
   }
+  
   #save-bookmark:hover {
-    background: #0052a3;
-    border: 1px solid #004080;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.3);
+    background: #404040;
   }
+  
   #bookmark-list {
     list-style: none;
     padding: 0;
     margin: 0;
   }
+  
   .bookmark-item {
     display: flex;
     align-items: center;
-    margin-bottom: 4px;
-    font-size: 9px;
-    background: #222222;
-    border-radius: 4px;
-    padding: 0;
+    margin-bottom: 0;
+    font-size: 11px;
+    background: transparent;
+    border-radius: 0;
+    padding: 6px 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-    border: 1px solid #2a2a2a;
+    border: none;
     position: relative;
     overflow: hidden;
   }
-  .bookmark-item:hover {
-    background: #0066cc;
-    color: #fff;
-    border-color: #0052a3;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 102, 204, 0.3);
-  }
   
+  .bookmark-item:hover {
+    background: #2a2a2a;
+    color: #ffffff;
+    border-radius: 3px;
+  }
 
   .bookmark-item:hover .bookmark-name {
-    color: #fff;
+    color: #ffffff;
+  }
+
+  .bookmark-divider {
+    text-align: left;
+    color: #404040;
+    font-size: 10px;
+    margin: 0;
+    line-height: .2;
+    user-select: none;
   }
 
   .bookmark-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 4px 28px 4px 4px;
+    padding: 2px 24px 2px 2px;
     cursor: pointer;
   }
   
@@ -289,14 +307,16 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: #e0e0e0;
   }
+  
   .bookmark-page {
-    font-size: 8px;
-    color: #a0a0a0;
+    font-size: 10px;
+    color: #808080;
     font-weight: normal;
-    margin-top: 1px;
+    margin-top: 0px;
     opacity: 0.9;
-    padding-left: 4px;
+    padding-left: 2px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -304,20 +324,21 @@
     -webkit-box-orient: vertical;
     line-height: 1.2;
   }
+  
   .bookmark-remove {
-    color: #ffffff;
+    color: #808080;
     background: none;
     border: none;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: normal;
     cursor: pointer;
     padding: 0;
     margin: 0;
     border-radius: 0;
     transition: all 0.2s ease;
-    opacity: 0.5;
+    opacity: 0.7;
     flex-shrink: 0;
-    width: 24px;
+    width: 20px;
     height: 100%;
     display: flex;
     align-items: center;
@@ -326,11 +347,11 @@
     right: 0;
     top: 0;
   }
+  
   .bookmark-remove:hover {
-    background: #3a2a2a;
+    background: #2a2a2a;
     color: #ff6b6b;
     opacity: 1;
-    transform: scale(1.1);
   }
 </style>
 
@@ -441,7 +462,16 @@
     
     list.innerHTML = '';
     
-    bookmarks.forEach(bookmark => {
+    // Add divider above the list
+    if (bookmarks.length > 0) {
+      const topDivider = document.createElement('div');
+      topDivider.className = 'bookmark-divider';
+      topDivider.textContent = ' - - - - - - - - - - - - - - -';
+      list.appendChild(topDivider);
+    }
+    
+    bookmarks.forEach((bookmark, index) => {
+      // Add bookmark item
       const li = document.createElement('li');
       li.className = 'bookmark-item';
       const pageName = bookmark.pageName || 'Unknown Page';
@@ -473,7 +503,23 @@
       }
       
       list.appendChild(li);
+      
+      // Add divider after each bookmark (except the last one)
+      if (index < bookmarks.length - 1) {
+        const divider = document.createElement('div');
+        divider.className = 'bookmark-divider';
+        divider.textContent = ' - - - - - - - - - - - - - - - ';
+        list.appendChild(divider);
+      }
     });
+    
+    // Add divider below the list
+    if (bookmarks.length > 0) {
+      const bottomDivider = document.createElement('div');
+      bottomDivider.className = 'bookmark-divider';
+      bottomDivider.textContent = ' - - - - - - - - - - - - - - - ';
+      list.appendChild(bottomDivider);
+    }
   }
 
   // Listen for messages from plugin
