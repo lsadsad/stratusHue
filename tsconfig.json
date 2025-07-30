@@ -3,9 +3,9 @@
     "target": "es6",
     "lib": ["es2019"],
     "strict": true,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/@figma"
-    ]
+    "types": ["@figma/plugin-typings"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true
   }
 }
