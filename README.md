@@ -6,9 +6,10 @@ A powerful Figma plugin for strategic color coding and intelligent bookmarking o
 
 ### 🎨 Smart Color Coding
 - **Layer & Page Emoji Support**: Add color emojis to both individual layers and entire pages
+- **Context-Aware Selection**: Automatically switches between square emojis (🟥🟧🟨🟩🟦🟪⬛⬜) for layers and circle emojis (🔴🟠🟡🟢🔵🟣⚫️⚪️) for pages
 - **Intelligent Replacement**: Automatically replaces existing color emojis while preserving position
-- **8 Color Options**: 🔴 🟠 🟡 🟢 🔵 🟣 ⚫️ ⚪️
-- **Context-Aware**: Automatically detects whether you're working with layers or pages
+- **Visual Mode Indicator**: Shows "(Layer)" or "(Page)" to indicate current mode
+- **Smart Detection**: Automatically detects whether you're working with layers or pages based on selection
 
 ### 📍 Intelligent Bookmarking
 - **One-Click Bookmarks**: Save important design elements with a single click
@@ -32,9 +33,10 @@ A powerful Figma plugin for strategic color coding and intelligent bookmarking o
 ### Basic Usage
 
 #### Adding Color Codes
-1. **For Layers**: Select one or more layers, then click any color emoji
-2. **For Pages**: Deselect all layers, then click any color emoji to apply to the current page
-3. **Clear Colors**: Use the "Clear Color" button to remove emojis from selected elements
+1. **For Layers**: Select one or more layers - the plugin will show square emojis (🟥🟧🟨🟩🟦🟪⬛⬜) and display "(Layer)" indicator
+2. **For Pages**: Deselect all layers - the plugin will show circle emojis (🔴🟠🟡🟢🔵🟣⚫️⚪️) and display "(Page)" indicator
+3. **Automatic Switching**: The emoji set and indicator automatically update based on your current selection
+4. **Clear Colors**: Use the "Clear Color" button to remove emojis from selected elements
 
 #### Creating Bookmarks
 1. Select any layer you want to bookmark

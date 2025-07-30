@@ -1,6 +1,7 @@
 // StrateHue: A Figma plugin for layer tagging and navigation.
 
-const EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'];
+const LAYER_EMOJI_LIST = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜']; // Square emojis for layers
+const PAGE_EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️']; // Circle emojis for pages
 
 // --- Bookmark Type Definition ---
 interface Bookmark {
@@ -107,6 +108,20 @@ async function sendBookmarksToUI() {
   figma.ui.postMessage({ type: 'bookmarks', bookmarks });
 }
 
+// --- Helper to send selection state to the UI ---
+
+function sendSelectionStateToUI() {
+  const selectedLayers = figma.currentPage.selection;
+  const hasLayerSelected = selectedLayers.length > 0;
+  
+  figma.ui.postMessage({ 
+    type: 'selection-state', 
+    hasLayerSelected,
+    layerEmojis: LAYER_EMOJI_LIST,
+    pageEmojis: PAGE_EMOJI_LIST
+  });
+}
+
 // --- Helper to update and persist bookmarks ---
 
 async function updateAndSaveBookmarks(bookmarks: Bookmark[]) {
@@ -117,7 +132,8 @@ async function updateAndSaveBookmarks(bookmarks: Bookmark[]) {
 // --- Helper to remove emoji prefix from layer name ---
 
 function removeEmojiPrefix(name: string): string {
-  for (const emoji of EMOJI_LIST) {
+  // Check both layer and page emojis
+  for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) {
     if (name.startsWith(emoji + ' ')) {
       return name.substring((emoji + ' ').length);
     }
@@ -128,8 +144,8 @@ function removeEmojiPrefix(name: string): string {
 // --- Helper to replace any color emoji in a string with a new one ---
 
 function replaceColorEmoji(name: string, newEmoji: string): string {
-  // Find any existing color emoji in the string
-  for (const emoji of EMOJI_LIST) {
+  // Find any existing color emoji in the string (check both lists)
+  for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) {
     if (name.includes(emoji)) {
       // Replace the existing emoji with the new one, keeping it in the same position
       return name.replace(emoji, newEmoji);
@@ -197,6 +213,11 @@ async function navigateToNode(node: BaseNode & { name: string }) {
 
 // --- Plugin UI Setup ---
 figma.showUI(__html__, { width: 192, height: 352 });
+
+// Listen for selection changes
+figma.on('selectionchange', () => {
+  sendSelectionStateToUI();
+});
 
 // --- Message Handlers ---
 
@@ -369,6 +390,42 @@ async function handleClearEmoji(selectedLayers: readonly SceneNode[]) {
 
 
 
+// --- Helper functions for creating new pages and layers ---
+
+async function handleCreateNewPage(title: string) {
+  try {
+    const newPage = figma.createPage();
+    newPage.name = title;
+    figma.setCurrentPageAsync(newPage);
+    figma.notify('New page created!');
+  } catch (error) {
+    console.error('Error creating new page:', error);
+    figma.notify('Failed to create new page. Please try again.');
+  }
+}
+
+async function handleCreateNewLayer(title: string) {
+  try {
+    const selectedLayers = figma.currentPage.selection;
+    
+    if (selectedLayers.length === 0) {
+      figma.notify('Please select a layer to add the date prefix to.');
+      return;
+    }
+    
+    // Apply the date prefix to all selected layers
+    for (const layer of selectedLayers) {
+      const originalName = layer.name;
+      layer.name = title + originalName;
+    }
+    
+    figma.notify(`Date prefix added to ${selectedLayers.length} layer${selectedLayers.length > 1 ? 's' : ''}!`);
+  } catch (error) {
+    console.error('Error adding date prefix to layer:', error);
+    figma.notify('Failed to add date prefix. Please try again.');
+  }
+}
+
 // --- Main Message Handler ---
 figma.ui.onmessage = async (msg) => {
   const selectedLayers = figma.currentPage.selection;
@@ -377,6 +434,7 @@ figma.ui.onmessage = async (msg) => {
     switch (msg.type) {
       case 'ui-ready':
         await sendBookmarksToUI();
+        sendSelectionStateToUI();
         break;
         
       case 'save-bookmark':
@@ -397,6 +455,14 @@ figma.ui.onmessage = async (msg) => {
         
       case 'clear-emoji':
         await handleClearEmoji(selectedLayers);
+        break;
+        
+      case 'create-new-page':
+        await handleCreateNewPage(msg.title);
+        break;
+        
+      case 'create-new-layer':
+        await handleCreateNewLayer(msg.title);
         break;
         
       case 'cancel':

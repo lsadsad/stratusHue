@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'];
+const LAYER_EMOJI_LIST = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜']; // Square emojis for layers
+const PAGE_EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️']; // Circle emojis for pages
 // --- Helper functions for file-specific bookmark storage ---
 // Helper to find the containing page for any node
 function getContainingPage(node) {
@@ -98,6 +99,17 @@ function sendBookmarksToUI() {
         figma.ui.postMessage({ type: 'bookmarks', bookmarks });
     });
 }
+// --- Helper to send selection state to the UI ---
+function sendSelectionStateToUI() {
+    const selectedLayers = figma.currentPage.selection;
+    const hasLayerSelected = selectedLayers.length > 0;
+    figma.ui.postMessage({
+        type: 'selection-state',
+        hasLayerSelected,
+        layerEmojis: LAYER_EMOJI_LIST,
+        pageEmojis: PAGE_EMOJI_LIST
+    });
+}
 // --- Helper to update and persist bookmarks ---
 function updateAndSaveBookmarks(bookmarks) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -107,7 +119,8 @@ function updateAndSaveBookmarks(bookmarks) {
 }
 // --- Helper to remove emoji prefix from layer name ---
 function removeEmojiPrefix(name) {
-    for (const emoji of EMOJI_LIST) {
+    // Check both layer and page emojis
+    for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) {
         if (name.startsWith(emoji + ' ')) {
             return name.substring((emoji + ' ').length);
         }
@@ -116,8 +129,8 @@ function removeEmojiPrefix(name) {
 }
 // --- Helper to replace any color emoji in a string with a new one ---
 function replaceColorEmoji(name, newEmoji) {
-    // Find any existing color emoji in the string
-    for (const emoji of EMOJI_LIST) {
+    // Find any existing color emoji in the string (check both lists)
+    for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) {
         if (name.includes(emoji)) {
             // Replace the existing emoji with the new one, keeping it in the same position
             return name.replace(emoji, newEmoji);
@@ -182,6 +195,10 @@ function navigateToNode(node) {
 }
 // --- Plugin UI Setup ---
 figma.showUI(__html__, { width: 192, height: 352 });
+// Listen for selection changes
+figma.on('selectionchange', () => {
+    sendSelectionStateToUI();
+});
 // --- Message Handlers ---
 function handleSaveBookmark(selectedLayers) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -351,6 +368,7 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
         switch (msg.type) {
             case 'ui-ready':
                 yield sendBookmarksToUI();
+                sendSelectionStateToUI();
                 break;
             case 'save-bookmark':
                 yield handleSaveBookmark(selectedLayers);
