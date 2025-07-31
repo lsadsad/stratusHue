@@ -169,9 +169,21 @@ function updatePageEmoji(page, emoji) {
     return __awaiter(this, void 0, void 0, function* () {
         // Check if the page name already has the arrow structure
         if (page.name.includes('↳')) {
-            // If it has the arrow structure, replace only the emoji while preserving everything else
-            // Match arrow + optional space + emoji + optional space, replace with arrow + space + new emoji + space
-            page.name = page.name.replace(/↳\s*[🔴🟠🟡🟢🔵🟣⚫️⚪️]\s*/, `↳ ${emoji} `);
+            // If it has the arrow structure, find and replace any existing emoji
+            let newName = page.name;
+            let emojiFound = false;
+            for (const existingEmoji of PAGE_EMOJI_LIST) {
+                if (page.name.includes(existingEmoji)) {
+                    newName = page.name.replace(existingEmoji, emoji);
+                    emojiFound = true;
+                    break;
+                }
+            }
+            // If no emoji was found, add the emoji after the arrow
+            if (!emojiFound) {
+                newName = page.name.replace('↳', `↳ ${emoji}`);
+            }
+            page.name = newName;
         }
         else {
             // If no arrow structure, add the default structure with the emoji
@@ -215,12 +227,20 @@ function clearPageEmoji(page) {
     return __awaiter(this, void 0, void 0, function* () {
         const originalName = page.name;
         // Check if the page name has the arrow structure with an emoji
-        if (page.name.includes('↳') && /↳\s*[🔴🟠🟡🟢🔵🟣⚫️⚪️]/.test(page.name)) {
-            // Remove the emoji but keep the arrow structure
-            const cleanName = page.name.replace(/↳\s*[🔴🟠🟡🟢🔵🟣⚫️⚪️]/, '↳');
-            page.name = cleanName;
-            const bookmarkUpdates = yield updateBookmarksForPage(page.id, cleanName);
-            return { emojiCleared: true, bookmarkUpdates };
+        if (page.name.includes('↳')) {
+            // Find and remove any existing emoji from the page name
+            let cleanName = page.name;
+            for (const existingEmoji of PAGE_EMOJI_LIST) {
+                if (page.name.includes(existingEmoji)) {
+                    cleanName = page.name.replace(existingEmoji, '');
+                    break;
+                }
+            }
+            if (cleanName !== originalName) {
+                page.name = cleanName;
+                const bookmarkUpdates = yield updateBookmarksForPage(page.id, cleanName);
+                return { emojiCleared: true, bookmarkUpdates };
+            }
         }
         else {
             // Use the general emoji removal for non-arrow structures
