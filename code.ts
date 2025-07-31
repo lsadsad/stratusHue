@@ -12,35 +12,230 @@ interface Bookmark {
 interface LegacyBookmark { id: string; name: string; pageName?: string; }
 
 // --- Helper functions for file-specific bookmark storage ---
-function getContainingPage(node: BaseNode): PageNode | null { let currentNode = node; while (currentNode.parent && currentNode.parent.type !== 'PAGE') { currentNode = currentNode.parent; } return currentNode.parent?.type === 'PAGE' ? currentNode.parent : null; }
-function getPageName(node: BaseNode): string { const page = getContainingPage(node); return page?.name || 'Unknown Page'; }
-async function updateBookmarksForPage(pageId: string, newPageName: string): Promise<boolean> { const bookmarks = await getBookmarks(); let bookmarkUpdates = false; for (const bookmark of bookmarks) { try { const node = await figma.getNodeByIdAsync(bookmark.id); if (node && 'parent' in node) { const page = getContainingPage(node); if (page?.id === pageId) { bookmark.pageName = newPageName; bookmarkUpdates = true; } } } catch (error) { console.log('Node not found during bookmark update:', bookmark.id); } } if (bookmarkUpdates) { await updateAndSaveBookmarks(bookmarks); } return bookmarkUpdates; }
-async function getBookmarks(): Promise<Bookmark[]> { const data = figma.root.getPluginData('bookmarks'); const bookmarks = data ? JSON.parse(data) : []; const migrationVersion = figma.root.getPluginData('migrationVersion') || '0'; if (migrationVersion === '1') { return bookmarks as Bookmark[]; } const migratedBookmarks = await Promise.all(bookmarks.map(async (bookmark: LegacyBookmark) => { if (!bookmark.pageName) { try { const node = await figma.getNodeByIdAsync(bookmark.id); if (node && 'parent' in node) { bookmark.pageName = getPageName(node); } else { bookmark.pageName = 'Unknown Page'; } } catch (error) { bookmark.pageName = 'Unknown Page'; console.log('Failed to migrate bookmark:', bookmark.id, error); } } return bookmark as Bookmark; })); await setBookmarks(migratedBookmarks); figma.root.setPluginData('migrationVersion', '1'); return migratedBookmarks; }
-async function setBookmarks(bookmarks: Bookmark[]) { figma.root.setPluginData('bookmarks', JSON.stringify(bookmarks)); }
+function getContainingPage(node: BaseNode): PageNode | null { 
+  let currentNode = node; 
+  while (currentNode.parent && currentNode.parent.type !== 'PAGE') { 
+    currentNode = currentNode.parent; 
+  } 
+  return currentNode.parent?.type === 'PAGE' ? currentNode.parent : null; 
+}
+
+function getPageName(node: BaseNode): string { 
+  const page = getContainingPage(node); 
+  return page?.name || 'Unknown Page'; 
+}
+
+function getCurrentDateString(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${month}.${day}`;
+}
+
+async function updateBookmarksForPage(pageId: string, newPageName: string): Promise<boolean> { 
+  const bookmarks = await getBookmarks(); 
+  let bookmarkUpdates = false; 
+  for (const bookmark of bookmarks) { 
+    try { 
+      const node = await figma.getNodeByIdAsync(bookmark.id); 
+      if (node && 'parent' in node) { 
+        const page = getContainingPage(node); 
+        if (page?.id === pageId) { 
+          bookmark.pageName = newPageName; 
+          bookmarkUpdates = true; 
+        } 
+      } 
+    } catch (error) { 
+      console.log('Node not found during bookmark update:', bookmark.id); 
+    } 
+  } 
+  if (bookmarkUpdates) { 
+    await updateAndSaveBookmarks(bookmarks); 
+  } 
+  return bookmarkUpdates; 
+}
+
+async function getBookmarks(): Promise<Bookmark[]> { 
+  const data = figma.root.getPluginData('bookmarks'); 
+  const bookmarks = data ? JSON.parse(data) : []; 
+  const migrationVersion = figma.root.getPluginData('migrationVersion') || '0'; 
+  if (migrationVersion === '1') { 
+    return bookmarks as Bookmark[]; 
+  } 
+  const migratedBookmarks = await Promise.all(bookmarks.map(async (bookmark: LegacyBookmark) => { 
+    if (!bookmark.pageName) { 
+      try { 
+        const node = await figma.getNodeByIdAsync(bookmark.id); 
+        if (node && 'parent' in node) { 
+          bookmark.pageName = getPageName(node); 
+        } else { 
+          bookmark.pageName = 'Unknown Page'; 
+        } 
+      } catch (error) { 
+        bookmark.pageName = 'Unknown Page'; 
+        console.log('Failed to migrate bookmark:', bookmark.id, error); 
+      } 
+    } 
+    return bookmark as Bookmark; 
+  })); 
+  await setBookmarks(migratedBookmarks); 
+  figma.root.setPluginData('migrationVersion', '1'); 
+  return migratedBookmarks; 
+}
+
+async function setBookmarks(bookmarks: Bookmark[]) { 
+  figma.root.setPluginData('bookmarks', JSON.stringify(bookmarks)); 
+}
 
 // --- UI Communication Helpers ---
-async function sendBookmarksToUI() { const bookmarks = await getBookmarks(); figma.ui.postMessage({ type: 'bookmarks', bookmarks }); }
-function sendSelectionStateToUI() { const selectedLayers = figma.currentPage.selection; const hasLayerSelected = selectedLayers.length > 0; figma.ui.postMessage({ type: 'selection-state', hasLayerSelected, layerEmojis: LAYER_EMOJI_LIST, pageEmojis: PAGE_EMOJI_LIST }); }
-async function updateAndSaveBookmarks(bookmarks: Bookmark[]) { await setBookmarks(bookmarks); await sendBookmarksToUI(); }
+async function sendBookmarksToUI() { 
+  const bookmarks = await getBookmarks(); 
+  figma.ui.postMessage({ type: 'bookmarks', bookmarks }); 
+}
+
+function sendSelectionStateToUI() { 
+  const selectedLayers = figma.currentPage.selection; 
+  const hasLayerSelected = selectedLayers.length > 0; 
+  figma.ui.postMessage({ 
+    type: 'selection-state', 
+    hasLayerSelected, 
+    layerEmojis: LAYER_EMOJI_LIST, 
+    pageEmojis: PAGE_EMOJI_LIST 
+  }); 
+}
+
+async function updateAndSaveBookmarks(bookmarks: Bookmark[]) { 
+  await setBookmarks(bookmarks); 
+  await sendBookmarksToUI(); 
+}
 
 // --- Emoji & Naming Helpers ---
-function removeEmojiPrefix(name: string): string { for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) { if (name.includes(emoji)) { return name.replace(emoji, '').trim(); } } return name; }
-function replaceColorEmoji(name: string, newEmoji: string): string { for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) { if (name.includes(emoji)) { return name.replace(emoji, newEmoji); } } return newEmoji + ' ' + name; }
-async function updateBookmarkIfExists(layerId: string, newName: string): Promise<boolean> { const bookmarks = await getBookmarks(); const bookmark = bookmarks.find(b => b.id === layerId); if (bookmark && bookmark.name !== newName) { bookmark.name = newName; try { const node = await figma.getNodeByIdAsync(layerId); if (node && 'parent' in node) { bookmark.pageName = getPageName(node); } } catch (error) { console.log('Failed to update bookmark page name:', layerId, error); } await updateAndSaveBookmarks(bookmarks); return true; } return false; }
+function removeEmojiPrefix(name: string): string { 
+  for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) { 
+    if (name.includes(emoji)) { 
+      return name.replace(emoji, '').trim(); 
+    } 
+  } 
+  return name; 
+}
+
+function replaceColorEmoji(name: string, newEmoji: string): string { 
+  for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) { 
+    if (name.includes(emoji)) { 
+      return name.replace(emoji, newEmoji); 
+    } 
+  } 
+  return newEmoji + ' ' + name; 
+}
+
+async function updateBookmarkIfExists(layerId: string, newName: string): Promise<boolean> { 
+  const bookmarks = await getBookmarks(); 
+  const bookmark = bookmarks.find(b => b.id === layerId); 
+  if (bookmark && bookmark.name !== newName) { 
+    bookmark.name = newName; 
+    try { 
+      const node = await figma.getNodeByIdAsync(layerId); 
+      if (node && 'parent' in node) { 
+        bookmark.pageName = getPageName(node); 
+      } 
+    } catch (error) { 
+      console.log('Failed to update bookmark page name:', layerId, error); 
+    } 
+    await updateAndSaveBookmarks(bookmarks); 
+    return true; 
+  } 
+  return false; 
+}
 
 // --- Navigation & Cleanup Helpers ---
-async function cleanupBookmark(bookmarkId: string) { const bookmarks = await getBookmarks(); const newBookmarks = bookmarks.filter(b => b.id !== bookmarkId); await updateAndSaveBookmarks(newBookmarks); }
-async function navigateToNode(node: BaseNode & { name: string }) { const targetPage = getContainingPage(node); if (targetPage) { if (figma.currentPage !== targetPage) { await figma.setCurrentPageAsync(targetPage); } if ('visible' in node && node.visible) { figma.currentPage.selection = [node as SceneNode]; figma.viewport.scrollAndZoomIntoView([node as SceneNode]); figma.notify(`Jumped to: ${node.name} (Page: ${targetPage.name})`); } } else { figma.notify('Could not locate page for this bookmark.'); } }
+async function cleanupBookmark(bookmarkId: string) { 
+  const bookmarks = await getBookmarks(); 
+  const newBookmarks = bookmarks.filter(b => b.id !== bookmarkId); 
+  await updateAndSaveBookmarks(newBookmarks); 
+}
+
+async function navigateToNode(node: BaseNode & { name: string }) { 
+  const targetPage = getContainingPage(node); 
+  if (targetPage) { 
+    if (figma.currentPage !== targetPage) { 
+      await figma.setCurrentPageAsync(targetPage); 
+    } 
+    if ('visible' in node && node.visible) { 
+      figma.currentPage.selection = [node as SceneNode]; 
+      figma.viewport.scrollAndZoomIntoView([node as SceneNode]); 
+      figma.notify(`Jumped to: ${node.name} (Page: ${targetPage.name})`); 
+    } 
+  } else { 
+    figma.notify('Could not locate page for this bookmark.'); 
+  } 
+}
 
 // --- Plugin UI Setup ---
 figma.showUI(__html__, { width: 192, height: 352 });
-figma.on('selectionchange', () => { sendSelectionStateToUI(); });
+figma.on('selectionchange', () => { 
+  sendSelectionStateToUI(); 
+});
 
 // --- Message Handler Functions ---
-async function handleSaveBookmark(selectedLayers: readonly SceneNode[]) { if (selectedLayers.length === 0) { figma.notify('Please select a layer to bookmark.'); return; } const node = selectedLayers[0]; const bookmarks = await getBookmarks(); const existingBookmarkIndex = bookmarks.findIndex(b => b.id === node.id); const pageName = getPageName(node); if (existingBookmarkIndex !== -1) { if (bookmarks[existingBookmarkIndex].name !== node.name) { bookmarks[existingBookmarkIndex].name = node.name; bookmarks[existingBookmarkIndex].pageName = pageName; await updateAndSaveBookmarks(bookmarks); figma.notify('Bookmark name updated!'); } else { figma.notify('Layer already bookmarked.'); } } else { bookmarks.push({ id: node.id, name: node.name, pageName: pageName }); await updateAndSaveBookmarks(bookmarks); figma.notify('Bookmark saved!'); } }
-async function handleRemoveBookmark(bookmarkId: string) { await cleanupBookmark(bookmarkId); figma.notify('Bookmark removed.'); }
-async function handleJumpToBookmark(bookmarkId: string) { try { const node = await figma.getNodeByIdAsync(bookmarkId); if (!node || !('parent' in node)) { figma.notify('Bookmark no longer exists. Cleaning up...'); await cleanupBookmark(bookmarkId); return; } await updateBookmarkIfExists(bookmarkId, node.name); await navigateToNode(node); } catch (error) { figma.notify('Error accessing bookmark. Cleaning up...'); await cleanupBookmark(bookmarkId); } }
-async function updateLayerEmojis(layers: readonly SceneNode[], emoji: string): Promise<boolean> { let bookmarkUpdates = false; for (const layer of layers) { const cleanName = removeEmojiPrefix(layer.name); const newName = emoji + ' ' + cleanName; layer.name = newName; if (await updateBookmarkIfExists(layer.id, newName)) { bookmarkUpdates = true; } } return bookmarkUpdates; }
+async function handleSaveBookmark(selectedLayers: readonly SceneNode[]) { 
+  if (selectedLayers.length === 0) { 
+    figma.notify('Please select a layer to bookmark.'); 
+    return; 
+  } 
+  const node = selectedLayers[0]; 
+  const bookmarks = await getBookmarks(); 
+  const existingBookmarkIndex = bookmarks.findIndex(b => b.id === node.id); 
+  const pageName = getPageName(node); 
+  if (existingBookmarkIndex !== -1) { 
+    if (bookmarks[existingBookmarkIndex].name !== node.name) { 
+      bookmarks[existingBookmarkIndex].name = node.name; 
+      bookmarks[existingBookmarkIndex].pageName = pageName; 
+      await updateAndSaveBookmarks(bookmarks); 
+      figma.notify('Bookmark name updated!'); 
+    } else { 
+      figma.notify('Layer already bookmarked.'); 
+    } 
+  } else { 
+    bookmarks.push({ id: node.id, name: node.name, pageName: pageName }); 
+    await updateAndSaveBookmarks(bookmarks); 
+    figma.notify('Bookmark saved!'); 
+  } 
+}
+
+async function handleRemoveBookmark(bookmarkId: string) { 
+  await cleanupBookmark(bookmarkId); 
+  figma.notify('Bookmark removed.'); 
+}
+
+async function handleJumpToBookmark(bookmarkId: string) { 
+  try { 
+    const node = await figma.getNodeByIdAsync(bookmarkId); 
+    if (!node || !('parent' in node)) { 
+      figma.notify('Bookmark no longer exists. Cleaning up...'); 
+      await cleanupBookmark(bookmarkId); 
+      return; 
+    } 
+    await updateBookmarkIfExists(bookmarkId, node.name); 
+    await navigateToNode(node); 
+  } catch (error) { 
+    figma.notify('Error accessing bookmark. Cleaning up...'); 
+    await cleanupBookmark(bookmarkId); 
+  } 
+}
+
+async function updateLayerEmojis(layers: readonly SceneNode[], emoji: string): Promise<boolean> { 
+  let bookmarkUpdates = false; 
+  for (const layer of layers) { 
+    const cleanName = removeEmojiPrefix(layer.name); 
+    const newName = emoji + ' ' + cleanName; 
+    layer.name = newName; 
+    if (await updateBookmarkIfExists(layer.id, newName)) { 
+      bookmarkUpdates = true; 
+    } 
+  } 
+  return bookmarkUpdates; 
+}
+
 async function updatePageEmoji(page: PageNode, emoji: string): Promise<boolean> { 
   // Check if the page name already has the arrow structure
   if (page.name.includes('↳')) {
@@ -62,48 +257,89 @@ async function updatePageEmoji(page: PageNode, emoji: string): Promise<boolean> 
     page.name = newName;
   } else {
     // If no arrow structure, add the default structure with the emoji
-    const now = new Date();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const dateString = `${month}.${day}`;
+    const dateString = getCurrentDateString();
     page.name = `↳ ${emoji} ${dateString} : ${page.name}`;
   }
   return await updateBookmarksForPage(page.id, page.name);
 }
-async function handleAddEmoji(selectedLayers: readonly SceneNode[], emoji: string) { if (selectedLayers.length > 0) { const bookmarkUpdates = await updateLayerEmojis(selectedLayers, emoji); const messages = ['Layer emoji updated!']; if (bookmarkUpdates) { messages.push('Bookmarks updated.'); } figma.notify(messages.join(' ')); } else { const bookmarkUpdates = await updatePageEmoji(figma.currentPage, emoji); figma.notify(`Page emoji updated! ${bookmarkUpdates ? 'Bookmarks updated.' : ''}`); } }
-async function clearLayerEmojis(layers: readonly SceneNode[]): Promise<{ emojiCleared: boolean; bookmarkUpdates: boolean }> { let anEmojiWasCleared = false; let bookmarkUpdates = false; for (const layer of layers) { const originalName = layer.name; const cleanName = removeEmojiPrefix(originalName); if (cleanName !== originalName) { anEmojiWasCleared = true; layer.name = cleanName; if (await updateBookmarkIfExists(layer.id, cleanName)) { bookmarkUpdates = true; } } } return { emojiCleared: anEmojiWasCleared, bookmarkUpdates }; }
-async function clearPageEmoji(page: PageNode): Promise<{ emojiCleared: boolean; bookmarkUpdates: boolean }> { 
-  const originalName = page.name;
+
+async function handleAddEmoji(selectedLayers: readonly SceneNode[], emoji: string) { 
+  if (selectedLayers.length > 0) { 
+    const bookmarkUpdates = await updateLayerEmojis(selectedLayers, emoji); 
+    const messages = ['Layer emoji updated!']; 
+    if (bookmarkUpdates) { 
+      messages.push('Bookmarks updated.'); 
+    } 
+    figma.notify(messages.join(' ')); 
+  } else { 
+    const bookmarkUpdates = await updatePageEmoji(figma.currentPage, emoji); 
+    figma.notify(`Page emoji updated! ${bookmarkUpdates ? 'Bookmarks updated.' : ''}`); 
+  } 
+}
+
+async function clearLayerEmojis(layers: readonly SceneNode[]): Promise<{ emojiCleared: boolean; bookmarkUpdates: boolean }> {
+  let emojiCleared = false;
+  let bookmarkUpdates = false;
   
-  // Check if the page name has the arrow structure with an emoji
-  if (page.name.includes('↳')) {
-    // Find and remove any existing emoji from the page name
-    let cleanName = page.name;
-    for (const existingEmoji of PAGE_EMOJI_LIST) {
-      if (page.name.includes(existingEmoji)) {
-        cleanName = page.name.replace(existingEmoji, '');
-        break;
+  for (const layer of layers) {
+    const cleanName = removeEmojiPrefix(layer.name);
+    if (cleanName !== layer.name) {
+      layer.name = cleanName;
+      emojiCleared = true;
+      if (await updateBookmarkIfExists(layer.id, cleanName)) {
+        bookmarkUpdates = true;
       }
-    }
-    
-    if (cleanName !== originalName) {
-      page.name = cleanName;
-      const bookmarkUpdates = await updateBookmarksForPage(page.id, cleanName);
-      return { emojiCleared: true, bookmarkUpdates };
-    }
-  } else {
-    // Use the general emoji removal for non-arrow structures
-    const cleanName = removeEmojiPrefix(originalName);
-    if (cleanName !== originalName) {
-      page.name = cleanName;
-      const bookmarkUpdates = await updateBookmarksForPage(page.id, cleanName);
-      return { emojiCleared: true, bookmarkUpdates };
     }
   }
   
-  return { emojiCleared: false, bookmarkUpdates: false };
+  return { emojiCleared, bookmarkUpdates };
 }
-async function handleClearEmoji(selectedLayers: readonly SceneNode[]) { if (selectedLayers.length > 0) { const { emojiCleared, bookmarkUpdates } = await clearLayerEmojis(selectedLayers); if (emojiCleared) { const messages = ['Layer emoji cleared!']; if (bookmarkUpdates) { messages.push('Bookmarks updated.'); } figma.notify(messages.join(' ')); } else { figma.notify('No matching emoji to clear from layers.'); } } else { const { emojiCleared, bookmarkUpdates } = await clearPageEmoji(figma.currentPage); if (emojiCleared) { figma.notify(`Page emoji cleared! ${bookmarkUpdates ? 'Bookmarks updated.' : ''}`); } else { figma.notify('No matching emoji to clear from page title.'); } } }
+
+async function clearPageEmoji(page: PageNode): Promise<{ emojiCleared: boolean; bookmarkUpdates: boolean }> {
+  let emojiCleared = false;
+  let bookmarkUpdates = false;
+  
+  // Check if the page name has the arrow structure with emoji
+  if (page.name.includes('↳')) {
+    let newName = page.name;
+    for (const emoji of PAGE_EMOJI_LIST) {
+      if (page.name.includes(emoji)) {
+        // Remove the emoji but keep the arrow structure
+        newName = page.name.replace(emoji, '').trim();
+        // Clean up any double spaces
+        newName = newName.replace(/\s+/g, ' ');
+        page.name = newName;
+        emojiCleared = true;
+        bookmarkUpdates = await updateBookmarksForPage(page.id, newName);
+        break;
+      }
+    }
+  }
+  
+  return { emojiCleared, bookmarkUpdates };
+}
+
+async function handleClearEmoji(selectedLayers: readonly SceneNode[]) {
+  if (selectedLayers.length > 0) {
+    const { emojiCleared, bookmarkUpdates } = await clearLayerEmojis(selectedLayers);
+    if (emojiCleared) {
+      const messages = ['Layer emoji cleared!'];
+      if (bookmarkUpdates) {
+        messages.push('Bookmarks updated.');
+      }
+      figma.notify(messages.join(' '));
+    } else {
+      figma.notify('No matching emoji to clear from layers.');
+    }
+  } else {
+    const { emojiCleared, bookmarkUpdates } = await clearPageEmoji(figma.currentPage);
+    if (emojiCleared) {
+      figma.notify(`Page emoji cleared! ${bookmarkUpdates ? 'Bookmarks updated.' : ''}`);
+    } else {
+      figma.notify('No matching emoji to clear from page title.');
+    }
+  }
+}
 
 /**
  * Creates a new page or prepends a title to selected layers based on context.
@@ -113,10 +349,8 @@ async function handleAddDateTitle() {
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
   const dateString = `${month}.${day}`;
-  const title = `    ↳ ${PAGE_EMOJI_LIST[2]}${dateString} : `;
-
   const selectedLayers = figma.currentPage.selection;
-
+  
   if (selectedLayers.length > 0) {
     // If layers are selected, prepend the title to their names
     let layersUpdated = 0;
@@ -142,10 +376,20 @@ async function handleAddDateTitle() {
   }
 }
 
+/**
+ * Creates a new page with a default name.
+ */
+async function handleCreateNewPage() {
+  const newPage = figma.createPage();
+  newPage.name = 'New Page';
+  await figma.setCurrentPageAsync(newPage);
+  figma.notify('New page created!');
+}
+
 // --- Main Message Handler ---
 figma.ui.onmessage = async (msg) => {
   const selectedLayers = figma.currentPage.selection;
-
+  
   try {
     switch (msg.type) {
       case 'ui-ready':
@@ -172,9 +416,14 @@ figma.ui.onmessage = async (msg) => {
       case 'clear-emoji':
         await handleClearEmoji(selectedLayers);
         break;
-
+        
+      case 'add-date-smart':
       case 'add-date-title':
         await handleAddDateTitle();
+        break;
+        
+      case 'create-new-page':
+        await handleCreateNewPage();
         break;
         
       case 'cancel':
