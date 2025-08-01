@@ -14,7 +14,7 @@
 
   <!-- Color Tags Section -->
   <h2 class="section-header collapsible" data-target="color-section">
-    <span>## Color Tags <span id="selection-indicator">(Page)</span></span>
+    <span>## <span id="tags-title">Page Tags</span></span>
     <span class="arrow">-</span>
   </h2>
   <div id="color-section" class="collapsible-content">
@@ -191,7 +191,7 @@
     margin: 0 0 8px 0;
     font-weight: normal;
     letter-spacing: 0.5px;
-    color: #ffffff;
+    color: #666666;
     text-transform: uppercase;
     cursor: pointer;
     user-select: none;
@@ -202,7 +202,7 @@
     background: transparent;
     border: 1px solid transparent;
     border-radius: 3px;
-    padding: 8px 8px 8px 0px;
+    padding: 12px 8px 12px 0px;
   }
 
   .section-header:hover {
@@ -228,12 +228,7 @@
     opacity: 0;
   }
 
-  #selection-indicator {
-    font-size: 10px;
-    color: #ffffff;
-    font-weight: normal;
-    opacity: 0.7;
-  }
+
 
   /* Anchors Section */
   #anchors-section {
@@ -473,9 +468,9 @@
   }
 
   function updateSelectionIndicator(hasSelection) {
-    const indicator = document.getElementById('selection-indicator');
-    if (indicator) {
-      indicator.textContent = hasSelection ? '(Layer)' : '(Page)';
+    const tagsTitle = document.getElementById('tags-title');
+    if (tagsTitle) {
+      tagsTitle.textContent = hasSelection ? 'Layer Tags' : 'Page Tags';
     }
   }
 
