@@ -1,21 +1,23 @@
 <div class="scrollable-content">
   <!-- Quick Actions Section -->
   <div id="quick-actions">
-    <button id="new-page-btn" class="action-btn" title="Create a new page">
-      <span class="icon">📄</span>
-      <span class="label">New Page</span>
-    </button>
-    <button id="add-date-btn" class="action-btn" title="Add date to selection or current page">
-      <span class="icon">📅</span>
-      <span class="label">Add Date</span>
-      <span id="date-context-badge" class="context-badge" style="display: none;"></span>
-    </button>
+         <button id="new-page-btn" class="action-btn" title="Collapse selected layers or all layers if none selected">
+       <span class="icon">📄</span>
+       <span class="label">Collapse</span>
+     </button>
+         <button id="add-date-btn" class="action-btn" title="Add date to selection or current page">
+       <span class="icon">📅</span>
+       <span class="label">Add Date</span>
+     </button>
   </div>
 
   <!-- Color Tags Section -->
   <h2 class="section-header collapsible" data-target="color-section">
-    <span>## <span id="tags-title">Page Tags</span></span>
-    <span class="arrow">-</span>
+    <div class="header-left">
+      <span class="arrow">-</span>
+      <span>Tags</span>
+    </div>
+    <span id="tags-badge" class="section-badge">Page</span>
   </h2>
   <div id="color-section" class="collapsible-content">
     <div class="color-grid-container">
@@ -29,40 +31,45 @@
 
   <!-- Anchors Section -->
   <h2 class="section-header collapsible" data-target="anchors-section">
-    <span>## Anchors</span>
-    <span class="arrow">-</span>
+    <div class="header-left">
+      <span class="arrow">+</span>
+      <span>Anchors</span>
+    </div>
+    <span id="anchors-badge" class="section-badge">Layer</span>
   </h2>
-  <div id="anchors-section" class="collapsible-content">
+  <div id="anchors-section" class="collapsible-content collapsed">
     <ul id="bookmark-list"></ul>
     <button id="save-bookmark">⚓ Drop Anchor</button>
   </div>
+
 </div>
 
 <!-- Tooltip -->
 <div id="tooltip" class="tooltip"></div>
 
 <style>
+  /* Import Inter font from Google Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  
   /* Base styles remain the same */
   html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; box-sizing: border-box; }
-  body { padding: 8px; min-width: 176px; min-height: 256px; max-width: 192px; max-height: 352px; overflow: hidden; background: #0f0f0f; color: #ffffff; display: flex; flex-direction: column; border: 1px solid #2a2a2a; position: relative; }
-  body, button, h3 { font-family: 'Source Code Pro', 'Courier New', Courier, monospace; font-weight: bold; font-size: 12px; }
+  body { width: 100%; height: 100%; overflow: hidden; background: #0f0f0f; color: #ffffff; display: flex; flex-direction: column; border: 1px solid #2a2a2a; position: relative; }
+  body, button, h3 { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 500; font-size: 12px; }
   
-  /* Scrollbar styles */
-  .scrollable-content { flex: 1; overflow-y: auto; overflow-x: hidden; margin-right: -8px; padding-right: 8px; }
+     /* Scrollbar styles */
+   .scrollable-content { width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; }
   .scrollable-content::-webkit-scrollbar { width: 2px; }
   .scrollable-content::-webkit-scrollbar-track { background: #0f0f0f; border-radius: 2px; }
   .scrollable-content::-webkit-scrollbar-thumb { background: #404040; border-radius: 2px; transition: background 0.2s ease; }
   .scrollable-content::-webkit-scrollbar-thumb:hover { background: #505050; }
 
-  /* Quick Actions Section */
-  #quick-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #2a2a2a;
-  }
+     /* Quick Actions Section */
+   #quick-actions {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 6px;
+     padding-bottom: 12px;
+   }
 
   .action-btn {
     height: 36px;
@@ -79,7 +86,7 @@
     gap: 4px;
     padding: 0 8px;
     position: relative;
-    font-family: 'Source Code Pro', 'Courier New', Courier, monospace;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   .action-btn .icon {
@@ -101,27 +108,18 @@
     transform: translateY(0);
   }
 
-  /* Context Badge */
-  .context-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    background: #4a9eff;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 2px 6px;
-    font-size: 9px;
-    font-weight: bold;
-    white-space: nowrap;
-  }
+  
 
-  /* Color Section */
-  .color-grid-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
+     /* Color Section */
+   .color-grid-container {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 8px;
+     background: #0a0a0a;
+     padding: 12px;
+     border-radius: 4px;
+   }
 
   .color-grid {
     display: grid;
@@ -173,7 +171,7 @@
     align-items: center;
     justify-content: center;
     gap: 4px;
-    font-family: 'Source Code Pro', 'Courier New', Courier, monospace;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   .clear-action .icon {
@@ -185,35 +183,55 @@
     background: #2a2a2a;
   }
 
-  /* Section Headers */
-  .section-header {
-    font-size: 12px;
-    margin: 0 0 8px 0;
-    font-weight: normal;
-    letter-spacing: 0.5px;
-    color: #666666;
-    text-transform: uppercase;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.2s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    padding: 12px 8px 12px 0px;
+     /* Section Headers */
+   .section-header {
+     font-size: 12px;
+     margin: 0 0 8px 0;
+     font-weight: 500;
+     color: #ffffff;
+     cursor: pointer;
+     user-select: none;
+     transition: all 0.2s ease;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     background: #0f0f0f;
+     border-top: 1px solid #2a2a2a;
+     border-bottom: 1px solid #2a2a2a;
+     border-radius: 0;
+     padding: 12px 8px 12px 8px;
+   }
+
+  .section-header:first-of-type {
+    margin-top: 0;
   }
 
-  .section-header:hover {
-    background: #2a2a2a;
-    border: 1px solid #404040;
+     .section-header:hover {
+     background: #1a1a1a;
+     border-top: 1px solid #404040;
+     border-bottom: 1px solid #404040;
+   }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-badge {
+    background: #4a9eff;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 9px;
+    font-weight: 500;
+    white-space: nowrap;
   }
 
   .arrow {
     font-size: 12px;
     font-weight: bold;
-    color: #b0b0b0;
+    color: #ffffff;
   }
 
   .collapsible-content {
@@ -230,14 +248,17 @@
 
 
 
-  /* Anchors Section */
-  #anchors-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    overflow: hidden;
-  }
+     /* Anchors Section */
+   #anchors-section {
+     flex: 1;
+     display: flex;
+     flex-direction: column;
+     min-height: 0;
+     overflow: hidden;
+     background: #0a0a0a;
+     padding: 12px;
+     border-radius: 4px;
+   }
 
   #bookmark-list {
     flex: 1;
@@ -334,7 +355,7 @@
     width: 100%;
     border-radius: 3px;
     margin-top: auto;
-    font-family: 'Source Code Pro', 'Courier New', Courier, monospace;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   #save-bookmark:hover {
@@ -359,6 +380,7 @@
   .tooltip.visible {
     opacity: 1;
   }
+
 </style>
 
 <script>
@@ -416,12 +438,12 @@
     });
   }
 
-  function handleNewPage(event) {
-    if (hasLayerSelected) {
-      showTooltip('Creating new page...', event.target);
-    }
-    sendMessage('create-new-page');
-  }
+     function handleNewPage(event) {
+     if (hasLayerSelected) {
+       showTooltip('Collapsing layers...', event.target);
+     }
+     sendMessage('collapse-layers');
+   }
 
   function handleAddDate() {
     sendMessage('add-date-smart');
@@ -441,17 +463,7 @@
     }, 2000);
   }
 
-  function updateContextBadge(hasSelection) {
-    const badge = document.getElementById('date-context-badge');
-    if (!badge) return;
-    
-    if (hasSelection) {
-      badge.textContent = 'Layer';
-      badge.style.display = 'block';
-    } else {
-      badge.style.display = 'none';
-    }
-  }
+  
 
   function renderEmojiButtons(emojis) {
     const container = document.getElementById('color-emoji-buttons');
@@ -468,9 +480,15 @@
   }
 
   function updateSelectionIndicator(hasSelection) {
-    const tagsTitle = document.getElementById('tags-title');
-    if (tagsTitle) {
-      tagsTitle.textContent = hasSelection ? 'Layer Tags' : 'Page Tags';
+    const tagsBadge = document.getElementById('tags-badge');
+    const anchorsBadge = document.getElementById('anchors-badge');
+    
+    if (tagsBadge) {
+      tagsBadge.textContent = hasSelection ? 'Layer' : 'Page';
+    }
+    
+    if (anchorsBadge) {
+      anchorsBadge.textContent = hasSelection ? 'Layer' : 'Page';
     }
   }
 
@@ -527,12 +545,11 @@
         renderBookmarks(msg.bookmarks);
         break;
         
-      case 'selection-state':
-        hasLayerSelected = msg.hasLayerSelected;
-        renderEmojiButtons(hasLayerSelected ? msg.layerEmojis : msg.pageEmojis);
-        updateSelectionIndicator(hasLayerSelected);
-        updateContextBadge(hasLayerSelected);
-        break;
+             case 'selection-state':
+         hasLayerSelected = msg.hasLayerSelected;
+         renderEmojiButtons(hasLayerSelected ? msg.layerEmojis : msg.pageEmojis);
+         updateSelectionIndicator(hasLayerSelected);
+         break;
         
       case 'show-tooltip':
         if (msg.elementId) {

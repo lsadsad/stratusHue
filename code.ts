@@ -171,7 +171,7 @@ async function navigateToNode(node: BaseNode & { name: string }) {
 }
 
 // --- Plugin UI Setup ---
-figma.showUI(__html__, { width: 192, height: 352 });
+figma.showUI(__html__, { width: 240, height: 352 });
 figma.on('selectionchange', () => { 
   sendSelectionStateToUI(); 
 });
@@ -386,6 +386,67 @@ async function handleCreateNewPage() {
   figma.notify('New page created!');
 }
 
+/**
+ * Recursively finds all collapsible layers in a node and its children.
+ * This is optimized to avoid performance issues.
+ */
+function getAllCollapsibleLayers(node: BaseNode, maxDepth: number = 3): SceneNode[] {
+  const collapsibleLayers: SceneNode[] = [];
+  
+  function traverse(currentNode: BaseNode, depth: number) {
+    if (depth > maxDepth) return; // Limit depth to prevent performance issues
+    
+    // Check if this node itself is collapsible
+    if ('expanded' in currentNode) {
+      collapsibleLayers.push(currentNode as SceneNode);
+    }
+    
+    // Recursively check children
+    if ('children' in currentNode) {
+      for (const child of currentNode.children) {
+        traverse(child, depth + 1);
+      }
+    }
+  }
+  
+  traverse(node, 0);
+  return collapsibleLayers;
+}
+
+/**
+ * Collapses layers in the layer panel.
+ */
+async function handleCollapseLayers(selectedLayers: readonly SceneNode[]) {
+  let layersToCollapse: SceneNode[] = [];
+  
+  if (selectedLayers.length === 0) {
+    // If no layers selected, collapse all collapsible layers (like Alt+L)
+    // Use optimized recursive function with depth limit
+    layersToCollapse = getAllCollapsibleLayers(figma.currentPage, 3);
+  } else {
+    // If layers are selected, collapse only those layers
+    layersToCollapse = selectedLayers.filter(node => 
+      'expanded' in node
+    ) as SceneNode[];
+  }
+  
+  let collapsedCount = 0;
+  for (const layer of layersToCollapse) {
+    if ('expanded' in layer) {
+      layer.expanded = false;
+      collapsedCount++;
+    }
+  }
+  
+  if (collapsedCount > 0) {
+    const action = selectedLayers.length === 0 ? 'all' : 'selected';
+    figma.notify(`${collapsedCount} ${action} layer(s) collapsed!`);
+  } else {
+    const action = selectedLayers.length === 0 ? 'collapsible layers on this page' : 'collapsible layers selected';
+    figma.notify(`No ${action}.`);
+  }
+}
+
 // --- Main Message Handler ---
 figma.ui.onmessage = async (msg) => {
   const selectedLayers = figma.currentPage.selection;
@@ -424,6 +485,10 @@ figma.ui.onmessage = async (msg) => {
         
       case 'create-new-page':
         await handleCreateNewPage();
+        break;
+        
+      case 'collapse-layers':
+        await handleCollapseLayers(selectedLayers);
         break;
         
       case 'cancel':

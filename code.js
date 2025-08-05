@@ -179,7 +179,7 @@ function navigateToNode(node) {
     });
 }
 // --- Plugin UI Setup ---
-figma.showUI(__html__, { width: 192, height: 352 });
+figma.showUI(__html__, { width: 240, height: 352 });
 figma.on('selectionchange', () => {
     sendSelectionStateToUI();
 });
@@ -408,6 +408,61 @@ function handleCreateNewPage() {
         figma.notify('New page created!');
     });
 }
+/**
+ * Recursively finds all collapsible layers in a node and its children.
+ * This is optimized to avoid performance issues.
+ */
+function getAllCollapsibleLayers(node, maxDepth = 3) {
+    const collapsibleLayers = [];
+    function traverse(currentNode, depth) {
+        if (depth > maxDepth)
+            return; // Limit depth to prevent performance issues
+        // Check if this node itself is collapsible
+        if ('expanded' in currentNode) {
+            collapsibleLayers.push(currentNode);
+        }
+        // Recursively check children
+        if ('children' in currentNode) {
+            for (const child of currentNode.children) {
+                traverse(child, depth + 1);
+            }
+        }
+    }
+    traverse(node, 0);
+    return collapsibleLayers;
+}
+/**
+ * Collapses layers in the layer panel.
+ */
+function handleCollapseLayers(selectedLayers) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let layersToCollapse = [];
+        if (selectedLayers.length === 0) {
+            // If no layers selected, collapse all collapsible layers (like Alt+L)
+            // Use optimized recursive function with depth limit
+            layersToCollapse = getAllCollapsibleLayers(figma.currentPage, 3);
+        }
+        else {
+            // If layers are selected, collapse only those layers
+            layersToCollapse = selectedLayers.filter(node => 'expanded' in node);
+        }
+        let collapsedCount = 0;
+        for (const layer of layersToCollapse) {
+            if ('expanded' in layer) {
+                layer.expanded = false;
+                collapsedCount++;
+            }
+        }
+        if (collapsedCount > 0) {
+            const action = selectedLayers.length === 0 ? 'all' : 'selected';
+            figma.notify(`${collapsedCount} ${action} layer(s) collapsed!`);
+        }
+        else {
+            const action = selectedLayers.length === 0 ? 'collapsible layers on this page' : 'collapsible layers selected';
+            figma.notify(`No ${action}.`);
+        }
+    });
+}
 // --- Main Message Handler ---
 figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
     const selectedLayers = figma.currentPage.selection;
@@ -438,6 +493,9 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                 break;
             case 'create-new-page':
                 yield handleCreateNewPage();
+                break;
+            case 'collapse-layers':
+                yield handleCollapseLayers(selectedLayers);
                 break;
             case 'cancel':
                 figma.closePlugin();
