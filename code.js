@@ -410,24 +410,48 @@ function handleCreateNewPage() {
 }
 /**
  * Recursively finds all collapsible layers in a node and its children.
- * This is optimized to avoid performance issues.
+ * This is optimized to avoid performance issues and properly identifies collapsible node types.
  */
-function getAllCollapsibleLayers(node, maxDepth = 3) {
+function getAllCollapsibleLayers(node, maxDepth = 10) {
     const collapsibleLayers = [];
+    
+    // Define node types that can be collapsed in the layers panel
+    const collapsibleNodeTypes = new Set([
+        'FRAME',
+        'COMPONENT', 
+        'COMPONENT_SET',
+        'INSTANCE',
+        'GROUP',
+        'SECTION',
+        'BOOLEAN_OPERATION'
+    ]);
+    
     function traverse(currentNode, depth) {
-        if (depth > maxDepth)
+        if (depth > maxDepth) {
             return; // Limit depth to prevent performance issues
-        // Check if this node itself is collapsible
-        if ('expanded' in currentNode) {
-            collapsibleLayers.push(currentNode);
         }
-        // Recursively check children
-        if ('children' in currentNode) {
-            for (const child of currentNode.children) {
-                traverse(child, depth + 1);
+        
+        try {
+            // Check if this node type can be collapsible and has the expanded property
+            if (currentNode && 
+                collapsibleNodeTypes.has(currentNode.type) && 
+                'expanded' in currentNode &&
+                currentNode.expanded === true) {
+                collapsibleLayers.push(currentNode);
             }
+            
+            // Recursively check children
+            if ('children' in currentNode && currentNode.children) {
+                for (const child of currentNode.children) {
+                    traverse(child, depth + 1);
+                }
+            }
+        } catch (error) {
+            // Skip nodes that cause errors (e.g., removed nodes)
+            console.warn('Error processing node during collapse traversal:', error);
         }
     }
+    
     traverse(node, 0);
     return collapsibleLayers;
 }
@@ -437,29 +461,69 @@ function getAllCollapsibleLayers(node, maxDepth = 3) {
 function handleCollapseLayers(selectedLayers) {
     return __awaiter(this, void 0, void 0, function* () {
         let layersToCollapse = [];
+        
+        // Define node types that can be collapsed in the layers panel
+        const collapsibleNodeTypes = new Set([
+            'FRAME',
+            'COMPONENT', 
+            'COMPONENT_SET',
+            'INSTANCE',
+            'GROUP',
+            'SECTION',
+            'BOOLEAN_OPERATION'
+        ]);
+        
         if (selectedLayers.length === 0) {
             // If no layers selected, collapse all collapsible layers (like Alt+L)
-            // Use optimized recursive function with depth limit
-            layersToCollapse = getAllCollapsibleLayers(figma.currentPage, 3);
+            // Use optimized recursive function with increased depth limit
+            layersToCollapse = getAllCollapsibleLayers(figma.currentPage, 10);
         }
         else {
-            // If layers are selected, collapse only those layers
-            layersToCollapse = selectedLayers.filter(node => 'expanded' in node);
+            // If layers are selected, collapse only those layers that are actually collapsible and expanded
+            layersToCollapse = selectedLayers.filter(node => {
+                try {
+                    return node && 
+                           collapsibleNodeTypes.has(node.type) && 
+                           'expanded' in node && 
+                           node.expanded === true;
+                } catch (error) {
+                    console.warn('Error checking node for collapse:', error);
+                    return false;
+                }
+            });
         }
+        
         let collapsedCount = 0;
+        let errorCount = 0;
+        
         for (const layer of layersToCollapse) {
-            if ('expanded' in layer) {
-                layer.expanded = false;
-                collapsedCount++;
+            try {
+                if ('expanded' in layer && layer.expanded === true) {
+                    layer.expanded = false;
+                    collapsedCount++;
+                }
+            } catch (error) {
+                console.warn('Error collapsing layer:', layer.name || 'Unknown', error);
+                errorCount++;
             }
         }
+        
         if (collapsedCount > 0) {
             const action = selectedLayers.length === 0 ? 'all' : 'selected';
-            figma.notify(`${collapsedCount} ${action} layer(s) collapsed!`);
+            let message = `${collapsedCount} ${action} layer(s) collapsed!`;
+            if (errorCount > 0) {
+                message += ` (${errorCount} errors)`;
+            }
+            figma.notify(message);
         }
         else {
-            const action = selectedLayers.length === 0 ? 'collapsible layers on this page' : 'collapsible layers selected';
-            figma.notify(`No ${action}.`);
+            const action = selectedLayers.length === 0 ? 'expanded collapsible layers on this page' : 'expanded collapsible layers selected';
+            const foundLayers = layersToCollapse.length;
+            if (foundLayers === 0) {
+                figma.notify(`No ${action} found.`);
+            } else {
+                figma.notify(`Found ${foundLayers} collapsible layer(s) but none were expanded.`);
+            }
         }
     });
 }
