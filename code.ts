@@ -401,24 +401,37 @@ async function handleAddDateTitle() {
     const hasAnyDatePattern = /\d{2}\.\d{2}\s*:\s*/.test(currentPage.name);
     
     if (hasAnyDatePattern) {
-      // Check if it has a page emoji pattern first (only circle emojis for pages)
-      const pageEmojiMatch = currentPage.name.match(/↳\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])/);
+      // Handle all combinations: arrow+date or arrow+emoji+date
+      // Pattern 1: (indent)↳ (emoji) (date) : (page title)
+      // Pattern 2: (indent)↳ (date) : (page title)
+      
+      // First check if it has a page emoji pattern
+      const pageEmojiMatch = currentPage.name.match(/(\\s*)↳\\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])\\s*\\d{2}\\.\\d{2}\\s*:\\s*(.*)/);
       
       if (pageEmojiMatch) {
-        // Has page emoji, replace date while preserving emoji
-        const emoji = pageEmojiMatch[1];
-        // Extract the part after the date to preserve the page name
-        // Use a more specific pattern to find the date and what comes after
-        const fullPattern = new RegExp(`↳\\s*${emoji}\\s*\\d{2}\\.\\d{2}\\s*:\\s*(.*)`);
-        const fullMatch = currentPage.name.match(fullPattern);
-        const pageNamePart = fullMatch ? fullMatch[1] : currentPage.name.replace(/^.*:\s*/, '');
-        // Use the default yellow circle emoji instead of the potentially broken one
-        newPageName = `↳ ${PAGE_EMOJI_LIST[2]} ${dateString} : ${pageNamePart}`;
+        // Has arrow + emoji + date: check if date needs updating
+        const existingDate = currentPage.name.match(/\\d{2}\\.\\d{2}/)?.[0];
+        console.log('Page with emoji - existing date:', existingDate, 'current date:', dateString);
+        if (existingDate && existingDate !== dateString) {
+          // Date is different, update it
+          const leadingSpaces = pageEmojiMatch[1];
+          const emoji = pageEmojiMatch[2];
+          const pageNamePart = pageEmojiMatch[3];
+          newPageName = `${leadingSpaces}↳ ${emoji} ${dateString} : ${pageNamePart}`;
+        }
       } else {
-        // No page emoji but has date, replace date and add default emoji
-        const afterDateMatch = currentPage.name.match(/\d{2}\.\d{2}\s*:\s*(.*)/);
-        const pageNamePart = afterDateMatch ? afterDateMatch[1] : currentPage.name;
-        newPageName = `↳ ${PAGE_EMOJI_LIST[2]} ${dateString} : ${pageNamePart}`;
+        // Has arrow + date (no emoji): check if date needs updating
+        const arrowDateMatch = currentPage.name.match(/(\\s*)↳\\s*\\d{2}\\.\\d{2}\\s*:\\s*(.*)/);
+        if (arrowDateMatch) {
+          const existingDate = currentPage.name.match(/\\d{2}\\.\\d{2}/)?.[0];
+          console.log('Page without emoji - existing date:', existingDate, 'current date:', dateString);
+          if (existingDate && existingDate !== dateString) {
+            // Date is different, update it and add emoji
+            const leadingSpaces = arrowDateMatch[1];
+            const pageNamePart = arrowDateMatch[2];
+            newPageName = `${leadingSpaces}↳ ${PAGE_EMOJI_LIST[2]} ${dateString} : ${pageNamePart}`;
+          }
+        }
       }
     } else {
       // Add new date structure if no existing date found
