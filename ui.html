@@ -5,7 +5,7 @@
        <span class="icon" aria-hidden="true">📄</span>
        <span class="label">Collapse</span>
      </button>
-         <button id="add-date-btn" class="action-btn" title="Add date to selection or current page" aria-label="Add date">
+         <button id="add-date-btn" class="action-btn" title="Add date to selected layers or current page" aria-label="Add date">
        <span class="icon" aria-hidden="true">📅</span>
        <span class="label">Add Date</span>
      </button>
@@ -107,6 +107,17 @@
   .action-btn:active {
     background: rgba(255, 105, 180, 0.4);
     transform: translateY(0);
+  }
+
+  .action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #1a1a1a;
+  }
+
+  .action-btn:disabled:hover {
+    background: #1a1a1a;
+    transform: none;
   }
 
   
@@ -223,7 +234,7 @@
   .section-badge {
     background: transparent;
     border-radius: 10px;
-    padding: 1px 4px;
+    padding: 2px 4px;
     font-size: 8px;
     font-weight: 500;
     white-space: nowrap;
@@ -235,8 +246,8 @@
   }
 
   #anchors-badge {
-    color: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.4);
+    border: .5px solid rgba(255, 255, 255, 0.4);
   }
 
   .arrow {
@@ -456,9 +467,11 @@
   }
 
      function handleNewPage(event) {
-     if (hasLayerSelected) {
-       showTooltip('Collapsing layers...', event.target);
+     if (!hasLayerSelected) {
+       showTooltip('Please select layers to collapse', event.target);
+       return;
      }
+     showTooltip('Collapsing layers...', event.target);
      sendMessage('collapse-layers');
    }
 
@@ -499,6 +512,7 @@
   function updateSelectionIndicator(hasSelection) {
     const tagsBadge = document.getElementById('tags-badge');
     const anchorsBadge = document.getElementById('anchors-badge');
+    const collapseBtn = document.getElementById('new-page-btn');
     
     if (tagsBadge) {
       tagsBadge.textContent = hasSelection ? 'Layer' : 'Page';
@@ -507,6 +521,11 @@
     // Keep Anchors badge as "Layer" regardless of selection state
     if (anchorsBadge) {
       anchorsBadge.textContent = 'Layer';
+    }
+    
+    // Disable collapse button when no layers are selected
+    if (collapseBtn) {
+      collapseBtn.disabled = !hasSelection;
     }
   }
 

@@ -361,7 +361,8 @@ function handleClearEmoji(selectedLayers) {
     });
 }
 /**
- * Creates a new page or prepends a title to selected layers based on context.
+ * Adds date to selected layers or current page based on context.
+ * Replaces existing dates with the current date.
  */
 function handleAddDateTitle() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -371,29 +372,91 @@ function handleAddDateTitle() {
         const dateString = `${month}.${day}`;
         const selectedLayers = figma.currentPage.selection;
         if (selectedLayers.length > 0) {
-            // If layers are selected, prepend the title to their names
+            // If layers are selected, update their names
             let layersUpdated = 0;
             for (const layer of selectedLayers) {
-                // Check if layer already has the current date pattern anywhere in the name
-                const hasDatePattern = layer.name.includes(`${dateString} :`);
-                if (!hasDatePattern) {
-                    layer.name = `${LAYER_EMOJI_LIST[2]} ${dateString} : ${layer.name}`;
+                let newName = layer.name;
+                // Check for existing date patterns in layer names
+                // Pattern 1: 🟨 08.05 : Layer name
+                // Pattern 2: (08.05 : Layer name)
+                const datePattern1 = /\b\d{2}\.\d{2}\s*:\s*/;
+                const datePattern2 = /\(\d{2}\.\d{2}\s*:\s*/;
+                if (datePattern1.test(layer.name)) {
+                    // Replace existing date with current date
+                    newName = layer.name.replace(datePattern1, `${dateString} : `);
                     layersUpdated++;
                 }
+                else if (datePattern2.test(layer.name)) {
+                    // Replace existing date in parentheses with current date
+                    newName = layer.name.replace(datePattern2, `(${dateString} : `);
+                    layersUpdated++;
+                }
+                else {
+                    // Add new date prefix if no existing date found
+                    newName = `${LAYER_EMOJI_LIST[2]} ${dateString} : ${layer.name}`;
+                    layersUpdated++;
+                }
+                layer.name = newName;
             }
             if (layersUpdated > 0) {
-                figma.notify(`Date prefix added to ${layersUpdated} layer(s)!`);
+                figma.notify(`Date updated/added to ${layersUpdated} layer(s)!`);
             }
             else {
-                figma.notify('All selected layers already have date prefixes.');
+                figma.notify('No layers were updated.');
             }
         }
         else {
-            // If no layers are selected, create a new page
-            const newPage = figma.createPage();
-            newPage.name = `↳ ${PAGE_EMOJI_LIST[2]} ${dateString} : New Page`;
-            yield figma.setCurrentPageAsync(newPage);
-            figma.notify('New page created with date title!');
+            // If no layers are selected, update the current page
+            const currentPage = figma.currentPage;
+            let newPageName = currentPage.name;
+            // Check for existing date patterns in page names
+            // Pattern 1: ↳ 🟡 07.30 : Page name
+            // Pattern 2: ↳ 07.30 : Page name
+            const pageDatePattern1 = /↳\s*[🟥🟧🟨🟩🟦🟪⬛⬜🔴🟠🟡🟢🔵🟣⚫️⚪️]\s*\d{2}\.\d{2}\s*:\s*/;
+            const pageDatePattern2 = /↳\s*\d{2}\.\d{2}\s*:\s*/;
+            // First check if there's any date pattern in the page name
+            const hasAnyDatePattern = /\d{2}\.\d{2}\s*:\s*/.test(currentPage.name);
+            if (hasAnyDatePattern) {
+                // Check if it has a page emoji pattern first (only circle emojis for pages)
+                const pageEmojiMatch = currentPage.name.match(/↳\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])/);
+                if (pageEmojiMatch) {
+                    // Has page emoji, replace date while preserving emoji
+                    const emoji = pageEmojiMatch[1];
+                    // Extract the part after the date to preserve the page name
+                    // Use a more specific pattern to find the date and what comes after
+                    const fullPattern = new RegExp(`↳\\s*${emoji}\\s*\\d{2}\\.\\d{2}\\s*:\\s*(.*)`);
+                    const fullMatch = currentPage.name.match(fullPattern);
+                    const pageNamePart = fullMatch ? fullMatch[1] : currentPage.name.replace(/^.*:\s*/, '');
+                    // Use the default yellow circle emoji instead of the potentially broken one
+                    newPageName = `↳ ${PAGE_EMOJI_LIST[2]} ${dateString} : ${pageNamePart}`;
+                }
+                else {
+                    // No page emoji but has date, replace date and add default emoji
+                    const afterDateMatch = currentPage.name.match(/\d{2}\.\d{2}\s*:\s*(.*)/);
+                    const pageNamePart = afterDateMatch ? afterDateMatch[1] : currentPage.name;
+                    newPageName = `↳ ${PAGE_EMOJI_LIST[2]} ${dateString} : ${pageNamePart}`;
+                }
+            }
+            else {
+                // Add new date structure if no existing date found
+                if (currentPage.name.includes('↳')) {
+                    // If it has the arrow structure, add the date after the arrow
+                    newPageName = currentPage.name.replace('↳', `↳ ${PAGE_EMOJI_LIST[2]} ${dateString} :`);
+                }
+                else {
+                    // If no arrow structure, add the default structure with the date
+                    newPageName = `↳ ${PAGE_EMOJI_LIST[2]} ${dateString} : ${currentPage.name}`;
+                }
+            }
+            if (newPageName !== currentPage.name) {
+                currentPage.name = newPageName;
+                // Update bookmarks for this page
+                yield updateBookmarksForPage(currentPage.id, currentPage.name);
+                figma.notify('Date updated/added to current page!');
+            }
+            else {
+                figma.notify('Current page already has today\'s date.');
+            }
         }
     });
 }
@@ -432,20 +495,16 @@ function getAllCollapsibleLayers(node, maxDepth = 3) {
     return collapsibleLayers;
 }
 /**
- * Collapses layers in the layer panel.
+ * Collapses selected layers in the layer panel.
  */
 function handleCollapseLayers(selectedLayers) {
     return __awaiter(this, void 0, void 0, function* () {
-        let layersToCollapse = [];
         if (selectedLayers.length === 0) {
-            // If no layers selected, collapse all collapsible layers (like Alt+L)
-            // Use optimized recursive function with depth limit
-            layersToCollapse = getAllCollapsibleLayers(figma.currentPage, 3);
+            figma.notify('Please select layers to collapse.');
+            return;
         }
-        else {
-            // If layers are selected, collapse only those layers
-            layersToCollapse = selectedLayers.filter(node => 'expanded' in node);
-        }
+        // Only collapse selected layers that are collapsible
+        const layersToCollapse = selectedLayers.filter(node => 'expanded' in node);
         let collapsedCount = 0;
         for (const layer of layersToCollapse) {
             if ('expanded' in layer) {
@@ -454,12 +513,10 @@ function handleCollapseLayers(selectedLayers) {
             }
         }
         if (collapsedCount > 0) {
-            const action = selectedLayers.length === 0 ? 'all' : 'selected';
-            figma.notify(`${collapsedCount} ${action} layer(s) collapsed!`);
+            figma.notify(`${collapsedCount} selected layer(s) collapsed!`);
         }
         else {
-            const action = selectedLayers.length === 0 ? 'collapsible layers on this page' : 'collapsible layers selected';
-            figma.notify(`No ${action}.`);
+            figma.notify('No collapsible layers selected.');
         }
     });
 }
