@@ -1,45 +1,46 @@
 <div class="scrollable-content">
   <!-- Quick Actions Section -->
-  <div id="quick-actions">
-         <button id="new-page-btn" class="action-btn" title="Collapse selected layers or all layers if none selected">
-       <span class="icon">📄</span>
+  <div id="quick-actions" role="toolbar" aria-label="Quick actions">
+         <button id="new-page-btn" class="action-btn" title="Collapse selected layers or all layers if none selected" aria-label="Collapse layers">
+       <span class="icon" aria-hidden="true">📄</span>
        <span class="label">Collapse</span>
      </button>
-         <button id="add-date-btn" class="action-btn" title="Add date to selection or current page">
-       <span class="icon">📅</span>
+         <button id="add-date-btn" class="action-btn" title="Add date to selection or current page" aria-label="Add date">
+       <span class="icon" aria-hidden="true">📅</span>
        <span class="label">Add Date</span>
      </button>
   </div>
 
   <!-- Color Tags Section -->
-  <h2 class="section-header collapsible" data-target="color-section">
+  <h2 class="section-header collapsible" data-target="color-section" role="button" tabindex="0" aria-expanded="true" aria-controls="color-section">
     <div class="header-left">
-      <span class="arrow">-</span>
+      <span class="arrow" aria-hidden="true">-</span>
       <span>Tags</span>
     </div>
     <span id="tags-badge" class="section-badge">Page</span>
   </h2>
-  <div id="color-section" class="collapsible-content">
+  <div id="color-section" class="collapsible-content" role="region" aria-labelledby="color-section">
     <div class="color-grid-container">
-      <div id="color-emoji-buttons" class="color-grid"></div>
-      <button id="clear-color" class="clear-action">
-        <span class="icon">✕</span>
-        <span>Clear</span>
+      <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
+      <button id="clear-color" class="clear-action" aria-label="Clear color tags">
+        <span>Remove Tag</span>
       </button>
     </div>
   </div>
 
   <!-- Anchors Section -->
-  <h2 class="section-header collapsible" data-target="anchors-section">
+  <h2 class="section-header collapsible" data-target="anchors-section" role="button" tabindex="0" aria-expanded="true" aria-controls="anchors-section">
     <div class="header-left">
-      <span class="arrow">+</span>
+      <span class="arrow" aria-hidden="true">-</span>
       <span>Anchors</span>
     </div>
     <span id="anchors-badge" class="section-badge">Layer</span>
   </h2>
-  <div id="anchors-section" class="collapsible-content collapsed">
-    <ul id="bookmark-list"></ul>
-    <button id="save-bookmark">⚓ Drop Anchor</button>
+  <div id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-section">
+    <div class="anchors-container">
+      <ul id="bookmark-list" role="list" aria-label="Bookmarks"></ul>
+      <button id="save-bookmark" aria-label="Save bookmark">⚓ Drop Anchor</button>
+    </div>
   </div>
 
 </div>
@@ -48,13 +49,13 @@
 <div id="tooltip" class="tooltip"></div>
 
 <style>
-  /* Import Inter font from Google Fonts */
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  /* Use system fonts instead of external Google Fonts to avoid CSP issues */
+  /* Inter font will be available on most systems, with fallbacks */
   
   /* Base styles remain the same */
   html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; box-sizing: border-box; }
-  body { width: 100%; height: 100%; overflow: hidden; background: #0f0f0f; color: #ffffff; display: flex; flex-direction: column; border: 1px solid #2a2a2a; position: relative; }
-  body, button, h3 { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 500; font-size: 12px; }
+  body { width: 100%; height: 100%; overflow: hidden; background: #0f0f0f; display: flex; flex-direction: column; position: relative; }
+  body, button, h3 { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; font-weight: 500; font-size: 12px; }
   
      /* Scrollbar styles */
    .scrollable-content { width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; }
@@ -68,12 +69,12 @@
      display: grid;
      grid-template-columns: 1fr 1fr;
      gap: 6px;
-     padding-bottom: 12px;
+     padding-bottom: 0;
    }
 
   .action-btn {
     height: 36px;
-    font-size: 11px;
+    font-size: 8px;
     border-radius: 4px;
     border: none;
     background: #1a1a1a;
@@ -90,7 +91,7 @@
   }
 
   .action-btn .icon {
-    font-size: 14px;
+    font-size: 16px;
     opacity: 0.8;
   }
 
@@ -124,8 +125,8 @@
   .color-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-gap: 6px;
-    width: 144px;
+    grid-gap: 4px;
+    width: 100%;
   }
 
   #color-emoji-buttons {
@@ -133,14 +134,14 @@
   }
 
   .emoji-button {
-    font-size: 14px;
-    width: 32px;
-    height: 32px;
+    font-size: 16px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 16px;
     border: none;
     background: #1a1a1a;
     transition: all 0.2s ease;
@@ -157,10 +158,10 @@
   }
 
   .clear-action {
-    width: 144px;
+    width: 100%;
     padding: 8px 16px;
-    font-size: 11px;
-    border-radius: 3px;
+    font-size: 10px;
+    border-radius: 16px;
     border: none;
     background: #1a1a1a;
     color: #ffffff;
@@ -172,10 +173,11 @@
     justify-content: center;
     gap: 4px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    opacity: 0.6;
   }
 
   .clear-action .icon {
-    font-size: 10px;
+    font-size: 8px;
     opacity: 0.7;
   }
 
@@ -186,7 +188,7 @@
      /* Section Headers */
    .section-header {
      font-size: 12px;
-     margin: 0 0 8px 0;
+     margin: 0 0 0 0;
      font-weight: 500;
      color: #ffffff;
      cursor: pointer;
@@ -197,9 +199,9 @@
      align-items: center;
      background: #0f0f0f;
      border-top: 1px solid #2a2a2a;
-     border-bottom: 1px solid #2a2a2a;
+     border-bottom: 1px solid rgba(42, 42, 42, 0.4);
      border-radius: 0;
-     padding: 12px 8px 12px 8px;
+     padding: 10px 12px 10px 12px;
    }
 
   .section-header:first-of-type {
@@ -209,7 +211,7 @@
      .section-header:hover {
      background: #1a1a1a;
      border-top: 1px solid #404040;
-     border-bottom: 1px solid #404040;
+     border-bottom: 1px solid rgba(64, 64, 64, 0.4);
    }
 
   .header-left {
@@ -219,19 +221,29 @@
   }
 
   .section-badge {
-    background: #4a9eff;
-    color: #ffffff;
+    background: transparent;
     border-radius: 10px;
-    padding: 2px 6px;
-    font-size: 9px;
+    padding: 1px 4px;
+    font-size: 8px;
     font-weight: 500;
     white-space: nowrap;
+  }
+
+  #tags-badge {
+    color: #49EEDC;
+    border: 1px solid #49EEDC;
+  }
+
+  #anchors-badge {
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.6);
   }
 
   .arrow {
     font-size: 12px;
     font-weight: bold;
     color: #ffffff;
+    width: 8px;
   }
 
   .collapsible-content {
@@ -256,7 +268,17 @@
      min-height: 0;
      overflow: hidden;
      background: #0a0a0a;
-     padding: 12px;
+     padding: 0px;
+     border-radius: 4px;
+   }
+
+   .anchors-container {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 8px;
+     background: #0a0a0a;
+     padding: 8px 8px;
      border-radius: 4px;
    }
 
@@ -264,17 +286,17 @@
     flex: 1;
     overflow-y: auto;
     min-height: 0;
-    margin-bottom: 8px;
     list-style: none;
     padding: 0;
     margin: 0;
+    width: 100%;
   }
 
   .bookmark-item {
     display: flex;
     align-items: center;
     margin-bottom: 0;
-    font-size: 11px;
+    font-size: 10px;
     background: transparent;
     border-radius: 0;
     padding: 8px 8px;
@@ -294,7 +316,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 0px 24px 0px 0px;
+    padding: 0px 0px 0px 0px;
     cursor: pointer;
   }
 
@@ -308,7 +330,7 @@
   }
 
   .bookmark-page {
-    font-size: 10px;
+    font-size: 8px;
     color: #ffffff;
     font-weight: normal;
     margin-top: 2px;
@@ -321,13 +343,13 @@
     color: #ffffff;
     background: none;
     border: none;
-    font-size: 11px;
+    font-size: 12px;
     cursor: pointer;
     padding: 0;
     margin: 0;
     transition: all 0.2s ease;
     opacity: 0.7;
-    width: 20px;
+    width: 24px;
     height: 100%;
     display: flex;
     align-items: center;
@@ -338,23 +360,22 @@
   }
 
   .bookmark-remove:hover {
-    background: #2a2a2a;
-    color: #ff6b6b;
+    background: #ff6b6b;
+    color: #ffffff;
     opacity: 1;
   }
 
   #save-bookmark {
     padding: 8px;
-    font-size: 11px;
+    font-size: 10px;
     border: none;
     background: #2a2a2a;
     color: #ffffff;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: normal;
     transition: all 0.2s ease;
     width: 100%;
-    border-radius: 3px;
-    margin-top: auto;
+    border-radius: 16px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
@@ -369,7 +390,7 @@
     color: #ffffff;
     padding: 4px 8px;
     border-radius: 3px;
-    font-size: 10px;
+    font-size: 8px;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -398,16 +419,12 @@
   
   // Configuration
   const MAX_TITLE_LENGTH = 20;
+  const MAX_PAGE_TITLE_LENGTH = 32;
   
-  // Helper function to truncate text
-  function truncateWithMiddleEllipsis(text, maxLength = MAX_TITLE_LENGTH) {
-    const trimmedText = text.replace(/^\s+/, '');
-    if (trimmedText.length <= maxLength) return text;
-    const endLength = 10;
-    const startLength = maxLength - endLength - 1;
-    const start = trimmedText.substring(0, startLength);
-    const end = trimmedText.substring(trimmedText.length - endLength);
-    return start + '…' + end;
+  // Helper function to truncate page titles
+  function truncatePageTitle(text, maxLength = MAX_PAGE_TITLE_LENGTH) {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength - 1) + '…';
   }
 
   // State
@@ -487,8 +504,9 @@
       tagsBadge.textContent = hasSelection ? 'Layer' : 'Page';
     }
     
+    // Keep Anchors badge as "Layer" regardless of selection state
     if (anchorsBadge) {
-      anchorsBadge.textContent = hasSelection ? 'Layer' : 'Page';
+      anchorsBadge.textContent = 'Layer';
     }
   }
 
@@ -501,6 +519,9 @@
     
     const isCollapsed = content.classList.toggle('collapsed');
     arrow.textContent = isCollapsed ? '+' : '-';
+    
+    // Update ARIA attributes
+    header.setAttribute('aria-expanded', !isCollapsed);
   }
 
   function renderBookmarks(bookmarks) {
@@ -512,12 +533,12 @@
       const li = document.createElement('li');
       li.className = 'bookmark-item';
       const pageName = bookmark.pageName || 'Unknown Page';
-      const truncatedName = truncateWithMiddleEllipsis(bookmark.name);
+      const truncatedPageName = truncatePageTitle(pageName);
       
       li.innerHTML = `
         <div class="bookmark-content">
-          <span class="bookmark-name" title="${escapeHtml(bookmark.name)}">${escapeHtml(truncatedName)}</span>
-          <span class="bookmark-page" title="${escapeHtml(pageName)}">${escapeHtml(pageName)}</span>
+          <span class="bookmark-name" title="${escapeHtml(bookmark.name)}">${escapeHtml(bookmark.name)}</span>
+          <span class="bookmark-page" title="${escapeHtml(pageName)}">${escapeHtml(truncatedPageName)}</span>
         </div>
         <button class="bookmark-remove" title="Remove">×</button>
       `;

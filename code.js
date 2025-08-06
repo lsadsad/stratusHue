@@ -179,7 +179,7 @@ function navigateToNode(node) {
     });
 }
 // --- Plugin UI Setup ---
-figma.showUI(__html__, { width: 240, height: 352 });
+figma.showUI(__html__, { width: 184, height: 352 });
 figma.on('selectionchange', () => {
     sendSelectionStateToUI();
 });
