@@ -116,9 +116,13 @@ function updateAndSaveBookmarks(bookmarks) {
 }
 // --- Emoji & Naming Helpers ---
 function removeEmojiPrefix(name) {
+    // Remove a LEADING emoji tag (layer/page) and an optional single space after it.
     for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) {
-        if (name.includes(emoji)) {
-            return name.replace(emoji, '').trim();
+        if (name.startsWith(emoji + ' ')) {
+            return name.slice((emoji + ' ').length);
+        }
+        if (name.startsWith(emoji)) {
+            return name.slice(emoji.length);
         }
     }
     return name;
@@ -183,6 +187,41 @@ figma.showUI(__html__, { width: 184, height: 352 });
 figma.on('selectionchange', () => {
     sendSelectionStateToUI();
 });
+// Refresh bookmarks by pulling latest names from the document
+function handleResyncBookmarks() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const bookmarks = yield getBookmarks();
+        if (bookmarks.length === 0) {
+            figma.notify('No anchors to resync.');
+            return;
+        }
+        let updatedCount = 0;
+        for (const bookmark of bookmarks) {
+            try {
+                const node = yield figma.getNodeByIdAsync(bookmark.id);
+                if (node && 'name' in node) {
+                    const latestName = node.name;
+                    const latestPageName = getPageName(node);
+                    if (bookmark.name !== latestName || bookmark.pageName !== latestPageName) {
+                        bookmark.name = latestName;
+                        bookmark.pageName = latestPageName;
+                        updatedCount++;
+                    }
+                }
+            }
+            catch (_) {
+                // Ignore missing nodes during resync
+            }
+        }
+        if (updatedCount > 0) {
+            yield updateAndSaveBookmarks(bookmarks);
+            figma.notify(`Resynced ${updatedCount} anchor(s).`);
+        }
+        else {
+            figma.notify('Anchors already up to date.');
+        }
+    });
+}
 // --- Message Handler Functions ---
 function handleSaveBookmark(selectedLayers) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -315,21 +354,18 @@ function clearPageEmoji(page) {
     return __awaiter(this, void 0, void 0, function* () {
         let emojiCleared = false;
         let bookmarkUpdates = false;
-        // Check if the page name has the arrow structure with emoji
-        if (page.name.includes('↳')) {
-            let newName = page.name;
-            for (const emoji of PAGE_EMOJI_LIST) {
-                if (page.name.includes(emoji)) {
-                    // Remove the emoji but keep the arrow structure
-                    newName = page.name.replace(emoji, '').trim();
-                    // Clean up any double spaces
-                    newName = newName.replace(/\s+/g, ' ');
-                    page.name = newName;
-                    emojiCleared = true;
-                    bookmarkUpdates = yield updateBookmarksForPage(page.id, newName);
-                    break;
-                }
-            }
+        // Check if the page name has the arrow structure with emoji and preserve spacing
+        const match = page.name.match(/^(\s*)↳\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])\uFE0F?\s*(.*)$/);
+        if (match) {
+            const leadingSpaces = match[1];
+            const pageNamePart = match[3].replace(/^\s+/, '');
+            // Reconstruct without emoji and strip any stray variation selectors
+            let newName = `${leadingSpaces}↳ ${pageNamePart}`;
+            newName = newName.replace(/\uFE0F/g, '');
+            newName = newName.replace(/[\u200B\u200C\u200D]/g, '');
+            page.name = newName;
+            emojiCleared = true;
+            bookmarkUpdates = yield updateBookmarksForPage(page.id, newName);
         }
         return { emojiCleared, bookmarkUpdates };
     });
@@ -398,6 +434,8 @@ function handleAddDateTitle() {
                     layersUpdated++;
                 }
                 layer.name = newName;
+                // If this layer is bookmarked, update its stored name so the UI reflects changes immediately
+                yield updateBookmarkIfExists(layer.id, newName);
             }
             if (layersUpdated > 0) {
                 figma.notify(`Date updated/added to ${layersUpdated} layer(s)!`);
@@ -413,8 +451,6 @@ function handleAddDateTitle() {
             // Check for existing date patterns in page names
             // Pattern 1: ↳ 🟡 07.30 : Page name
             // Pattern 2: ↳ 07.30 : Page name
-            const pageDatePattern1 = /↳\s*[🟥🟧🟨🟩🟦🟪⬛⬜🔴🟠🟡🟢🔵🟣⚫️⚪️]\s*\d{2}\.\d{2}\s*:\s*/;
-            const pageDatePattern2 = /↳\s*\d{2}\.\d{2}\s*:\s*/;
             // First check if there's any date pattern in the page name
             const hasAnyDatePattern = /\d{2}\.\d{2}\s*:\s*/.test(currentPage.name);
             if (hasAnyDatePattern) {
@@ -422,10 +458,10 @@ function handleAddDateTitle() {
                 // Pattern 1: (indent)↳ (emoji) (date) : (page title)
                 // Pattern 2: (indent)↳ (date) : (page title)
                 // First check if it has a page emoji pattern
-                const pageEmojiMatch = currentPage.name.match(/(\\s*)↳\\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])\\s*\\d{2}\\.\\d{2}\\s*:\\s*(.*)/);
+                const pageEmojiMatch = currentPage.name.match(/(\s*)↳\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])\s*\d{2}\.\d{2}\s*:\s*(.*)/);
                 if (pageEmojiMatch) {
                     // Has arrow + emoji + date: check if date needs updating
-                    const existingDate = (_a = currentPage.name.match(/\\d{2}\\.\\d{2}/)) === null || _a === void 0 ? void 0 : _a[0];
+                    const existingDate = (_a = currentPage.name.match(/\d{2}\.\d{2}/)) === null || _a === void 0 ? void 0 : _a[0];
                     console.log('Page with emoji - existing date:', existingDate, 'current date:', dateString);
                     if (existingDate && existingDate !== dateString) {
                         // Date is different, update it
@@ -437,15 +473,15 @@ function handleAddDateTitle() {
                 }
                 else {
                     // Has arrow + date (no emoji): check if date needs updating
-                    const arrowDateMatch = currentPage.name.match(/(\\s*)↳\\s*\\d{2}\\.\\d{2}\\s*:\\s*(.*)/);
+                    const arrowDateMatch = currentPage.name.match(/(\s*)↳\s*\d{2}\.\d{2}\s*:\s*(.*)/);
                     if (arrowDateMatch) {
-                        const existingDate = (_b = currentPage.name.match(/\\d{2}\\.\\d{2}/)) === null || _b === void 0 ? void 0 : _b[0];
+                        const existingDate = (_b = currentPage.name.match(/\d{2}\.\d{2}/)) === null || _b === void 0 ? void 0 : _b[0];
                         console.log('Page without emoji - existing date:', existingDate, 'current date:', dateString);
                         if (existingDate && existingDate !== dateString) {
-                            // Date is different, update it and add emoji
+                            // Date is different, update it (do not add emoji if it wasn't there)
                             const leadingSpaces = arrowDateMatch[1];
                             const pageNamePart = arrowDateMatch[2];
-                            newPageName = `${leadingSpaces}↳ ${PAGE_EMOJI_LIST[2]} ${dateString} : ${pageNamePart}`;
+                            newPageName = `${leadingSpaces}↳ ${dateString} : ${pageNamePart}`;
                         }
                     }
                 }
@@ -453,12 +489,26 @@ function handleAddDateTitle() {
             else {
                 // Add new date structure if no existing date found
                 if (currentPage.name.includes('↳')) {
-                    // If it has the arrow structure, add the date after the arrow
-                    newPageName = currentPage.name.replace('↳', `↳ ${PAGE_EMOJI_LIST[2]} ${dateString} :`);
+                    // If it has the arrow structure, add the date respecting optional emoji and indentation
+                    const arrowWithEmoji = currentPage.name.match(/(\s*)↳\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])\s*(.*)/);
+                    if (arrowWithEmoji) {
+                        const leadingSpaces = arrowWithEmoji[1];
+                        const emoji = arrowWithEmoji[2];
+                        const pageNamePart = arrowWithEmoji[3];
+                        newPageName = `${leadingSpaces}↳ ${emoji} ${dateString} : ${pageNamePart}`;
+                    }
+                    else {
+                        const arrowOnly = currentPage.name.match(/(\s*)↳\s*(.*)/);
+                        if (arrowOnly) {
+                            const leadingSpaces = arrowOnly[1];
+                            const pageNamePart = arrowOnly[2];
+                            newPageName = `${leadingSpaces}↳ ${dateString} : ${pageNamePart}`;
+                        }
+                    }
                 }
                 else {
-                    // If no arrow structure, add the default structure with the date
-                    newPageName = `↳ ${PAGE_EMOJI_LIST[2]} ${dateString} : ${currentPage.name}`;
+                    // If no arrow structure, add the default structure with the date (no emoji)
+                    newPageName = `↳ ${dateString} : ${currentPage.name}`;
                 }
             }
             if (newPageName !== currentPage.name) {
@@ -566,6 +616,12 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                 break;
             case 'collapse-layers':
                 yield handleCollapseLayers(selectedLayers);
+                break;
+            case 'add-props':
+                figma.notify('Add Props: coming soon.');
+                break;
+            case 'resync-bookmarks':
+                yield handleResyncBookmarks();
                 break;
             case 'cancel':
                 figma.closePlugin();
