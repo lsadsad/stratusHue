@@ -783,6 +783,16 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                 // Keep plugin width constant at 184px
                 figma.ui.resize(184, 352);
                 break;
+
+      case 'resize-ui': {
+        const width = typeof msg.width === 'number' ? msg.width : 184;
+        const height = typeof msg.height === 'number' ? msg.height : 352;
+        // Constrain width to our fixed width; adjust height within safe bounds
+        const clampedWidth = 184;
+        const clampedHeight = Math.max(200, Math.min(720, height));
+        figma.ui.resize(clampedWidth, clampedHeight);
+        break;
+      }
             case 'cancel':
                 figma.closePlugin();
                 break;

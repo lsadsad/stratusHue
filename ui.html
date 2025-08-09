@@ -1,39 +1,20 @@
 <div class="scrollable-content">
   <!-- Quick Actions Section -->
   <div id="quick-actions" role="toolbar" aria-label="Quick actions">
-         <button id="new-page-btn" class="action-btn" aria-label="Collapse layers">
-        <span class="icon" aria-hidden="true">⇣</span>
-       <span class="label">Collapse</span>
-     </button>
-         <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
-        <span class="icon" aria-hidden="true">✕</span>
-        <span class="label">Deselect</span>
-      </button>
          <button id="resync-btn" class="action-btn" aria-label="Resync anchors">
         <span class="icon" aria-hidden="true">⟳</span>
        <span class="label">Resync</span>
      </button>
-  </div>
-
-  <!-- Color Tags Section -->
-  <h2 class="section-header collapsible" data-target="color-section" role="button" tabindex="0" aria-expanded="true" aria-controls="color-section">
-    <div class="header-left">
-      <span class="arrow" aria-hidden="true">-</span>
-      <span>Tags</span>
-    </div>
-    <span id="tags-badge" class="section-badge">onPage</span>
-  </h2>
-  <div id="color-section" class="collapsible-content" role="region" aria-labelledby="color-section">
-    <div class="color-grid-container">
-      <div class="tags-actions">
-        <button id="add-date-btn" class="tags-btn" aria-label="Add date">Date ++</button>
-        <button id="add-props-btn" class="tags-btn" aria-label="Add props">Props ++</button>
-      </div>
-      <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
-      <button id="clear-color" class="clear-action" aria-label="Clear color tags">
-        <span>Remove Tag</span>
+         <button id="new-page-btn" class="action-btn" aria-label="Collapse layers">
+        <span class="icon" aria-hidden="true">⇣</span>
+       <span class="label">Collapse</span>
+     </button>
+     <div class="qa-spacer" aria-hidden="true"></div>
+         <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
+        <span class="icon" aria-hidden="true">✕</span>
+        <span class="label">Deselect</span>
       </button>
-    </div>
+      <span id="status-indicator" class="top-badge" aria-live="polite">onPage</span>
   </div>
 
   <!-- Layer Navigation Section -->
@@ -64,6 +45,27 @@
     </div>
   </div>
 
+  <!-- Color Tags Section -->
+  <h2 class="section-header collapsible" data-target="color-section" role="button" tabindex="0" aria-expanded="true" aria-controls="color-section">
+    <div class="header-left">
+      <span class="arrow" aria-hidden="true">-</span>
+      <span>Tags</span>
+    </div>
+    <span id="tags-badge" class="section-badge">onPage</span>
+  </h2>
+  <div id="color-section" class="collapsible-content" role="region" aria-labelledby="color-section">
+    <div class="color-grid-container">
+      <div class="tags-actions">
+        <button id="add-date-btn" class="tags-btn" aria-label="Add date">Date ++</button>
+        <button id="add-props-btn" class="tags-btn" aria-label="Add props">Props ++</button>
+      </div>
+      <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
+      <button id="clear-color" class="clear-action" aria-label="Clear color tags">
+        <span>Remove Tag</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Anchors Section -->
   <h2 class="section-header collapsible" data-target="anchors-section" role="button" tabindex="0" aria-expanded="true" aria-controls="anchors-section">
     <div class="header-left">
@@ -83,6 +85,8 @@
 
 <!-- Tooltip -->
 <div id="tooltip" class="tooltip"></div>
+<!-- Resize Handle -->
+<div id="resize-handle" role="separator" aria-orientation="vertical" aria-label="Resize panel" tabindex="0">:  :  :</div>
 
 <style>
   /* Use system fonts instead of external Google Fonts to avoid CSP issues */
@@ -95,6 +99,7 @@
   
      /* Scrollbar styles */
    .scrollable-content { width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; }
+  .scrollable-content { padding-bottom: 16px; }
   .scrollable-content::-webkit-scrollbar { width: 2px; }
   .scrollable-content::-webkit-scrollbar-track { background: #0f0f0f; border-radius: 2px; }
   .scrollable-content::-webkit-scrollbar-thumb { background: #404040; border-radius: 2px; transition: background 0.2s ease; }
@@ -110,6 +115,23 @@
      flex-wrap: nowrap;
      overflow: hidden;
    }
+
+  .qa-spacer { flex: 1 1 auto; }
+
+  .top-badge {
+    background: transparent;
+    padding: 0 6px;
+    border-radius: 10px;
+    font-size: 8px;
+    font-weight: 500;
+    color: #49EEDC; /* default cyan for onPage */
+    border: 1px solid currentColor;
+    line-height: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   .action-btn {
     width: 28px;
@@ -267,6 +289,19 @@
     background: rgba(255, 105, 180, 0.2);
   }
 
+  /* Disabled state for tags-style buttons (e.g., Collapse Folders) */
+  .tags-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #0f0f0f;
+    border-color: #2a2a2a;
+  }
+
+  .tags-btn:disabled:hover {
+    background: #0f0f0f;
+    border-color: #2a2a2a;
+  }
+
   .color-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -334,10 +369,10 @@
 
      /* Section Headers */
    .section-header {
-     font-size: 12px;
+     font-size: 8px; /* match badge size */
      margin: 0 0 0 0;
-     font-weight: 500;
-     color: #ffffff;
+     font-weight: 300;
+     color: rgba(255, 255, 255, 0.6);
      cursor: pointer;
      user-select: none;
      transition: all 0.2s ease;
@@ -349,6 +384,8 @@
      border-bottom: 1px solid rgba(42, 42, 42, 0.4);
      border-radius: 0;
      padding: 10px 12px 10px 12px;
+    text-transform: uppercase; /* IDE style headings */
+    letter-spacing: 0.16em;    /* approx. 10% tracking */
    }
 
   .section-header:first-of-type {
@@ -369,33 +406,67 @@
 
   .section-badge {
     background: transparent;
-    border-radius: 10px;
-    padding: 2px 4px;
-    font-size: 8px;
-    font-weight: 500;
+    border: none;
+    padding: 0;
+    font-size: 12px;
+    font-weight: inherit; /* match heading weight */
     white-space: nowrap;
+    text-transform: none;
+    letter-spacing: normal;
+    display: inline-flex; /* for vertical centering */
+    align-items: center;
+    justify-content: center;
+    width: 14px;   /* fixed box for optical centering */
+    height: 14px;  /* fixed box for optical centering */
+    line-height: 14px; /* keeps glyph centered */
+    vertical-align: middle;
+    transform: translateY(3px); /* fine nudge for optical alignment */
   }
 
-  #tags-badge {
-    color: #49EEDC;
-    border: 1px solid #49EEDC;
-  }
-  #navigation-badge {
-    color: #49EEDC;
-    border: 1px solid #49EEDC;
-  }
-
-  #anchors-badge {
-    color: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-  }
+  #tags-badge,
+  #navigation-badge { color: #49EEDC; }
+  #anchors-badge { color: #FF4DCD; }
 
   .arrow {
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 900; /* make +/- max weight */
     color: #ffffff;
-    width: 8px;
+    width: 10px;
   }
+
+  /* Color +/- based on expanded state (IDE-like) */
+  .section-header[aria-expanded="true"] .arrow { /* expanded shows '-' */
+    color: #ff6b6b;
+    font-weight: 300; /* match lighter heading when expanded */
+  }
+  .section-header[aria-expanded="false"] .arrow { /* collapsed shows '+' */
+    color: #7ad96f;
+    font-weight: 800; /* match boldest heading when collapsed */
+  }
+
+  /* Adjust heading weight by expanded/collapsed state */
+  /* Ensure all headings (e.g., - NAV... onPage) use the same weights */
+  .section-header[aria-expanded="true"] { /* expanded */
+    font-weight: 300; /* lighter */
+  }
+  .section-header[aria-expanded="false"] { /* collapsed */
+    font-weight: 800; /* boldest when collapsed */
+  }
+
+  /* Position-based +/- colors (RGB top→bottom) so order changes are respected */
+  .section-header:nth-of-type(1) .arrow { /* top = red */
+    color: #ff6b6b;
+  }
+  .section-header:nth-of-type(2) .arrow { /* middle = green */
+    color: #6ede6e;
+  }
+  .section-header:nth-of-type(3) .arrow { /* bottom = blue */
+    color: #6fb0ff;
+  }
+  /* Darker shades when collapsed */
+  .section-header:nth-of-type(1)[aria-expanded="false"] .arrow { color: #b84d4d; }
+  .section-header:nth-of-type(2)[aria-expanded="false"] .arrow { color: #4ea84e; }
+  .section-header:nth-of-type(3)[aria-expanded="false"] .arrow { color: #4d7ccc; }
 
   .collapsible-content {
     overflow: hidden;
@@ -516,22 +587,29 @@
     opacity: 1;
   }
 
+  /* Make 'Drop Anchor' match the 'Remove Tag' button */
   #save-bookmark {
-    padding: 8px;
+    width: 100%;
+    height: 32px;
+    padding: 0 12px;
     font-size: 10px;
-    border: none;
-    background: #2a2a2a;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
+    background: #0f0f0f;
     color: #ffffff;
     cursor: pointer;
     font-weight: normal;
     transition: all 0.2s ease;
-    width: 100%;
-    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   #save-bookmark:hover {
-    background: #404040;
+    background: #1a1a1a;
+    border-color: #404040;
   }
 
   /* Tooltip */
@@ -554,6 +632,34 @@
   .tooltip.visible {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Resize Handle */
+  #resize-handle {
+    position: fixed;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 2px;
+    user-select: none;
+    cursor: ns-resize;
+    width: 40px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    z-index: 1001;
+  }
+
+  #resize-handle:hover, #resize-handle:focus {
+    color: rgba(255, 255, 255, 0.8);
+    outline: none;
+    background: rgba(255, 255, 255, 0.04);
   }
 
 </style>
@@ -591,6 +697,7 @@
     tooltip = document.getElementById('tooltip');
     sendMessage('ui-ready');
     setupEventListeners();
+    setupResizeHandle();
   });
 
   function setupEventListeners() {
@@ -651,6 +758,53 @@
     // Collapsibles
     document.querySelectorAll('.collapsible').forEach(header => {
       header.addEventListener('click', () => toggleCollapsible(header));
+    });
+  }
+
+  function setupResizeHandle() {
+    const handle = document.getElementById('resize-handle');
+    if (!handle) return;
+
+    let isDragging = false;
+    let startY = 0;
+    let startHeight = 0;
+
+    const minHeight = 200; // prevent collapsing too far
+    const maxHeight = 720; // reasonable cap for plugin modal
+
+    function onPointerDown(e) {
+      isDragging = true;
+      startY = e.clientY;
+      // Use current container height (viewport height of plugin UI)
+      startHeight = window.innerHeight;
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp, { once: true });
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      const delta = e.clientY - startY;
+      let next = Math.max(minHeight, Math.min(maxHeight, startHeight + delta));
+      // Send resize request to host (width fixed at 184)
+      sendMessage('resize-ui', { width: 184, height: Math.round(next) });
+    }
+
+    function onPointerUp() {
+      isDragging = false;
+      document.removeEventListener('pointermove', onPointerMove);
+    }
+
+    handle.addEventListener('pointerdown', onPointerDown);
+
+    // Keyboard accessible resizing (Up/Down arrows)
+    handle.addEventListener('keydown', (e) => {
+      const step = (e.shiftKey ? 40 : 20);
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        const delta = e.key === 'ArrowUp' ? -step : step;
+        const next = Math.max(minHeight, Math.min(maxHeight, window.innerHeight + delta));
+        sendMessage('resize-ui', { width: 184, height: Math.round(next) });
+        e.preventDefault();
+      }
     });
   }
 
@@ -720,17 +874,19 @@
     const navExitBtn = document.getElementById('nav-exit');
     const navEnterBtn = document.getElementById('nav-enter');
     const navCollapseBtn = document.getElementById('nav-collapse');
+    const statusIndicator = document.getElementById('status-indicator');
     
     if (tagsBadge) {
-      tagsBadge.textContent = hasSelection ? 'onLayer' : 'onPage';
+      // Show bullet instead of text; color will be synced below
+      tagsBadge.textContent = '*';
     }
     if (navigationBadge) {
-      navigationBadge.textContent = hasSelection ? 'onLayer' : 'onPage';
+      navigationBadge.textContent = '*';
     }
     
     // Keep Anchors badge as "onLayer" regardless of selection state
     if (anchorsBadge) {
-      anchorsBadge.textContent = 'onLayer';
+      anchorsBadge.textContent = '*';
     }
     
     // Disable collapse button when no layers are selected
@@ -751,9 +907,26 @@
       navEnterBtn.setAttribute('aria-disabled', String(!hasSelection));
     }
     if (navCollapseBtn) {
+      // Disable when onPage (no selection)
       navCollapseBtn.disabled = !hasSelection;
       navCollapseBtn.setAttribute('aria-disabled', String(!hasSelection));
     }
+
+    // Update status indicator and colors
+    const isLayer = hasSelection;
+    const label = isLayer ? 'onLayer' : 'onPage';
+    const color = isLayer ? '#FF4DCD' /* magenta */ : '#49EEDC' /* cyan */;
+
+    if (statusIndicator) {
+      statusIndicator.textContent = label;
+      statusIndicator.style.color = color;
+      statusIndicator.style.borderColor = color;
+    }
+    // Sync section bullets to the state color, but keep Anchors magenta always
+    [tagsBadge, navigationBadge].forEach((el) => {
+      if (el) el.style.color = color;
+    });
+    if (anchorsBadge) anchorsBadge.style.color = '#FF4DCD';
   }
 
   function toggleCollapsible(header) {
