@@ -1,12 +1,16 @@
 <div class="scrollable-content">
   <!-- Quick Actions Section -->
   <div id="quick-actions" role="toolbar" aria-label="Quick actions">
-         <button id="new-page-btn" class="action-btn" title="Collapse selected layers or all layers if none selected" aria-label="Collapse layers">
-       <span class="icon" aria-hidden="true">📄</span>
+         <button id="new-page-btn" class="action-btn" aria-label="Collapse layers">
+        <span class="icon" aria-hidden="true">⇣</span>
        <span class="label">Collapse</span>
      </button>
-         <button id="resync-btn" class="action-btn" title="Refresh anchor names from document" aria-label="Resync anchors">
-       <span class="icon" aria-hidden="true">🔄</span>
+         <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
+        <span class="icon" aria-hidden="true">✕</span>
+        <span class="label">Deselect</span>
+      </button>
+         <button id="resync-btn" class="action-btn" aria-label="Resync anchors">
+        <span class="icon" aria-hidden="true">⟳</span>
        <span class="label">Resync</span>
      </button>
   </div>
@@ -22,19 +26,40 @@
   <div id="color-section" class="collapsible-content" role="region" aria-labelledby="color-section">
     <div class="color-grid-container">
       <div class="tags-actions">
-        <button id="add-date-btn" class="action-btn" title="Add date to selected layers or current page" aria-label="Add date">
-          <span class="icon" aria-hidden="true">📅</span>
-          <span class="label">Date ++</span>
-        </button>
-        <button id="add-props-btn" class="action-btn" title="Add props to selected layers or current page" aria-label="Add props">
-          <span class="icon" aria-hidden="true">🏷️</span>
-          <span class="label">Props ++</span>
-        </button>
+        <button id="add-date-btn" class="tags-btn" aria-label="Add date">Date ++</button>
+        <button id="add-props-btn" class="tags-btn" aria-label="Add props">Props ++</button>
       </div>
       <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
       <button id="clear-color" class="clear-action" aria-label="Clear color tags">
         <span>Remove Tag</span>
       </button>
+    </div>
+  </div>
+
+  <!-- Layer Navigation Section -->
+  <h2 class="section-header collapsible" data-target="navigation-section" role="button" tabindex="0" aria-expanded="true" aria-controls="navigation-section">
+    <div class="header-left">
+      <span class="arrow" aria-hidden="true">-</span>
+      <span>Layer Navigation</span>
+    </div>
+  </h2>
+  <div id="navigation-section" class="collapsible-content" role="region" aria-labelledby="navigation-section">
+    <div class="nav-container">
+      <div class="nav-grid" role="group" aria-label="Layer navigation controls">
+        <button id="nav-exit" class="nav-btn" aria-label="Exit folder">
+          <span class="icon" aria-hidden="true">↰</span>
+        </button>
+        <button id="nav-up" class="nav-btn" aria-label="Navigate up">
+          <span class="icon" aria-hidden="true">↑</span>
+        </button>
+        <button id="nav-down" class="nav-btn" aria-label="Navigate down">
+          <span class="icon" aria-hidden="true">↓</span>
+        </button>
+        <button id="nav-enter" class="nav-btn" aria-label="Enter folder">
+          <span class="icon" aria-hidden="true">↳</span>
+        </button>
+      </div>
+      <button id="nav-collapse" class="tags-btn" aria-label="Collapse folders">Collapse Folders</button>
     </div>
   </div>
 
@@ -76,13 +101,17 @@
 
      /* Quick Actions Section */
    #quick-actions {
-     display: grid;
-     grid-template-columns: 1fr 1fr;
+     display: flex;
+     flex-direction: row;
+     align-items: center;
      gap: 6px;
-     padding-bottom: 0;
+     padding: 6px 8px 0 8px;
+     flex-wrap: nowrap;
+     overflow: hidden;
    }
 
   .action-btn {
+    width: 28px;
     height: 28px;
     font-size: 8px;
     border-radius: 4px;
@@ -91,13 +120,14 @@
     color: #ffffff;
     cursor: pointer;
     transition: all 0.2s ease;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: 0 8px;
+    gap: 0;
+    padding: 0;
     position: relative;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    flex: 0 0 auto;
   }
 
   .action-btn .icon {
@@ -106,7 +136,7 @@
   }
 
   .action-btn .label {
-    font-weight: normal;
+    display: none; /* Hide names in the bar; shown via tooltip on hover */
   }
 
   .action-btn:hover {
@@ -130,7 +160,48 @@
     transform: none;
   }
 
-  
+  /* Navigation Section */
+  .nav-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #0a0a0a;
+    padding: 8px 8px;
+    border-radius: 4px;
+  }
+
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+
+  .nav-btn {
+    width: 100%;
+    height: 32px;
+    font-size: 12px;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
+    background: #0f0f0f;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .nav-btn:hover {
+    background: #1a1a1a;
+    border-color: #404040;
+  }
+
+  .nav-btn:active {
+    background: rgba(255, 105, 180, 0.2);
+  }
+
 
      /* Color Section */
    .color-grid-container {
@@ -150,6 +221,30 @@
     gap: 6px;
   }
 
+  .tags-btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 10px;
+    border-radius: 16px;
+    border: 1px solid #2a2a2a;
+    background: #0f0f0f;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .tags-btn:hover {
+    background: #1a1a1a;
+    border-color: #404040;
+  }
+
+  .tags-btn:active {
+    background: rgba(255, 105, 180, 0.2);
+  }
+
   .color-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -162,14 +257,14 @@
   }
 
   .emoji-button {
-    font-size: 16px;
-    width: 36px;
+    font-size: 18px;
+    width: 100%;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: 16px;
+    border-radius: 12px;
     border: none;
     background: #1a1a1a;
     transition: all 0.2s ease;
@@ -414,20 +509,23 @@
   /* Tooltip */
   .tooltip {
     position: absolute;
-    background: #333333;
+    background: #1a1a1a;
     color: #ffffff;
-    padding: 4px 8px;
-    border-radius: 3px;
-    font-size: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 10px;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.12s ease, transform 0.12s ease;
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.32);
+    border: 1px solid #2a2a2a;
+    transform: translateY(2px);
   }
 
   .tooltip.visible {
     opacity: 1;
+    transform: translateY(0);
   }
 
 </style>
@@ -458,6 +556,7 @@
   // State
   let hasLayerSelected = false;
   let tooltip = null;
+  let hoverTimer = null;
 
   // Initialize UI when DOM is ready
   window.addEventListener('DOMContentLoaded', () => {
@@ -468,12 +567,54 @@
 
   function setupEventListeners() {
     // Quick Actions
-    document.getElementById('new-page-btn')?.addEventListener('click', (event) => handleNewPage(event));
-    document.getElementById('add-date-btn')?.addEventListener('click', handleAddDate);
-    document.getElementById('add-props-btn')?.addEventListener('click', () => sendMessage('add-props'));
-    document.getElementById('resync-btn')?.addEventListener('click', () => sendMessage('resync-bookmarks'));
+    const newPageBtn = document.getElementById('new-page-btn');
+    const deselectBtn = document.getElementById('deselect-btn');
+    const resyncBtn = document.getElementById('resync-btn');
+    // Navigation
+    const navUpBtn = document.getElementById('nav-up');
+    const navDownBtn = document.getElementById('nav-down');
+    const navEnterBtn = document.getElementById('nav-enter');
+    const navExitBtn = document.getElementById('nav-exit');
+    const navCollapseBtn = document.getElementById('nav-collapse');
+
+    newPageBtn?.addEventListener('click', (event) => handleNewPage(event));
+    deselectBtn?.addEventListener('click', () => sendMessage('deselect'));
+    resyncBtn?.addEventListener('click', () => sendMessage('resync-bookmarks'));
+    navUpBtn?.addEventListener('click', () => sendMessage('nav-up'));
+    navDownBtn?.addEventListener('click', () => sendMessage('nav-down'));
+    navEnterBtn?.addEventListener('click', () => sendMessage('nav-enter'));
+    navExitBtn?.addEventListener('click', () => sendMessage('nav-exit'));
+    navCollapseBtn?.addEventListener('click', (event) => handleNewPage(event));
+
+    // Delayed hover tooltips (200ms)
+    const hoverTargets = [
+      { el: newPageBtn, text: 'Collapse' },
+      { el: deselectBtn, text: 'Deselect' },
+      { el: resyncBtn, text: 'Resync' },
+      { el: navUpBtn, text: 'Up' },
+      { el: navDownBtn, text: 'Down' },
+      { el: navEnterBtn, text: 'Enter folder' },
+      { el: navExitBtn, text: 'Exit folder' },
+      { el: navCollapseBtn, text: 'Collapse folders' },
+    ];
+    hoverTargets.forEach(({ el, text }) => {
+      if (!el) return;
+      el.addEventListener('mouseenter', () => scheduleTooltip(text, el));
+      el.addEventListener('focus', () => scheduleTooltip(text, el));
+      el.addEventListener('mouseleave', cancelTooltip);
+      el.addEventListener('blur', cancelTooltip);
+    });
+
+    // Allow Esc to dismiss tooltip
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        cancelTooltip();
+      }
+    });
     
     // Color Section
+    document.getElementById('add-date-btn')?.addEventListener('click', handleAddDate);
+    document.getElementById('add-props-btn')?.addEventListener('click', () => sendMessage('add-props'));
     document.getElementById('clear-color')?.addEventListener('click', () => sendMessage('clear-emoji'));
     
     // Anchors
@@ -503,16 +644,30 @@
     
     const rect = element.getBoundingClientRect();
     tooltip.textContent = text;
-    tooltip.style.left = rect.left + 'px';
-    tooltip.style.top = (rect.bottom + 4) + 'px';
+    // Center horizontally under the button
+    const tooltipWidth = tooltip.offsetWidth || 0;
+    const left = rect.left + Math.max(0, (rect.width - tooltipWidth) / 2);
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = (rect.bottom + 6) + 'px';
     tooltip.classList.add('visible');
-    
-    setTimeout(() => {
-      tooltip.classList.remove('visible');
-    }, 2000);
   }
 
-  
+  function scheduleTooltip(text, element) {
+    cancelTooltip();
+    hoverTimer = setTimeout(() => {
+      showTooltip(text, element);
+    }, 200);
+  }
+
+  function cancelTooltip() {
+    if (hoverTimer) {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+    }
+    if (tooltip) {
+      tooltip.classList.remove('visible');
+    }
+  }
 
   function renderEmojiButtons(emojis) {
     const container = document.getElementById('color-emoji-buttons');
@@ -532,6 +687,7 @@
     const tagsBadge = document.getElementById('tags-badge');
     const anchorsBadge = document.getElementById('anchors-badge');
     const collapseBtn = document.getElementById('new-page-btn');
+    const deselectBtn = document.getElementById('deselect-btn');
     
     if (tagsBadge) {
       tagsBadge.textContent = hasSelection ? 'onLayer' : 'onPage';
@@ -545,6 +701,9 @@
     // Disable collapse button when no layers are selected
     if (collapseBtn) {
       collapseBtn.disabled = !hasSelection;
+    }
+    if (deselectBtn) {
+      deselectBtn.disabled = !hasSelection;
     }
   }
 

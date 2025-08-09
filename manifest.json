@@ -1,10 +1,10 @@
 {
-  "name": "StrateHue",
+  "name": "Stratus_Hue",
   "id": "1525275589707623280",
   "api": "1.0.0",
   "main": "code.js",
   "capabilities": [],
-  "enableProposedApi": false,
+  "enableProposedApi": true,
   "documentAccess": "dynamic-page",
   "editorType": [
     "figma"

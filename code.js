@@ -1,5 +1,5 @@
 "use strict";
-// StrateHue: A Figma plugin for layer tagging and navigation.
+// Stratus_Hue: A Figma plugin for layer tagging and navigation.
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const LAYER_EMOJI_LIST = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜']; // Square emojis for layers
 const PAGE_EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️']; // Circle emojis for pages
+// Undo support removed
 // --- Helper functions for file-specific bookmark storage ---
 function getContainingPage(node) {
     var _a;
@@ -115,6 +116,54 @@ function updateAndSaveBookmarks(bookmarks) {
     });
 }
 // --- Emoji & Naming Helpers ---
+function sanitizeForMatching(name) {
+    // Remove emoji variation selectors, zero-width characters, NBSP/BOM, and replacement chars
+    return name.replace(/[\uFE0F\u200B\u200C\u200D\u2060\u00A0\uFEFF\uFFFD]/g, '');
+}
+function normalizePageName(name) {
+    // First remove problematic invisible/replacement chars
+    let normalized = sanitizeForMatching(name);
+    // Ensure exactly one space after arrow (preserve indentation)
+    normalized = normalized.replace(/^(\s*↳)\s+/, '$1 ');
+    // Ensure exactly one space after emoji when present
+    normalized = normalized.replace(/^(\s*↳\s*[🔴🟠🟡🟢🔵🟣⚫⚪])\s+/, '$1 ');
+    return normalized;
+}
+function parsePageTitleParts(rawName) {
+    const name = normalizePageName(rawName).normalize('NFC');
+    const leadingSpacesMatch = name.match(/^(\s*)/);
+    const leadingSpaces = leadingSpacesMatch ? leadingSpacesMatch[1] : '';
+    const colonIndex = name.indexOf(':');
+    let beforeColon = colonIndex >= 0 ? name.slice(0, colonIndex) : name;
+    let afterColon = colonIndex >= 0 ? name.slice(colonIndex + 1) : '';
+    // Extract date anywhere before colon
+    const dateMatch = beforeColon.match(/\b(\d{2}\.\d{2})\b/);
+    const date = dateMatch ? dateMatch[1] : null;
+    // Extract emoji explicitly from our page list anywhere before colon
+    const emojiMatch = beforeColon.match(/[🔴🟠🟡🟢🔵🟣⚫⚪]/);
+    const emoji = emojiMatch ? emojiMatch[0] : null;
+    // Title is everything after the colon, trimmed of only leading spaces
+    const title = afterColon.length > 0 ? afterColon.replace(/^\s+/, '') : name.replace(/^(\s*↳\s*)/, '');
+    return { leadingSpaces, emoji, date, title };
+}
+function composePageTitle(parts) {
+    const cleanTitle = sanitizeForMatching(parts.title).trimStart();
+    const tokens = [];
+    tokens.push('↳');
+    if (parts.emoji)
+        tokens.push(parts.emoji);
+    if (parts.date)
+        tokens.push(parts.date);
+    let core = tokens.join(' ');
+    if (parts.date) {
+        core += ' : ' + cleanTitle;
+    }
+    else {
+        // No date means just put a single space and the title
+        core += (tokens.length > 0 ? ' ' : '') + cleanTitle;
+    }
+    return normalizePageName(parts.leadingSpaces + core);
+}
 function removeEmojiPrefix(name) {
     // Remove a LEADING emoji tag (layer/page) and an optional single space after it.
     for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) {
@@ -291,29 +340,17 @@ function updateLayerEmojis(layers, emoji) {
 }
 function updatePageEmoji(page, emoji) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Check if the page name already has the arrow structure
-        if (page.name.includes('↳')) {
-            // If it has the arrow structure, find and replace any existing emoji
-            let newName = page.name;
-            let emojiFound = false;
-            for (const existingEmoji of PAGE_EMOJI_LIST) {
-                if (page.name.includes(existingEmoji)) {
-                    newName = page.name.replace(existingEmoji, emoji);
-                    emojiFound = true;
-                    break;
-                }
-            }
-            // If no emoji was found, add the emoji after the arrow
-            if (!emojiFound) {
-                newName = page.name.replace('↳', `↳ ${emoji}`);
-            }
-            page.name = newName;
-        }
-        else {
-            // If no arrow structure, add the default structure with the emoji
-            const dateString = getCurrentDateString();
-            page.name = `↳ ${emoji} ${dateString} : ${page.name}`;
-        }
+        var _a;
+        const originalName = page.name;
+        const parts = parsePageTitleParts(originalName);
+        const date = (_a = parts.date) !== null && _a !== void 0 ? _a : getCurrentDateString();
+        const newTitle = composePageTitle({
+            leadingSpaces: parts.leadingSpaces,
+            emoji,
+            date,
+            title: parts.title
+        });
+        page.name = newTitle;
         return yield updateBookmarksForPage(page.id, page.name);
     });
 }
@@ -352,22 +389,36 @@ function clearLayerEmojis(layers) {
 }
 function clearPageEmoji(page) {
     return __awaiter(this, void 0, void 0, function* () {
-        let emojiCleared = false;
-        let bookmarkUpdates = false;
-        // Check if the page name has the arrow structure with emoji and preserve spacing
-        const match = page.name.match(/^(\s*)↳\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])\uFE0F?\s*(.*)$/);
-        if (match) {
-            const leadingSpaces = match[1];
-            const pageNamePart = match[3].replace(/^\s+/, '');
-            // Reconstruct without emoji and strip any stray variation selectors
-            let newName = `${leadingSpaces}↳ ${pageNamePart}`;
-            newName = newName.replace(/\uFE0F/g, '');
-            newName = newName.replace(/[\u200B\u200C\u200D]/g, '');
-            page.name = newName;
-            emojiCleared = true;
-            bookmarkUpdates = yield updateBookmarksForPage(page.id, newName);
+        const originalName = page.name;
+        const parts = parsePageTitleParts(originalName);
+        if (!parts.emoji && originalName.includes('↳')) {
+            // Normalize even if no emoji to remove, to eliminate broken char cases
+            const normalizedTitle = composePageTitle({
+                leadingSpaces: parts.leadingSpaces,
+                emoji: null,
+                date: parts.date,
+                title: parts.title
+            });
+            if (normalizedTitle !== originalName) {
+                page.name = normalizedTitle;
+                yield updateBookmarksForPage(page.id, normalizedTitle);
+                return { emojiCleared: true, bookmarkUpdates: true };
+            }
+            return { emojiCleared: false, bookmarkUpdates: false };
         }
-        return { emojiCleared, bookmarkUpdates };
+        // Remove emoji and rebuild canonically
+        const newTitle = composePageTitle({
+            leadingSpaces: parts.leadingSpaces,
+            emoji: null,
+            date: parts.date,
+            title: parts.title
+        });
+        if (newTitle !== originalName) {
+            page.name = newTitle;
+            yield updateBookmarksForPage(page.id, newTitle);
+            return { emojiCleared: true, bookmarkUpdates: true };
+        }
+        return { emojiCleared: false, bookmarkUpdates: false };
     });
 }
 function handleClearEmoji(selectedLayers) {
@@ -402,7 +453,6 @@ function handleClearEmoji(selectedLayers) {
  */
 function handleAddDateTitle() {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
         const now = new Date();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
@@ -445,75 +495,19 @@ function handleAddDateTitle() {
             }
         }
         else {
-            // If no layers are selected, update the current page
+            // If no layers are selected, update the current page using canonical builder
             const currentPage = figma.currentPage;
-            let newPageName = currentPage.name;
-            // Check for existing date patterns in page names
-            // Pattern 1: ↳ 🟡 07.30 : Page name
-            // Pattern 2: ↳ 07.30 : Page name
-            // First check if there's any date pattern in the page name
-            const hasAnyDatePattern = /\d{2}\.\d{2}\s*:\s*/.test(currentPage.name);
-            if (hasAnyDatePattern) {
-                // Handle all combinations: arrow+date or arrow+emoji+date
-                // Pattern 1: (indent)↳ (emoji) (date) : (page title)
-                // Pattern 2: (indent)↳ (date) : (page title)
-                // First check if it has a page emoji pattern
-                const pageEmojiMatch = currentPage.name.match(/(\s*)↳\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])\s*\d{2}\.\d{2}\s*:\s*(.*)/);
-                if (pageEmojiMatch) {
-                    // Has arrow + emoji + date: check if date needs updating
-                    const existingDate = (_a = currentPage.name.match(/\d{2}\.\d{2}/)) === null || _a === void 0 ? void 0 : _a[0];
-                    console.log('Page with emoji - existing date:', existingDate, 'current date:', dateString);
-                    if (existingDate && existingDate !== dateString) {
-                        // Date is different, update it
-                        const leadingSpaces = pageEmojiMatch[1];
-                        const emoji = pageEmojiMatch[2];
-                        const pageNamePart = pageEmojiMatch[3];
-                        newPageName = `${leadingSpaces}↳ ${emoji} ${dateString} : ${pageNamePart}`;
-                    }
-                }
-                else {
-                    // Has arrow + date (no emoji): check if date needs updating
-                    const arrowDateMatch = currentPage.name.match(/(\s*)↳\s*\d{2}\.\d{2}\s*:\s*(.*)/);
-                    if (arrowDateMatch) {
-                        const existingDate = (_b = currentPage.name.match(/\d{2}\.\d{2}/)) === null || _b === void 0 ? void 0 : _b[0];
-                        console.log('Page without emoji - existing date:', existingDate, 'current date:', dateString);
-                        if (existingDate && existingDate !== dateString) {
-                            // Date is different, update it (do not add emoji if it wasn't there)
-                            const leadingSpaces = arrowDateMatch[1];
-                            const pageNamePart = arrowDateMatch[2];
-                            newPageName = `${leadingSpaces}↳ ${dateString} : ${pageNamePart}`;
-                        }
-                    }
-                }
-            }
-            else {
-                // Add new date structure if no existing date found
-                if (currentPage.name.includes('↳')) {
-                    // If it has the arrow structure, add the date respecting optional emoji and indentation
-                    const arrowWithEmoji = currentPage.name.match(/(\s*)↳\s*([🔴🟠🟡🟢🔵🟣⚫️⚪️])\s*(.*)/);
-                    if (arrowWithEmoji) {
-                        const leadingSpaces = arrowWithEmoji[1];
-                        const emoji = arrowWithEmoji[2];
-                        const pageNamePart = arrowWithEmoji[3];
-                        newPageName = `${leadingSpaces}↳ ${emoji} ${dateString} : ${pageNamePart}`;
-                    }
-                    else {
-                        const arrowOnly = currentPage.name.match(/(\s*)↳\s*(.*)/);
-                        if (arrowOnly) {
-                            const leadingSpaces = arrowOnly[1];
-                            const pageNamePart = arrowOnly[2];
-                            newPageName = `${leadingSpaces}↳ ${dateString} : ${pageNamePart}`;
-                        }
-                    }
-                }
-                else {
-                    // If no arrow structure, add the default structure with the date (no emoji)
-                    newPageName = `↳ ${dateString} : ${currentPage.name}`;
-                }
-            }
+            const originalName = currentPage.name;
+            const parts = parsePageTitleParts(originalName);
+            const newParts = {
+                leadingSpaces: parts.leadingSpaces,
+                emoji: parts.emoji,
+                date: dateString,
+                title: parts.title
+            };
+            const newPageName = composePageTitle(newParts);
             if (newPageName !== currentPage.name) {
                 currentPage.name = newPageName;
-                // Update bookmarks for this page
                 yield updateBookmarksForPage(currentPage.id, currentPage.name);
                 figma.notify('Date updated/added to current page!');
             }
@@ -566,8 +560,23 @@ function handleCollapseLayers(selectedLayers) {
             figma.notify('Please select layers to collapse.');
             return;
         }
-        // Only collapse selected layers that are collapsible
-        const layersToCollapse = selectedLayers.filter(node => 'expanded' in node);
+        // Build a set of layers to collapse: selected + all collapsible siblings
+        const layersToCollapse = [];
+        const seen = new Set();
+        for (const node of selectedLayers) {
+            if ('parent' in node && node.parent && 'children' in node.parent) {
+                for (const sib of node.parent.children) {
+                    if ('expanded' in sib && !seen.has(sib.id)) {
+                        layersToCollapse.push(sib);
+                        seen.add(sib.id);
+                    }
+                }
+            }
+            else if ('expanded' in node && !seen.has(node.id)) {
+                layersToCollapse.push(node);
+                seen.add(node.id);
+            }
+        }
         let collapsedCount = 0;
         for (const layer of layersToCollapse) {
             if ('expanded' in layer) {
@@ -576,12 +585,18 @@ function handleCollapseLayers(selectedLayers) {
             }
         }
         if (collapsedCount > 0) {
-            figma.notify(`${collapsedCount} selected layer(s) collapsed!`);
+            figma.notify(`${collapsedCount} layer(s) collapsed!`);
         }
         else {
             figma.notify('No collapsible layers selected.');
         }
     });
+}
+// Deselect only
+function handleDeselect() {
+    figma.currentPage.selection = [];
+    sendSelectionStateToUI();
+    figma.notify('Selection cleared.');
 }
 // --- Main Message Handler ---
 figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
@@ -591,6 +606,8 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             case 'ui-ready':
                 yield sendBookmarksToUI();
                 sendSelectionStateToUI();
+                // Enforce fixed UI size to avoid host dialog drift when DevTools toggles
+                figma.ui.resize(184, 352);
                 break;
             case 'save-bookmark':
                 yield handleSaveBookmark(selectedLayers);
@@ -617,11 +634,117 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             case 'collapse-layers':
                 yield handleCollapseLayers(selectedLayers);
                 break;
+            // Layer navigation controls from UI
+            case 'nav-up': {
+                if (selectedLayers.length === 0) {
+                    figma.notify('Select a layer to navigate.');
+                    break;
+                }
+                const node = selectedLayers[0];
+                const parent = 'parent' in node ? node.parent : null;
+                if (parent && 'children' in parent) {
+                    const siblings = parent.children;
+                    const index = siblings.indexOf(node);
+                    // In Figma's layer panel, moving visually UP corresponds to a larger index
+                    let candidate = siblings[Math.min(siblings.length - 1, index + 1)];
+                    // Skip entering into groups/frames automatically; select the group itself
+                    if (candidate) {
+                        figma.currentPage.selection = [candidate];
+                        // Keep folders collapsed while navigating
+                        if ('expanded' in candidate) {
+                            candidate.expanded = false;
+                        }
+                        figma.viewport.scrollAndZoomIntoView([candidate]);
+                    }
+                }
+                break;
+            }
+            case 'nav-down': {
+                if (selectedLayers.length === 0) {
+                    figma.notify('Select a layer to navigate.');
+                    break;
+                }
+                const node = selectedLayers[0];
+                const parent = 'parent' in node ? node.parent : null;
+                if (parent && 'children' in parent) {
+                    const siblings = parent.children;
+                    const index = siblings.indexOf(node);
+                    // Moving visually DOWN corresponds to a smaller index
+                    let candidate = siblings[Math.max(0, index - 1)];
+                    if (candidate) {
+                        figma.currentPage.selection = [candidate];
+                        if ('expanded' in candidate) {
+                            candidate.expanded = false;
+                        }
+                        figma.viewport.scrollAndZoomIntoView([candidate]);
+                    }
+                }
+                break;
+            }
+            case 'nav-enter': {
+                if (selectedLayers.length === 0) {
+                    figma.notify('Select a frame or group to enter.');
+                    break;
+                }
+                // First press: if a single container is selected, select its children without expanding
+                if (selectedLayers.length === 1) {
+                    const sel = selectedLayers[0];
+                    if ('children' in sel && sel.children.length > 0) {
+                        const children = sel.children;
+                        figma.currentPage.selection = [...children];
+                        figma.viewport.scrollAndZoomIntoView(children);
+                        break;
+                    }
+                }
+                // Second press (or multi-select): expand selected containers and select their children
+                const nextSelection = [];
+                for (const sel of selectedLayers) {
+                    if ('children' in sel && sel.children.length > 0) {
+                        if ('expanded' in sel) {
+                            sel.expanded = true;
+                        }
+                        for (const child of sel.children) {
+                            nextSelection.push(child);
+                        }
+                    }
+                }
+                if (nextSelection.length > 0) {
+                    figma.currentPage.selection = nextSelection;
+                    figma.viewport.scrollAndZoomIntoView(nextSelection);
+                }
+                else {
+                    figma.notify('No children to enter.');
+                }
+                break;
+            }
+            case 'nav-exit': {
+                if (selectedLayers.length === 0) {
+                    figma.notify('Select a layer to exit its parent.');
+                    break;
+                }
+                const node = selectedLayers[0];
+                const parent = 'parent' in node ? node.parent : null;
+                if (parent && parent.type !== 'PAGE' && 'parent' in parent && parent.parent) {
+                    figma.currentPage.selection = [parent];
+                    figma.viewport.scrollAndZoomIntoView([parent]);
+                }
+                else {
+                    figma.notify('Already at top level.');
+                }
+                break;
+            }
+            case 'deselect':
+                handleDeselect();
+                break;
             case 'add-props':
                 figma.notify('Add Props: coming soon.');
                 break;
             case 'resync-bookmarks':
                 yield handleResyncBookmarks();
+                break;
+            case 'ensure-size':
+                // Keep plugin width constant at 184px
+                figma.ui.resize(184, 352);
                 break;
             case 'cancel':
                 figma.closePlugin();
