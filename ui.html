@@ -40,8 +40,9 @@
   <h2 class="section-header collapsible" data-target="navigation-section" role="button" tabindex="0" aria-expanded="true" aria-controls="navigation-section">
     <div class="header-left">
       <span class="arrow" aria-hidden="true">-</span>
-      <span>Layer Navigation</span>
+      <span>Navigation</span>
     </div>
+    <span id="navigation-badge" class="section-badge">onPage</span>
   </h2>
   <div id="navigation-section" class="collapsible-content" role="region" aria-labelledby="navigation-section">
     <div class="nav-container">
@@ -202,6 +203,18 @@
     background: rgba(255, 105, 180, 0.2);
   }
 
+  .nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #0f0f0f;
+    border-color: #2a2a2a;
+  }
+
+  .nav-btn:disabled:hover {
+    background: #0f0f0f;
+    border-color: #2a2a2a;
+  }
+
 
      /* Color Section */
    .color-grid-container {
@@ -210,7 +223,7 @@
      align-items: center;
      gap: 4px;
      background: #0a0a0a;
-     padding: 4px 8px 8px 8px;
+      padding: 8px 8px;
      border-radius: 4px;
    }
 
@@ -225,7 +238,7 @@
     width: 100%;
     padding: 8px 12px;
     font-size: 10px;
-    border-radius: 16px;
+    border-radius: 8px;
     border: 1px solid #2a2a2a;
     background: #0f0f0f;
     color: #ffffff;
@@ -234,6 +247,15 @@
     transition: all 0.2s ease;
     text-align: center;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    height: 32px; /* align with navigation buttons */
+  }
+
+  /* Make Date and Props buttons lighter weight */
+  #add-date-btn,
+  #add-props-btn {
+    font-weight: 200;
+    /* Decrease top/bottom by 8px from base (8px -> 0px) */
+    padding: 0 12px;
   }
 
   .tags-btn:hover {
@@ -259,19 +281,19 @@
   .emoji-button {
     font-size: 18px;
     width: 100%;
-    height: 36px;
+    height: 32px; /* align with navigation buttons */
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: 12px;
-    border: none;
-    background: #1a1a1a;
+    border-radius: 8px; /* align with navigation buttons */
+    border: 1px solid #2a2a2a; /* align with navigation buttons */
+    background: #0f0f0f; /* align with navigation buttons */
     transition: all 0.2s ease;
   }
 
   .emoji-button:hover {
-    background: #2a2a2a;
+    background: #1a1a1a; /* align with navigation buttons */
     transform: scale(1.1);
   }
 
@@ -282,11 +304,11 @@
 
   .clear-action {
     width: 100%;
-    padding: 8px 16px;
+    padding: 0 12px; /* align with navigation buttons */
     font-size: 10px;
-    border-radius: 16px;
-    border: none;
-    background: #1a1a1a;
+    border-radius: 8px; /* align with navigation buttons */
+    border: 1px solid #2a2a2a; /* align with navigation buttons */
+    background: #0f0f0f; /* align with navigation buttons */
     color: #ffffff;
     cursor: pointer;
     font-weight: normal;
@@ -296,7 +318,8 @@
     justify-content: center;
     gap: 4px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    opacity: 0.6;
+    opacity: 1; /* align with navigation buttons */
+    height: 32px; /* align with navigation buttons */
   }
 
   .clear-action .icon {
@@ -305,7 +328,8 @@
   }
 
   .clear-action:hover {
-    background: #2a2a2a;
+    background: #1a1a1a; /* align with navigation buttons */
+    border-color: #404040; /* align with navigation buttons */
   }
 
      /* Section Headers */
@@ -353,6 +377,10 @@
   }
 
   #tags-badge {
+    color: #49EEDC;
+    border: 1px solid #49EEDC;
+  }
+  #navigation-badge {
     color: #49EEDC;
     border: 1px solid #49EEDC;
   }
@@ -685,12 +713,19 @@
 
   function updateSelectionIndicator(hasSelection) {
     const tagsBadge = document.getElementById('tags-badge');
+    const navigationBadge = document.getElementById('navigation-badge');
     const anchorsBadge = document.getElementById('anchors-badge');
     const collapseBtn = document.getElementById('new-page-btn');
     const deselectBtn = document.getElementById('deselect-btn');
+    const navExitBtn = document.getElementById('nav-exit');
+    const navEnterBtn = document.getElementById('nav-enter');
+    const navCollapseBtn = document.getElementById('nav-collapse');
     
     if (tagsBadge) {
       tagsBadge.textContent = hasSelection ? 'onLayer' : 'onPage';
+    }
+    if (navigationBadge) {
+      navigationBadge.textContent = hasSelection ? 'onLayer' : 'onPage';
     }
     
     // Keep Anchors badge as "onLayer" regardless of selection state
@@ -704,6 +739,20 @@
     }
     if (deselectBtn) {
       deselectBtn.disabled = !hasSelection;
+    }
+
+    // Disable navigation actions that require a selection when onPage
+    if (navExitBtn) {
+      navExitBtn.disabled = !hasSelection;
+      navExitBtn.setAttribute('aria-disabled', String(!hasSelection));
+    }
+    if (navEnterBtn) {
+      navEnterBtn.disabled = !hasSelection;
+      navEnterBtn.setAttribute('aria-disabled', String(!hasSelection));
+    }
+    if (navCollapseBtn) {
+      navCollapseBtn.disabled = !hasSelection;
+      navCollapseBtn.setAttribute('aria-disabled', String(!hasSelection));
     }
   }
 

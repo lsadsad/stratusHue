@@ -236,6 +236,19 @@ figma.showUI(__html__, { width: 184, height: 352 });
 figma.on('selectionchange', () => {
     sendSelectionStateToUI();
 });
+/**
+ * Returns +1 if moving visually UP in the layer panel corresponds to a larger child index,
+ * or -1 if the parent's z-index is reversed (e.g., Auto Layout with reverse stacking).
+ */
+function getPanelUpDeltaForParent(parent) {
+    if (parent && 'layoutMode' in parent) {
+        const p = parent;
+        if (p.layoutMode && p.layoutMode !== 'NONE' && 'itemReverseZIndex' in p && p.itemReverseZIndex === true) {
+            return -1;
+        }
+    }
+    return 1;
+}
 // Refresh bookmarks by pulling latest names from the document
 function handleResyncBookmarks() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -637,7 +650,18 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             // Layer navigation controls from UI
             case 'nav-up': {
                 if (selectedLayers.length === 0) {
-                    figma.notify('Select a layer to navigate.');
+                    // Page-level navigation: move visually UP to the previous page (smaller index)
+                    const pages = figma.root.children;
+                    const index = pages.indexOf(figma.currentPage);
+                    if (index > 0) {
+                        const prevPage = pages[index - 1];
+                        yield figma.setCurrentPageAsync(prevPage);
+                        sendSelectionStateToUI();
+                        figma.notify(`Page: ${prevPage.name}`);
+                    }
+                    else {
+                        figma.notify('Already at first page.');
+                    }
                     break;
                 }
                 const node = selectedLayers[0];
@@ -645,8 +669,9 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                 if (parent && 'children' in parent) {
                     const siblings = parent.children;
                     const index = siblings.indexOf(node);
-                    // In Figma's layer panel, moving visually UP corresponds to a larger index
-                    let candidate = siblings[Math.min(siblings.length - 1, index + 1)];
+                    const delta = getPanelUpDeltaForParent(parent);
+                    const nextIndex = Math.max(0, Math.min(siblings.length - 1, index + delta));
+                    let candidate = siblings[nextIndex];
                     // Skip entering into groups/frames automatically; select the group itself
                     if (candidate) {
                         figma.currentPage.selection = [candidate];
@@ -661,7 +686,18 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             }
             case 'nav-down': {
                 if (selectedLayers.length === 0) {
-                    figma.notify('Select a layer to navigate.');
+                    // Page-level navigation: move visually DOWN to the next page (larger index)
+                    const pages = figma.root.children;
+                    const index = pages.indexOf(figma.currentPage);
+                    if (index < pages.length - 1) {
+                        const nextPage = pages[index + 1];
+                        yield figma.setCurrentPageAsync(nextPage);
+                        sendSelectionStateToUI();
+                        figma.notify(`Page: ${nextPage.name}`);
+                    }
+                    else {
+                        figma.notify('Already at last page.');
+                    }
                     break;
                 }
                 const node = selectedLayers[0];
@@ -669,8 +705,9 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                 if (parent && 'children' in parent) {
                     const siblings = parent.children;
                     const index = siblings.indexOf(node);
-                    // Moving visually DOWN corresponds to a smaller index
-                    let candidate = siblings[Math.max(0, index - 1)];
+                    const delta = getPanelUpDeltaForParent(parent);
+                    const nextIndex = Math.max(0, Math.min(siblings.length - 1, index - delta));
+                    let candidate = siblings[nextIndex];
                     if (candidate) {
                         figma.currentPage.selection = [candidate];
                         if ('expanded' in candidate) {
