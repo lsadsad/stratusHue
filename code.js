@@ -232,7 +232,8 @@ function navigateToNode(node) {
     });
 }
 // --- Plugin UI Setup ---
-figma.showUI(__html__, { width: 184, height: 352 });
+// Allocate extra width to account for potential vertical scrollbar so content doesn't reflow
+figma.showUI(__html__, { width: 188, height: 352 });
 figma.on('selectionchange', () => {
     sendSelectionStateToUI();
 });
@@ -619,8 +620,8 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             case 'ui-ready':
                 yield sendBookmarksToUI();
                 sendSelectionStateToUI();
-                // Enforce fixed UI size to avoid host dialog drift when DevTools toggles
-                figma.ui.resize(184, 352);
+        // Enforce fixed UI size and reserve gutter for scrollbar
+        figma.ui.resize(188, 352);
                 break;
             case 'save-bookmark':
                 yield handleSaveBookmark(selectedLayers);
@@ -785,10 +786,10 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
                 break;
 
       case 'resize-ui': {
-        const width = typeof msg.width === 'number' ? msg.width : 184;
+        const width = typeof msg.width === 'number' ? msg.width : 188;
         const height = typeof msg.height === 'number' ? msg.height : 352;
         // Constrain width to our fixed width; adjust height within safe bounds
-        const clampedWidth = 184;
+        const clampedWidth = 188;
         const clampedHeight = Math.max(200, Math.min(720, height));
         figma.ui.resize(clampedWidth, clampedHeight);
         break;
