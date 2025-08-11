@@ -141,7 +141,7 @@
     
     /* Content Constraints */
     --max-content-height: 300px;
-    --badge-size: 14px;
+    --badge-size: 6px;
     --arrow-width: 10px;
     --scrollbar-width: 2px;
     
@@ -570,8 +570,10 @@
   .section-badge {
     background: transparent;
     border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.6); /* indented appearance */
+    border-radius: var(--border-radius-md); /* 4px rounded container */
     padding: 0;
-    font-size: var(--icon-size-md);
+    font-size: var(--icon-size-sm); /* smaller font for 8x8 container */
     font-weight: inherit; /* match heading weight */
     white-space: nowrap;
     text-transform: none;
@@ -581,16 +583,23 @@
     justify-content: center;
     width: var(--badge-size);   /* fixed box for optical centering */
     height: var(--badge-size);  /* fixed box for optical centering */
-    line-height: var(--badge-size); /* keeps glyph centered */
+    line-height: 1; /* reset line-height for better optical centering */
     vertical-align: middle;
     position: absolute;
-    top: var(--spacing-sm);
-    right: var(--spacing-sm);
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    transform: translateY(-0.5px); /* fine-tune vertical optical alignment */
   }
 
   #tags-badge,
-  #navigation-badge { color: var(--color-cyan-muted); }
-  #anchors-badge { color: var(--color-magenta-muted); }
+  #navigation-badge { 
+    color: var(--color-cyan-muted); 
+    box-shadow: 0 0 4px rgba(123, 196, 196, 1.0); /* maximum cyan glow at 100% */
+  }
+  #anchors-badge { 
+    color: var(--color-magenta-muted); 
+    box-shadow: 0 0 4px rgba(196, 123, 196, 1.0); /* maximum magenta glow at 100% */
+  }
 
   .arrow {
     font-size: var(--icon-size-md);
