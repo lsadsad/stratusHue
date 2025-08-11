@@ -5,9 +5,9 @@
         <span class="icon" aria-hidden="true">⟳</span>
        <span class="label">Resync</span>
      </button>
-         <button id="new-page-btn" class="action-btn" aria-label="Collapse layers">
+         <button id="new-page-btn" class="action-btn" aria-label="Collapse sections">
         <span class="icon" aria-hidden="true">⇣</span>
-       <span class="label">Collapse</span>
+        <span class="label">Collapse sections</span>
      </button>
      <div class="qa-spacer" aria-hidden="true"></div>
          <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
@@ -85,22 +85,121 @@
 
 <!-- Tooltip -->
 <div id="tooltip" class="tooltip"></div>
-<!-- Resize Handle -->
-<div id="resize-handle" role="separator" aria-orientation="vertical" aria-label="Resize panel" tabindex="0">:  :  :</div>
+ <!-- Footer with centered handle and right-side fit button -->
+ <footer id="footer">
+   <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel" tabindex="0">
+     <span class="grip">:  :  :</span>
+   </div>
+  <button id="footer-fit" class="footer-icon-btn" aria-label="Fit" title="Fit">↕</button>
+ </footer>
 
 <style>
   /* Use system fonts instead of external Google Fonts to avoid CSP issues */
   /* Inter font will be available on most systems, with fallbacks */
   
+  /* CSS Custom Properties for Responsive Design */
+  /* 
+    RESPONSIVE DESIGN SYSTEM
+    ========================
+    Easily adjust the entire UI by modifying these CSS variables:
+    
+    Spacing: --spacing-xs (2px) to --spacing-xxl (12px)
+    Buttons: --button-height-sm (16px) to --button-height-lg (32px)  
+    Icons: --icon-size-sm (8px) to --icon-size-xl (18px)
+    Layout: --footer-height, --container-padding, --section-padding
+    Borders: --border-radius-sm (3px) to --border-radius-xl (8px)
+    Grids: --nav-grid-cols, --tags-grid-cols, --tags-actions-cols
+    
+    Example: Change --spacing-lg from 8px to 12px to increase all container padding
+  */
+  :root {
+    /* Spacing System */
+    --spacing-xs: 2px;
+    --spacing-sm: 4px;
+    --spacing-md: 6px;
+    --spacing-lg: 8px;
+    --spacing-xl: 10px;
+    --spacing-xxl: 12px;
+    
+    /* Component Sizes */
+    --button-height-sm: 16px;
+    --button-height-md: 28px;
+    --button-height-lg: 32px;
+    --icon-size-sm: 8px;
+    --icon-size-md: 12px;
+    --icon-size-lg: 16px;
+    --icon-size-xl: 18px;
+    
+    /* Layout Dimensions */
+    --footer-height: 20px;
+    --section-padding: var(--spacing-lg);
+    --container-padding: var(--spacing-lg);
+    --border-radius-sm: 3px;
+    --border-radius-md: 4px;
+    --border-radius-lg: 6px;
+    --border-radius-xl: 8px;
+    
+    /* Content Constraints */
+    --max-content-height: 300px;
+    --badge-size: 14px;
+    --arrow-width: 10px;
+    --scrollbar-width: 2px;
+    
+    /* Grid Systems */
+    --nav-grid-cols: repeat(4, 1fr);
+    --tags-grid-cols: repeat(4, 1fr);
+    --tags-actions-cols: 1fr 1fr;
+    
+    /* Responsive Breakpoints */
+    --min-button-width: 40px;
+    --max-section-width: 100%;
+    
+    /* Adaptive Sizing */
+    --container-min-width: 160px;
+    --container-max-width: 400px;
+    
+    /* Status Colors - Muted to match RGB tone */
+    --color-cyan-muted: #7BC4C4;   /* softer cyan for onPage state */
+    --color-magenta-muted: #C47BC4; /* softer magenta for onLayer state */
+  }
+
+  /* Responsive Grid Adjustments */
+  @container (max-width: 180px) {
+    :root {
+      --nav-grid-cols: repeat(2, 1fr);
+      --tags-grid-cols: repeat(2, 1fr);
+      --spacing-lg: 6px;
+      --spacing-xxl: 10px;
+    }
+  }
+
+  @media (max-width: 160px) {
+    :root {
+      --nav-grid-cols: repeat(2, 1fr);
+      --tags-grid-cols: repeat(2, 1fr);
+      --tags-actions-cols: 1fr;
+      --spacing-lg: 4px;
+      --spacing-xxl: 8px;
+    }
+  }
+  
   /* Base styles remain the same */
   html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; box-sizing: border-box; }
-  body { width: 100%; height: 100%; overflow: hidden; background: #0f0f0f; display: flex; flex-direction: column; position: relative; }
+  body { width: 100%; height: calc(100% - var(--footer-height)); overflow: hidden; background: #0f0f0f; display: flex; flex-direction: column; position: relative; }
   body, button, h3 { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; font-weight: 500; font-size: 12px; }
   
      /* Scrollbar styles */
-   .scrollable-content { width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; }
-  .scrollable-content { padding-bottom: 16px; }
-  .scrollable-content::-webkit-scrollbar { width: 2px; }
+   .scrollable-content { 
+    width: 100%; 
+    height: 100%; 
+    overflow-y: auto; 
+    overflow-x: hidden; 
+    scrollbar-gutter: stable;
+    min-width: var(--container-min-width);
+    max-width: var(--container-max-width);
+  }
+   .scrollable-content { padding-bottom: 0; }
+  .scrollable-content::-webkit-scrollbar { width: var(--scrollbar-width); }
   .scrollable-content::-webkit-scrollbar-track { background: #0f0f0f; border-radius: 2px; }
   .scrollable-content::-webkit-scrollbar-thumb { background: #404040; border-radius: 2px; transition: background 0.2s ease; }
   .scrollable-content::-webkit-scrollbar-thumb:hover { background: #505050; }
@@ -110,8 +209,8 @@
      display: flex;
      flex-direction: row;
      align-items: center;
-     gap: 6px;
-     padding: 6px 8px 0 8px;
+     gap: var(--spacing-md);
+     padding: var(--spacing-md) var(--spacing-lg) 0 var(--spacing-lg);
      flex-wrap: nowrap;
      overflow: hidden;
    }
@@ -120,24 +219,24 @@
 
   .top-badge {
     background: transparent;
-    padding: 0 6px;
-    border-radius: 10px;
-    font-size: 8px;
+    padding: 0 var(--spacing-md);
+    border-radius: var(--spacing-xl);
+    font-size: var(--icon-size-sm);
     font-weight: 500;
-    color: #49EEDC; /* default cyan for onPage */
+    color: var(--color-cyan-muted); /* default muted cyan for onPage */
     border: 1px solid currentColor;
-    line-height: 16px;
-    height: 16px;
+    line-height: var(--button-height-sm);
+    height: var(--button-height-sm);
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
 
   .action-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 8px;
-    border-radius: 4px;
+    width: var(--button-height-md);
+    height: var(--button-height-md);
+    font-size: var(--icon-size-sm);
+    border-radius: var(--border-radius-md);
     border: none;
     background: #1a1a1a;
     color: #ffffff;
@@ -154,7 +253,7 @@
   }
 
   .action-btn .icon {
-    font-size: 16px;
+    font-size: var(--icon-size-lg);
     opacity: 0.8;
   }
 
@@ -172,6 +271,22 @@
     transform: translateY(0);
   }
 
+  /* Subtle accent colors for specific action buttons */
+  #resync-btn:hover {
+    background: rgba(111, 176, 255, 0.06); /* subtle blue accent */
+    border: 1px solid rgba(111, 176, 255, 0.2);
+  }
+
+  #new-page-btn:hover {
+    background: rgba(255, 107, 107, 0.06); /* subtle red accent */
+    border: 1px solid rgba(255, 107, 107, 0.2);
+  }
+
+  #deselect-btn:hover {
+    background: rgba(110, 222, 110, 0.06); /* subtle green accent */
+    border: 1px solid rgba(110, 222, 110, 0.2);
+  }
+
   .action-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -187,24 +302,26 @@
   .nav-container {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    background: #0a0a0a;
-    padding: 8px 8px;
-    border-radius: 4px;
+    gap: var(--spacing-md);
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.03) 0%, rgba(0, 0, 0, 0.9) 100%), #0a0a0a;
+    border: 1px solid rgba(255, 107, 107, 0.1);
+    padding: var(--container-padding);
+    border-radius: var(--border-radius-md);
   }
 
   .nav-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    grid-template-columns: var(--nav-grid-cols);
+    gap: var(--spacing-md);
     width: 100%;
   }
 
   .nav-btn {
     width: 100%;
-    height: 32px;
-    font-size: 12px;
-    border-radius: 8px;
+    min-width: var(--min-button-width);
+    height: var(--button-height-lg);
+    font-size: var(--icon-size-md);
+    border-radius: var(--border-radius-xl);
     border: 1px solid #2a2a2a;
     background: #0f0f0f;
     color: #ffffff;
@@ -217,12 +334,12 @@
   }
 
   .nav-btn:hover {
-    background: #1a1a1a;
-    border-color: #404040;
+    background: rgba(255, 107, 107, 0.08); /* subtle red tint */
+    border-color: rgba(255, 107, 107, 0.3);
   }
 
   .nav-btn:active {
-    background: rgba(255, 105, 180, 0.2);
+    background: rgba(255, 107, 107, 0.2); /* red theme instead of pink */
   }
 
   .nav-btn:disabled {
@@ -239,28 +356,30 @@
 
 
      /* Color Section */
-   .color-grid-container {
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     gap: 4px;
-     background: #0a0a0a;
-      padding: 8px 8px;
-     border-radius: 4px;
-   }
+     .color-grid-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: linear-gradient(135deg, rgba(110, 222, 110, 0.03) 0%, rgba(0, 0, 0, 0.9) 100%), #0a0a0a;
+    border: 1px solid rgba(110, 222, 110, 0.1);
+    padding: var(--container-padding);
+    border-radius: var(--border-radius-md);
+  }
 
   .tags-actions {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    grid-template-columns: var(--tags-actions-cols);
+    gap: var(--spacing-md);
   }
 
   .tags-btn {
     width: 100%;
-    padding: 8px 12px;
-    font-size: 10px;
-    border-radius: 8px;
+    min-width: var(--min-button-width);
+    padding: var(--spacing-lg) var(--spacing-xxl);
+    font-size: var(--spacing-xl);
+    border-radius: var(--border-radius-xl);
     border: 1px solid #2a2a2a;
     background: #0f0f0f;
     color: #ffffff;
@@ -269,7 +388,7 @@
     transition: all 0.2s ease;
     text-align: center;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    height: 32px; /* align with navigation buttons */
+    height: var(--button-height-lg); /* align with navigation buttons */
   }
 
   /* Make Date and Props buttons lighter weight */
@@ -277,16 +396,16 @@
   #add-props-btn {
     font-weight: 200;
     /* Decrease top/bottom by 8px from base (8px -> 0px) */
-    padding: 0 12px;
+    padding: 0 var(--spacing-xxl);
   }
 
   .tags-btn:hover {
-    background: #1a1a1a;
-    border-color: #404040;
+    background: rgba(110, 222, 110, 0.08); /* subtle green tint */
+    border-color: rgba(110, 222, 110, 0.3);
   }
 
   .tags-btn:active {
-    background: rgba(255, 105, 180, 0.2);
+    background: rgba(110, 222, 110, 0.2); /* green theme instead of pink */
   }
 
   /* Disabled state for tags-style buttons (e.g., Collapse Folders) */
@@ -302,10 +421,20 @@
     border-color: #2a2a2a;
   }
 
+  /* Navigation section specific styling for Collapse Folders button */
+  #nav-collapse:hover {
+    background: rgba(255, 107, 107, 0.08); /* red theme for navigation section */
+    border-color: rgba(255, 107, 107, 0.3);
+  }
+
+  #nav-collapse:active {
+    background: rgba(255, 107, 107, 0.2); /* red theme instead of pink */
+  }
+
   .color-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: 4px;
+    grid-template-columns: var(--tags-grid-cols);
+    grid-gap: var(--spacing-sm);
     width: 100%;
   }
 
@@ -314,34 +443,35 @@
   }
 
   .emoji-button {
-    font-size: 18px;
+    font-size: var(--icon-size-xl);
     width: 100%;
-    height: 32px; /* align with navigation buttons */
+    height: var(--button-height-lg); /* align with navigation buttons */
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: 8px; /* align with navigation buttons */
+    border-radius: var(--border-radius-xl); /* align with navigation buttons */
     border: 1px solid #2a2a2a; /* align with navigation buttons */
     background: #0f0f0f; /* align with navigation buttons */
     transition: all 0.2s ease;
   }
 
   .emoji-button:hover {
-    background: #1a1a1a; /* align with navigation buttons */
+    background: rgba(110, 222, 110, 0.08); /* green theme for tags section */
+    border-color: rgba(110, 222, 110, 0.3);
     transform: scale(1.1);
   }
 
   .emoji-button:active {
-    background: rgba(255, 105, 180, 0.4);
+    background: rgba(110, 222, 110, 0.2); /* green theme instead of pink */
     transform: scale(0.95);
   }
 
   .clear-action {
     width: 100%;
-    padding: 0 12px; /* align with navigation buttons */
-    font-size: 10px;
-    border-radius: 8px; /* align with navigation buttons */
+    padding: 0 var(--spacing-xxl); /* align with navigation buttons */
+    font-size: var(--spacing-xl);
+    border-radius: var(--border-radius-xl); /* align with navigation buttons */
     border: 1px solid #2a2a2a; /* align with navigation buttons */
     background: #0f0f0f; /* align with navigation buttons */
     color: #ffffff;
@@ -351,10 +481,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: var(--spacing-sm);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     opacity: 1; /* align with navigation buttons */
-    height: 32px; /* align with navigation buttons */
+    height: var(--button-height-lg); /* align with navigation buttons */
   }
 
   .clear-action .icon {
@@ -363,13 +493,17 @@
   }
 
   .clear-action:hover {
-    background: #1a1a1a; /* align with navigation buttons */
-    border-color: #404040; /* align with navigation buttons */
+    background: rgba(110, 222, 110, 0.08); /* green theme for tags section */
+    border-color: rgba(110, 222, 110, 0.3);
+  }
+
+  .clear-action:active {
+    background: rgba(110, 222, 110, 0.2); /* green theme active state */
   }
 
      /* Section Headers */
    .section-header {
-     font-size: 8px; /* match badge size */
+     font-size: var(--icon-size-sm); /* match badge size */
      margin: 0 0 0 0;
      font-weight: 300;
      color: rgba(255, 255, 255, 0.6);
@@ -377,13 +511,14 @@
      user-select: none;
      transition: all 0.2s ease;
      display: flex;
-     justify-content: space-between;
+     justify-content: flex-start;
      align-items: center;
      background: #0f0f0f;
      border-top: 1px solid #2a2a2a;
      border-bottom: 1px solid rgba(42, 42, 42, 0.4);
      border-radius: 0;
-     padding: 10px 12px 10px 12px;
+     padding: var(--spacing-xl) var(--spacing-xxl);
+     position: relative;
     text-transform: uppercase; /* IDE style headings */
     letter-spacing: 0.16em;    /* approx. 10% tracking */
    }
@@ -398,17 +533,45 @@
      border-bottom: 1px solid rgba(64, 64, 64, 0.4);
    }
 
+  /* RGB-themed section header backgrounds */
+  .section-header:nth-of-type(1) { /* Navigation - red */
+    background: linear-gradient(90deg, rgba(255, 107, 107, 0.02) 0%, #0f0f0f 100%);
+    border-top: 1px solid rgba(255, 107, 107, 0.1);
+  }
+  .section-header:nth-of-type(2) { /* Tags - green */
+    background: linear-gradient(90deg, rgba(110, 222, 110, 0.02) 0%, #0f0f0f 100%);
+    border-top: 1px solid rgba(110, 222, 110, 0.1);
+  }
+  .section-header:nth-of-type(3) { /* Anchors - blue */
+    background: linear-gradient(90deg, rgba(111, 176, 255, 0.02) 0%, #0f0f0f 100%);
+    border-top: 1px solid rgba(111, 176, 255, 0.1);
+  }
+
+  /* Enhanced hover states for RGB sections */
+  .section-header:nth-of-type(1):hover { /* Navigation - red */
+    background: linear-gradient(90deg, rgba(255, 107, 107, 0.05) 0%, #1a1a1a 100%);
+    border-top: 1px solid rgba(255, 107, 107, 0.2);
+  }
+  .section-header:nth-of-type(2):hover { /* Tags - green */
+    background: linear-gradient(90deg, rgba(110, 222, 110, 0.05) 0%, #1a1a1a 100%);
+    border-top: 1px solid rgba(110, 222, 110, 0.2);
+  }
+  .section-header:nth-of-type(3):hover { /* Anchors - blue */
+    background: linear-gradient(90deg, rgba(111, 176, 255, 0.05) 0%, #1a1a1a 100%);
+    border-top: 1px solid rgba(111, 176, 255, 0.2);
+  }
+
   .header-left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--spacing-lg);
   }
 
   .section-badge {
     background: transparent;
     border: none;
     padding: 0;
-    font-size: 12px;
+    font-size: var(--icon-size-md);
     font-weight: inherit; /* match heading weight */
     white-space: nowrap;
     text-transform: none;
@@ -416,22 +579,24 @@
     display: inline-flex; /* for vertical centering */
     align-items: center;
     justify-content: center;
-    width: 14px;   /* fixed box for optical centering */
-    height: 14px;  /* fixed box for optical centering */
-    line-height: 14px; /* keeps glyph centered */
+    width: var(--badge-size);   /* fixed box for optical centering */
+    height: var(--badge-size);  /* fixed box for optical centering */
+    line-height: var(--badge-size); /* keeps glyph centered */
     vertical-align: middle;
-    transform: translateY(3px); /* fine nudge for optical alignment */
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
   }
 
   #tags-badge,
-  #navigation-badge { color: #49EEDC; }
-  #anchors-badge { color: #FF4DCD; }
+  #navigation-badge { color: var(--color-cyan-muted); }
+  #anchors-badge { color: var(--color-magenta-muted); }
 
   .arrow {
-    font-size: 12px;
+    font-size: var(--icon-size-md);
     font-weight: 900; /* make +/- max weight */
     color: #ffffff;
-    width: 10px;
+    width: var(--arrow-width);
   }
 
   /* Color +/- based on expanded state (IDE-like) */
@@ -468,10 +633,21 @@
   .section-header:nth-of-type(2)[aria-expanded="false"] .arrow { color: #4ea84e; }
   .section-header:nth-of-type(3)[aria-expanded="false"] .arrow { color: #4d7ccc; }
 
+  /* Apply RGB colors to section heading titles */
+  .section-header:nth-of-type(1) .header-left span:not(.arrow) { /* Navigation - red */
+    color: rgba(255, 107, 107, 0.9);
+  }
+  .section-header:nth-of-type(2) .header-left span:not(.arrow) { /* Tags - green */
+    color: rgba(110, 222, 110, 0.9);
+  }
+  .section-header:nth-of-type(3) .header-left span:not(.arrow) { /* Anchors - blue */
+    color: rgba(111, 176, 255, 0.9);
+  }
+
   .collapsible-content {
     overflow: hidden;
     transition: max-height 0.3s ease, opacity 0.3s ease;
-    max-height: 300px;
+    max-height: var(--max-content-height);
     opacity: 1;
   }
 
@@ -494,15 +670,16 @@
      border-radius: 4px;
    }
 
-   .anchors-container {
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     gap: 8px;
-     background: #0a0a0a;
-     padding: 8px 8px;
-     border-radius: 4px;
-   }
+     .anchors-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-lg);
+    background: linear-gradient(135deg, rgba(111, 176, 255, 0.03) 0%, rgba(0, 0, 0, 0.9) 100%), #0a0a0a;
+    border: 1px solid rgba(111, 176, 255, 0.1);
+    padding: var(--container-padding);
+    border-radius: var(--border-radius-md);
+  }
 
   #bookmark-list {
     flex: 1;
@@ -518,27 +695,32 @@
     display: flex;
     align-items: center;
     margin-bottom: 0;
-    font-size: 10px;
+    font-size: var(--spacing-xl);
     background: transparent;
     border-radius: 0;
-    padding: 8px 8px;
+    padding: var(--spacing-lg);
     cursor: pointer;
     transition: all 0.2s ease;
-    border: none;
+    border: 1px solid transparent;
     position: relative;
     overflow: hidden;
   }
 
   .bookmark-item:hover {
-    background: #2a2a2a;
-    border-radius: 3px;
+    background: rgba(111, 176, 255, 0.08); /* blue theme for anchors section */
+    border: 1px solid rgba(111, 176, 255, 0.2);
+    border-radius: var(--border-radius-sm);
+  }
+
+  .bookmark-item:active {
+    background: rgba(111, 176, 255, 0.15); /* blue theme active state */
   }
 
   .bookmark-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 0px 0px 0px 0px;
+    padding: 0;
     cursor: pointer;
   }
 
@@ -552,10 +734,10 @@
   }
 
   .bookmark-page {
-    font-size: 8px;
+    font-size: var(--icon-size-sm);
     color: #ffffff;
     font-weight: normal;
-    margin-top: 2px;
+    margin-top: var(--spacing-xs);
     opacity: 0.6;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -565,13 +747,13 @@
     color: #ffffff;
     background: none;
     border: none;
-    font-size: 12px;
+    font-size: var(--icon-size-md);
     cursor: pointer;
     padding: 0;
     margin: 0;
     transition: all 0.2s ease;
     opacity: 0.7;
-    width: 24px;
+    width: calc(var(--button-height-md) - var(--spacing-sm));
     height: 100%;
     display: flex;
     align-items: center;
@@ -590,10 +772,10 @@
   /* Make 'Drop Anchor' match the 'Remove Tag' button */
   #save-bookmark {
     width: 100%;
-    height: 32px;
-    padding: 0 12px;
-    font-size: 10px;
-    border-radius: 8px;
+    height: var(--button-height-lg);
+    padding: 0 var(--spacing-xxl);
+    font-size: var(--spacing-xl);
+    border-radius: var(--border-radius-xl);
     border: 1px solid #2a2a2a;
     background: #0f0f0f;
     color: #ffffff;
@@ -603,13 +785,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: var(--spacing-sm);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   #save-bookmark:hover {
-    background: #1a1a1a;
-    border-color: #404040;
+    background: rgba(111, 176, 255, 0.08); /* blue theme for anchors section */
+    border-color: rgba(111, 176, 255, 0.3);
+  }
+
+  #save-bookmark:active {
+    background: rgba(111, 176, 255, 0.2); /* blue theme active state */
   }
 
   /* Tooltip */
@@ -617,16 +803,16 @@
     position: absolute;
     background: #1a1a1a;
     color: #ffffff;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 10px;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    font-size: var(--spacing-xl);
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.12s ease, transform 0.12s ease;
     z-index: 1000;
     box-shadow: 0 8px 24px rgba(0,0,0,0.32);
     border: 1px solid #2a2a2a;
-    transform: translateY(2px);
+    transform: translateY(var(--spacing-xs));
   }
 
   .tooltip.visible {
@@ -634,32 +820,74 @@
     transform: translateY(0);
   }
 
-  /* Resize Handle */
-  #resize-handle {
+  /* Solid footer with centered handle and right-side icon */
+  #footer {
     position: fixed;
-    bottom: 2px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 10px;
-    line-height: 1;
-    letter-spacing: 2px;
-    user-select: none;
-    cursor: ns-resize;
-    width: 40px;
-    height: 32px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--footer-height);
+    background: #0a0a0a;
+    border-top: 1px solid #2a2a2a;
+    display: block;
     padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
     z-index: 1001;
+    outline: none;
   }
 
-  #resize-handle:hover, #resize-handle:focus {
-    color: rgba(255, 255, 255, 0.8);
+  #footer-resize {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    height: 100%;
+    padding: 0 var(--spacing-lg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: ns-resize;
+    user-select: none;
     outline: none;
+    border-radius: var(--border-radius-md);
+  }
+
+  #footer-resize .grip {
+    letter-spacing: var(--spacing-xs);
+    font-size: var(--spacing-xl);
+    opacity: 0.7;
+  }
+
+  #footer-resize:hover, #footer-resize:focus {
+    color: rgba(255, 255, 255, 0.85);
     background: rgba(255, 255, 255, 0.04);
+  }
+
+  /* Right-side fit-to-content button */
+  #footer-fit.footer-icon-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: calc(var(--footer-height) + var(--spacing-sm));
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--icon-size-sm);
+    line-height: 1;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  #footer-fit.footer-icon-btn:hover,
+  #footer-fit.footer-icon-btn:focus {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.04);
+    outline: none;
   }
 
 </style>
@@ -712,7 +940,7 @@
     const navExitBtn = document.getElementById('nav-exit');
     const navCollapseBtn = document.getElementById('nav-collapse');
 
-    newPageBtn?.addEventListener('click', (event) => handleNewPage(event));
+    newPageBtn?.addEventListener('click', (event) => handleCollapseSections(event));
     deselectBtn?.addEventListener('click', () => sendMessage('deselect'));
     resyncBtn?.addEventListener('click', () => sendMessage('resync-bookmarks'));
     navUpBtn?.addEventListener('click', () => sendMessage('nav-up'));
@@ -723,7 +951,7 @@
 
     // Delayed hover tooltips (200ms)
     const hoverTargets = [
-      { el: newPageBtn, text: 'Collapse' },
+      { el: newPageBtn, text: 'Collapse sections' },
       { el: deselectBtn, text: 'Deselect' },
       { el: resyncBtn, text: 'Resync' },
       { el: navUpBtn, text: 'Up' },
@@ -754,6 +982,54 @@
     
     // Anchors
     document.getElementById('save-bookmark')?.addEventListener('click', () => sendMessage('save-bookmark'));
+
+    // Footer fit-to-content
+    document.getElementById('footer-fit')?.addEventListener('click', () => {
+      try {
+        const scrollable = document.querySelector('.scrollable-content');
+        if (!scrollable) return;
+
+        function computeVisibleContentBottomPx(container) {
+          let maxBottom = 0;
+          const collapsedContainers = Array.from(container.querySelectorAll('.collapsible-content.collapsed'));
+          const selectors = [
+            '#quick-actions',
+            '.section-header',
+            '.collapsible-content:not(.collapsed)',
+            '.nav-container',
+            '.color-grid-container',
+            '.anchors-container',
+            '#bookmark-list',
+            '#save-bookmark'
+          ];
+          selectors.forEach((sel) => {
+            container.querySelectorAll(sel).forEach((el) => {
+              if (!(el instanceof HTMLElement)) return;
+              if (el.offsetParent === null || el.offsetHeight === 0) return;
+              // Skip any element inside a collapsed section
+              const insideCollapsed = el.closest('.collapsible-content.collapsed');
+              if (insideCollapsed) return;
+              const bottom = el.offsetTop + el.offsetHeight;
+              if (bottom > maxBottom) maxBottom = bottom;
+            });
+          });
+          if (maxBottom === 0) {
+            maxBottom = container.scrollHeight;
+          }
+          return Math.ceil(maxBottom);
+        }
+
+        const minHeight = 200;
+        const maxHeight = 720;
+        const footerHeight = 20; // fixed footer
+        const bottomPx = computeVisibleContentBottomPx(scrollable);
+        const desired = bottomPx + footerHeight;
+        const clamped = Math.max(minHeight, Math.min(maxHeight, desired));
+        sendMessage('resize-ui', { width: 184, height: clamped });
+      } catch (_) {
+        // no-op
+      }
+    });
     
     // Collapsibles
     document.querySelectorAll('.collapsible').forEach(header => {
@@ -762,7 +1038,7 @@
   }
 
   function setupResizeHandle() {
-    const handle = document.getElementById('resize-handle');
+    const handle = document.getElementById('footer-resize');
     if (!handle) return;
 
     let isDragging = false;
@@ -808,14 +1084,7 @@
     });
   }
 
-     function handleNewPage(event) {
-     if (!hasLayerSelected) {
-       showTooltip('Please select layers to collapse', event.target);
-       return;
-     }
-     showTooltip('Collapsing layers...', event.target);
-     sendMessage('collapse-layers');
-   }
+  // Removed layer collapse logic from quick action; see handleCollapseSections
 
   function handleAddDate() {
     sendMessage('add-date-smart');
@@ -848,6 +1117,26 @@
     }
     if (tooltip) {
       tooltip.classList.remove('visible');
+    }
+  }
+
+  function handleCollapseSections(event) {
+    try {
+      const headers = Array.from(document.querySelectorAll('.section-header'));
+      headers.forEach((header) => {
+        const targetId = header.getAttribute('data-target');
+        const content = targetId ? document.getElementById(targetId) : null;
+        const arrow = header.querySelector('.arrow');
+        if (!content || !arrow) return;
+        if (!content.classList.contains('collapsed')) {
+          content.classList.add('collapsed');
+          arrow.textContent = '+';
+          header.setAttribute('aria-expanded', 'false');
+        }
+      });
+      showTooltip('Collapsed sections', event.target);
+    } catch (_) {
+      // no-op
     }
   }
 
@@ -889,9 +1178,10 @@
       anchorsBadge.textContent = '*';
     }
     
-    // Disable collapse button when no layers are selected
+    // Keep quick action Collapse sections button enabled regardless of selection
     if (collapseBtn) {
-      collapseBtn.disabled = !hasSelection;
+      collapseBtn.disabled = false;
+      collapseBtn.setAttribute('aria-disabled', 'false');
     }
     if (deselectBtn) {
       deselectBtn.disabled = !hasSelection;
@@ -915,7 +1205,7 @@
     // Update status indicator and colors
     const isLayer = hasSelection;
     const label = isLayer ? 'onLayer' : 'onPage';
-    const color = isLayer ? '#FF4DCD' /* magenta */ : '#49EEDC' /* cyan */;
+    const color = isLayer ? '#C47BC4' /* muted magenta */ : '#7BC4C4' /* muted cyan */;
 
     if (statusIndicator) {
       statusIndicator.textContent = label;
@@ -926,7 +1216,7 @@
     [tagsBadge, navigationBadge].forEach((el) => {
       if (el) el.style.color = color;
     });
-    if (anchorsBadge) anchorsBadge.style.color = '#FF4DCD';
+    if (anchorsBadge) anchorsBadge.style.color = '#C47BC4';
   }
 
   function toggleCollapsible(header) {
