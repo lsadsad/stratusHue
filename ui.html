@@ -141,7 +141,7 @@
     
     /* Content Constraints */
     --max-content-height: 300px;
-    --badge-size: 6px;
+    --badge-size: 14px;
     --arrow-width: 10px;
     --scrollbar-width: 2px;
     
@@ -161,6 +161,19 @@
     /* Status Colors - Muted to match RGB tone */
     --color-cyan-muted: #7BC4C4;   /* softer cyan for onPage state */
     --color-magenta-muted: #C47BC4; /* softer magenta for onLayer state */
+    
+    /* Light Text Colors for Button Content */
+    --color-red-light: #FFB3B3;    /* light red for navigation button text */
+    --color-green-light: #B3E6B3;  /* light green for tags button text */
+    --color-blue-light: #B3D9FF;   /* light blue for anchors button text */
+    
+    /* Minimum Height Calculation */
+    /* Quick Actions: 6px (top padding) + 28px (button height) + 6px (gap) = 40px */
+    /* Section Header: 10px (top padding) + 8px (font-size/line-height) + 10px (bottom padding) + 2px (borders) = 30px each */
+    /* Three Headers: 30px × 3 = 90px */
+    /* Footer: 20px */
+    /* Total Minimum: 40px + 90px + 20px = 150px */
+    --min-plugin-height: 150px;
   }
 
   /* Responsive Grid Adjustments */
@@ -185,7 +198,16 @@
   
   /* Base styles remain the same */
   html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; box-sizing: border-box; }
-  body { width: 100%; height: calc(100% - var(--footer-height)); overflow: hidden; background: #0f0f0f; display: flex; flex-direction: column; position: relative; }
+  body { 
+    width: 100%; 
+    height: calc(100% - var(--footer-height)); 
+    min-height: var(--min-plugin-height);
+    overflow: hidden; 
+    background: #0f0f0f; 
+    display: flex; 
+    flex-direction: column; 
+    position: relative; 
+  }
   body, button, h3 { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; font-weight: 500; font-size: 12px; }
   
      /* Scrollbar styles */
@@ -304,7 +326,7 @@
     flex-direction: column;
     gap: var(--spacing-md);
     background: linear-gradient(135deg, rgba(255, 107, 107, 0.03) 0%, rgba(0, 0, 0, 0.9) 100%), #0a0a0a;
-    border: 1px solid rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.2); /* match hover state for prominent red theme */
     padding: var(--container-padding);
     border-radius: var(--border-radius-md);
   }
@@ -322,9 +344,9 @@
     height: var(--button-height-lg);
     font-size: var(--icon-size-md);
     border-radius: var(--border-radius-xl);
-    border: 1px solid #2a2a2a;
-    background: #0f0f0f;
-    color: #ffffff;
+    border: 1px solid rgba(255, 107, 107, 0.3); /* default now uses hover border */
+    background: rgba(255, 107, 107, 0.08); /* default now uses hover background */
+    color: var(--color-red-light); /* light red text instead of white */
     cursor: pointer;
     transition: all 0.2s ease;
     display: inline-flex;
@@ -334,8 +356,8 @@
   }
 
   .nav-btn:hover {
-    background: rgba(255, 107, 107, 0.08); /* subtle red tint */
-    border-color: rgba(255, 107, 107, 0.3);
+    background: rgba(255, 107, 107, 0.12); /* enhanced hover state */
+    border-color: rgba(255, 107, 107, 0.4);
   }
 
   .nav-btn:active {
@@ -362,7 +384,7 @@
     align-items: center;
     gap: var(--spacing-sm);
     background: linear-gradient(135deg, rgba(110, 222, 110, 0.03) 0%, rgba(0, 0, 0, 0.9) 100%), #0a0a0a;
-    border: 1px solid rgba(110, 222, 110, 0.1);
+    border: 1px solid rgba(110, 222, 110, 0.2); /* match hover state for prominent green theme */
     padding: var(--container-padding);
     border-radius: var(--border-radius-md);
   }
@@ -380,9 +402,9 @@
     padding: var(--spacing-lg) var(--spacing-xxl);
     font-size: var(--spacing-xl);
     border-radius: var(--border-radius-xl);
-    border: 1px solid #2a2a2a;
-    background: #0f0f0f;
-    color: #ffffff;
+    border: 1px solid rgba(110, 222, 110, 0.3); /* default now uses hover border */
+    background: rgba(110, 222, 110, 0.08); /* default now uses hover background */
+    color: var(--color-green-light); /* light green text instead of white */
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -400,8 +422,8 @@
   }
 
   .tags-btn:hover {
-    background: rgba(110, 222, 110, 0.08); /* subtle green tint */
-    border-color: rgba(110, 222, 110, 0.3);
+    background: rgba(110, 222, 110, 0.12); /* enhanced hover state */
+    border-color: rgba(110, 222, 110, 0.4);
   }
 
   .tags-btn:active {
@@ -422,13 +444,19 @@
   }
 
   /* Navigation section specific styling for Collapse Folders button */
+  #nav-collapse {
+    border: 1px solid rgba(255, 107, 107, 0.3) !important; /* red theme for navigation section */
+    background: rgba(255, 107, 107, 0.08) !important; /* red theme for navigation section */
+    color: var(--color-red-light) !important; /* light red text for navigation section */
+  }
+  
   #nav-collapse:hover {
-    background: rgba(255, 107, 107, 0.08); /* red theme for navigation section */
-    border-color: rgba(255, 107, 107, 0.3);
+    background: rgba(255, 107, 107, 0.12) !important; /* enhanced red hover */
+    border-color: rgba(255, 107, 107, 0.4) !important;
   }
 
   #nav-collapse:active {
-    background: rgba(255, 107, 107, 0.2); /* red theme instead of pink */
+    background: rgba(255, 107, 107, 0.2) !important; /* red theme active */
   }
 
   .color-grid {
@@ -451,14 +479,15 @@
     justify-content: center;
     cursor: pointer;
     border-radius: var(--border-radius-xl); /* align with navigation buttons */
-    border: 1px solid #2a2a2a; /* align with navigation buttons */
-    background: #0f0f0f; /* align with navigation buttons */
+    border: 1px solid rgba(110, 222, 110, 0.3); /* default now uses hover border */
+    background: rgba(110, 222, 110, 0.08); /* default now uses hover background */
+    color: var(--color-green-light); /* light green for emoji tint */
     transition: all 0.2s ease;
   }
 
   .emoji-button:hover {
-    background: rgba(110, 222, 110, 0.08); /* green theme for tags section */
-    border-color: rgba(110, 222, 110, 0.3);
+    background: rgba(110, 222, 110, 0.12); /* enhanced hover state */
+    border-color: rgba(110, 222, 110, 0.4);
     transform: scale(1.1);
   }
 
@@ -472,9 +501,9 @@
     padding: 0 var(--spacing-xxl); /* align with navigation buttons */
     font-size: var(--spacing-xl);
     border-radius: var(--border-radius-xl); /* align with navigation buttons */
-    border: 1px solid #2a2a2a; /* align with navigation buttons */
-    background: #0f0f0f; /* align with navigation buttons */
-    color: #ffffff;
+    border: 1px solid rgba(110, 222, 110, 0.3); /* default now uses hover border */
+    background: rgba(110, 222, 110, 0.08); /* default now uses hover background */
+    color: var(--color-green-light); /* light green text instead of white */
     cursor: pointer;
     font-weight: normal;
     transition: all 0.2s ease;
@@ -493,8 +522,8 @@
   }
 
   .clear-action:hover {
-    background: rgba(110, 222, 110, 0.08); /* green theme for tags section */
-    border-color: rgba(110, 222, 110, 0.3);
+    background: rgba(110, 222, 110, 0.12); /* enhanced hover state */
+    border-color: rgba(110, 222, 110, 0.4);
   }
 
   .clear-action:active {
@@ -536,29 +565,29 @@
   /* RGB-themed section header backgrounds */
   .section-header:nth-of-type(1) { /* Navigation - red */
     background: linear-gradient(90deg, rgba(255, 107, 107, 0.02) 0%, #0f0f0f 100%);
-    border-top: 1px solid rgba(255, 107, 107, 0.1);
+    border-top: 1px solid rgba(255, 107, 107, 0.2); /* match hover state */
   }
   .section-header:nth-of-type(2) { /* Tags - green */
     background: linear-gradient(90deg, rgba(110, 222, 110, 0.02) 0%, #0f0f0f 100%);
-    border-top: 1px solid rgba(110, 222, 110, 0.1);
+    border-top: 1px solid rgba(110, 222, 110, 0.2); /* match hover state */
   }
   .section-header:nth-of-type(3) { /* Anchors - blue */
     background: linear-gradient(90deg, rgba(111, 176, 255, 0.02) 0%, #0f0f0f 100%);
-    border-top: 1px solid rgba(111, 176, 255, 0.1);
+    border-top: 1px solid rgba(111, 176, 255, 0.2); /* match hover state */
   }
 
   /* Enhanced hover states for RGB sections */
   .section-header:nth-of-type(1):hover { /* Navigation - red */
     background: linear-gradient(90deg, rgba(255, 107, 107, 0.05) 0%, #1a1a1a 100%);
-    border-top: 1px solid rgba(255, 107, 107, 0.2);
+    border-top: 1px solid rgba(255, 107, 107, 0.3); /* stronger on hover */
   }
   .section-header:nth-of-type(2):hover { /* Tags - green */
     background: linear-gradient(90deg, rgba(110, 222, 110, 0.05) 0%, #1a1a1a 100%);
-    border-top: 1px solid rgba(110, 222, 110, 0.2);
+    border-top: 1px solid rgba(110, 222, 110, 0.3); /* stronger on hover */
   }
   .section-header:nth-of-type(3):hover { /* Anchors - blue */
     background: linear-gradient(90deg, rgba(111, 176, 255, 0.05) 0%, #1a1a1a 100%);
-    border-top: 1px solid rgba(111, 176, 255, 0.2);
+    border-top: 1px solid rgba(111, 176, 255, 0.3); /* stronger on hover */
   }
 
   .header-left {
@@ -570,10 +599,8 @@
   .section-badge {
     background: transparent;
     border: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.6); /* indented appearance */
-    border-radius: var(--border-radius-md); /* 4px rounded container */
     padding: 0;
-    font-size: var(--icon-size-sm); /* smaller font for 8x8 container */
+    font-size: var(--icon-size-md);
     font-weight: inherit; /* match heading weight */
     white-space: nowrap;
     text-transform: none;
@@ -583,23 +610,16 @@
     justify-content: center;
     width: var(--badge-size);   /* fixed box for optical centering */
     height: var(--badge-size);  /* fixed box for optical centering */
-    line-height: 1; /* reset line-height for better optical centering */
+    line-height: var(--badge-size); /* keeps glyph centered */
     vertical-align: middle;
     position: absolute;
-    top: var(--spacing-lg);
-    right: var(--spacing-lg);
-    transform: translateY(-0.5px); /* fine-tune vertical optical alignment */
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
   }
 
   #tags-badge,
-  #navigation-badge { 
-    color: var(--color-cyan-muted); 
-    box-shadow: 0 0 4px rgba(123, 196, 196, 1.0); /* maximum cyan glow at 100% */
-  }
-  #anchors-badge { 
-    color: var(--color-magenta-muted); 
-    box-shadow: 0 0 4px rgba(196, 123, 196, 1.0); /* maximum magenta glow at 100% */
-  }
+  #navigation-badge { color: var(--color-cyan-muted); }
+  #anchors-badge { color: var(--color-magenta-muted); }
 
   .arrow {
     font-size: var(--icon-size-md);
@@ -663,13 +683,13 @@
   .collapsible-content.collapsed {
     max-height: 0;
     opacity: 0;
+    margin-bottom: 0; /* Remove any bottom margin when collapsed */
   }
 
 
 
      /* Anchors Section */
    #anchors-section {
-     flex: 1;
      display: flex;
      flex-direction: column;
      min-height: 0;
@@ -678,6 +698,11 @@
      padding: 0px;
      border-radius: 4px;
    }
+   
+   /* Only expand anchors section when not collapsed */
+   #anchors-section:not(.collapsed) {
+     flex: 1;
+   }
 
      .anchors-container {
     display: flex;
@@ -685,7 +710,7 @@
     align-items: center;
     gap: var(--spacing-lg);
     background: linear-gradient(135deg, rgba(111, 176, 255, 0.03) 0%, rgba(0, 0, 0, 0.9) 100%), #0a0a0a;
-    border: 1px solid rgba(111, 176, 255, 0.1);
+    border: 1px solid rgba(111, 176, 255, 0.2); /* match hover state for prominent blue theme */
     padding: var(--container-padding);
     border-radius: var(--border-radius-md);
   }
@@ -785,9 +810,9 @@
     padding: 0 var(--spacing-xxl);
     font-size: var(--spacing-xl);
     border-radius: var(--border-radius-xl);
-    border: 1px solid #2a2a2a;
-    background: #0f0f0f;
-    color: #ffffff;
+    border: 1px solid rgba(111, 176, 255, 0.3); /* default now uses hover border */
+    background: rgba(111, 176, 255, 0.08); /* default now uses hover background */
+    color: var(--color-blue-light); /* light blue text instead of white */
     cursor: pointer;
     font-weight: normal;
     transition: all 0.2s ease;
@@ -795,12 +820,12 @@
     align-items: center;
     justify-content: center;
     gap: var(--spacing-sm);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segue UI', Roboto, sans-serif;
   }
 
   #save-bookmark:hover {
-    background: rgba(111, 176, 255, 0.08); /* blue theme for anchors section */
-    border-color: rgba(111, 176, 255, 0.3);
+    background: rgba(111, 176, 255, 0.12); /* enhanced hover state */
+    border-color: rgba(111, 176, 255, 0.4);
   }
 
   #save-bookmark:active {
@@ -1000,35 +1025,51 @@
 
         function computeVisibleContentBottomPx(container) {
           let maxBottom = 0;
-          const collapsedContainers = Array.from(container.querySelectorAll('.collapsible-content.collapsed'));
-          const selectors = [
-            '#quick-actions',
-            '.section-header',
-            '.collapsible-content:not(.collapsed)',
-            '.nav-container',
-            '.color-grid-container',
-            '.anchors-container',
-            '#bookmark-list',
-            '#save-bookmark'
-          ];
-          selectors.forEach((sel) => {
-            container.querySelectorAll(sel).forEach((el) => {
-              if (!(el instanceof HTMLElement)) return;
-              if (el.offsetParent === null || el.offsetHeight === 0) return;
-              // Skip any element inside a collapsed section
-              const insideCollapsed = el.closest('.collapsible-content.collapsed');
-              if (insideCollapsed) return;
-              const bottom = el.offsetTop + el.offsetHeight;
-              if (bottom > maxBottom) maxBottom = bottom;
+          
+          // Check if all sections are collapsed
+          const allSections = container.querySelectorAll('.collapsible-content');
+          const allCollapsed = Array.from(allSections).every(section => section.classList.contains('collapsed'));
+          
+          if (allCollapsed) {
+            // When all collapsed, only measure quick actions and section headers
+            const selectors = ['#quick-actions', '.section-header'];
+            selectors.forEach((sel) => {
+              container.querySelectorAll(sel).forEach((el) => {
+                if (!(el instanceof HTMLElement)) return;
+                if (el.offsetParent === null || el.offsetHeight === 0) return;
+                const bottom = el.offsetTop + el.offsetHeight;
+                if (bottom > maxBottom) maxBottom = bottom;
+              });
             });
-          });
+          } else {
+            // Normal calculation for expanded sections
+            const selectors = [
+              '#quick-actions',
+              '.section-header',
+              '.nav-container',
+              '.color-grid-container', 
+              '.anchors-container'
+            ];
+            selectors.forEach((sel) => {
+              container.querySelectorAll(sel).forEach((el) => {
+                if (!(el instanceof HTMLElement)) return;
+                if (el.offsetParent === null || el.offsetHeight === 0) return;
+                // Skip any element inside a collapsed section
+                const insideCollapsed = el.closest('.collapsible-content.collapsed');
+                if (insideCollapsed) return;
+                const bottom = el.offsetTop + el.offsetHeight;
+                if (bottom > maxBottom) maxBottom = bottom;
+              });
+            });
+          }
+          
           if (maxBottom === 0) {
             maxBottom = container.scrollHeight;
           }
           return Math.ceil(maxBottom);
         }
 
-        const minHeight = 200;
+        const minHeight = 150; // align with collapsed sections height
         const maxHeight = 720;
         const footerHeight = 20; // fixed footer
         const bottomPx = computeVisibleContentBottomPx(scrollable);
@@ -1054,7 +1095,7 @@
     let startY = 0;
     let startHeight = 0;
 
-    const minHeight = 200; // prevent collapsing too far
+    const minHeight = 150; // align with collapsed sections height
     const maxHeight = 720; // reasonable cap for plugin modal
 
     function onPointerDown(e) {
@@ -1086,7 +1127,7 @@
       const step = (e.shiftKey ? 40 : 20);
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         const delta = e.key === 'ArrowUp' ? -step : step;
-        const next = Math.max(minHeight, Math.min(maxHeight, window.innerHeight + delta));
+        const next = Math.max(150, Math.min(maxHeight, window.innerHeight + delta)); // use collapsed sections height
         sendMessage('resize-ui', { width: 184, height: Math.round(next) });
         e.preventDefault();
       }

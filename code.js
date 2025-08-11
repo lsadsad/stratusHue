@@ -232,10 +232,19 @@ function navigateToNode(node) {
     });
 }
 // --- Plugin UI Setup ---
-// Allocate extra width to account for potential vertical scrollbar so content doesn't reflow
-figma.showUI(__html__, { width: 188, height: 352 });
+// Use consistent UI width to avoid unnecessary resizes
+figma.showUI(__html__, { width: 184, height: 352 });
+function debounce(fn, wait = 100) {
+    let timer;
+    return (...args) => {
+        if (timer !== undefined)
+            clearTimeout(timer);
+        timer = setTimeout(() => { fn(...args); }, wait);
+    };
+}
+const sendSelectionStateToUIDebounced = debounce(sendSelectionStateToUI, 100);
 figma.on('selectionchange', () => {
-    sendSelectionStateToUI();
+    sendSelectionStateToUIDebounced();
 });
 /**
  * Returns +1 if moving visually UP in the layer panel corresponds to a larger child index,
@@ -340,14 +349,24 @@ function handleJumpToBookmark(bookmarkId) {
 }
 function updateLayerEmojis(layers, emoji) {
     return __awaiter(this, void 0, void 0, function* () {
+        if (layers.length === 0)
+            return false;
+        const bookmarks = yield getBookmarks();
+        const bookmarkById = new Map(bookmarks.map(b => [b.id, b]));
         let bookmarkUpdates = false;
         for (const layer of layers) {
             const cleanName = removeEmojiPrefix(layer.name);
             const newName = emoji + ' ' + cleanName;
             layer.name = newName;
-            if (yield updateBookmarkIfExists(layer.id, newName)) {
+            const b = bookmarkById.get(layer.id);
+            if (b && b.name !== newName) {
+                b.name = newName;
+                b.pageName = getPageName(layer);
                 bookmarkUpdates = true;
             }
+        }
+        if (bookmarkUpdates) {
+            yield updateAndSaveBookmarks(bookmarks);
         }
         return bookmarkUpdates;
     });
@@ -388,15 +407,25 @@ function clearLayerEmojis(layers) {
     return __awaiter(this, void 0, void 0, function* () {
         let emojiCleared = false;
         let bookmarkUpdates = false;
+        if (layers.length === 0)
+            return { emojiCleared, bookmarkUpdates };
+        const bookmarks = yield getBookmarks();
+        const bookmarkById = new Map(bookmarks.map(b => [b.id, b]));
         for (const layer of layers) {
             const cleanName = removeEmojiPrefix(layer.name);
             if (cleanName !== layer.name) {
                 layer.name = cleanName;
                 emojiCleared = true;
-                if (yield updateBookmarkIfExists(layer.id, cleanName)) {
+                const b = bookmarkById.get(layer.id);
+                if (b && b.name !== cleanName) {
+                    b.name = cleanName;
+                    b.pageName = getPageName(layer);
                     bookmarkUpdates = true;
                 }
             }
+        }
+        if (bookmarkUpdates) {
+            yield updateAndSaveBookmarks(bookmarks);
         }
         return { emojiCleared, bookmarkUpdates };
     });
@@ -474,7 +503,10 @@ function handleAddDateTitle() {
         const selectedLayers = figma.currentPage.selection;
         if (selectedLayers.length > 0) {
             // If layers are selected, update their names
+            const bookmarks = yield getBookmarks();
+            const bookmarkById = new Map(bookmarks.map(b => [b.id, b]));
             let layersUpdated = 0;
+            let bookmarkUpdates = false;
             for (const layer of selectedLayers) {
                 let newName = layer.name;
                 // Check for existing date patterns in layer names
@@ -498,8 +530,15 @@ function handleAddDateTitle() {
                     layersUpdated++;
                 }
                 layer.name = newName;
-                // If this layer is bookmarked, update its stored name so the UI reflects changes immediately
-                yield updateBookmarkIfExists(layer.id, newName);
+                const b = bookmarkById.get(layer.id);
+                if (b && b.name !== newName) {
+                    b.name = newName;
+                    b.pageName = getPageName(layer);
+                    bookmarkUpdates = true;
+                }
+            }
+            if (bookmarkUpdates) {
+                yield updateAndSaveBookmarks(bookmarks);
             }
             if (layersUpdated > 0) {
                 figma.notify(`Date updated/added to ${layersUpdated} layer(s)!`);

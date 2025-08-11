@@ -14,6 +14,7 @@ interface LegacyBookmark { id: string; name: string; pageName?: string; }
 // Undo support removed
 
 // --- Helper functions for file-specific bookmark storage ---
+let bookmarksCache: Bookmark[] | null = null;
 function getContainingPage(node: BaseNode): PageNode | null { 
   let currentNode = node; 
   while (currentNode.parent && currentNode.parent.type !== 'PAGE') { 
@@ -58,35 +59,42 @@ async function updateBookmarksForPage(pageId: string, newPageName: string): Prom
 }
 
 async function getBookmarks(): Promise<Bookmark[]> { 
+  if (bookmarksCache) {
+    return bookmarksCache;
+  }
   const data = figma.root.getPluginData('bookmarks'); 
-  const bookmarks = data ? JSON.parse(data) : []; 
+  const bookmarks = data ? JSON.parse(data) as (Bookmark | LegacyBookmark)[] : []; 
   const migrationVersion = figma.root.getPluginData('migrationVersion') || '0'; 
   if (migrationVersion === '1') { 
-    return bookmarks as Bookmark[]; 
+    bookmarksCache = bookmarks as Bookmark[];
+    return bookmarksCache; 
   } 
-  const migratedBookmarks = await Promise.all(bookmarks.map(async (bookmark: LegacyBookmark) => { 
-    if (!bookmark.pageName) { 
+  const migratedBookmarks = await Promise.all(bookmarks.map(async (bookmark: LegacyBookmark | Bookmark) => { 
+    const b = bookmark as LegacyBookmark;
+    if (!b.pageName) { 
       try { 
-        const node = await figma.getNodeByIdAsync(bookmark.id); 
+        const node = await figma.getNodeByIdAsync(b.id); 
         if (node && 'parent' in node) { 
-          bookmark.pageName = getPageName(node); 
+          b.pageName = getPageName(node); 
         } else { 
-          bookmark.pageName = 'Unknown Page'; 
+          b.pageName = 'Unknown Page'; 
         } 
       } catch (error) { 
-        bookmark.pageName = 'Unknown Page'; 
-        console.log('Failed to migrate bookmark:', bookmark.id, error); 
+        b.pageName = 'Unknown Page'; 
+        console.log('Failed to migrate bookmark:', b.id, error); 
       } 
     } 
-    return bookmark as Bookmark; 
+    return b as Bookmark; 
   })); 
   await setBookmarks(migratedBookmarks); 
   figma.root.setPluginData('migrationVersion', '1'); 
+  bookmarksCache = migratedBookmarks;
   return migratedBookmarks; 
 }
 
 async function setBookmarks(bookmarks: Bookmark[]) { 
   figma.root.setPluginData('bookmarks', JSON.stringify(bookmarks)); 
+  bookmarksCache = bookmarks;
 }
 
 // --- UI Communication Helpers ---
@@ -238,8 +246,18 @@ async function navigateToNode(node: BaseNode & { name: string }) {
 
 // --- Plugin UI Setup ---
 figma.showUI(__html__, { width: 184, height: 352 });
+
+function debounce<T extends (...args: any[]) => unknown>(fn: T, wait = 100) {
+  let timer: number | undefined;
+  return (...args: Parameters<T>) => {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = setTimeout(() => { fn(...args); }, wait) as unknown as number;
+  };
+}
+
+const sendSelectionStateToUIDebounced = debounce(sendSelectionStateToUI, 100);
 figma.on('selectionchange', () => { 
-  sendSelectionStateToUI(); 
+  sendSelectionStateToUIDebounced(); 
 });
 /**
  * Returns +1 if moving visually UP in the layer panel corresponds to a larger child index,
@@ -338,15 +356,24 @@ async function handleJumpToBookmark(bookmarkId: string) {
 }
 
 async function updateLayerEmojis(layers: readonly SceneNode[], emoji: string): Promise<boolean> { 
+  if (layers.length === 0) return false;
+  const bookmarks = await getBookmarks();
+  const bookmarkById = new Map<string, Bookmark>(bookmarks.map(b => [b.id, b]));
   let bookmarkUpdates = false; 
   for (const layer of layers) { 
     const cleanName = removeEmojiPrefix(layer.name); 
     const newName = emoji + ' ' + cleanName; 
     layer.name = newName; 
-    if (await updateBookmarkIfExists(layer.id, newName)) { 
-      bookmarkUpdates = true; 
-    } 
-  } 
+    const b = bookmarkById.get(layer.id);
+    if (b && b.name !== newName) {
+      b.name = newName;
+      b.pageName = getPageName(layer);
+      bookmarkUpdates = true;
+    }
+  }
+  if (bookmarkUpdates) {
+    await updateAndSaveBookmarks(bookmarks);
+  }
   return bookmarkUpdates; 
 }
 
@@ -381,16 +408,27 @@ async function handleAddEmoji(selectedLayers: readonly SceneNode[], emoji: strin
 async function clearLayerEmojis(layers: readonly SceneNode[]): Promise<{ emojiCleared: boolean; bookmarkUpdates: boolean }> {
   let emojiCleared = false;
   let bookmarkUpdates = false;
+  if (layers.length === 0) return { emojiCleared, bookmarkUpdates };
+
+  const bookmarks = await getBookmarks();
+  const bookmarkById = new Map<string, Bookmark>(bookmarks.map(b => [b.id, b]));
   
   for (const layer of layers) {
     const cleanName = removeEmojiPrefix(layer.name);
     if (cleanName !== layer.name) {
       layer.name = cleanName;
       emojiCleared = true;
-      if (await updateBookmarkIfExists(layer.id, cleanName)) {
+      const b = bookmarkById.get(layer.id);
+      if (b && b.name !== cleanName) {
+        b.name = cleanName;
+        b.pageName = getPageName(layer);
         bookmarkUpdates = true;
       }
     }
+  }
+
+  if (bookmarkUpdates) {
+    await updateAndSaveBookmarks(bookmarks);
   }
   
   return { emojiCleared, bookmarkUpdates };
@@ -465,7 +503,10 @@ async function handleAddDateTitle() {
   
   if (selectedLayers.length > 0) {
     // If layers are selected, update their names
+    const bookmarks = await getBookmarks();
+    const bookmarkById = new Map<string, Bookmark>(bookmarks.map(b => [b.id, b]));
     let layersUpdated = 0;
+    let bookmarkUpdates = false;
     for (const layer of selectedLayers) {
       let newName = layer.name;
       
@@ -490,8 +531,15 @@ async function handleAddDateTitle() {
       }
       
       layer.name = newName;
-      // If this layer is bookmarked, update its stored name so the UI reflects changes immediately
-      await updateBookmarkIfExists(layer.id, newName);
+      const b = bookmarkById.get(layer.id);
+      if (b && b.name !== newName) {
+        b.name = newName;
+        b.pageName = getPageName(layer);
+        bookmarkUpdates = true;
+      }
+    }
+    if (bookmarkUpdates) {
+      await updateAndSaveBookmarks(bookmarks);
     }
     
     if (layersUpdated > 0) {
