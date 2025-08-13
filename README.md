@@ -1,6 +1,6 @@
 # Stratus_Hue
 
-A powerful Figma plugin for strategic color coding and intelligent bookmarking of design elements. Stratus_Hue helps designers organize their work with visual color indicators and quick navigation tools.
+A powerful Figma plugin for strategic color coding and intelligent bookmarking of design elements. Stratus_Hue helps designers organize their work with visual color indicators and smart tagging tools.
 
 ## ✨ Features
 
@@ -16,10 +16,7 @@ A powerful Figma plugin for strategic color coding and intelligent bookmarking o
 - **Auto-Replacement**: Detects and replaces existing dates to keep things current
 - **Consistent Format**: Uses a clear, consistent pattern (e.g., `↳ 🔵 08.05 : Title` for pages)
 
-### 🧭 Layer Navigation & Structure (New)
-- **Quick Navigation**: Buttons to move selection Up/Down, Enter into containers, and Exit to parent
-- **Collapse Folders**: Collapse selected layers and their siblings to tidy large files
-- **Deselect Fast**: One-tap deselect for quick context switching
+
 
 ### 🔄 Resync Anchors (New)
 - **Refresh Bookmarks**: Pulls the latest layer names and page names into the Anchors list

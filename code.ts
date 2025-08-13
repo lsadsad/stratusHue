@@ -245,7 +245,7 @@ async function navigateToNode(node: BaseNode & { name: string }) {
 }
 
 // --- Plugin UI Setup ---
-figma.showUI(__html__, { width: 184, height: 352 });
+figma.showUI(__html__, { width: 188, height: 352 });
 
 function debounce<T extends (...args: any[]) => unknown>(fn: T, wait = 100) {
   let timer: number | undefined;
@@ -259,20 +259,7 @@ const sendSelectionStateToUIDebounced = debounce(sendSelectionStateToUI, 100);
 figma.on('selectionchange', () => { 
   sendSelectionStateToUIDebounced(); 
 });
-/**
- * Returns +1 if moving visually UP in the layer panel corresponds to a larger child index,
- * or -1 if the parent's z-index is reversed (e.g., Auto Layout with reverse stacking).
- */
-function getPanelUpDeltaForParent(parent: BaseNode | null): number {
-  if (parent && 'layoutMode' in parent) {
-    const p: any = parent as any;
-    // For Auto Layout frames/groups with reverse z-index, invert direction
-    if (p.layoutMode && p.layoutMode !== 'NONE' && 'itemReverseZIndex' in p && p.itemReverseZIndex === true) {
-      return -1;
-    }
-  }
-  return 1;
-}
+
 
 // Refresh bookmarks by pulling latest names from the document
 async function handleResyncBookmarks() {
@@ -665,7 +652,7 @@ figma.ui.onmessage = async (msg) => {
         await sendBookmarksToUI();
         sendSelectionStateToUI();
         // Enforce fixed UI size to avoid host dialog drift when DevTools toggles
-        figma.ui.resize(184, 352);
+        figma.ui.resize(188, 352);
         break;
         
       case 'save-bookmark':
@@ -701,126 +688,7 @@ figma.ui.onmessage = async (msg) => {
         await handleCollapseLayers(selectedLayers);
         break;
 
-      // Layer navigation controls from UI
-      case 'nav-up': {
-        if (selectedLayers.length === 0) {
-          // Page-level navigation: move visually UP to the previous page (smaller index)
-          const pages = figma.root.children as readonly PageNode[];
-          const index = pages.indexOf(figma.currentPage);
-          if (index > 0) {
-            const prevPage = pages[index - 1];
-            await figma.setCurrentPageAsync(prevPage);
-            sendSelectionStateToUI();
-            figma.notify(`Page: ${prevPage.name}`);
-          } else {
-            figma.notify('Already at first page.');
-          }
-          break;
-        }
-        const node = selectedLayers[0];
-        const parent = 'parent' in node ? node.parent : null;
-        if (parent && 'children' in parent) {
-          const siblings = parent.children as readonly SceneNode[];
-          const index = siblings.indexOf(node as SceneNode);
-          const delta = getPanelUpDeltaForParent(parent as BaseNode);
-          const nextIndex = Math.max(0, Math.min(siblings.length - 1, index + delta));
-          let candidate = siblings[nextIndex] as SceneNode | undefined;
-          // Skip entering into groups/frames automatically; select the group itself
-          if (candidate) {
-            figma.currentPage.selection = [candidate];
-            // Keep folders collapsed while navigating
-            if ('expanded' in candidate) {
-              (candidate as any).expanded = false;
-            }
-            figma.viewport.scrollAndZoomIntoView([candidate]);
-          }
-        }
-        break;
-      }
-      case 'nav-down': {
-        if (selectedLayers.length === 0) {
-          // Page-level navigation: move visually DOWN to the next page (larger index)
-          const pages = figma.root.children as readonly PageNode[];
-          const index = pages.indexOf(figma.currentPage);
-          if (index < pages.length - 1) {
-            const nextPage = pages[index + 1];
-            await figma.setCurrentPageAsync(nextPage);
-            sendSelectionStateToUI();
-            figma.notify(`Page: ${nextPage.name}`);
-          } else {
-            figma.notify('Already at last page.');
-          }
-          break;
-        }
-        const node = selectedLayers[0];
-        const parent = 'parent' in node ? node.parent : null;
-        if (parent && 'children' in parent) {
-          const siblings = parent.children as readonly SceneNode[];
-          const index = siblings.indexOf(node as SceneNode);
-          const delta = getPanelUpDeltaForParent(parent as BaseNode);
-          const nextIndex = Math.max(0, Math.min(siblings.length - 1, index - delta));
-          let candidate = siblings[nextIndex] as SceneNode | undefined;
-          if (candidate) {
-            figma.currentPage.selection = [candidate];
-            if ('expanded' in candidate) {
-              (candidate as any).expanded = false;
-            }
-            figma.viewport.scrollAndZoomIntoView([candidate]);
-          }
-        }
-        break;
-      }
-      case 'nav-enter': {
-        if (selectedLayers.length === 0) {
-          figma.notify('Select a frame or group to enter.');
-          break;
-        }
-        // First press: if a single container is selected, select its children without expanding
-        if (selectedLayers.length === 1) {
-          const sel = selectedLayers[0];
-          if ('children' in sel && (sel as any).children.length > 0) {
-            const children = (sel as any).children as readonly SceneNode[];
-            figma.currentPage.selection = [...children];
-            figma.viewport.scrollAndZoomIntoView(children);
-            break;
-          }
-        }
 
-        // Second press (or multi-select): expand selected containers and select their children
-        const nextSelection: SceneNode[] = [];
-        for (const sel of selectedLayers) {
-          if ('children' in sel && (sel as any).children.length > 0) {
-            if ('expanded' in sel) {
-              (sel as any).expanded = true;
-            }
-            for (const child of (sel as any).children as readonly SceneNode[]) {
-              nextSelection.push(child);
-            }
-          }
-        }
-        if (nextSelection.length > 0) {
-          figma.currentPage.selection = nextSelection;
-          figma.viewport.scrollAndZoomIntoView(nextSelection);
-        } else {
-          figma.notify('No children to enter.');
-        }
-        break;
-      }
-      case 'nav-exit': {
-        if (selectedLayers.length === 0) {
-          figma.notify('Select a layer to exit its parent.');
-          break;
-        }
-        const node = selectedLayers[0];
-        const parent = 'parent' in node ? node.parent : null;
-        if (parent && parent.type !== 'PAGE' && 'parent' in parent && parent.parent) {
-          figma.currentPage.selection = [parent as unknown as SceneNode];
-          figma.viewport.scrollAndZoomIntoView([parent as unknown as SceneNode]);
-        } else {
-          figma.notify('Already at top level.');
-        }
-        break;
-      }
       case 'deselect':
         handleDeselect();
         break;
@@ -834,9 +702,19 @@ figma.ui.onmessage = async (msg) => {
         break;
       
       case 'ensure-size':
-        // Keep plugin width constant at 184px
-        figma.ui.resize(184, 352);
+        // Keep plugin width constant at 188px
+        figma.ui.resize(188, 352);
         break;
+
+      case 'resize-ui': {
+        const width = typeof msg.width === 'number' ? msg.width : 188;
+        const height = typeof msg.height === 'number' ? msg.height : 352;
+        // Constrain width to our fixed width; adjust height within safe bounds
+        const clampedWidth = 188;
+        const clampedHeight = Math.max(200, Math.min(720, height));
+        figma.ui.resize(clampedWidth, clampedHeight);
+        break;
+      }
         
       case 'cancel':
         figma.closePlugin();

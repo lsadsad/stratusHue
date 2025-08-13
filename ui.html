@@ -5,10 +5,6 @@
         <span class="icon" aria-hidden="true">⟳</span>
        <span class="label">Resync</span>
      </button>
-         <button id="new-page-btn" class="action-btn" aria-label="Collapse sections">
-        <span class="icon" aria-hidden="true">⇣</span>
-        <span class="label">Collapse sections</span>
-     </button>
      <div class="qa-spacer" aria-hidden="true"></div>
          <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
         <span class="icon" aria-hidden="true">✕</span>
@@ -17,33 +13,7 @@
       <span id="status-indicator" class="top-badge" aria-live="polite">onPage</span>
   </div>
 
-  <!-- Layer Navigation Section -->
-  <h2 class="section-header collapsible" data-target="navigation-section" role="button" tabindex="0" aria-expanded="true" aria-controls="navigation-section">
-    <div class="header-left">
-      <span class="arrow" aria-hidden="true">-</span>
-      <span>Navigation</span>
-    </div>
-    <span id="navigation-badge" class="section-badge">onPage</span>
-  </h2>
-  <div id="navigation-section" class="collapsible-content" role="region" aria-labelledby="navigation-section">
-    <div class="nav-container">
-      <div class="nav-grid" role="group" aria-label="Layer navigation controls">
-        <button id="nav-exit" class="nav-btn" aria-label="Exit folder">
-          <span class="icon" aria-hidden="true">↰</span>
-        </button>
-        <button id="nav-up" class="nav-btn" aria-label="Navigate up">
-          <span class="icon" aria-hidden="true">↑</span>
-        </button>
-        <button id="nav-down" class="nav-btn" aria-label="Navigate down">
-          <span class="icon" aria-hidden="true">↓</span>
-        </button>
-        <button id="nav-enter" class="nav-btn" aria-label="Enter folder">
-          <span class="icon" aria-hidden="true">↳</span>
-        </button>
-      </div>
-      <button id="nav-collapse" class="tags-btn" aria-label="Collapse folders">Collapse Folders</button>
-    </div>
-  </div>
+
 
   <!-- Color Tags Section -->
   <h2 class="section-header collapsible" data-target="color-section" role="button" tabindex="0" aria-expanded="true" aria-controls="color-section">
@@ -146,7 +116,6 @@
     --scrollbar-width: 2px;
     
     /* Grid Systems */
-    --nav-grid-cols: repeat(4, 1fr);
     --tags-grid-cols: repeat(4, 1fr);
     --tags-actions-cols: 1fr 1fr;
     
@@ -158,14 +127,7 @@
     --container-min-width: 160px;
     --container-max-width: 400px;
     
-    /* Status Colors - Muted to match RGB tone */
-    --color-cyan-muted: #7BC4C4;   /* softer cyan for onPage state */
-    --color-magenta-muted: #C47BC4; /* softer magenta for onLayer state */
-    
-    /* Light Text Colors for Button Content */
-    --color-red-light: #FFB3B3;    /* light red for navigation button text */
-    --color-green-light: #B3E6B3;  /* light green for tags button text */
-    --color-blue-light: #B3D9FF;   /* light blue for anchors button text */
+
     
     /* Minimum Height Calculation */
     /* Quick Actions: 6px (top padding) + 28px (button height) + 6px (gap) = 40px */
@@ -179,7 +141,6 @@
   /* Responsive Grid Adjustments */
   @container (max-width: 180px) {
     :root {
-      --nav-grid-cols: repeat(2, 1fr);
       --tags-grid-cols: repeat(2, 1fr);
       --spacing-lg: 6px;
       --spacing-xxl: 10px;
@@ -188,7 +149,6 @@
 
   @media (max-width: 160px) {
     :root {
-      --nav-grid-cols: repeat(2, 1fr);
       --tags-grid-cols: repeat(2, 1fr);
       --tags-actions-cols: 1fr;
       --spacing-lg: 4px;
@@ -245,8 +205,8 @@
     border-radius: var(--spacing-xl);
     font-size: var(--icon-size-sm);
     font-weight: 500;
-    color: var(--color-cyan-muted); /* default muted cyan for onPage */
-    border: 1px solid currentColor;
+    color: #ffffff;
+    border: 1px solid #404040;
     line-height: var(--button-height-sm);
     height: var(--button-height-sm);
     display: inline-flex;
@@ -320,61 +280,7 @@
     transform: none;
   }
 
-  /* Navigation Section */
-  .nav-container {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-    background: linear-gradient(135deg, rgba(255, 107, 107, 0.03) 0%, rgba(0, 0, 0, 0.9) 100%), #0a0a0a;
-    border: 1px solid rgba(255, 107, 107, 0.2); /* match hover state for prominent red theme */
-    padding: var(--container-padding);
-    border-radius: var(--border-radius-md);
-  }
 
-  .nav-grid {
-    display: grid;
-    grid-template-columns: var(--nav-grid-cols);
-    gap: var(--spacing-md);
-    width: 100%;
-  }
-
-  .nav-btn {
-    width: 100%;
-    min-width: var(--min-button-width);
-    height: var(--button-height-lg);
-    font-size: var(--icon-size-md);
-    border-radius: var(--border-radius-xl);
-    border: 1px solid rgba(255, 107, 107, 0.3); /* default now uses hover border */
-    background: rgba(255, 107, 107, 0.08); /* default now uses hover background */
-    color: var(--color-red-light); /* light red text instead of white */
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-
-  .nav-btn:hover {
-    background: rgba(255, 107, 107, 0.12); /* enhanced hover state */
-    border-color: rgba(255, 107, 107, 0.4);
-  }
-
-  .nav-btn:active {
-    background: rgba(255, 107, 107, 0.2); /* red theme instead of pink */
-  }
-
-  .nav-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    background: #0f0f0f;
-    border-color: #2a2a2a;
-  }
-
-  .nav-btn:disabled:hover {
-    background: #0f0f0f;
-    border-color: #2a2a2a;
-  }
 
 
      /* Color Section */
@@ -383,8 +289,8 @@
     flex-direction: column;
     align-items: center;
     gap: var(--spacing-sm);
-    background: linear-gradient(135deg, rgba(110, 222, 110, 0.03) 0%, rgba(0, 0, 0, 0.9) 100%), #0a0a0a;
-    border: 1px solid rgba(110, 222, 110, 0.2); /* match hover state for prominent green theme */
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
     padding: var(--container-padding);
     border-radius: var(--border-radius-md);
   }
@@ -402,15 +308,15 @@
     padding: var(--spacing-lg) var(--spacing-xxl);
     font-size: var(--spacing-xl);
     border-radius: var(--border-radius-xl);
-    border: 1px solid rgba(110, 222, 110, 0.3); /* default now uses hover border */
-    background: rgba(110, 222, 110, 0.08); /* default now uses hover background */
-    color: var(--color-green-light); /* light green text instead of white */
+    border: 1px solid #2a2a2a;
+    background: #1a1a1a;
+    color: #ffffff;
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
     text-align: center;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    height: var(--button-height-lg); /* align with navigation buttons */
+    height: var(--button-height-lg);
   }
 
   /* Make Date and Props buttons lighter weight */
@@ -422,12 +328,12 @@
   }
 
   .tags-btn:hover {
-    background: rgba(110, 222, 110, 0.12); /* enhanced hover state */
-    border-color: rgba(110, 222, 110, 0.4);
+    background: #2a2a2a;
+    border-color: #404040;
   }
 
   .tags-btn:active {
-    background: rgba(110, 222, 110, 0.2); /* green theme instead of pink */
+    background: #404040;
   }
 
   /* Disabled state for tags-style buttons (e.g., Collapse Folders) */
@@ -443,21 +349,7 @@
     border-color: #2a2a2a;
   }
 
-  /* Navigation section specific styling for Collapse Folders button */
-  #nav-collapse {
-    border: 1px solid rgba(255, 107, 107, 0.3) !important; /* red theme for navigation section */
-    background: rgba(255, 107, 107, 0.08) !important; /* red theme for navigation section */
-    color: var(--color-red-light) !important; /* light red text for navigation section */
-  }
-  
-  #nav-collapse:hover {
-    background: rgba(255, 107, 107, 0.12) !important; /* enhanced red hover */
-    border-color: rgba(255, 107, 107, 0.4) !important;
-  }
 
-  #nav-collapse:active {
-    background: rgba(255, 107, 107, 0.2) !important; /* red theme active */
-  }
 
   .color-grid {
     display: grid;
@@ -473,47 +365,47 @@
   .emoji-button {
     font-size: var(--icon-size-xl);
     width: 100%;
-    height: var(--button-height-lg); /* align with navigation buttons */
+    height: var(--button-height-lg);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: var(--border-radius-xl); /* align with navigation buttons */
-    border: 1px solid rgba(110, 222, 110, 0.3); /* default now uses hover border */
-    background: rgba(110, 222, 110, 0.08); /* default now uses hover background */
-    color: var(--color-green-light); /* light green for emoji tint */
+    border-radius: var(--border-radius-xl);
+    border: 1px solid #2a2a2a;
+    background: #1a1a1a;
+    color: #ffffff;
     transition: all 0.2s ease;
   }
 
   .emoji-button:hover {
-    background: rgba(110, 222, 110, 0.12); /* enhanced hover state */
-    border-color: rgba(110, 222, 110, 0.4);
+    background: #2a2a2a;
+    border-color: #404040;
     transform: scale(1.1);
   }
 
   .emoji-button:active {
-    background: rgba(110, 222, 110, 0.2); /* green theme instead of pink */
+    background: #404040;
     transform: scale(0.95);
   }
 
   .clear-action {
     width: 100%;
-    padding: 0 var(--spacing-xxl); /* align with navigation buttons */
+    padding: 0 var(--spacing-xxl);
     font-size: var(--spacing-xl);
-    border-radius: var(--border-radius-xl); /* align with navigation buttons */
-    border: 1px solid rgba(110, 222, 110, 0.3); /* default now uses hover border */
-    background: rgba(110, 222, 110, 0.08); /* default now uses hover background */
-    color: var(--color-green-light); /* light green text instead of white */
+    border-radius: var(--border-radius-xl);
+    border: 1px solid #2a2a2a;
+    background: rgba(26, 26, 26, 0.2);
+    color: rgba(255, 255, 255, 0.8);
     cursor: pointer;
-    font-weight: normal;
+    font-weight: 200;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--spacing-sm);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    opacity: 1; /* align with navigation buttons */
-    height: var(--button-height-lg); /* align with navigation buttons */
+    opacity: 1;
+    height: var(--button-height-lg);
   }
 
   .clear-action .icon {
@@ -522,12 +414,12 @@
   }
 
   .clear-action:hover {
-    background: rgba(110, 222, 110, 0.12); /* enhanced hover state */
-    border-color: rgba(110, 222, 110, 0.4);
+    background: rgba(42, 42, 42, 0.2);
+    border-color: #404040;
   }
 
   .clear-action:active {
-    background: rgba(110, 222, 110, 0.2); /* green theme active state */
+    background: rgba(64, 64, 64, 0.2);
   }
 
      /* Section Headers */
@@ -562,33 +454,7 @@
      border-bottom: 1px solid rgba(64, 64, 64, 0.4);
    }
 
-  /* RGB-themed section header backgrounds */
-  .section-header:nth-of-type(1) { /* Navigation - red */
-    background: linear-gradient(90deg, rgba(255, 107, 107, 0.02) 0%, #0f0f0f 100%);
-    border-top: 1px solid rgba(255, 107, 107, 0.2); /* match hover state */
-  }
-  .section-header:nth-of-type(2) { /* Tags - green */
-    background: linear-gradient(90deg, rgba(110, 222, 110, 0.02) 0%, #0f0f0f 100%);
-    border-top: 1px solid rgba(110, 222, 110, 0.2); /* match hover state */
-  }
-  .section-header:nth-of-type(3) { /* Anchors - blue */
-    background: linear-gradient(90deg, rgba(111, 176, 255, 0.02) 0%, #0f0f0f 100%);
-    border-top: 1px solid rgba(111, 176, 255, 0.2); /* match hover state */
-  }
 
-  /* Enhanced hover states for RGB sections */
-  .section-header:nth-of-type(1):hover { /* Navigation - red */
-    background: linear-gradient(90deg, rgba(255, 107, 107, 0.05) 0%, #1a1a1a 100%);
-    border-top: 1px solid rgba(255, 107, 107, 0.3); /* stronger on hover */
-  }
-  .section-header:nth-of-type(2):hover { /* Tags - green */
-    background: linear-gradient(90deg, rgba(110, 222, 110, 0.05) 0%, #1a1a1a 100%);
-    border-top: 1px solid rgba(110, 222, 110, 0.3); /* stronger on hover */
-  }
-  .section-header:nth-of-type(3):hover { /* Anchors - blue */
-    background: linear-gradient(90deg, rgba(111, 176, 255, 0.05) 0%, #1a1a1a 100%);
-    border-top: 1px solid rgba(111, 176, 255, 0.3); /* stronger on hover */
-  }
 
   .header-left {
     display: flex;
@@ -618,8 +484,7 @@
   }
 
   #tags-badge,
-  #navigation-badge { color: var(--color-cyan-muted); }
-  #anchors-badge { color: var(--color-magenta-muted); }
+  #anchors-badge { color: #ffffff; }
 
   .arrow {
     font-size: var(--icon-size-md);
@@ -630,11 +495,11 @@
 
   /* Color +/- based on expanded state (IDE-like) */
   .section-header[aria-expanded="true"] .arrow { /* expanded shows '-' */
-    color: #ff6b6b;
+    color: #ffffff;
     font-weight: 300; /* match lighter heading when expanded */
   }
   .section-header[aria-expanded="false"] .arrow { /* collapsed shows '+' */
-    color: #7ad96f;
+    color: #ffffff;
     font-weight: 800; /* match boldest heading when collapsed */
   }
 
@@ -647,31 +512,9 @@
     font-weight: 800; /* boldest when collapsed */
   }
 
-  /* Position-based +/- colors (RGB top→bottom) so order changes are respected */
-  .section-header:nth-of-type(1) .arrow { /* top = red */
-    color: #ff6b6b;
-  }
-  .section-header:nth-of-type(2) .arrow { /* middle = green */
-    color: #6ede6e;
-  }
-  .section-header:nth-of-type(3) .arrow { /* bottom = blue */
-    color: #6fb0ff;
-  }
-  /* Darker shades when collapsed */
-  .section-header:nth-of-type(1)[aria-expanded="false"] .arrow { color: #b84d4d; }
-  .section-header:nth-of-type(2)[aria-expanded="false"] .arrow { color: #4ea84e; }
-  .section-header:nth-of-type(3)[aria-expanded="false"] .arrow { color: #4d7ccc; }
 
-  /* Apply RGB colors to section heading titles */
-  .section-header:nth-of-type(1) .header-left span:not(.arrow) { /* Navigation - red */
-    color: rgba(255, 107, 107, 0.9);
-  }
-  .section-header:nth-of-type(2) .header-left span:not(.arrow) { /* Tags - green */
-    color: rgba(110, 222, 110, 0.9);
-  }
-  .section-header:nth-of-type(3) .header-left span:not(.arrow) { /* Anchors - blue */
-    color: rgba(111, 176, 255, 0.9);
-  }
+
+
 
   .collapsible-content {
     overflow: hidden;
@@ -709,8 +552,8 @@
     flex-direction: column;
     align-items: center;
     gap: var(--spacing-lg);
-    background: linear-gradient(135deg, rgba(111, 176, 255, 0.03) 0%, rgba(0, 0, 0, 0.9) 100%), #0a0a0a;
-    border: 1px solid rgba(111, 176, 255, 0.2); /* match hover state for prominent blue theme */
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
     padding: var(--container-padding);
     border-radius: var(--border-radius-md);
   }
@@ -741,13 +584,13 @@
   }
 
   .bookmark-item:hover {
-    background: rgba(111, 176, 255, 0.08); /* blue theme for anchors section */
-    border: 1px solid rgba(111, 176, 255, 0.2);
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
     border-radius: var(--border-radius-sm);
   }
 
   .bookmark-item:active {
-    background: rgba(111, 176, 255, 0.15); /* blue theme active state */
+    background: #2a2a2a;
   }
 
   .bookmark-content {
@@ -765,6 +608,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     color: #ffffff;
+    letter-spacing: 0.05em;
   }
 
   .bookmark-page {
@@ -775,6 +619,7 @@
     opacity: 0.6;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: 0.05em;
   }
 
   .bookmark-remove {
@@ -810,11 +655,11 @@
     padding: 0 var(--spacing-xxl);
     font-size: var(--spacing-xl);
     border-radius: var(--border-radius-xl);
-    border: 1px solid rgba(111, 176, 255, 0.3); /* default now uses hover border */
-    background: rgba(111, 176, 255, 0.08); /* default now uses hover background */
-    color: var(--color-blue-light); /* light blue text instead of white */
+    border: 1px solid #2a2a2a;
+    background: rgba(26, 26, 26, 0.2);
+    color: rgba(255, 255, 255, 0.8);
     cursor: pointer;
-    font-weight: normal;
+    font-weight: 200;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
@@ -824,12 +669,12 @@
   }
 
   #save-bookmark:hover {
-    background: rgba(111, 176, 255, 0.12); /* enhanced hover state */
-    border-color: rgba(111, 176, 255, 0.4);
+    background: rgba(42, 42, 42, 0.2);
+    border-color: #404040;
   }
 
   #save-bookmark:active {
-    background: rgba(111, 176, 255, 0.2); /* blue theme active state */
+    background: rgba(64, 64, 64, 0.2);
   }
 
   /* Tooltip */
@@ -960,39 +805,25 @@
     sendMessage('ui-ready');
     setupEventListeners();
     setupResizeHandle();
+    
+    // Auto-recovery mechanism for collapsed state
+    setTimeout(() => {
+      checkAndRecoverFromCollapsedState();
+    }, 100);
   });
 
   function setupEventListeners() {
     // Quick Actions
-    const newPageBtn = document.getElementById('new-page-btn');
     const deselectBtn = document.getElementById('deselect-btn');
     const resyncBtn = document.getElementById('resync-btn');
-    // Navigation
-    const navUpBtn = document.getElementById('nav-up');
-    const navDownBtn = document.getElementById('nav-down');
-    const navEnterBtn = document.getElementById('nav-enter');
-    const navExitBtn = document.getElementById('nav-exit');
-    const navCollapseBtn = document.getElementById('nav-collapse');
 
-    newPageBtn?.addEventListener('click', (event) => handleCollapseSections(event));
     deselectBtn?.addEventListener('click', () => sendMessage('deselect'));
     resyncBtn?.addEventListener('click', () => sendMessage('resync-bookmarks'));
-    navUpBtn?.addEventListener('click', () => sendMessage('nav-up'));
-    navDownBtn?.addEventListener('click', () => sendMessage('nav-down'));
-    navEnterBtn?.addEventListener('click', () => sendMessage('nav-enter'));
-    navExitBtn?.addEventListener('click', () => sendMessage('nav-exit'));
-    navCollapseBtn?.addEventListener('click', (event) => handleNewPage(event));
 
     // Delayed hover tooltips (200ms)
     const hoverTargets = [
-      { el: newPageBtn, text: 'Collapse sections' },
       { el: deselectBtn, text: 'Deselect' },
       { el: resyncBtn, text: 'Resync' },
-      { el: navUpBtn, text: 'Up' },
-      { el: navDownBtn, text: 'Down' },
-      { el: navEnterBtn, text: 'Enter folder' },
-      { el: navExitBtn, text: 'Exit folder' },
-      { el: navCollapseBtn, text: 'Collapse folders' },
     ];
     hoverTargets.forEach(({ el, text }) => {
       if (!el) return;
@@ -1046,7 +877,6 @@
             const selectors = [
               '#quick-actions',
               '.section-header',
-              '.nav-container',
               '.color-grid-container', 
               '.anchors-container'
             ];
@@ -1075,7 +905,7 @@
         const bottomPx = computeVisibleContentBottomPx(scrollable);
         const desired = bottomPx + footerHeight;
         const clamped = Math.max(minHeight, Math.min(maxHeight, desired));
-        sendMessage('resize-ui', { width: 184, height: clamped });
+        sendMessage('resize-ui', { width: 188, height: clamped });
       } catch (_) {
         // no-op
       }
@@ -1085,6 +915,45 @@
     document.querySelectorAll('.collapsible').forEach(header => {
       header.addEventListener('click', () => toggleCollapsible(header));
     });
+    
+    // Add click handler to detect and recover from collapsed state
+    document.body.addEventListener('click', (e) => {
+      // If user clicks anywhere and we're in a collapsed state, try to recover
+      setTimeout(() => {
+        checkAndRecoverFromCollapsedState();
+      }, 50);
+    });
+  }
+
+  function checkAndRecoverFromCollapsedState() {
+    try {
+      // Check if plugin is in a collapsed state (very narrow or all sections collapsed)
+      const currentWidth = window.innerWidth;
+      const allSections = document.querySelectorAll('.collapsible-content');
+      const allCollapsed = Array.from(allSections).every(section => section.classList.contains('collapsed'));
+      
+      // If width is too narrow (less than 160px) or all sections are collapsed, recover
+      if (currentWidth < 160 || allCollapsed) {
+        console.log('Auto-recovering from collapsed state...');
+        
+        // Expand at least one section (Tags section)
+        const tagsSection = document.getElementById('color-section');
+        const tagsHeader = document.querySelector('[data-target="color-section"]');
+        if (tagsSection && tagsHeader && tagsSection.classList.contains('collapsed')) {
+          tagsSection.classList.remove('collapsed');
+          const arrow = tagsHeader.querySelector('.arrow');
+          if (arrow) {
+            arrow.textContent = '-';
+            tagsHeader.setAttribute('aria-expanded', 'true');
+          }
+        }
+        
+        // Ensure proper width
+        sendMessage('resize-ui', { width: 188, height: Math.max(352, window.innerHeight) });
+      }
+    } catch (error) {
+      console.log('Error in auto-recovery:', error);
+    }
   }
 
   function setupResizeHandle() {
@@ -1111,8 +980,8 @@
       if (!isDragging) return;
       const delta = e.clientY - startY;
       let next = Math.max(minHeight, Math.min(maxHeight, startHeight + delta));
-      // Send resize request to host (width fixed at 184)
-      sendMessage('resize-ui', { width: 184, height: Math.round(next) });
+      // Send resize request to host (width fixed at 188)
+      sendMessage('resize-ui', { width: 188, height: Math.round(next) });
     }
 
     function onPointerUp() {
@@ -1128,7 +997,7 @@
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         const delta = e.key === 'ArrowUp' ? -step : step;
         const next = Math.max(150, Math.min(maxHeight, window.innerHeight + delta)); // use collapsed sections height
-        sendMessage('resize-ui', { width: 184, height: Math.round(next) });
+        sendMessage('resize-ui', { width: 188, height: Math.round(next) });
         e.preventDefault();
       }
     });
@@ -1170,25 +1039,7 @@
     }
   }
 
-  function handleCollapseSections(event) {
-    try {
-      const headers = Array.from(document.querySelectorAll('.section-header'));
-      headers.forEach((header) => {
-        const targetId = header.getAttribute('data-target');
-        const content = targetId ? document.getElementById(targetId) : null;
-        const arrow = header.querySelector('.arrow');
-        if (!content || !arrow) return;
-        if (!content.classList.contains('collapsed')) {
-          content.classList.add('collapsed');
-          arrow.textContent = '+';
-          header.setAttribute('aria-expanded', 'false');
-        }
-      });
-      showTooltip('Collapsed sections', event.target);
-    } catch (_) {
-      // no-op
-    }
-  }
+
 
   function renderEmojiButtons(emojis) {
     const container = document.getElementById('color-emoji-buttons');
@@ -1206,67 +1057,29 @@
 
   function updateSelectionIndicator(hasSelection) {
     const tagsBadge = document.getElementById('tags-badge');
-    const navigationBadge = document.getElementById('navigation-badge');
     const anchorsBadge = document.getElementById('anchors-badge');
-    const collapseBtn = document.getElementById('new-page-btn');
     const deselectBtn = document.getElementById('deselect-btn');
-    const navExitBtn = document.getElementById('nav-exit');
-    const navEnterBtn = document.getElementById('nav-enter');
-    const navCollapseBtn = document.getElementById('nav-collapse');
     const statusIndicator = document.getElementById('status-indicator');
     
     if (tagsBadge) {
-      // Show bullet instead of text; color will be synced below
-      tagsBadge.textContent = '*';
-    }
-    if (navigationBadge) {
-      navigationBadge.textContent = '*';
+      tagsBadge.textContent = '';
     }
     
-    // Keep Anchors badge as "onLayer" regardless of selection state
     if (anchorsBadge) {
-      anchorsBadge.textContent = '*';
+      anchorsBadge.textContent = '';
     }
     
-    // Keep quick action Collapse sections button enabled regardless of selection
-    if (collapseBtn) {
-      collapseBtn.disabled = false;
-      collapseBtn.setAttribute('aria-disabled', 'false');
-    }
     if (deselectBtn) {
       deselectBtn.disabled = !hasSelection;
     }
 
-    // Disable navigation actions that require a selection when onPage
-    if (navExitBtn) {
-      navExitBtn.disabled = !hasSelection;
-      navExitBtn.setAttribute('aria-disabled', String(!hasSelection));
-    }
-    if (navEnterBtn) {
-      navEnterBtn.disabled = !hasSelection;
-      navEnterBtn.setAttribute('aria-disabled', String(!hasSelection));
-    }
-    if (navCollapseBtn) {
-      // Disable when onPage (no selection)
-      navCollapseBtn.disabled = !hasSelection;
-      navCollapseBtn.setAttribute('aria-disabled', String(!hasSelection));
-    }
-
-    // Update status indicator and colors
+    // Update status indicator
     const isLayer = hasSelection;
     const label = isLayer ? 'onLayer' : 'onPage';
-    const color = isLayer ? '#C47BC4' /* muted magenta */ : '#7BC4C4' /* muted cyan */;
 
     if (statusIndicator) {
       statusIndicator.textContent = label;
-      statusIndicator.style.color = color;
-      statusIndicator.style.borderColor = color;
     }
-    // Sync section bullets to the state color, but keep Anchors magenta always
-    [tagsBadge, navigationBadge].forEach((el) => {
-      if (el) el.style.color = color;
-    });
-    if (anchorsBadge) anchorsBadge.style.color = '#C47BC4';
   }
 
   function toggleCollapsible(header) {
