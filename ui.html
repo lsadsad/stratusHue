@@ -1,29 +1,37 @@
 <div class="scrollable-content">
-  <!-- Quick Actions Section -->
+    <!-- Quick Actions Section -->
   <div id="quick-actions" role="toolbar" aria-label="Quick actions">
-         <button id="resync-btn" class="action-btn" aria-label="Resync anchors">
-        <span class="icon" aria-hidden="true">⟳</span>
-       <span class="label">Resync</span>
+    <button id="back-btn" class="action-btn" aria-label="Go back" disabled>
+      <span class="icon" aria-hidden="true">←</span>
+      <span class="label">Back</span>
+    </button>
+    <button id="forward-btn" class="action-btn" aria-label="Go forward" disabled>
+      <span class="icon" aria-hidden="true">→</span>
+      <span class="label">Forward</span>
+    </button>
+    <div class="qa-spacer" aria-hidden="true"></div>
+        <button id="resync-btn" class="action-btn" aria-label="Resync anchors">
+       <span class="icon" aria-hidden="true">⟳</span>
+      <span class="label">Resync</span>
+    </button>
+        <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
+       <span class="icon" aria-hidden="true">✕</span>
+       <span class="label">Deselect</span>
      </button>
-     <div class="qa-spacer" aria-hidden="true"></div>
-         <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
-        <span class="icon" aria-hidden="true">✕</span>
-        <span class="label">Deselect</span>
-      </button>
-      <span id="status-indicator" class="top-badge" aria-live="polite">onPage</span>
-  </div>
+     <span id="status-indicator" class="top-badge" aria-live="polite">onPage</span>
+ </div>
 
 
 
   <!-- Color Tags Section -->
-  <h2 class="section-header collapsible" data-target="color-section" role="button" tabindex="0" aria-expanded="true" aria-controls="color-section">
+  <h2 id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="0" aria-expanded="true" aria-controls="color-section">
     <div class="header-left">
       <span class="arrow" aria-hidden="true">-</span>
       <span>Tags</span>
     </div>
     <span id="tags-badge" class="section-badge">onPage</span>
   </h2>
-  <div id="color-section" class="collapsible-content" role="region" aria-labelledby="color-section">
+  <div id="color-section" class="collapsible-content" role="region" aria-labelledby="tags-header">
     <div class="color-grid-container">
       <div class="tags-actions">
         <button id="add-date-btn" class="tags-btn" aria-label="Add date">Date ++</button>
@@ -37,14 +45,14 @@
   </div>
 
   <!-- Anchors Section -->
-  <h2 class="section-header collapsible" data-target="anchors-section" role="button" tabindex="0" aria-expanded="true" aria-controls="anchors-section">
+  <h2 id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button" tabindex="0" aria-expanded="true" aria-controls="anchors-section">
     <div class="header-left">
       <span class="arrow" aria-hidden="true">-</span>
       <span>Anchors</span>
     </div>
     <span id="anchors-badge" class="section-badge">onLayer</span>
   </h2>
-  <div id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-section">
+  <div id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
     <div class="anchors-container">
       <ul id="bookmark-list" role="list" aria-label="Bookmarks"></ul>
       <button id="save-bookmark" aria-label="Save bookmark">⚓ Drop Anchor</button>
@@ -267,6 +275,16 @@
   #deselect-btn:hover {
     background: rgba(110, 222, 110, 0.06); /* subtle green accent */
     border: 1px solid rgba(110, 222, 110, 0.2);
+  }
+
+  #back-btn:hover {
+    background: rgba(255, 193, 7, 0.06); /* subtle yellow accent */
+    border: 1px solid rgba(255, 193, 7, 0.2);
+  }
+
+  #forward-btn:hover {
+    background: rgba(255, 193, 7, 0.06); /* subtle yellow accent */
+    border: 1px solid rgba(255, 193, 7, 0.2);
   }
 
   .action-btn:disabled {
@@ -816,14 +834,20 @@
     // Quick Actions
     const deselectBtn = document.getElementById('deselect-btn');
     const resyncBtn = document.getElementById('resync-btn');
+    const backBtn = document.getElementById('back-btn');
+    const forwardBtn = document.getElementById('forward-btn');
 
     deselectBtn?.addEventListener('click', () => sendMessage('deselect'));
     resyncBtn?.addEventListener('click', () => sendMessage('resync-bookmarks'));
+    backBtn?.addEventListener('click', () => sendMessage('go-back'));
+    forwardBtn?.addEventListener('click', () => sendMessage('go-forward'));
 
     // Delayed hover tooltips (200ms)
     const hoverTargets = [
       { el: deselectBtn, text: 'Deselect' },
       { el: resyncBtn, text: 'Resync' },
+      { el: backBtn, text: 'Back' },
+      { el: forwardBtn, text: 'Forward' },
     ];
     hoverTargets.forEach(({ el, text }) => {
       if (!el) return;
@@ -918,7 +942,11 @@
     
     // Add click handler to detect and recover from collapsed state
     document.body.addEventListener('click', (e) => {
-      // If user clicks anywhere and we're in a collapsed state, try to recover
+      // Don't run recovery if user clicked on a collapsible header (let the toggle work naturally)
+      if (e.target && e.target.closest('.collapsible')) {
+        return;
+      }
+      // If user clicks anywhere else and we're in a collapsed state, try to recover
       setTimeout(() => {
         checkAndRecoverFromCollapsedState();
       }, 50);
@@ -1082,6 +1110,19 @@
     }
   }
 
+  function updateNavigationButtons(canGoBack, canGoForward) {
+    const backBtn = document.getElementById('back-btn');
+    const forwardBtn = document.getElementById('forward-btn');
+    
+    if (backBtn) {
+      backBtn.disabled = !canGoBack;
+    }
+    
+    if (forwardBtn) {
+      forwardBtn.disabled = !canGoForward;
+    }
+  }
+
   function toggleCollapsible(header) {
     const targetId = header.getAttribute('data-target');
     const content = document.getElementById(targetId);
@@ -1149,6 +1190,10 @@
           const element = document.getElementById(msg.elementId);
           if (element) showTooltip(msg.text, element);
         }
+        break;
+
+      case 'navigation-state':
+        updateNavigationButtons(msg.canGoBack, msg.canGoForward);
         break;
     }
   });

@@ -13,6 +13,96 @@ const LAYER_EMOJI_LIST = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛',
 const PAGE_EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️']; // Circle emojis for pages
 // Undo support removed
 // --- Helper functions for file-specific bookmark storage ---
+let bookmarksCache = null;
+// --- Navigation History Management ---
+let navigationHistory = [];
+let historyIndex = -1;
+let isNavigatingHistory = false; // Prevent recording during history navigation
+const MAX_HISTORY_ENTRIES = 100;
+const HISTORY_CLEANUP_AGE = 60 * 60 * 1000; // 1 hour in milliseconds
+function loadNavigationHistory() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const historyData = yield figma.clientStorage.getAsync('navigationHistory');
+            const indexData = yield figma.clientStorage.getAsync('historyIndex');
+            if (historyData && Array.isArray(historyData)) {
+                navigationHistory = historyData;
+                historyIndex = typeof indexData === 'number' ? indexData : -1;
+                yield cleanupOldHistoryEntries();
+            }
+        }
+        catch (error) {
+            console.log('Failed to load navigation history:', error);
+            navigationHistory = [];
+            historyIndex = -1;
+        }
+    });
+}
+function saveNavigationHistory() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield figma.clientStorage.setAsync('navigationHistory', navigationHistory);
+            yield figma.clientStorage.setAsync('historyIndex', historyIndex);
+        }
+        catch (error) {
+            console.log('Failed to save navigation history:', error);
+        }
+    });
+}
+function cleanupOldHistoryEntries() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const now = Date.now();
+        const originalLength = navigationHistory.length;
+        navigationHistory = navigationHistory.filter(entry => (now - entry.timestamp) < HISTORY_CLEANUP_AGE);
+        // Adjust index if entries were removed
+        if (navigationHistory.length !== originalLength) {
+            historyIndex = Math.min(historyIndex, navigationHistory.length - 1);
+            if (navigationHistory.length > 0 && historyIndex < 0) {
+                historyIndex = navigationHistory.length - 1;
+            }
+        }
+    });
+}
+function generateHistoryId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+function addHistoryEntry(entry) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (isNavigatingHistory)
+            return; // Don't record during history navigation
+        const newEntry = Object.assign(Object.assign({}, entry), { id: generateHistoryId(), timestamp: Date.now() });
+        // Remove any entries after current index (when navigating back then making new action)
+        if (historyIndex >= 0 && historyIndex < navigationHistory.length - 1) {
+            navigationHistory = navigationHistory.slice(0, historyIndex + 1);
+        }
+        // Add new entry
+        navigationHistory.push(newEntry);
+        historyIndex = navigationHistory.length - 1;
+        // Maintain size limit
+        if (navigationHistory.length > MAX_HISTORY_ENTRIES) {
+            const removeCount = navigationHistory.length - MAX_HISTORY_ENTRIES;
+            navigationHistory = navigationHistory.slice(removeCount);
+            historyIndex -= removeCount;
+        }
+        yield saveNavigationHistory();
+        sendNavigationStateToUI();
+    });
+}
+function canGoBack() {
+    return historyIndex > 0;
+}
+function canGoForward() {
+    return historyIndex >= 0 && historyIndex < navigationHistory.length - 1;
+}
+function sendNavigationStateToUI() {
+    figma.ui.postMessage({
+        type: 'navigation-state',
+        canGoBack: canGoBack(),
+        canGoForward: canGoForward(),
+        historyLength: navigationHistory.length,
+        currentIndex: historyIndex
+    });
+}
 function getContainingPage(node) {
     var _a;
     let currentNode = node;
@@ -58,38 +148,45 @@ function updateBookmarksForPage(pageId, newPageName) {
 }
 function getBookmarks() {
     return __awaiter(this, void 0, void 0, function* () {
+        if (bookmarksCache) {
+            return bookmarksCache;
+        }
         const data = figma.root.getPluginData('bookmarks');
         const bookmarks = data ? JSON.parse(data) : [];
         const migrationVersion = figma.root.getPluginData('migrationVersion') || '0';
         if (migrationVersion === '1') {
-            return bookmarks;
+            bookmarksCache = bookmarks;
+            return bookmarksCache;
         }
         const migratedBookmarks = yield Promise.all(bookmarks.map((bookmark) => __awaiter(this, void 0, void 0, function* () {
-            if (!bookmark.pageName) {
+            const b = bookmark;
+            if (!b.pageName) {
                 try {
-                    const node = yield figma.getNodeByIdAsync(bookmark.id);
+                    const node = yield figma.getNodeByIdAsync(b.id);
                     if (node && 'parent' in node) {
-                        bookmark.pageName = getPageName(node);
+                        b.pageName = getPageName(node);
                     }
                     else {
-                        bookmark.pageName = 'Unknown Page';
+                        b.pageName = 'Unknown Page';
                     }
                 }
                 catch (error) {
-                    bookmark.pageName = 'Unknown Page';
-                    console.log('Failed to migrate bookmark:', bookmark.id, error);
+                    b.pageName = 'Unknown Page';
+                    console.log('Failed to migrate bookmark:', b.id, error);
                 }
             }
-            return bookmark;
+            return b;
         })));
         yield setBookmarks(migratedBookmarks);
         figma.root.setPluginData('migrationVersion', '1');
+        bookmarksCache = migratedBookmarks;
         return migratedBookmarks;
     });
 }
 function setBookmarks(bookmarks) {
     return __awaiter(this, void 0, void 0, function* () {
         figma.root.setPluginData('bookmarks', JSON.stringify(bookmarks));
+        bookmarksCache = bookmarks;
     });
 }
 // --- UI Communication Helpers ---
@@ -213,8 +310,8 @@ function cleanupBookmark(bookmarkId) {
         yield updateAndSaveBookmarks(newBookmarks);
     });
 }
-function navigateToNode(node) {
-    return __awaiter(this, void 0, void 0, function* () {
+function navigateToNode(node_1) {
+    return __awaiter(this, arguments, void 0, function* (node, recordHistory = true) {
         const targetPage = getContainingPage(node);
         if (targetPage) {
             if (figma.currentPage !== targetPage) {
@@ -224,6 +321,16 @@ function navigateToNode(node) {
                 figma.currentPage.selection = [node];
                 figma.viewport.scrollAndZoomIntoView([node]);
                 figma.notify(`Jumped to: ${node.name} (Page: ${targetPage.name})`);
+                // Record in history if not navigating through history
+                if (recordHistory && !isNavigatingHistory) {
+                    yield addHistoryEntry({
+                        type: 'selection',
+                        pageId: targetPage.id,
+                        pageName: targetPage.name,
+                        nodeId: node.id,
+                        nodeName: node.name
+                    });
+                }
             }
         }
         else {
@@ -231,8 +338,109 @@ function navigateToNode(node) {
         }
     });
 }
+function handleGoBack() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!canGoBack()) {
+            figma.notify('No previous location in history.');
+            return;
+        }
+        isNavigatingHistory = true;
+        historyIndex--;
+        const entry = navigationHistory[historyIndex];
+        try {
+            if (entry.nodeId) {
+                // Navigate to specific node
+                const node = yield figma.getNodeByIdAsync(entry.nodeId);
+                if (node && 'name' in node) {
+                    yield navigateToNode(node, false);
+                }
+                else {
+                    // Node no longer exists, navigate to page instead
+                    const page = figma.root.children.find(p => p.id === entry.pageId);
+                    if (page && page.type === 'PAGE') {
+                        yield figma.setCurrentPageAsync(page);
+                        figma.notify(`Went back to: ${entry.pageName}`);
+                    }
+                    else {
+                        figma.notify('Previous location no longer exists.');
+                    }
+                }
+            }
+            else {
+                // Navigate to page
+                const page = figma.root.children.find(p => p.id === entry.pageId);
+                if (page && page.type === 'PAGE') {
+                    yield figma.setCurrentPageAsync(page);
+                    figma.notify(`Went back to: ${entry.pageName}`);
+                }
+                else {
+                    figma.notify('Previous page no longer exists.');
+                }
+            }
+        }
+        catch (error) {
+            figma.notify('Error navigating to previous location.');
+            console.error('Navigation error:', error);
+        }
+        finally {
+            isNavigatingHistory = false;
+            yield saveNavigationHistory();
+            sendNavigationStateToUI();
+        }
+    });
+}
+function handleGoForward() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!canGoForward()) {
+            figma.notify('No forward location in history.');
+            return;
+        }
+        isNavigatingHistory = true;
+        historyIndex++;
+        const entry = navigationHistory[historyIndex];
+        try {
+            if (entry.nodeId) {
+                // Navigate to specific node
+                const node = yield figma.getNodeByIdAsync(entry.nodeId);
+                if (node && 'name' in node) {
+                    yield navigateToNode(node, false);
+                }
+                else {
+                    // Node no longer exists, navigate to page instead
+                    const page = figma.root.children.find(p => p.id === entry.pageId);
+                    if (page && page.type === 'PAGE') {
+                        yield figma.setCurrentPageAsync(page);
+                        figma.notify(`Went forward to: ${entry.pageName}`);
+                    }
+                    else {
+                        figma.notify('Forward location no longer exists.');
+                    }
+                }
+            }
+            else {
+                // Navigate to page
+                const page = figma.root.children.find(p => p.id === entry.pageId);
+                if (page && page.type === 'PAGE') {
+                    yield figma.setCurrentPageAsync(page);
+                    figma.notify(`Went forward to: ${entry.pageName}`);
+                }
+                else {
+                    figma.notify('Forward page no longer exists.');
+                }
+            }
+        }
+        catch (error) {
+            figma.notify('Error navigating to forward location.');
+            console.error('Navigation error:', error);
+        }
+        finally {
+            isNavigatingHistory = false;
+            yield saveNavigationHistory();
+            sendNavigationStateToUI();
+        }
+    });
+}
 // --- Plugin UI Setup ---
-// Use consistent UI width to avoid unnecessary resizes
 figma.showUI(__html__, { width: 188, height: 352 });
 function debounce(fn, wait = 100) {
     let timer;
@@ -243,10 +451,40 @@ function debounce(fn, wait = 100) {
     };
 }
 const sendSelectionStateToUIDebounced = debounce(sendSelectionStateToUI, 100);
+// Debounced selection tracking for history
+const trackSelectionForHistory = debounce(() => __awaiter(void 0, void 0, void 0, function* () {
+    if (isNavigatingHistory)
+        return; // Don't record during history navigation
+    const selection = figma.currentPage.selection;
+    if (selection.length === 1) {
+        const node = selection[0];
+        const targetPage = getContainingPage(node);
+        if (targetPage) {
+            yield addHistoryEntry({
+                type: 'selection',
+                pageId: targetPage.id,
+                pageName: targetPage.name,
+                nodeId: node.id,
+                nodeName: node.name
+            });
+        }
+    }
+}), 500); // Wait 500ms to avoid recording rapid selections
 figma.on('selectionchange', () => {
     sendSelectionStateToUIDebounced();
+    trackSelectionForHistory(); // Track selections for history
 });
-
+// Track page changes for history
+figma.on('currentpagechange', () => __awaiter(void 0, void 0, void 0, function* () {
+    if (isNavigatingHistory)
+        return; // Don't record during history navigation
+    const currentPage = figma.currentPage;
+    yield addHistoryEntry({
+        type: 'page',
+        pageId: currentPage.id,
+        pageName: currentPage.name
+    });
+}));
 // Refresh bookmarks by pulling latest names from the document
 function handleResyncBookmarks() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -327,7 +565,20 @@ function handleJumpToBookmark(bookmarkId) {
                 return;
             }
             yield updateBookmarkIfExists(bookmarkId, node.name);
-            yield navigateToNode(node);
+            // Record as bookmark navigation in history
+            if (!isNavigatingHistory) {
+                const targetPage = getContainingPage(node);
+                if (targetPage) {
+                    yield addHistoryEntry({
+                        type: 'bookmark',
+                        pageId: targetPage.id,
+                        pageName: targetPage.name,
+                        nodeId: node.id,
+                        nodeName: node.name
+                    });
+                }
+            }
+            yield navigateToNode(node, false); // Don't double-record history
         }
         catch (error) {
             figma.notify('Error accessing bookmark. Cleaning up...');
@@ -645,10 +896,12 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         switch (msg.type) {
             case 'ui-ready':
+                yield loadNavigationHistory(); // Load history on startup
                 yield sendBookmarksToUI();
                 sendSelectionStateToUI();
-        // Enforce fixed UI size and reserve gutter for scrollbar
-        figma.ui.resize(188, 352);
+                sendNavigationStateToUI(); // Send navigation state to UI
+                // Enforce fixed UI size to avoid host dialog drift when DevTools toggles
+                figma.ui.resize(188, 352);
                 break;
             case 'save-bookmark':
                 yield handleSaveBookmark(selectedLayers);
@@ -675,7 +928,6 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             case 'collapse-layers':
                 yield handleCollapseLayers(selectedLayers);
                 break;
-
             case 'deselect':
                 handleDeselect();
                 break;
@@ -685,20 +937,25 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             case 'resync-bookmarks':
                 yield handleResyncBookmarks();
                 break;
+            case 'go-back':
+                yield handleGoBack();
+                break;
+            case 'go-forward':
+                yield handleGoForward();
+                break;
             case 'ensure-size':
                 // Keep plugin width constant at 188px
                 figma.ui.resize(188, 352);
                 break;
-
-      case 'resize-ui': {
-        const width = typeof msg.width === 'number' ? msg.width : 188;
-        const height = typeof msg.height === 'number' ? msg.height : 352;
-        // Constrain width to our fixed width; adjust height within safe bounds
-        const clampedWidth = 188;
-        const clampedHeight = Math.max(200, Math.min(720, height));
-        figma.ui.resize(clampedWidth, clampedHeight);
-        break;
-      }
+            case 'resize-ui': {
+                const width = typeof msg.width === 'number' ? msg.width : 188;
+                const height = typeof msg.height === 'number' ? msg.height : 352;
+                // Constrain width to our fixed width; adjust height within safe bounds
+                const clampedWidth = 188;
+                const clampedHeight = Math.max(200, Math.min(720, height));
+                figma.ui.resize(clampedWidth, clampedHeight);
+                break;
+            }
             case 'cancel':
                 figma.closePlugin();
                 break;
