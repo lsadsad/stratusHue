@@ -977,8 +977,14 @@
     const backBtn = document.getElementById('back-btn');
     const forwardBtn = document.getElementById('forward-btn');
 
-    deselectBtn?.addEventListener('click', () => sendMessage('deselect'));
-    resyncBtn?.addEventListener('click', () => sendMessage('resync-bookmarks'));
+    deselectBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sendMessage('deselect');
+    });
+    resyncBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sendMessage('resync-bookmarks');
+    });
     backBtn?.addEventListener('click', () => sendMessage('go-back'));
     forwardBtn?.addEventListener('click', () => sendMessage('go-forward'));
 
@@ -1232,26 +1238,29 @@
      
      container.innerHTML = '';
      
-     // Check if this is the Date set (when emojis array contains date button identifier)
-     if (emojis.length === 1 && emojis[0] === '📅') {
-       // Render the date button with special handling
+     // Render emoji buttons
+     emojis.forEach(emoji => {
        const button = document.createElement('button');
        button.className = 'emoji-button';
-       button.id = 'add-date-btn';
-       button.textContent = '📅';
-       button.setAttribute('aria-label', 'Add date');
-       button.addEventListener('click', handleAddDate);
+       button.textContent = emoji;
+       
+               // Special handling for date button
+        if (emoji === '📅') {
+          button.id = 'add-date-btn';
+          button.setAttribute('aria-label', 'Add date');
+          button.addEventListener('click', handleAddDate);
+        } else if (emoji === '⚪') {
+          // Generic placeholder emoji - no functionality
+          button.setAttribute('aria-label', 'Date placeholder');
+          button.style.opacity = '0.3';
+          button.style.cursor = 'default';
+          // No click handler for placeholders
+        } else {
+          button.addEventListener('click', () => sendMessage('add-emoji', { emoji }));
+        }
+       
        container.appendChild(button);
-     } else {
-       // Render regular emoji buttons
-       emojis.forEach(emoji => {
-         const button = document.createElement('button');
-         button.className = 'emoji-button';
-         button.textContent = emoji;
-         button.addEventListener('click', () => sendMessage('add-emoji', { emoji }));
-         container.appendChild(button);
-       });
-     }
+     });
    }
 
   function updateSelectionIndicator(hasSelection) {

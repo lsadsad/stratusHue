@@ -4,16 +4,16 @@
 const LAYER_EMOJI_SETS = [
   { name: 'Colors', emojis: ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜'] },
   { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
-  { name: 'Stars', emojis: ['⭐', '🌟', '✨', '💫', '🌠', '🎇', '🎆', '✴️'] },
-  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
+  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] },
+  { name: 'Date', emojis: ['📅', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'] }
 ];
 
 // Emoji sets for pages (circle emojis)
 const PAGE_EMOJI_SETS = [
   { name: 'Colors', emojis: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'] },
   { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
-  { name: 'Stars', emojis: ['⭐', '🌟', '✨', '💫', '🌠', '🎇', '🎆', '✴️'] },
-  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
+  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] },
+  { name: 'Date', emojis: ['📅', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'] }
 ];
 
 // Legacy constants for backward compatibility

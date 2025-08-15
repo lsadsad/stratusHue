@@ -13,15 +13,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const LAYER_EMOJI_SETS = [
     { name: 'Colors', emojis: ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜'] },
     { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
-    { name: 'Stars', emojis: ['⭐', '🌟', '✨', '💫', '🌠', '🎇', '🎆', '✴️'] },
-    { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
+    { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] },
+    { name: 'Date', emojis: ['📅', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'] }
 ];
 // Emoji sets for pages (circle emojis)
 const PAGE_EMOJI_SETS = [
     { name: 'Colors', emojis: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'] },
     { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
-    { name: 'Stars', emojis: ['⭐', '🌟', '✨', '💫', '🌠', '🎇', '🎆', '✴️'] },
-    { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
+    { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] },
+    { name: 'Date', emojis: ['📅', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'] }
 ];
 // Legacy constants for backward compatibility
 const LAYER_EMOJI_LIST = LAYER_EMOJI_SETS[0].emojis;
