@@ -1,7 +1,24 @@
 // Stratus_Hue: A Figma plugin for layer tagging and navigation.
 
-const LAYER_EMOJI_LIST = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜']; // Square emojis for layers
-const PAGE_EMOJI_LIST = ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️']; // Circle emojis for pages
+// Emoji sets for layers (square emojis)
+const LAYER_EMOJI_SETS = [
+  { name: 'Colors', emojis: ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜'] },
+  { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
+  { name: 'Stars', emojis: ['⭐', '🌟', '✨', '💫', '🌠', '🎇', '🎆', '✴️'] },
+  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
+];
+
+// Emoji sets for pages (circle emojis)
+const PAGE_EMOJI_SETS = [
+  { name: 'Colors', emojis: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'] },
+  { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
+  { name: 'Stars', emojis: ['⭐', '🌟', '✨', '💫', '🌠', '🎇', '🎆', '✴️'] },
+  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
+];
+
+// Legacy constants for backward compatibility
+const LAYER_EMOJI_LIST = LAYER_EMOJI_SETS[0].emojis;
+const PAGE_EMOJI_LIST = PAGE_EMOJI_SETS[0].emojis;
 
 // --- Bookmark Type Definition ---
 interface Bookmark {
@@ -33,6 +50,10 @@ let historyIndex = -1;
 let isNavigatingHistory = false; // Prevent recording during history navigation
 const MAX_HISTORY_ENTRIES = 100;
 const HISTORY_CLEANUP_AGE = 60 * 60 * 1000; // 1 hour in milliseconds
+
+// --- Emoji Set Navigation State ---
+let currentLayerEmojiSetIndex = 0;
+let currentPageEmojiSetIndex = 0;
 
 async function loadNavigationHistory(): Promise<void> {
   try {
@@ -128,6 +149,28 @@ function sendNavigationStateToUI(): void {
   });
 }
 
+function getCurrentEmojiSet(isLayer: boolean) {
+  if (isLayer) {
+    return LAYER_EMOJI_SETS[currentLayerEmojiSetIndex];
+  } else {
+    return PAGE_EMOJI_SETS[currentPageEmojiSetIndex];
+  }
+}
+
+function sendEmojiNavigationStateToUI(hasLayerSelected: boolean): void {
+  const isLayer = hasLayerSelected;
+  const currentSet = getCurrentEmojiSet(isLayer);
+  const sets = isLayer ? LAYER_EMOJI_SETS : PAGE_EMOJI_SETS;
+  const currentIndex = isLayer ? currentLayerEmojiSetIndex : currentPageEmojiSetIndex;
+  
+  figma.ui.postMessage({
+    type: 'emoji-navigation-state',
+    currentSetIndex: currentIndex,
+    totalSets: sets.length,
+    setName: currentSet.name
+  });
+}
+
 function getContainingPage(node: BaseNode): PageNode | null { 
   let currentNode = node; 
   while (currentNode.parent && currentNode.parent.type !== 'PAGE') { 
@@ -219,12 +262,17 @@ async function sendBookmarksToUI() {
 function sendSelectionStateToUI() { 
   const selectedLayers = figma.currentPage.selection; 
   const hasLayerSelected = selectedLayers.length > 0; 
+  const currentEmojiSet = getCurrentEmojiSet(hasLayerSelected);
+  
   figma.ui.postMessage({ 
     type: 'selection-state', 
     hasLayerSelected, 
-    layerEmojis: LAYER_EMOJI_LIST, 
-    pageEmojis: PAGE_EMOJI_LIST 
+    layerEmojis: hasLayerSelected ? currentEmojiSet.emojis : LAYER_EMOJI_SETS[currentLayerEmojiSetIndex].emojis, 
+    pageEmojis: !hasLayerSelected ? currentEmojiSet.emojis : PAGE_EMOJI_SETS[currentPageEmojiSetIndex].emojis
   }); 
+  
+  // Send emoji navigation state
+  sendEmojiNavigationStateToUI(hasLayerSelected);
 }
 
 async function updateAndSaveBookmarks(bookmarks: Bookmark[]) { 
@@ -244,7 +292,10 @@ function normalizePageName(name: string): string {
   // Ensure exactly one space after arrow (preserve indentation)
   normalized = normalized.replace(/^(\s*↳)\s+/, '$1 ');
   // Ensure exactly one space after emoji when present
-  normalized = normalized.replace(/^(\s*↳\s*[🔴🟠🟡🟢🔵🟣⚫⚪])\s+/, '$1 ');
+  const allPageEmojis = PAGE_EMOJI_SETS.flatMap(set => set.emojis);
+  const emojiPattern = `[${allPageEmojis.join('')}]`;
+  const regex = new RegExp(`^(\\s*↳\\s*${emojiPattern})\\s+`, 'g');
+  normalized = normalized.replace(regex, '$1 ');
   return normalized;
 }
 
@@ -268,8 +319,10 @@ function parsePageTitleParts(rawName: string): PageTitleParts {
   const dateMatch = beforeColon.match(/\b(\d{2}\.\d{2})\b/);
   const date = dateMatch ? dateMatch[1] : null;
 
-  // Extract emoji explicitly from our page list anywhere before colon
-  const emojiMatch = beforeColon.match(/[🔴🟠🟡🟢🔵🟣⚫⚪]/);
+  // Extract emoji explicitly from our page emoji sets anywhere before colon
+  const allPageEmojis = PAGE_EMOJI_SETS.flatMap(set => set.emojis);
+  const emojiPattern = new RegExp(`[${allPageEmojis.join('')}]`);
+  const emojiMatch = beforeColon.match(emojiPattern);
   const emoji = emojiMatch ? emojiMatch[0] : null;
 
   // Title is everything after the colon, trimmed of only leading spaces
@@ -295,7 +348,12 @@ function composePageTitle(parts: PageTitleParts): string {
 }
 function removeEmojiPrefix(name: string): string { 
   // Remove a LEADING emoji tag (layer/page) and an optional single space after it.
-  for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) { 
+  // Get all emojis from all sets
+  const allLayerEmojis = LAYER_EMOJI_SETS.flatMap(set => set.emojis);
+  const allPageEmojis = PAGE_EMOJI_SETS.flatMap(set => set.emojis);
+  const allEmojis = [...allLayerEmojis, ...allPageEmojis];
+  
+  for (const emoji of allEmojis) { 
     if (name.startsWith(emoji + ' ')) { 
       return name.slice((emoji + ' ').length); 
     }
@@ -307,7 +365,12 @@ function removeEmojiPrefix(name: string): string {
 }
 
 function replaceColorEmoji(name: string, newEmoji: string): string { 
-  for (const emoji of [...LAYER_EMOJI_LIST, ...PAGE_EMOJI_LIST]) { 
+  // Get all emojis from all sets
+  const allLayerEmojis = LAYER_EMOJI_SETS.flatMap(set => set.emojis);
+  const allPageEmojis = PAGE_EMOJI_SETS.flatMap(set => set.emojis);
+  const allEmojis = [...allLayerEmojis, ...allPageEmojis];
+  
+  for (const emoji of allEmojis) { 
     if (name.includes(emoji)) { 
       return name.replace(emoji, newEmoji); 
     } 
@@ -482,13 +545,19 @@ const trackSelectionForHistory = debounce(async () => {
     const node = selection[0];
     const targetPage = getContainingPage(node);
     if (targetPage) {
-      await addHistoryEntry({
-        type: 'selection',
-        pageId: targetPage.id,
-        pageName: targetPage.name,
-        nodeId: node.id,
-        nodeName: node.name
-      });
+      // Check if this selection is different from the current history entry
+      const currentEntry = navigationHistory[historyIndex];
+      if (!currentEntry || 
+          currentEntry.nodeId !== node.id || 
+          currentEntry.pageId !== targetPage.id) {
+        await addHistoryEntry({
+          type: 'selection',
+          pageId: targetPage.id,
+          pageName: targetPage.name,
+          nodeId: node.id,
+          nodeName: node.name
+        });
+      }
     }
   }
 }, 500); // Wait 500ms to avoid recording rapid selections
@@ -503,11 +572,16 @@ figma.on('currentpagechange', async () => {
   if (isNavigatingHistory) return; // Don't record during history navigation
   
   const currentPage = figma.currentPage;
-  await addHistoryEntry({
-    type: 'page',
-    pageId: currentPage.id,
-    pageName: currentPage.name
-  });
+  
+  // Check if this page change is different from the current history entry
+  const currentEntry = navigationHistory[historyIndex];
+  if (!currentEntry || currentEntry.pageId !== currentPage.id) {
+    await addHistoryEntry({
+      type: 'page',
+      pageId: currentPage.id,
+      pageName: currentPage.name
+    });
+  }
 });
 
 
@@ -590,13 +664,19 @@ async function handleJumpToBookmark(bookmarkId: string) {
     if (!isNavigatingHistory) {
       const targetPage = getContainingPage(node);
       if (targetPage) {
-        await addHistoryEntry({
-          type: 'bookmark',
-          pageId: targetPage.id,
-          pageName: targetPage.name,
-          nodeId: node.id,
-          nodeName: node.name
-        });
+        // Check if this bookmark jump is different from the current history entry
+        const currentEntry = navigationHistory[historyIndex];
+        if (!currentEntry || 
+            currentEntry.nodeId !== node.id || 
+            currentEntry.pageId !== targetPage.id) {
+          await addHistoryEntry({
+            type: 'bookmark',
+            pageId: targetPage.id,
+            pageName: targetPage.name,
+            nodeId: node.id,
+            nodeName: node.name
+          });
+        }
       }
     }
     
@@ -907,6 +987,37 @@ function handleDeselect() {
   figma.notify('Selection cleared.');
 }
 
+async function handleNavigateEmojiSet(direction: 'prev' | 'next') {
+  const selectedLayers = figma.currentPage.selection;
+  const hasLayerSelected = selectedLayers.length > 0;
+  
+  if (hasLayerSelected) {
+    // Navigate layer emoji sets
+    if (direction === 'next') {
+      currentLayerEmojiSetIndex = (currentLayerEmojiSetIndex + 1) % LAYER_EMOJI_SETS.length;
+    } else {
+      currentLayerEmojiSetIndex = currentLayerEmojiSetIndex === 0 
+        ? LAYER_EMOJI_SETS.length - 1 
+        : currentLayerEmojiSetIndex - 1;
+    }
+  } else {
+    // Navigate page emoji sets
+    if (direction === 'next') {
+      currentPageEmojiSetIndex = (currentPageEmojiSetIndex + 1) % PAGE_EMOJI_SETS.length;
+    } else {
+      currentPageEmojiSetIndex = currentPageEmojiSetIndex === 0 
+        ? PAGE_EMOJI_SETS.length - 1 
+        : currentPageEmojiSetIndex - 1;
+    }
+  }
+  
+  // Update UI with new emoji set
+  sendSelectionStateToUI();
+  
+  const currentSet = getCurrentEmojiSet(hasLayerSelected);
+  figma.notify(`Switched to ${currentSet.name} emoji set`);
+}
+
 // --- Main Message Handler ---
 figma.ui.onmessage = async (msg) => {
   const selectedLayers = figma.currentPage.selection;
@@ -960,8 +1071,8 @@ figma.ui.onmessage = async (msg) => {
         handleDeselect();
         break;
 
-      case 'add-props':
-        figma.notify('Add Props: coming soon.');
+      case 'navigate-emoji-set':
+        await handleNavigateEmojiSet(msg.direction);
         break;
 
       case 'resync-bookmarks':

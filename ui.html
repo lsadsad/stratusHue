@@ -9,16 +9,6 @@
       <span class="icon" aria-hidden="true">→</span>
       <span class="label">Forward</span>
     </button>
-    <div class="qa-spacer" aria-hidden="true"></div>
-        <button id="resync-btn" class="action-btn" aria-label="Resync anchors">
-       <span class="icon" aria-hidden="true">⟳</span>
-      <span class="label">Resync</span>
-    </button>
-        <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
-       <span class="icon" aria-hidden="true">✕</span>
-       <span class="label">Deselect</span>
-     </button>
-     <span id="status-indicator" class="top-badge" aria-live="polite">onPage</span>
  </div>
 
 
@@ -29,17 +19,31 @@
       <span class="arrow" aria-hidden="true">-</span>
       <span>Tags</span>
     </div>
-    <span id="tags-badge" class="section-badge">onPage</span>
+    <div class="header-right">
+      <span id="status-indicator" class="top-badge" aria-live="polite">onPage</span>
+      <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
+        <span class="icon" aria-hidden="true">✕</span>
+        <span class="label">Deselect</span>
+      </button>
+    </div>
   </h2>
   <div id="color-section" class="collapsible-content" role="region" aria-labelledby="tags-header">
     <div class="color-grid-container">
-      <div class="tags-actions">
-        <button id="add-date-btn" class="tags-btn" aria-label="Add date">Date ++</button>
-        <button id="add-props-btn" class="tags-btn" aria-label="Add props">Props ++</button>
-      </div>
+             <!-- Emoji Navigation - Full Width -->
+       <div class="emoji-nav-group">
+                   <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set">
+            <span class="nav-arrow">←</span>
+          </button>
+          <span id="emoji-set-indicator" class="emoji-set-title">↳ <span class="set-bracket">{ </span><span class="set-name">Colors</span><span class="set-bracket"> }</span></span>
+          <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set">
+            <span class="nav-arrow">→</span>
+          </button>
+       </div>
       <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
       <button id="clear-color" class="clear-action" aria-label="Clear color tags">
-        <span>Remove Tag</span>
+         <span class="action-bracket">[ [</span>
+         <span class="action-text">Remove 🏷️</span>
+         <span class="action-bracket">] ]</span>
       </button>
     </div>
   </div>
@@ -50,12 +54,21 @@
       <span class="arrow" aria-hidden="true">-</span>
       <span>Anchors</span>
     </div>
-    <span id="anchors-badge" class="section-badge">onLayer</span>
+    <div class="header-right">
+      <button id="resync-btn" class="action-btn" aria-label="Resync anchors">
+        <span class="icon" aria-hidden="true">⟳</span>
+        <span class="label">Resync</span>
+      </button>
+    </div>
   </h2>
   <div id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
     <div class="anchors-container">
       <ul id="bookmark-list" role="list" aria-label="Bookmarks"></ul>
-      <button id="save-bookmark" aria-label="Save bookmark">⚓ Drop Anchor</button>
+             <button id="save-bookmark" aria-label="Save bookmark">
+         <span class="action-bracket">[ [</span>
+         <span class="action-text">Drop ⚓️</span>
+         <span class="action-bracket">] ]</span>
+       </button>
     </div>
   </div>
 
@@ -125,7 +138,7 @@
     
     /* Grid Systems */
     --tags-grid-cols: repeat(4, 1fr);
-    --tags-actions-cols: 1fr 1fr;
+    --tags-actions-cols: repeat(4, 1fr);
     
     /* Responsive Breakpoints */
     --min-button-width: 40px;
@@ -155,14 +168,13 @@
     }
   }
 
-  @media (max-width: 160px) {
-    :root {
-      --tags-grid-cols: repeat(2, 1fr);
-      --tags-actions-cols: 1fr;
-      --spacing-lg: 4px;
-      --spacing-xxl: 8px;
-    }
-  }
+   @media (max-width: 160px) {
+     :root {
+       --tags-grid-cols: repeat(2, 1fr);
+       --spacing-lg: 4px;
+       --spacing-xxl: 8px;
+     }
+   }
   
   /* Base styles remain the same */
   html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; box-sizing: border-box; }
@@ -208,13 +220,12 @@
   .qa-spacer { flex: 1 1 auto; }
 
   .top-badge {
-    background: transparent;
+    background: #2a2a2a;
     padding: 0 var(--spacing-md);
     border-radius: var(--spacing-xl);
     font-size: var(--icon-size-sm);
     font-weight: 500;
-    color: #ffffff;
-    border: 1px solid #404040;
+    color: #f5f5f5;
     line-height: var(--button-height-sm);
     height: var(--button-height-sm);
     display: inline-flex;
@@ -229,7 +240,7 @@
     border-radius: var(--border-radius-md);
     border: none;
     background: #1a1a1a;
-    color: #ffffff;
+    color: #f5f5f5;
     cursor: pointer;
     transition: all 0.2s ease;
     display: inline-flex;
@@ -263,28 +274,23 @@
 
   /* Subtle accent colors for specific action buttons */
   #resync-btn:hover {
-    background: rgba(111, 176, 255, 0.06); /* subtle blue accent */
-    border: 1px solid rgba(111, 176, 255, 0.2);
+    background: rgba(111, 176, 255, 0.15); /* subtle blue accent */
   }
 
   #new-page-btn:hover {
-    background: rgba(255, 107, 107, 0.06); /* subtle red accent */
-    border: 1px solid rgba(255, 107, 107, 0.2);
+    background: rgba(255, 107, 107, 0.15); /* subtle red accent */
   }
 
   #deselect-btn:hover {
-    background: rgba(110, 222, 110, 0.06); /* subtle green accent */
-    border: 1px solid rgba(110, 222, 110, 0.2);
+    background: rgba(110, 222, 110, 0.15); /* subtle green accent */
   }
 
   #back-btn:hover {
-    background: rgba(255, 193, 7, 0.06); /* subtle yellow accent */
-    border: 1px solid rgba(255, 193, 7, 0.2);
+    background: rgba(255, 193, 7, 0.15); /* subtle yellow accent */
   }
 
   #forward-btn:hover {
-    background: rgba(255, 193, 7, 0.06); /* subtle yellow accent */
-    border: 1px solid rgba(255, 193, 7, 0.2);
+    background: rgba(255, 193, 7, 0.15); /* subtle yellow accent */
   }
 
   .action-btn:disabled {
@@ -306,19 +312,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing-sm);
-    background: #0a0a0a;
-    border: 1px solid #2a2a2a;
-    padding: var(--container-padding);
+          gap: 8px;
+      background: #0a0a0a;
+      padding: var(--container-padding) calc(var(--container-padding) + 8px) var(--container-padding);
     border-radius: var(--border-radius-md);
   }
 
-  .tags-actions {
-    width: 100%;
-    display: grid;
-    grid-template-columns: var(--tags-actions-cols);
-    gap: var(--spacing-md);
-  }
+  
 
   .tags-btn {
     width: 100%;
@@ -326,9 +326,9 @@
     padding: var(--spacing-lg) var(--spacing-xxl);
     font-size: var(--spacing-xl);
     border-radius: var(--border-radius-xl);
-    border: 1px solid #2a2a2a;
+    border: none;
     background: #1a1a1a;
-    color: #ffffff;
+    color: #f5f5f5;
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -337,17 +337,113 @@
     height: var(--button-height-lg);
   }
 
-  /* Make Date and Props buttons lighter weight */
-  #add-date-btn,
-  #add-props-btn {
+  /* Make Date button lighter weight */
+  #add-date-btn {
     font-weight: 200;
     /* Decrease top/bottom by 8px from base (8px -> 0px) */
     padding: 0 var(--spacing-xxl);
   }
 
+      /* Emoji navigation group - Markdown-like styling */
+    .emoji-nav-group {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: transparent;
+      border-radius: 0;
+      padding: var(--spacing-sm) 64px var(--spacing-sm) 0;
+      width: 100%;
+      position: relative;
+      min-height: 32px;
+      box-sizing: border-box;
+    }
+
+    .emoji-set-title {
+      flex: 1;
+      font-size: var(--icon-size-sm);
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: left;
+      margin: 0;
+      padding: 0 0 0 8px;
+    }
+
+    .set-bracket {
+      font-size: var(--icon-size-sm);
+      font-weight: 100;
+      opacity: 0.6;
+      transition: all 0.2s ease;
+    }
+
+    .set-name {
+      font-weight: inherit;
+    }
+
+    .emoji-nav-btn {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      font-size: var(--icon-size-md);
+      border-radius: var(--border-radius-sm);
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      font-weight: 100;
+      transition: all 0.2s ease;
+      text-align: center;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      top: 50%;
+      transform: translateY(-50%);
+      box-sizing: border-box;
+    }
+
+    .nav-arrow {
+      font-size: var(--icon-size-md);
+      font-weight: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #emoji-nav-left {
+      right: 32px;
+    }
+
+    #emoji-nav-right {
+      right: 0;
+    }
+
+    .emoji-nav-btn:hover:not(:disabled) {
+      background: rgba(42, 42, 42, 0.2);
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    .emoji-nav-btn:active:not(:disabled) {
+      background: rgba(64, 64, 64, 0.2);
+      color: #f5f5f5;
+      font-weight: 900;
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    .emoji-nav-btn:disabled {
+      opacity: 0.1;
+      cursor: not-allowed;
+      background: transparent;
+    }
+
+
+
   .tags-btn:hover {
     background: #2a2a2a;
-    border-color: #404040;
   }
 
   .tags-btn:active {
@@ -359,12 +455,10 @@
     opacity: 0.4;
     cursor: not-allowed;
     background: #0f0f0f;
-    border-color: #2a2a2a;
   }
 
   .tags-btn:disabled:hover {
     background: #0f0f0f;
-    border-color: #2a2a2a;
   }
 
 
@@ -372,7 +466,7 @@
   .color-grid {
     display: grid;
     grid-template-columns: var(--tags-grid-cols);
-    grid-gap: var(--spacing-sm);
+          grid-gap: var(--spacing-xs);
     width: 100%;
   }
 
@@ -389,15 +483,14 @@
     justify-content: center;
     cursor: pointer;
     border-radius: var(--border-radius-xl);
-    border: 1px solid #2a2a2a;
-    background: #1a1a1a;
-    color: #ffffff;
+    border: none;
+    background: transparent;
+    color: #f5f5f5;
     transition: all 0.2s ease;
   }
 
   .emoji-button:hover {
     background: #2a2a2a;
-    border-color: #404040;
     transform: scale(1.1);
   }
 
@@ -406,39 +499,42 @@
     transform: scale(0.95);
   }
 
-  .clear-action {
-    width: 100%;
-    padding: 0 var(--spacing-xxl);
-    font-size: var(--spacing-xl);
-    border-radius: var(--border-radius-xl);
-    border: 1px solid #2a2a2a;
-    background: rgba(26, 26, 26, 0.2);
-    color: rgba(255, 255, 255, 0.8);
-    cursor: pointer;
-    font-weight: 200;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    opacity: 1;
-    height: var(--button-height-lg);
-  }
+    .clear-action {
+      width: 100%;
+      padding: 0 16px;
+      font-size: var(--spacing-xl);
+      border-radius: var(--border-radius-xl);
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      font-weight: 100;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      opacity: 1;
+      height: var(--button-height-lg);
+      box-sizing: border-box;
+    }
 
   .clear-action .icon {
     font-size: 8px;
     opacity: 0.7;
   }
 
-  .clear-action:hover {
-    background: rgba(42, 42, 42, 0.2);
-    border-color: #404040;
-  }
+    .clear-action:hover {
+      background: rgba(42, 42, 42, 0.2);
+      font-weight: 600;
+      transform: scale(1.05);
+    }
 
-  .clear-action:active {
-    background: rgba(64, 64, 64, 0.2);
-  }
+    .clear-action:active {
+      background: rgba(64, 64, 64, 0.2);
+      font-weight: 800;
+      transform: scale(0.95);
+    }
 
      /* Section Headers */
    .section-header {
@@ -450,11 +546,9 @@
      user-select: none;
      transition: all 0.2s ease;
      display: flex;
-     justify-content: flex-start;
+     justify-content: space-between;
      align-items: center;
      background: #0f0f0f;
-     border-top: 1px solid #2a2a2a;
-     border-bottom: 1px solid rgba(42, 42, 42, 0.4);
      border-radius: 0;
      padding: var(--spacing-xl) var(--spacing-xxl);
      position: relative;
@@ -468,8 +562,6 @@
 
      .section-header:hover {
      background: #1a1a1a;
-     border-top: 1px solid #404040;
-     border-bottom: 1px solid rgba(64, 64, 64, 0.4);
    }
 
 
@@ -477,7 +569,14 @@
   .header-left {
     display: flex;
     align-items: center;
-    gap: var(--spacing-lg);
+    gap: 4px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-left: auto;
   }
 
   .section-badge {
@@ -502,22 +601,39 @@
   }
 
   #tags-badge,
-  #anchors-badge { color: #ffffff; }
+  #anchors-badge { color: #f5f5f5; }
+
+  /* Action buttons in headers should be smaller */
+  .header-right .action-btn {
+    width: 24px;
+    height: 24px;
+    font-size: var(--icon-size-sm);
+  }
+
+  .header-right .action-btn .icon {
+    font-size: var(--icon-size-md);
+  }
+
+  /* Status indicator should maintain its original styling */
+  .header-right .top-badge {
+    text-transform: none;
+    letter-spacing: normal;
+  }
 
   .arrow {
     font-size: var(--icon-size-md);
     font-weight: 900; /* make +/- max weight */
-    color: #ffffff;
+    color: #f5f5f5;
     width: var(--arrow-width);
   }
 
   /* Color +/- based on expanded state (IDE-like) */
   .section-header[aria-expanded="true"] .arrow { /* expanded shows '-' */
-    color: #ffffff;
+    color: #f5f5f5;
     font-weight: 300; /* match lighter heading when expanded */
   }
   .section-header[aria-expanded="false"] .arrow { /* collapsed shows '+' */
-    color: #ffffff;
+    color: #f5f5f5;
     font-weight: 800; /* match boldest heading when collapsed */
   }
 
@@ -571,7 +687,6 @@
     align-items: center;
     gap: var(--spacing-lg);
     background: #0a0a0a;
-    border: 1px solid #2a2a2a;
     padding: var(--container-padding);
     border-radius: var(--border-radius-md);
   }
@@ -603,7 +718,6 @@
 
   .bookmark-item:hover {
     background: #1a1a1a;
-    border: 1px solid #2a2a2a;
     border-radius: var(--border-radius-sm);
   }
 
@@ -625,13 +739,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #ffffff;
+    color: #f5f5f5;
     letter-spacing: 0.05em;
   }
 
   .bookmark-page {
     font-size: var(--icon-size-sm);
-    color: #ffffff;
+    color: #f5f5f5;
     font-weight: normal;
     margin-top: var(--spacing-xs);
     opacity: 0.6;
@@ -641,7 +755,7 @@
   }
 
   .bookmark-remove {
-    color: #ffffff;
+    color: #f5f5f5;
     background: none;
     border: none;
     font-size: var(--icon-size-md);
@@ -662,44 +776,73 @@
 
   .bookmark-remove:hover {
     background: #ff6b6b;
-    color: #ffffff;
+    color: #f5f5f5;
     opacity: 1;
   }
 
   /* Make 'Drop Anchor' match the 'Remove Tag' button */
-  #save-bookmark {
-    width: 100%;
-    height: var(--button-height-lg);
-    padding: 0 var(--spacing-xxl);
-    font-size: var(--spacing-xl);
-    border-radius: var(--border-radius-xl);
-    border: 1px solid #2a2a2a;
-    background: rgba(26, 26, 26, 0.2);
-    color: rgba(255, 255, 255, 0.8);
-    cursor: pointer;
-    font-weight: 200;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segue UI', Roboto, sans-serif;
-  }
+    #save-bookmark {
+      width: 100%;
+      height: var(--button-height-lg);
+      padding: 0 16px;
+      font-size: var(--spacing-xl);
+      border-radius: var(--border-radius-xl);
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      font-weight: 100;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      box-sizing: border-box;
+    }
 
-  #save-bookmark:hover {
-    background: rgba(42, 42, 42, 0.2);
-    border-color: #404040;
-  }
+    #save-bookmark:hover {
+      background: rgba(42, 42, 42, 0.2);
+      font-weight: 600;
+      transform: scale(1.05);
+    }
 
-  #save-bookmark:active {
-    background: rgba(64, 64, 64, 0.2);
-  }
+    #save-bookmark:active {
+      background: rgba(64, 64, 64, 0.2);
+      font-weight: 800;
+      transform: scale(0.95);
+    }
+
+    /* Action button bracket styling */
+    .action-bracket {
+      font-size: var(--icon-size-sm);
+      font-weight: 100;
+      opacity: 0.6;
+      transition: all 0.2s ease;
+    }
+
+    .action-text {
+      flex: 1;
+      text-align: center;
+      font-weight: inherit;
+    }
+
+    .clear-action:hover .action-bracket,
+    #save-bookmark:hover .action-bracket {
+      opacity: 0.9;
+      font-weight: 600;
+    }
+
+    .clear-action:active .action-bracket,
+    #save-bookmark:active .action-bracket {
+      opacity: 1;
+      font-weight: 800;
+    }
 
   /* Tooltip */
   .tooltip {
     position: absolute;
     background: #1a1a1a;
-    color: #ffffff;
+    color: #f5f5f5;
     padding: var(--spacing-md) var(--spacing-xl);
     border-radius: var(--border-radius-lg);
     font-size: var(--spacing-xl);
@@ -708,7 +851,6 @@
     transition: opacity 0.12s ease, transform 0.12s ease;
     z-index: 1000;
     box-shadow: 0 8px 24px rgba(0,0,0,0.32);
-    border: 1px solid #2a2a2a;
     transform: translateY(var(--spacing-xs));
   }
 
@@ -725,7 +867,6 @@
     right: 0;
     height: var(--footer-height);
     background: #0a0a0a;
-    border-top: 1px solid #2a2a2a;
     display: block;
     padding: 0;
     z-index: 1001;
@@ -777,7 +918,6 @@
     justify-content: center;
     font-size: var(--icon-size-sm);
     line-height: 1;
-    border-left: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   #footer-fit.footer-icon-btn:hover,
@@ -812,23 +952,23 @@
     return text.substring(0, maxLength - 1) + '…';
   }
 
-  // State
-  let hasLayerSelected = false;
-  let tooltip = null;
-  let hoverTimer = null;
+     // State
+   let hasLayerSelected = false;
+   let tooltip = null;
+   let hoverTimer = null;
 
-  // Initialize UI when DOM is ready
-  window.addEventListener('DOMContentLoaded', () => {
-    tooltip = document.getElementById('tooltip');
-    sendMessage('ui-ready');
-    setupEventListeners();
-    setupResizeHandle();
-    
-    // Auto-recovery mechanism for collapsed state
-    setTimeout(() => {
-      checkAndRecoverFromCollapsedState();
-    }, 100);
-  });
+   // Initialize UI when DOM is ready
+   window.addEventListener('DOMContentLoaded', () => {
+     tooltip = document.getElementById('tooltip');
+     sendMessage('ui-ready');
+     setupEventListeners();
+     setupResizeHandle();
+     
+     // Auto-recovery mechanism for collapsed state
+     setTimeout(() => {
+       checkAndRecoverFromCollapsedState();
+     }, 100);
+   });
 
   function setupEventListeners() {
     // Quick Actions
@@ -864,10 +1004,12 @@
       }
     });
     
-    // Color Section
-    document.getElementById('add-date-btn')?.addEventListener('click', handleAddDate);
-    document.getElementById('add-props-btn')?.addEventListener('click', () => sendMessage('add-props'));
-    document.getElementById('clear-color')?.addEventListener('click', () => sendMessage('clear-emoji'));
+         // Color Section
+     document.getElementById('clear-color')?.addEventListener('click', () => sendMessage('clear-emoji'));
+    
+     // Emoji navigation
+     document.getElementById('emoji-nav-left')?.addEventListener('click', () => sendMessage('navigate-emoji-set', { direction: 'prev' }));
+     document.getElementById('emoji-nav-right')?.addEventListener('click', () => sendMessage('navigate-emoji-set', { direction: 'next' }));
     
     // Anchors
     document.getElementById('save-bookmark')?.addEventListener('click', () => sendMessage('save-bookmark'));
@@ -946,22 +1088,35 @@
       if (e.target && e.target.closest('.collapsible')) {
         return;
       }
-      // If user clicks anywhere else and we're in a collapsed state, try to recover
-      setTimeout(() => {
-        checkAndRecoverFromCollapsedState();
-      }, 50);
+      // Don't run recovery if user clicked on any interactive element or content area
+      if (e.target && (
+        e.target.closest('button') || 
+        e.target.closest('.action-btn') ||
+        e.target.closest('.emoji-button') ||
+        e.target.closest('.bookmark-item') ||
+        e.target.closest('.color-grid-container') ||
+        e.target.closest('.anchors-container') ||
+        e.target.closest('.scrollable-content') ||
+        e.target.closest('#footer')
+      )) {
+        return;
+      }
+      // Only recover if user clicks in empty space and plugin is very narrow (likely collapsed accidentally)
+      if (window.innerWidth < 160) {
+        setTimeout(() => {
+          checkAndRecoverFromCollapsedState();
+        }, 50);
+      }
     });
   }
 
   function checkAndRecoverFromCollapsedState() {
     try {
-      // Check if plugin is in a collapsed state (very narrow or all sections collapsed)
+      // Only recover if plugin is in a problematic collapsed state (very narrow width)
       const currentWidth = window.innerWidth;
-      const allSections = document.querySelectorAll('.collapsible-content');
-      const allCollapsed = Array.from(allSections).every(section => section.classList.contains('collapsed'));
       
-      // If width is too narrow (less than 160px) or all sections are collapsed, recover
-      if (currentWidth < 160 || allCollapsed) {
+      // Only recover if width is too narrow (less than 160px) - this indicates accidental collapse
+      if (currentWidth < 160) {
         console.log('Auto-recovering from collapsed state...');
         
         // Expand at least one section (Tags section)
@@ -1033,9 +1188,11 @@
 
   // Removed layer collapse logic from quick action; see handleCollapseSections
 
-  function handleAddDate() {
-    sendMessage('add-date-smart');
-  }
+     function handleAddDate() {
+     sendMessage('add-date-smart');
+   }
+
+
 
   function showTooltip(text, element) {
     if (!tooltip) return;
@@ -1069,19 +1226,33 @@
 
 
 
-  function renderEmojiButtons(emojis) {
-    const container = document.getElementById('color-emoji-buttons');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    emojis.forEach(emoji => {
-      const button = document.createElement('button');
-      button.className = 'emoji-button';
-      button.textContent = emoji;
-      button.addEventListener('click', () => sendMessage('add-emoji', { emoji }));
-      container.appendChild(button);
-    });
-  }
+     function renderEmojiButtons(emojis) {
+     const container = document.getElementById('color-emoji-buttons');
+     if (!container) return;
+     
+     container.innerHTML = '';
+     
+     // Check if this is the Date set (when emojis array contains date button identifier)
+     if (emojis.length === 1 && emojis[0] === '📅') {
+       // Render the date button with special handling
+       const button = document.createElement('button');
+       button.className = 'emoji-button';
+       button.id = 'add-date-btn';
+       button.textContent = '📅';
+       button.setAttribute('aria-label', 'Add date');
+       button.addEventListener('click', handleAddDate);
+       container.appendChild(button);
+     } else {
+       // Render regular emoji buttons
+       emojis.forEach(emoji => {
+         const button = document.createElement('button');
+         button.className = 'emoji-button';
+         button.textContent = emoji;
+         button.addEventListener('click', () => sendMessage('add-emoji', { emoji }));
+         container.appendChild(button);
+       });
+     }
+   }
 
   function updateSelectionIndicator(hasSelection) {
     const tagsBadge = document.getElementById('tags-badge');
@@ -1122,6 +1293,25 @@
       forwardBtn.disabled = !canGoForward;
     }
   }
+
+   function updateEmojiNavigation(currentSetIndex, totalSets, setName) {
+     const leftBtn = document.getElementById('emoji-nav-left');
+     const rightBtn = document.getElementById('emoji-nav-right');
+     const indicator = document.getElementById('emoji-set-indicator');
+     
+     // Enable both buttons since navigation loops around
+     if (leftBtn) {
+       leftBtn.disabled = false;
+     }
+     
+     if (rightBtn) {
+       rightBtn.disabled = false;
+     }
+     
+     if (indicator) {
+       indicator.innerHTML = `↳ <span class="set-bracket">{ </span><span class="set-name">${setName}</span><span class="set-bracket"> }</span>`;
+     }
+   }
 
   function toggleCollapsible(header) {
     const targetId = header.getAttribute('data-target');
@@ -1194,6 +1384,10 @@
 
       case 'navigation-state':
         updateNavigationButtons(msg.canGoBack, msg.canGoForward);
+        break;
+
+      case 'emoji-navigation-state':
+        updateEmojiNavigation(msg.currentSetIndex, msg.totalSets, msg.setName);
         break;
     }
   });
