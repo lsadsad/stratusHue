@@ -1,5 +1,5 @@
 <div class="scrollable-content">
-    <!-- Quick Actions Section -->
+  <!-- Quick Actions Section -->
   <div id="quick-actions" role="toolbar" aria-label="Quick actions">
     <button id="back-btn" class="action-btn" aria-label="Go back" disabled>
       <span class="icon" aria-hidden="true">←</span>
@@ -9,12 +9,11 @@
       <span class="icon" aria-hidden="true">→</span>
       <span class="label">Forward</span>
     </button>
- </div>
-
-
+  </div>
 
   <!-- Color Tags Section -->
-  <h2 id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="0" aria-expanded="true" aria-controls="color-section">
+  <h2 id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="0"
+    aria-expanded="true" aria-controls="color-section">
     <div class="header-left">
       <span class="arrow" aria-hidden="true">-</span>
       <span>Tags</span>
@@ -29,46 +28,43 @@
   </h2>
   <div id="color-section" class="collapsible-content" role="region" aria-labelledby="tags-header">
     <div class="color-grid-container">
-             <!-- Emoji Navigation - Full Width -->
-       <div class="emoji-nav-group">
-                   <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set">
-            <span class="nav-arrow">←</span>
-          </button>
-          <span id="emoji-set-indicator" class="emoji-set-title">↳ <span class="set-bracket">{ </span><span class="set-name">Colors</span><span class="set-bracket"> }</span></span>
-          <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set">
-            <span class="nav-arrow">→</span>
-          </button>
-       </div>
+      <!-- Emoji Navigation - Full Width -->
+      <div class="emoji-nav-group">
+        <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set">
+          <span class="nav-arrow">←</span>
+        </button>
+        <span id="emoji-set-indicator" class="emoji-set-title">↳ <span class="set-bracket">{ </span><span
+            class="set-name">Colors</span><span class="set-bracket"> }</span></span>
+        <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set">
+          <span class="nav-arrow">→</span>
+        </button>
+      </div>
       <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
       <button id="clear-color" class="clear-action" aria-label="Clear color tags">
-         <span class="action-bracket">[ [</span>
-         <span class="action-text">Remove 🏷️</span>
-         <span class="action-bracket">] ]</span>
+        <span class="action-bracket">[ [</span>
+        <span class="action-text">Remove 🏷️</span>
+        <span class="action-bracket">] ]</span>
       </button>
     </div>
   </div>
 
   <!-- Anchors Section -->
-  <h2 id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button" tabindex="0" aria-expanded="true" aria-controls="anchors-section">
+  <h2 id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button" tabindex="0"
+    aria-expanded="true" aria-controls="anchors-section">
     <div class="header-left">
       <span class="arrow" aria-hidden="true">-</span>
       <span>Anchors</span>
-    </div>
-    <div class="header-right">
-      <button id="resync-btn" class="action-btn" aria-label="Resync anchors">
-        <span class="icon" aria-hidden="true">⟳</span>
-        <span class="label">Resync</span>
-      </button>
     </div>
   </h2>
   <div id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
     <div class="anchors-container">
       <ul id="bookmark-list" role="list" aria-label="Bookmarks"></ul>
-             <button id="save-bookmark" aria-label="Save bookmark">
-         <span class="action-bracket">[ [</span>
-         <span class="action-text">Drop ⚓️</span>
-         <span class="action-bracket">] ]</span>
-       </button>
+      <button id="save-bookmark" aria-label="Save bookmark">
+        <span class="action-bracket">[ [</span>
+        <span class="action-text">Drop ⚓️</span>
+        <span class="action-bracket">] ]</span>
+      </button>
+
     </div>
   </div>
 
@@ -76,18 +72,18 @@
 
 <!-- Tooltip -->
 <div id="tooltip" class="tooltip"></div>
- <!-- Footer with centered handle and right-side fit button -->
- <footer id="footer">
-   <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel" tabindex="0">
-     <span class="grip">:  :  :</span>
-   </div>
+<!-- Footer with centered handle and right-side fit button -->
+<footer id="footer">
+  <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel" tabindex="0">
+    <span class="grip">: : :</span>
+  </div>
   <button id="footer-fit" class="footer-icon-btn" aria-label="Fit" title="Fit">↕</button>
- </footer>
+</footer>
 
 <style>
   /* Use system fonts instead of external Google Fonts to avoid CSP issues */
   /* Inter font will be available on most systems, with fallbacks */
-  
+
   /* CSS Custom Properties for Responsive Design */
   /* 
     RESPONSIVE DESIGN SYSTEM
@@ -111,7 +107,7 @@
     --spacing-lg: 8px;
     --spacing-xl: 10px;
     --spacing-xxl: 12px;
-    
+
     /* Component Sizes */
     --button-height-sm: 16px;
     --button-height-md: 28px;
@@ -120,7 +116,7 @@
     --icon-size-md: 12px;
     --icon-size-lg: 16px;
     --icon-size-xl: 18px;
-    
+
     /* Layout Dimensions */
     --footer-height: 20px;
     --section-padding: var(--spacing-lg);
@@ -129,27 +125,25 @@
     --border-radius-md: 4px;
     --border-radius-lg: 6px;
     --border-radius-xl: 8px;
-    
+
     /* Content Constraints */
     --max-content-height: 300px;
     --badge-size: 14px;
     --arrow-width: 10px;
     --scrollbar-width: 2px;
-    
+
     /* Grid Systems */
     --tags-grid-cols: repeat(4, 1fr);
     --tags-actions-cols: repeat(4, 1fr);
-    
+
     /* Responsive Breakpoints */
     --min-button-width: 40px;
     --max-section-width: 100%;
-    
-    /* Adaptive Sizing */
-    --container-min-width: 160px;
-    --container-max-width: 400px;
-    
 
-    
+    /* Adaptive Sizing */
+    --container-min-width: 188px;
+    --container-max-width: 188px;
+
     /* Minimum Height Calculation */
     /* Quick Actions: 6px (top padding) + 28px (button height) + 6px (gap) = 40px */
     /* Section Header: 10px (top padding) + 8px (font-size/line-height) + 10px (bottom padding) + 2px (borders) = 30px each */
@@ -159,65 +153,88 @@
     --min-plugin-height: 150px;
   }
 
-  /* Responsive Grid Adjustments */
-  @container (max-width: 180px) {
-    :root {
-      --tags-grid-cols: repeat(2, 1fr);
-      --spacing-lg: 6px;
-      --spacing-xxl: 10px;
-    }
-  }
+  /* Fixed width - no responsive adjustments needed */
 
-   @media (max-width: 160px) {
-     :root {
-       --tags-grid-cols: repeat(2, 1fr);
-       --spacing-lg: 4px;
-       --spacing-xxl: 8px;
-     }
-   }
-  
   /* Base styles remain the same */
-  html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; box-sizing: border-box; }
-  body { 
-    width: 100%; 
-    height: calc(100% - var(--footer-height)); 
+  html,
+  body {
+    width: 188px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  body {
+    width: 188px;
+    height: 100%;
     min-height: var(--min-plugin-height);
-    overflow: hidden; 
-    background: #0f0f0f; 
-    display: flex; 
-    flex-direction: column; 
-    position: relative; 
+    overflow: hidden;
+    background: #0f0f0f;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-bottom: var(--footer-height);
+    /* Account for fixed footer */
+    box-sizing: border-box;
   }
-  body, button, h3 { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; font-weight: 500; font-size: 12px; }
-  
-     /* Scrollbar styles */
-   .scrollable-content { 
-    width: 100%; 
-    height: 100%; 
-    overflow-y: auto; 
-    overflow-x: hidden; 
+
+  body,
+  button,
+  h3 {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segue UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+  }
+
+  /* Scrollbar styles */
+  .scrollable-content {
+    width: 188px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-gutter: stable;
-    min-width: var(--container-min-width);
-    max-width: var(--container-max-width);
   }
-   .scrollable-content { padding-bottom: 0; }
-  .scrollable-content::-webkit-scrollbar { width: var(--scrollbar-width); }
-  .scrollable-content::-webkit-scrollbar-track { background: #0f0f0f; border-radius: 2px; }
-  .scrollable-content::-webkit-scrollbar-thumb { background: #404040; border-radius: 2px; transition: background 0.2s ease; }
-  .scrollable-content::-webkit-scrollbar-thumb:hover { background: #505050; }
 
-     /* Quick Actions Section */
-   #quick-actions {
-     display: flex;
-     flex-direction: row;
-     align-items: center;
-     gap: var(--spacing-md);
-     padding: var(--spacing-md) var(--spacing-lg) 0 var(--spacing-lg);
-     flex-wrap: nowrap;
-     overflow: hidden;
-   }
+  .scrollable-content {
+    padding-bottom: var(--footer-height);
+    /* Ensure content doesn't hide behind footer */
+  }
 
-  .qa-spacer { flex: 1 1 auto; }
+  .scrollable-content::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+  }
+
+  .scrollable-content::-webkit-scrollbar-track {
+    background: #0f0f0f;
+    border-radius: 2px;
+  }
+
+  .scrollable-content::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius: 2px;
+    transition: background 0.2s ease;
+  }
+
+  .scrollable-content::-webkit-scrollbar-thumb:hover {
+    background: #505050;
+  }
+
+  /* Quick Actions Section */
+  #quick-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg) 0 var(--spacing-lg);
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .qa-spacer {
+    flex: 1 1 auto;
+  }
 
   .top-badge {
     background: #2a2a2a;
@@ -259,7 +276,8 @@
   }
 
   .action-btn .label {
-    display: none; /* Hide names in the bar; shown via tooltip on hover */
+    display: none;
+    /* Hide names in the bar; shown via tooltip on hover */
   }
 
   .action-btn:hover {
@@ -273,24 +291,26 @@
   }
 
   /* Subtle accent colors for specific action buttons */
-  #resync-btn:hover {
-    background: rgba(111, 176, 255, 0.15); /* subtle blue accent */
-  }
+
 
   #new-page-btn:hover {
-    background: rgba(255, 107, 107, 0.15); /* subtle red accent */
+    background: rgba(255, 107, 107, 0.15);
+    /* subtle red accent */
   }
 
   #deselect-btn:hover {
-    background: rgba(110, 222, 110, 0.15); /* subtle green accent */
+    background: rgba(110, 222, 110, 0.15);
+    /* subtle green accent */
   }
 
   #back-btn:hover {
-    background: rgba(255, 193, 7, 0.15); /* subtle yellow accent */
+    background: rgba(255, 193, 7, 0.15);
+    /* subtle yellow accent */
   }
 
   #forward-btn:hover {
-    background: rgba(255, 193, 7, 0.15); /* subtle yellow accent */
+    background: rgba(255, 193, 7, 0.15);
+    /* subtle yellow accent */
   }
 
   .action-btn:disabled {
@@ -307,18 +327,18 @@
 
 
 
-     /* Color Section */
-     .color-grid-container {
+  /* Color Section */
+  .color-grid-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-          gap: 8px;
-      background: #0a0a0a;
-      padding: var(--container-padding) calc(var(--container-padding) + 8px) var(--container-padding);
+    gap: 8px;
+    background: #0a0a0a;
+    padding: var(--container-padding) calc(var(--container-padding) + 8px) var(--container-padding);
     border-radius: var(--border-radius-md);
   }
 
-  
+
 
   .tags-btn {
     width: 100%;
@@ -344,101 +364,101 @@
     padding: 0 var(--spacing-xxl);
   }
 
-      /* Emoji navigation group - Markdown-like styling */
-    .emoji-nav-group {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      background: transparent;
-      border-radius: 0;
-      padding: var(--spacing-sm) 64px var(--spacing-sm) 0;
-      width: 100%;
-      position: relative;
-      min-height: 32px;
-      box-sizing: border-box;
-    }
+  /* Emoji navigation group - Markdown-like styling */
+  .emoji-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: transparent;
+    border-radius: 0;
+    padding: var(--spacing-sm) 64px var(--spacing-sm) 0;
+    width: 100%;
+    position: relative;
+    min-height: 32px;
+    box-sizing: border-box;
+  }
 
-    .emoji-set-title {
-      flex: 1;
-      font-size: var(--icon-size-sm);
-      font-weight: 300;
-      color: rgba(255, 255, 255, 0.9);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      text-align: left;
-      margin: 0;
-      padding: 0 0 0 8px;
-    }
+  .emoji-set-title {
+    flex: 1;
+    font-size: var(--icon-size-sm);
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+  }
 
-    .set-bracket {
-      font-size: var(--icon-size-sm);
-      font-weight: 100;
-      opacity: 0.6;
-      transition: all 0.2s ease;
-    }
+  .set-bracket {
+    font-size: var(--icon-size-sm);
+    font-weight: 100;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+  }
 
-    .set-name {
-      font-weight: inherit;
-    }
+  .set-name {
+    font-weight: inherit;
+  }
 
-    .emoji-nav-btn {
-      position: absolute;
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      font-size: var(--icon-size-md);
-      border-radius: var(--border-radius-sm);
-      border: none;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.8);
-      cursor: pointer;
-      font-weight: 100;
-      transition: all 0.2s ease;
-      text-align: center;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      top: 50%;
-      transform: translateY(-50%);
-      box-sizing: border-box;
-    }
+  .emoji-nav-btn {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: var(--icon-size-md);
+    border-radius: var(--border-radius-sm);
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    font-weight: 100;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    transform: translateY(-50%);
+    box-sizing: border-box;
+  }
 
-    .nav-arrow {
-      font-size: var(--icon-size-md);
-      font-weight: inherit;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  .nav-arrow {
+    font-size: var(--icon-size-md);
+    font-weight: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    #emoji-nav-left {
-      right: 32px;
-    }
+  #emoji-nav-left {
+    right: 32px;
+  }
 
-    #emoji-nav-right {
-      right: 0;
-    }
+  #emoji-nav-right {
+    right: 0;
+  }
 
-    .emoji-nav-btn:hover:not(:disabled) {
-      background: rgba(42, 42, 42, 0.2);
-      color: rgba(255, 255, 255, 0.9);
-      font-weight: 600;
-      transform: translateY(-50%) scale(1.05);
-    }
+  .emoji-nav-btn:hover:not(:disabled) {
+    background: rgba(42, 42, 42, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    transform: translateY(-50%) scale(1.05);
+  }
 
-    .emoji-nav-btn:active:not(:disabled) {
-      background: rgba(64, 64, 64, 0.2);
-      color: #f5f5f5;
-      font-weight: 900;
-      transform: translateY(-50%) scale(0.95);
-    }
+  .emoji-nav-btn:active:not(:disabled) {
+    background: rgba(64, 64, 64, 0.2);
+    color: #f5f5f5;
+    font-weight: 900;
+    transform: translateY(-50%) scale(0.95);
+  }
 
-    .emoji-nav-btn:disabled {
-      opacity: 0.1;
-      cursor: not-allowed;
-      background: transparent;
-    }
+  .emoji-nav-btn:disabled {
+    opacity: 0.1;
+    cursor: not-allowed;
+    background: transparent;
+  }
 
 
 
@@ -461,12 +481,10 @@
     background: #0f0f0f;
   }
 
-
-
   .color-grid {
     display: grid;
     grid-template-columns: var(--tags-grid-cols);
-          grid-gap: var(--spacing-xs);
+    grid-gap: var(--spacing-xs);
     width: 100%;
   }
 
@@ -499,72 +517,73 @@
     transform: scale(0.95);
   }
 
-    .clear-action {
-      width: 100%;
-      padding: 0 16px;
-      font-size: var(--spacing-xl);
-      border-radius: var(--border-radius-xl);
-      border: none;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.8);
-      cursor: pointer;
-      font-weight: 100;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      opacity: 1;
-      height: var(--button-height-lg);
-      box-sizing: border-box;
-    }
+  .clear-action {
+    width: 100%;
+    padding: 0 16px;
+    font-size: var(--spacing-xl);
+    border-radius: var(--border-radius-xl);
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    font-weight: 100;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    opacity: 1;
+    height: var(--button-height-lg);
+    box-sizing: border-box;
+  }
 
   .clear-action .icon {
     font-size: 8px;
     opacity: 0.7;
   }
 
-    .clear-action:hover {
-      background: rgba(42, 42, 42, 0.2);
-      font-weight: 600;
-      transform: scale(1.05);
-    }
+  .clear-action:hover {
+    background: rgba(42, 42, 42, 0.2);
+    font-weight: 600;
+    transform: scale(1.05);
+  }
 
-    .clear-action:active {
-      background: rgba(64, 64, 64, 0.2);
-      font-weight: 800;
-      transform: scale(0.95);
-    }
+  .clear-action:active {
+    background: rgba(64, 64, 64, 0.2);
+    font-weight: 800;
+    transform: scale(0.95);
+  }
 
-     /* Section Headers */
-   .section-header {
-     font-size: var(--icon-size-sm); /* match badge size */
-     margin: 0 0 0 0;
-     font-weight: 300;
-     color: rgba(255, 255, 255, 0.6);
-     cursor: pointer;
-     user-select: none;
-     transition: all 0.2s ease;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     background: #0f0f0f;
-     border-radius: 0;
-     padding: var(--spacing-xl) var(--spacing-xxl);
-     position: relative;
-    text-transform: uppercase; /* IDE style headings */
-    letter-spacing: 0.16em;    /* approx. 10% tracking */
-   }
+  /* Section Headers */
+  .section-header {
+    font-size: var(--icon-size-sm);
+    /* match badge size */
+    margin: 0 0 0 0;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f0f0f;
+    border-radius: 0;
+    padding: var(--spacing-xl) var(--spacing-xxl);
+    position: relative;
+    text-transform: uppercase;
+    /* IDE style headings */
+    letter-spacing: 0.16em;
+    /* approx. 10% tracking */
+  }
 
   .section-header:first-of-type {
     margin-top: 0;
   }
 
-     .section-header:hover {
-     background: #1a1a1a;
-   }
-
-
+  .section-header:hover {
+    background: #1a1a1a;
+  }
 
   .header-left {
     display: flex;
@@ -584,16 +603,21 @@
     border: none;
     padding: 0;
     font-size: var(--icon-size-md);
-    font-weight: inherit; /* match heading weight */
+    font-weight: inherit;
+    /* match heading weight */
     white-space: nowrap;
     text-transform: none;
     letter-spacing: normal;
-    display: inline-flex; /* for vertical centering */
+    display: inline-flex;
+    /* for vertical centering */
     align-items: center;
     justify-content: center;
-    width: var(--badge-size);   /* fixed box for optical centering */
-    height: var(--badge-size);  /* fixed box for optical centering */
-    line-height: var(--badge-size); /* keeps glyph centered */
+    width: var(--badge-size);
+    /* fixed box for optical centering */
+    height: var(--badge-size);
+    /* fixed box for optical centering */
+    line-height: var(--badge-size);
+    /* keeps glyph centered */
     vertical-align: middle;
     position: absolute;
     top: var(--spacing-sm);
@@ -601,7 +625,9 @@
   }
 
   #tags-badge,
-  #anchors-badge { color: #f5f5f5; }
+  #anchors-badge {
+    color: #f5f5f5;
+  }
 
   /* Action buttons in headers should be smaller */
   .header-right .action-btn {
@@ -622,28 +648,39 @@
 
   .arrow {
     font-size: var(--icon-size-md);
-    font-weight: 900; /* make +/- max weight */
+    font-weight: 900;
+    /* make +/- max weight */
     color: #f5f5f5;
     width: var(--arrow-width);
   }
 
   /* Color +/- based on expanded state (IDE-like) */
-  .section-header[aria-expanded="true"] .arrow { /* expanded shows '-' */
+  .section-header[aria-expanded="true"] .arrow {
+    /* expanded shows '-' */
     color: #f5f5f5;
-    font-weight: 300; /* match lighter heading when expanded */
+    font-weight: 300;
+    /* match lighter heading when expanded */
   }
-  .section-header[aria-expanded="false"] .arrow { /* collapsed shows '+' */
+
+  .section-header[aria-expanded="false"] .arrow {
+    /* collapsed shows '+' */
     color: #f5f5f5;
-    font-weight: 800; /* match boldest heading when collapsed */
+    font-weight: 800;
+    /* match boldest heading when collapsed */
   }
 
   /* Adjust heading weight by expanded/collapsed state */
   /* Ensure all headings (e.g., - NAV... onPage) use the same weights */
-  .section-header[aria-expanded="true"] { /* expanded */
-    font-weight: 300; /* lighter */
+  .section-header[aria-expanded="true"] {
+    /* expanded */
+    font-weight: 300;
+    /* lighter */
   }
-  .section-header[aria-expanded="false"] { /* collapsed */
-    font-weight: 800; /* boldest when collapsed */
+
+  .section-header[aria-expanded="false"] {
+    /* collapsed */
+    font-weight: 800;
+    /* boldest when collapsed */
   }
 
 
@@ -660,28 +697,30 @@
   .collapsible-content.collapsed {
     max-height: 0;
     opacity: 0;
-    margin-bottom: 0; /* Remove any bottom margin when collapsed */
+    margin-bottom: 0;
+    /* Remove any bottom margin when collapsed */
   }
 
 
 
-     /* Anchors Section */
-   #anchors-section {
-     display: flex;
-     flex-direction: column;
-     min-height: 0;
-     overflow: hidden;
-     background: #0a0a0a;
-     padding: 0px;
-     border-radius: 4px;
-   }
-   
-   /* Only expand anchors section when not collapsed */
-   #anchors-section:not(.collapsed) {
-     flex: 1;
-   }
+  /* Anchors Section */
+  #anchors-section {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    /* Let parent handle scrolling */
+    background: #0a0a0a;
+    padding: 0px;
+    border-radius: 4px;
+  }
 
-     .anchors-container {
+  /* Only expand anchors section when not collapsed */
+  #anchors-section:not(.collapsed) {
+    flex: 0 0 auto;
+    /* Don't grow, just fit content */
+  }
+
+  .anchors-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -692,9 +731,10 @@
   }
 
   #bookmark-list {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
+    flex: 0 0 auto;
+    /* Don't grow, fit content */
+    overflow-y: visible;
+    /* No internal scrolling, let the main container handle it */
     list-style: none;
     padding: 0;
     margin: 0;
@@ -723,6 +763,53 @@
 
   .bookmark-item:active {
     background: #2a2a2a;
+  }
+
+  /* Previous bookmark styling - very subtle */
+  .bookmark-item.recent-history {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+  }
+
+  .bookmark-item.recent-history .bookmark-name {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Current anchor styling - takes precedence over recent history */
+  .bookmark-item.current-anchor {
+    background: rgba(111, 176, 255, 0.08);
+    border: 1px solid rgba(111, 176, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  .bookmark-item.current-anchor .bookmark-name {
+    color: rgba(111, 176, 255, 0.9);
+  }
+
+  /* Inside anchor styling - subtle animation to indicate active exploration */
+  .bookmark-item.current-anchor.inside-anchor {
+    background: rgba(111, 176, 255, 0.12);
+    border: 1px solid rgba(111, 176, 255, 0.4);
+    animation: subtle-pulse 2s ease-in-out infinite;
+  }
+
+  .bookmark-item.current-anchor.inside-anchor .bookmark-name {
+    color: rgba(111, 176, 255, 1);
+  }
+
+  @keyframes subtle-pulse {
+
+    0%,
+    100% {
+      background: rgba(111, 176, 255, 0.12);
+      border-color: rgba(111, 176, 255, 0.4);
+    }
+
+    50% {
+      background: rgba(111, 176, 255, 0.15);
+      border-color: rgba(111, 176, 255, 0.5);
+    }
   }
 
   .bookmark-content {
@@ -781,62 +868,62 @@
   }
 
   /* Make 'Drop Anchor' match the 'Remove Tag' button */
-    #save-bookmark {
-      width: 100%;
-      height: var(--button-height-lg);
-      padding: 0 16px;
-      font-size: var(--spacing-xl);
-      border-radius: var(--border-radius-xl);
-      border: none;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.8);
-      cursor: pointer;
-      font-weight: 100;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      box-sizing: border-box;
-    }
+  #save-bookmark {
+    width: 100%;
+    height: var(--button-height-lg);
+    padding: 0 16px;
+    font-size: var(--spacing-xl);
+    border-radius: var(--border-radius-xl);
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    font-weight: 100;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-sizing: border-box;
+  }
 
-    #save-bookmark:hover {
-      background: rgba(42, 42, 42, 0.2);
-      font-weight: 600;
-      transform: scale(1.05);
-    }
+  #save-bookmark:hover {
+    background: rgba(42, 42, 42, 0.2);
+    font-weight: 600;
+    transform: scale(1.05);
+  }
 
-    #save-bookmark:active {
-      background: rgba(64, 64, 64, 0.2);
-      font-weight: 800;
-      transform: scale(0.95);
-    }
+  #save-bookmark:active {
+    background: rgba(64, 64, 64, 0.2);
+    font-weight: 800;
+    transform: scale(0.95);
+  }
 
-    /* Action button bracket styling */
-    .action-bracket {
-      font-size: var(--icon-size-sm);
-      font-weight: 100;
-      opacity: 0.6;
-      transition: all 0.2s ease;
-    }
+  /* Action button bracket styling */
+  .action-bracket {
+    font-size: var(--icon-size-sm);
+    font-weight: 100;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+  }
 
-    .action-text {
-      flex: 1;
-      text-align: center;
-      font-weight: inherit;
-    }
+  .action-text {
+    flex: 1;
+    text-align: center;
+    font-weight: inherit;
+  }
 
-    .clear-action:hover .action-bracket,
-    #save-bookmark:hover .action-bracket {
-      opacity: 0.9;
-      font-weight: 600;
-    }
+  .clear-action:hover .action-bracket,
+  #save-bookmark:hover .action-bracket {
+    opacity: 0.9;
+    font-weight: 600;
+  }
 
-    .clear-action:active .action-bracket,
-    #save-bookmark:active .action-bracket {
-      opacity: 1;
-      font-weight: 800;
-    }
+  .clear-action:active .action-bracket,
+  #save-bookmark:active .action-bracket {
+    opacity: 1;
+    font-weight: 800;
+  }
 
   /* Tooltip */
   .tooltip {
@@ -850,7 +937,7 @@
     opacity: 0;
     transition: opacity 0.12s ease, transform 0.12s ease;
     z-index: 1000;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.32);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
     transform: translateY(var(--spacing-xs));
   }
 
@@ -897,7 +984,8 @@
     opacity: 0.7;
   }
 
-  #footer-resize:hover, #footer-resize:focus {
+  #footer-resize:hover,
+  #footer-resize:focus {
     color: rgba(255, 255, 255, 0.85);
     background: rgba(255, 255, 255, 0.04);
   }
@@ -926,7 +1014,6 @@
     background: rgba(255, 255, 255, 0.04);
     outline: none;
   }
-
 </style>
 
 <script>
@@ -941,39 +1028,47 @@
     div.textContent = text;
     return div.innerHTML;
   }
-  
+
   // Configuration
   const MAX_TITLE_LENGTH = 20;
   const MAX_PAGE_TITLE_LENGTH = 32;
-  
+
   // Helper function to truncate page titles
   function truncatePageTitle(text, maxLength = MAX_PAGE_TITLE_LENGTH) {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength - 1) + '…';
   }
 
-     // State
-   let hasLayerSelected = false;
-   let tooltip = null;
-   let hoverTimer = null;
+  // State
+  let hasLayerSelected = false;
+  let tooltip = null;
+  let hoverTimer = null;
 
-   // Initialize UI when DOM is ready
-   window.addEventListener('DOMContentLoaded', () => {
-     tooltip = document.getElementById('tooltip');
-     sendMessage('ui-ready');
-     setupEventListeners();
-     setupResizeHandle();
-     
-     // Auto-recovery mechanism for collapsed state
-     setTimeout(() => {
-       checkAndRecoverFromCollapsedState();
-     }, 100);
-   });
+  // Initialize UI when DOM is ready
+  window.addEventListener('DOMContentLoaded', () => {
+    tooltip = document.getElementById('tooltip');
+    setupEventListeners();
+    setupResizeHandle();
+
+    // Ensure proper sizing immediately
+    document.body.style.width = '188px';
+    document.documentElement.style.width = '188px';
+
+    // Send ui-ready after a small delay to ensure CSS is fully applied
+    setTimeout(() => {
+      sendMessage('ui-ready');
+    }, 50);
+
+    // Auto-recovery mechanism for collapsed state
+    setTimeout(() => {
+      checkAndRecoverFromCollapsedState();
+    }, 100);
+  });
 
   function setupEventListeners() {
     // Quick Actions
     const deselectBtn = document.getElementById('deselect-btn');
-    const resyncBtn = document.getElementById('resync-btn');
+
     const backBtn = document.getElementById('back-btn');
     const forwardBtn = document.getElementById('forward-btn');
 
@@ -981,17 +1076,13 @@
       e.stopPropagation();
       sendMessage('deselect');
     });
-    resyncBtn?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      sendMessage('resync-bookmarks');
-    });
+
     backBtn?.addEventListener('click', () => sendMessage('go-back'));
     forwardBtn?.addEventListener('click', () => sendMessage('go-forward'));
 
     // Delayed hover tooltips (200ms)
     const hoverTargets = [
       { el: deselectBtn, text: 'Deselect' },
-      { el: resyncBtn, text: 'Resync' },
       { el: backBtn, text: 'Back' },
       { el: forwardBtn, text: 'Forward' },
     ];
@@ -1009,16 +1100,17 @@
         cancelTooltip();
       }
     });
-    
-         // Color Section
-     document.getElementById('clear-color')?.addEventListener('click', () => sendMessage('clear-emoji'));
-    
-     // Emoji navigation
-     document.getElementById('emoji-nav-left')?.addEventListener('click', () => sendMessage('navigate-emoji-set', { direction: 'prev' }));
-     document.getElementById('emoji-nav-right')?.addEventListener('click', () => sendMessage('navigate-emoji-set', { direction: 'next' }));
-    
+
+    // Color Section
+    document.getElementById('clear-color')?.addEventListener('click', () => sendMessage('clear-emoji'));
+
+    // Emoji navigation
+    document.getElementById('emoji-nav-left')?.addEventListener('click', () => sendMessage('navigate-emoji-set', { direction: 'prev' }));
+    document.getElementById('emoji-nav-right')?.addEventListener('click', () => sendMessage('navigate-emoji-set', { direction: 'next' }));
+
     // Anchors
     document.getElementById('save-bookmark')?.addEventListener('click', () => sendMessage('save-bookmark'));
+
 
     // Footer fit-to-content
     document.getElementById('footer-fit')?.addEventListener('click', () => {
@@ -1026,68 +1118,110 @@
         const scrollable = document.querySelector('.scrollable-content');
         if (!scrollable) return;
 
-        function computeVisibleContentBottomPx(container) {
-          let maxBottom = 0;
-          
-          // Check if all sections are collapsed
-          const allSections = container.querySelectorAll('.collapsible-content');
-          const allCollapsed = Array.from(allSections).every(section => section.classList.contains('collapsed'));
-          
-          if (allCollapsed) {
-            // When all collapsed, only measure quick actions and section headers
-            const selectors = ['#quick-actions', '.section-header'];
-            selectors.forEach((sel) => {
-              container.querySelectorAll(sel).forEach((el) => {
-                if (!(el instanceof HTMLElement)) return;
-                if (el.offsetParent === null || el.offsetHeight === 0) return;
-                const bottom = el.offsetTop + el.offsetHeight;
-                if (bottom > maxBottom) maxBottom = bottom;
-              });
-            });
-          } else {
-            // Normal calculation for expanded sections
-            const selectors = [
-              '#quick-actions',
-              '.section-header',
-              '.color-grid-container', 
-              '.anchors-container'
-            ];
-            selectors.forEach((sel) => {
-              container.querySelectorAll(sel).forEach((el) => {
-                if (!(el instanceof HTMLElement)) return;
-                if (el.offsetParent === null || el.offsetHeight === 0) return;
-                // Skip any element inside a collapsed section
-                const insideCollapsed = el.closest('.collapsible-content.collapsed');
-                if (insideCollapsed) return;
-                const bottom = el.offsetTop + el.offsetHeight;
-                if (bottom > maxBottom) maxBottom = bottom;
-              });
-            });
+        function computeVisibleContentBottomPx() {
+          let totalHeight = 0;
+
+          // Measure plugin header
+          const pluginHeader = document.getElementById('plugin-header');
+          if (pluginHeader) {
+            totalHeight += pluginHeader.offsetHeight;
           }
-          
-          if (maxBottom === 0) {
-            maxBottom = container.scrollHeight;
+
+          // Measure quick actions
+          const quickActions = document.getElementById('quick-actions');
+          if (quickActions) {
+            totalHeight += quickActions.offsetHeight;
           }
-          return Math.ceil(maxBottom);
+
+          // Measure tags section
+          const tagsHeader = document.querySelector('#tags-header');
+          const tagsContent = document.querySelector('#color-section');
+          if (tagsHeader) {
+            totalHeight += tagsHeader.offsetHeight;
+          }
+          if (tagsContent && !tagsContent.classList.contains('collapsed')) {
+            totalHeight += tagsContent.offsetHeight;
+          }
+
+          // Measure anchors section header
+          const anchorsHeader = document.querySelector('#anchors-header');
+          if (anchorsHeader) {
+            totalHeight += anchorsHeader.offsetHeight;
+          }
+
+          // For anchors section, measure the actual content instead of the flexible container
+          const anchorsSection = document.querySelector('#anchors-section');
+          if (anchorsSection && !anchorsSection.classList.contains('collapsed')) {
+            // Measure the anchors container padding and buttons
+            const anchorsContainer = document.querySelector('.anchors-container');
+            if (anchorsContainer) {
+              const containerStyle = window.getComputedStyle(anchorsContainer);
+              const containerPadding = parseInt(containerStyle.paddingTop) + parseInt(containerStyle.paddingBottom);
+              totalHeight += containerPadding;
+
+              // Measure bookmark list content
+              const bookmarkList = document.querySelector('#bookmark-list');
+              if (bookmarkList) {
+                const bookmarkItems = bookmarkList.querySelectorAll('.bookmark-item');
+                bookmarkItems.forEach(item => {
+                  totalHeight += item.offsetHeight;
+                });
+              }
+
+              // Measure action buttons
+              const saveBookmark = document.querySelector('#save-bookmark');
+              if (saveBookmark) totalHeight += saveBookmark.offsetHeight;
+
+              // Add gap spacing between elements (1 gap for 2 elements)
+              totalHeight += 8; // 1 * 8px gap
+            }
+          }
+
+          // Add footer height (it's positioned absolutely so not included in normal flow)
+          const footer = document.getElementById('footer');
+          if (footer) {
+            totalHeight += footer.offsetHeight;
+          }
+
+          // Add some padding for margins and spacing
+          totalHeight += 20;
+
+          console.log('Content measurement:', {
+            totalHeight,
+            currentWindowHeight: window.innerHeight,
+            pluginHeaderHeight: pluginHeader?.offsetHeight,
+            quickActionsHeight: quickActions?.offsetHeight,
+            tagsHeaderHeight: tagsHeader?.offsetHeight,
+            tagsContentHeight: tagsContent?.offsetHeight,
+            anchorsHeaderHeight: anchorsHeader?.offsetHeight,
+            footerHeight: footer?.offsetHeight
+          });
+
+          return Math.ceil(totalHeight);
         }
 
-        const minHeight = 150; // align with collapsed sections height
-        const maxHeight = 720;
-        const footerHeight = 20; // fixed footer
-        const bottomPx = computeVisibleContentBottomPx(scrollable);
-        const desired = bottomPx + footerHeight;
-        const clamped = Math.max(minHeight, Math.min(maxHeight, desired));
+        const minHeight = 200; // minimum plugin height (aligned with backend)
+        const maxHeight = 720; // maximum plugin height
+        const contentHeight = computeVisibleContentBottomPx();
+        const clamped = Math.max(minHeight, Math.min(maxHeight, contentHeight));
+
+        console.log('Fit content calculation:', {
+          contentHeight,
+          clamped,
+          currentHeight: window.innerHeight
+        });
+
         sendMessage('resize-ui', { width: 188, height: clamped });
       } catch (_) {
         // no-op
       }
     });
-    
+
     // Collapsibles
     document.querySelectorAll('.collapsible').forEach(header => {
       header.addEventListener('click', () => toggleCollapsible(header));
     });
-    
+
     // Add click handler to detect and recover from collapsed state
     document.body.addEventListener('click', (e) => {
       // Don't run recovery if user clicked on a collapsible header (let the toggle work naturally)
@@ -1096,7 +1230,7 @@
       }
       // Don't run recovery if user clicked on any interactive element or content area
       if (e.target && (
-        e.target.closest('button') || 
+        e.target.closest('button') ||
         e.target.closest('.action-btn') ||
         e.target.closest('.emoji-button') ||
         e.target.closest('.bookmark-item') ||
@@ -1120,11 +1254,11 @@
     try {
       // Only recover if plugin is in a problematic collapsed state (very narrow width)
       const currentWidth = window.innerWidth;
-      
+
       // Only recover if width is too narrow (less than 160px) - this indicates accidental collapse
       if (currentWidth < 160) {
         console.log('Auto-recovering from collapsed state...');
-        
+
         // Expand at least one section (Tags section)
         const tagsSection = document.getElementById('color-section');
         const tagsHeader = document.querySelector('[data-target="color-section"]');
@@ -1136,7 +1270,7 @@
             tagsHeader.setAttribute('aria-expanded', 'true');
           }
         }
-        
+
         // Ensure proper width
         sendMessage('resize-ui', { width: 188, height: Math.max(352, window.innerHeight) });
       }
@@ -1194,15 +1328,15 @@
 
   // Removed layer collapse logic from quick action; see handleCollapseSections
 
-     function handleAddDate() {
-     sendMessage('add-date-smart');
-   }
+  function handleAddDate() {
+    sendMessage('add-date-smart');
+  }
 
 
 
   function showTooltip(text, element) {
     if (!tooltip) return;
-    
+
     const rect = element.getBoundingClientRect();
     tooltip.textContent = text;
     // Center horizontally under the button
@@ -1232,51 +1366,51 @@
 
 
 
-     function renderEmojiButtons(emojis) {
-     const container = document.getElementById('color-emoji-buttons');
-     if (!container) return;
-     
-     container.innerHTML = '';
-     
-     // Render emoji buttons
-     emojis.forEach(emoji => {
-       const button = document.createElement('button');
-       button.className = 'emoji-button';
-       button.textContent = emoji;
-       
-               // Special handling for date button
-        if (emoji === '📅') {
-          button.id = 'add-date-btn';
-          button.setAttribute('aria-label', 'Add date');
-          button.addEventListener('click', handleAddDate);
-        } else if (emoji === '⚪') {
-          // Generic placeholder emoji - no functionality
-          button.setAttribute('aria-label', 'Date placeholder');
-          button.style.opacity = '0.3';
-          button.style.cursor = 'default';
-          // No click handler for placeholders
-        } else {
-          button.addEventListener('click', () => sendMessage('add-emoji', { emoji }));
-        }
-       
-       container.appendChild(button);
-     });
-   }
+  function renderEmojiButtons(emojis) {
+    const container = document.getElementById('color-emoji-buttons');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // Render emoji buttons
+    emojis.forEach(emoji => {
+      const button = document.createElement('button');
+      button.className = 'emoji-button';
+      button.textContent = emoji;
+
+      // Special handling for date button
+      if (emoji === '📅') {
+        button.id = 'add-date-btn';
+        button.setAttribute('aria-label', 'Add date');
+        button.addEventListener('click', handleAddDate);
+      } else if (emoji === '⚪') {
+        // Generic placeholder emoji - no functionality
+        button.setAttribute('aria-label', 'Date placeholder');
+        button.style.opacity = '0.3';
+        button.style.cursor = 'default';
+        // No click handler for placeholders
+      } else {
+        button.addEventListener('click', () => sendMessage('add-emoji', { emoji }));
+      }
+
+      container.appendChild(button);
+    });
+  }
 
   function updateSelectionIndicator(hasSelection) {
     const tagsBadge = document.getElementById('tags-badge');
     const anchorsBadge = document.getElementById('anchors-badge');
     const deselectBtn = document.getElementById('deselect-btn');
     const statusIndicator = document.getElementById('status-indicator');
-    
+
     if (tagsBadge) {
       tagsBadge.textContent = '';
     }
-    
+
     if (anchorsBadge) {
       anchorsBadge.textContent = '';
     }
-    
+
     if (deselectBtn) {
       deselectBtn.disabled = !hasSelection;
     }
@@ -1293,60 +1427,76 @@
   function updateNavigationButtons(canGoBack, canGoForward) {
     const backBtn = document.getElementById('back-btn');
     const forwardBtn = document.getElementById('forward-btn');
-    
+
     if (backBtn) {
       backBtn.disabled = !canGoBack;
     }
-    
+
     if (forwardBtn) {
       forwardBtn.disabled = !canGoForward;
     }
   }
 
-   function updateEmojiNavigation(currentSetIndex, totalSets, setName) {
-     const leftBtn = document.getElementById('emoji-nav-left');
-     const rightBtn = document.getElementById('emoji-nav-right');
-     const indicator = document.getElementById('emoji-set-indicator');
-     
-     // Enable both buttons since navigation loops around
-     if (leftBtn) {
-       leftBtn.disabled = false;
-     }
-     
-     if (rightBtn) {
-       rightBtn.disabled = false;
-     }
-     
-     if (indicator) {
-       indicator.innerHTML = `↳ <span class="set-bracket">{ </span><span class="set-name">${setName}</span><span class="set-bracket"> }</span>`;
-     }
-   }
+  function updateEmojiNavigation(currentSetIndex, totalSets, setName) {
+    const leftBtn = document.getElementById('emoji-nav-left');
+    const rightBtn = document.getElementById('emoji-nav-right');
+    const indicator = document.getElementById('emoji-set-indicator');
+
+    // Enable both buttons since navigation loops around
+    if (leftBtn) {
+      leftBtn.disabled = false;
+    }
+
+    if (rightBtn) {
+      rightBtn.disabled = false;
+    }
+
+    if (indicator) {
+      indicator.innerHTML = `↳ <span class="set-bracket">{ </span><span class="set-name">${setName}</span><span class="set-bracket"> }</span>`;
+    }
+  }
 
   function toggleCollapsible(header) {
     const targetId = header.getAttribute('data-target');
     const content = document.getElementById(targetId);
     const arrow = header.querySelector('.arrow');
-    
+
     if (!content || !arrow) return;
-    
+
     const isCollapsed = content.classList.toggle('collapsed');
     arrow.textContent = isCollapsed ? '+' : '-';
-    
+
     // Update ARIA attributes
     header.setAttribute('aria-expanded', !isCollapsed);
   }
 
-  function renderBookmarks(bookmarks) {
+  function renderBookmarks(bookmarks, currentAnchorId = null, previousBookmarkId = null, isInsideAnchor = false) {
     const list = document.getElementById('bookmark-list');
     if (!list) return;
-    
+
     list.innerHTML = '';
     bookmarks.forEach((bookmark) => {
       const li = document.createElement('li');
       li.className = 'bookmark-item';
+
+      // Add recent-history class if this bookmark is the previous bookmark
+      if (previousBookmarkId && bookmark.id === previousBookmarkId) {
+        li.className += ' recent-history';
+      }
+
+      // Add current-anchor class if this bookmark is the current anchor (takes precedence)
+      if (currentAnchorId && bookmark.id === currentAnchorId) {
+        li.className += ' current-anchor';
+
+        // Add inside-anchor class if user is inside the anchor
+        if (isInsideAnchor) {
+          li.className += ' inside-anchor';
+        }
+      }
+
       const pageName = bookmark.pageName || 'Unknown Page';
       const truncatedPageName = truncatePageTitle(pageName);
-      
+
       li.innerHTML = `
         <div class="bookmark-content">
           <span class="bookmark-name" title="${escapeHtml(bookmark.name)}">${escapeHtml(bookmark.name)}</span>
@@ -1354,16 +1504,16 @@
         </div>
         <button class="bookmark-remove" title="Remove">×</button>
       `;
-      
+
       li.querySelector('.bookmark-content')?.addEventListener('click', () => {
         sendMessage('jump-to-bookmark', { id: bookmark.id });
       });
-      
+
       li.querySelector('.bookmark-remove')?.addEventListener('click', (event) => {
         event.stopPropagation();
         sendMessage('remove-bookmark', { id: bookmark.id });
       });
-      
+
       list.appendChild(li);
     });
   }
@@ -1372,18 +1522,18 @@
   window.addEventListener('message', (event) => {
     const msg = event.data.pluginMessage;
     if (!msg) return;
-    
+
     switch (msg.type) {
       case 'bookmarks':
-        renderBookmarks(msg.bookmarks);
+        renderBookmarks(msg.bookmarks, msg.currentAnchorId, msg.previousBookmarkId, msg.isInsideAnchor);
         break;
-        
-             case 'selection-state':
-         hasLayerSelected = msg.hasLayerSelected;
-         renderEmojiButtons(hasLayerSelected ? msg.layerEmojis : msg.pageEmojis);
-         updateSelectionIndicator(hasLayerSelected);
-         break;
-        
+
+      case 'selection-state':
+        hasLayerSelected = msg.hasLayerSelected;
+        renderEmojiButtons(hasLayerSelected ? msg.layerEmojis : msg.pageEmojis);
+        updateSelectionIndicator(hasLayerSelected);
+        break;
+
       case 'show-tooltip':
         if (msg.elementId) {
           const element = document.getElementById(msg.elementId);

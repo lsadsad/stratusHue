@@ -29,6 +29,222 @@ const PAGE_EMOJI_LIST = PAGE_EMOJI_SETS[0].emojis;
 // Undo support removed
 // --- Helper functions for file-specific bookmark storage ---
 let bookmarksCache = null;
+// --- Current Anchor State Management ---
+let currentAnchorState = { bookmarkId: null, timestamp: 0 };
+// --- Recent History State Management ---
+let recentHistoryState = { previousBookmarkId: null, lastUpdated: 0 };
+function loadCurrentAnchor() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const data = yield figma.clientStorage.getAsync('currentAnchor');
+            if (data && typeof data === 'object' && 'bookmarkId' in data && 'timestamp' in data) {
+                currentAnchorState = data;
+                return currentAnchorState;
+            }
+        }
+        catch (error) {
+            console.log('Failed to load current anchor state:', error);
+        }
+        // Return default state if loading fails
+        currentAnchorState = { bookmarkId: null, timestamp: 0 };
+        return currentAnchorState;
+    });
+}
+function saveCurrentAnchor(bookmarkId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Only update if the bookmark ID has actually changed
+            if (currentAnchorState.bookmarkId === bookmarkId) {
+                return;
+            }
+            currentAnchorState = {
+                bookmarkId,
+                timestamp: Date.now()
+            };
+            yield figma.clientStorage.setAsync('currentAnchor', currentAnchorState);
+            // Send updated bookmark data to UI with current anchor info
+            yield sendBookmarksToUI();
+        }
+        catch (error) {
+            console.log('Failed to save current anchor state:', error);
+        }
+    });
+}
+function loadRecentHistory() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const data = yield figma.clientStorage.getAsync('recentHistory');
+            if (data && typeof data === 'object' && 'previousBookmarkId' in data && 'lastUpdated' in data) {
+                recentHistoryState = data;
+                return recentHistoryState;
+            }
+        }
+        catch (error) {
+            console.log('Failed to load recent history state:', error);
+        }
+        // Return default state if loading fails
+        recentHistoryState = { previousBookmarkId: null, lastUpdated: 0 };
+        return recentHistoryState;
+    });
+}
+function saveRecentHistory() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            recentHistoryState.lastUpdated = Date.now();
+            yield figma.clientStorage.setAsync('recentHistory', recentHistoryState);
+        }
+        catch (error) {
+            console.log('Failed to save recent history state:', error);
+        }
+    });
+}
+function addToRecentHistory(bookmarkId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // The current anchor becomes the previous one
+            // Only update if we're switching to a different bookmark
+            if (currentAnchorState.bookmarkId && currentAnchorState.bookmarkId !== bookmarkId) {
+                recentHistoryState.previousBookmarkId = currentAnchorState.bookmarkId;
+                yield saveRecentHistory();
+            }
+        }
+        catch (error) {
+            console.log('Failed to add to recent history:', error);
+        }
+    });
+}
+function validateRecentHistory() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (!recentHistoryState.previousBookmarkId) {
+                return; // Nothing to validate
+            }
+            const bookmarks = yield getBookmarks();
+            const validBookmarkIds = new Set(bookmarks.map(b => b.id));
+            // Check if previous bookmark still exists
+            if (!validBookmarkIds.has(recentHistoryState.previousBookmarkId)) {
+                recentHistoryState.previousBookmarkId = null;
+                yield saveRecentHistory();
+                return;
+            }
+            // Additional validation: check if node is still accessible
+            try {
+                const node = yield figma.getNodeByIdAsync(recentHistoryState.previousBookmarkId);
+                if (!node || !('parent' in node)) {
+                    recentHistoryState.previousBookmarkId = null;
+                    yield saveRecentHistory();
+                }
+            }
+            catch (error) {
+                // Node is not accessible, clear it
+                console.log('Previous bookmark not accessible:', recentHistoryState.previousBookmarkId);
+                recentHistoryState.previousBookmarkId = null;
+                yield saveRecentHistory();
+            }
+        }
+        catch (error) {
+            console.log('Error validating recent history:', error);
+            // Reset to empty on error
+            recentHistoryState.previousBookmarkId = null;
+            yield saveRecentHistory();
+        }
+    });
+}
+// Helper function to check if a node is a descendant of another node
+function isDescendantOf(childNode, parentNode) {
+    let currentNode = childNode.parent;
+    while (currentNode) {
+        if (currentNode.id === parentNode.id) {
+            return true;
+        }
+        currentNode = currentNode.parent;
+    }
+    return false;
+}
+function detectCurrentAnchorFromSelection() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (isNavigatingHistory)
+            return; // Don't update during history navigation
+        const selection = figma.currentPage.selection;
+        if (selection.length !== 1) {
+            // Clear current anchor if no single selection
+            if (currentAnchorState.bookmarkId !== null) {
+                yield saveCurrentAnchor(null);
+            }
+            return;
+        }
+        const selectedNode = selection[0];
+        const bookmarks = yield getBookmarks();
+        // First check if the selected node matches any bookmark exactly
+        const exactMatchBookmark = bookmarks.find(bookmark => bookmark.id === selectedNode.id);
+        if (exactMatchBookmark) {
+            // Set current anchor if it's different from the current one
+            if (currentAnchorState.bookmarkId !== exactMatchBookmark.id) {
+                yield saveCurrentAnchor(exactMatchBookmark.id);
+            }
+            return;
+        }
+        // If no exact match, check if the selected node is inside any bookmarked node
+        for (const bookmark of bookmarks) {
+            try {
+                const bookmarkNode = yield figma.getNodeByIdAsync(bookmark.id);
+                if (bookmarkNode && 'parent' in bookmarkNode) {
+                    if (isDescendantOf(selectedNode, bookmarkNode)) {
+                        // Set current anchor to the parent bookmark if it's different
+                        if (currentAnchorState.bookmarkId !== bookmark.id) {
+                            yield saveCurrentAnchor(bookmark.id);
+                        }
+                        return;
+                    }
+                }
+            }
+            catch (error) {
+                // Skip inaccessible bookmarks
+                continue;
+            }
+        }
+        // Clear current anchor if selected node is not bookmarked and not inside any bookmark
+        if (currentAnchorState.bookmarkId !== null) {
+            yield saveCurrentAnchor(null);
+        }
+    });
+}
+function validateCurrentAnchor() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!currentAnchorState.bookmarkId) {
+            return; // No current anchor to validate
+        }
+        try {
+            // Check if the current anchor bookmark still exists
+            const bookmarks = yield getBookmarks();
+            const currentBookmark = bookmarks.find(bookmark => bookmark.id === currentAnchorState.bookmarkId);
+            if (!currentBookmark) {
+                // Bookmark no longer exists, clear current anchor
+                yield saveCurrentAnchor(null);
+                return;
+            }
+            // Check if the referenced element is still accessible
+            const node = yield figma.getNodeByIdAsync(currentAnchorState.bookmarkId);
+            if (!node || !('parent' in node)) {
+                // Element no longer exists or is inaccessible, clear current anchor
+                yield saveCurrentAnchor(null);
+                return;
+            }
+            // Check if current anchor is on the current page
+            const targetPage = getContainingPage(node);
+            if (!targetPage || targetPage.id !== figma.currentPage.id) {
+                // Current anchor is on a different page, clear it
+                yield saveCurrentAnchor(null);
+                return;
+            }
+        }
+        catch (error) {
+            // Error accessing current anchor, clear it
+            console.log('Error validating current anchor:', error);
+            yield saveCurrentAnchor(null);
+        }
+    });
+}
 // --- Navigation History Management ---
 let navigationHistory = [];
 let historyIndex = -1;
@@ -231,7 +447,36 @@ function setBookmarks(bookmarks) {
 function sendBookmarksToUI() {
     return __awaiter(this, void 0, void 0, function* () {
         const bookmarks = yield getBookmarks();
-        figma.ui.postMessage({ type: 'bookmarks', bookmarks });
+        // Only send previous bookmark if it's different from current anchor
+        const previousBookmarkId = recentHistoryState.previousBookmarkId !== currentAnchorState.bookmarkId
+            ? recentHistoryState.previousBookmarkId
+            : null;
+        // Check if user is inside a child of the current anchor
+        let isInsideAnchor = false;
+        if (currentAnchorState.bookmarkId) {
+            const selection = figma.currentPage.selection;
+            if (selection.length === 1) {
+                try {
+                    const currentAnchorNode = yield figma.getNodeByIdAsync(currentAnchorState.bookmarkId);
+                    if (currentAnchorNode && 'parent' in currentAnchorNode) {
+                        // Check if selected node is the anchor itself or a descendant
+                        const selectedNode = selection[0];
+                        isInsideAnchor = selectedNode.id === currentAnchorState.bookmarkId ||
+                            isDescendantOf(selectedNode, currentAnchorNode);
+                    }
+                }
+                catch (error) {
+                    // Anchor node not accessible
+                }
+            }
+        }
+        figma.ui.postMessage({
+            type: 'bookmarks',
+            bookmarks,
+            currentAnchorId: currentAnchorState.bookmarkId,
+            previousBookmarkId: previousBookmarkId,
+            isInsideAnchor: isInsideAnchor
+        });
     });
 }
 function sendSelectionStateToUI() {
@@ -356,12 +601,38 @@ function updateBookmarkIfExists(layerId, newName) {
         return false;
     });
 }
+// --- Automatic Validation System ---
+let lastValidationTime = 0;
+const VALIDATION_INTERVAL = 30000; // 30 seconds
+function autoValidateBookmarks() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const now = Date.now();
+        if (now - lastValidationTime < VALIDATION_INTERVAL) {
+            return; // Don't validate too frequently
+        }
+        lastValidationTime = now;
+        const result = yield validateAndSyncBookmarks();
+        // Silently update UI if there were changes
+        if (result.updated > 0 || result.removed > 0) {
+            yield sendBookmarksToUI();
+        }
+    });
+}
 // --- Navigation & Cleanup Helpers ---
 function cleanupBookmark(bookmarkId) {
     return __awaiter(this, void 0, void 0, function* () {
         const bookmarks = yield getBookmarks();
         const newBookmarks = bookmarks.filter(b => b.id !== bookmarkId);
         yield updateAndSaveBookmarks(newBookmarks);
+        // Clear current anchor if the deleted bookmark was the current anchor
+        if (currentAnchorState.bookmarkId === bookmarkId) {
+            yield saveCurrentAnchor(null);
+        }
+        // Remove from recent history if the deleted bookmark was the previous bookmark
+        if (recentHistoryState.previousBookmarkId === bookmarkId) {
+            recentHistoryState.previousBookmarkId = null;
+            yield saveRecentHistory();
+        }
     });
 }
 function navigateToNode(node_1) {
@@ -530,9 +801,16 @@ const trackSelectionForHistory = debounce(() => __awaiter(void 0, void 0, void 0
         }
     }
 }), 500); // Wait 500ms to avoid recording rapid selections
+// Debounced current anchor detection
+const detectCurrentAnchorDebounced = debounce(detectCurrentAnchorFromSelection, 100);
 figma.on('selectionchange', () => {
     sendSelectionStateToUIDebounced();
     trackSelectionForHistory(); // Track selections for history
+    detectCurrentAnchorDebounced(); // Detect current anchor from selection
+    // Also update bookmarks UI to reflect inside anchor state
+    setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield sendBookmarksToUI();
+    }), 150); // Slight delay to ensure anchor detection completes first
 });
 // Track page changes for history
 figma.on('currentpagechange', () => __awaiter(void 0, void 0, void 0, function* () {
@@ -548,40 +826,58 @@ figma.on('currentpagechange', () => __awaiter(void 0, void 0, void 0, function* 
             pageName: currentPage.name
         });
     }
+    // Auto-validate bookmarks when changing pages
+    yield autoValidateBookmarks();
+    // Validate current anchor when page changes (will clear if on different page)
+    yield validateCurrentAnchor();
 }));
-// Refresh bookmarks by pulling latest names from the document
-function handleResyncBookmarks() {
+// Automatic validation and sync of bookmarks
+function validateAndSyncBookmarks() {
     return __awaiter(this, void 0, void 0, function* () {
         const bookmarks = yield getBookmarks();
         if (bookmarks.length === 0) {
-            figma.notify('No anchors to resync.');
-            return;
+            return { updated: 0, removed: 0 };
         }
         let updatedCount = 0;
+        let removedCount = 0;
+        const validBookmarks = [];
         for (const bookmark of bookmarks) {
             try {
                 const node = yield figma.getNodeByIdAsync(bookmark.id);
                 if (node && 'name' in node) {
                     const latestName = node.name;
                     const latestPageName = getPageName(node);
+                    // Update if name or page changed
                     if (bookmark.name !== latestName || bookmark.pageName !== latestPageName) {
                         bookmark.name = latestName;
                         bookmark.pageName = latestPageName;
                         updatedCount++;
                     }
+                    validBookmarks.push(bookmark);
+                }
+                else {
+                    // Node exists but is not accessible (might be deleted)
+                    removedCount++;
                 }
             }
             catch (_) {
-                // Ignore missing nodes during resync
+                // Node doesn't exist anymore
+                removedCount++;
             }
         }
-        if (updatedCount > 0) {
-            yield updateAndSaveBookmarks(bookmarks);
-            figma.notify(`Resynced ${updatedCount} anchor(s).`);
+        // Update bookmarks if there were changes
+        if (updatedCount > 0 || removedCount > 0) {
+            yield updateAndSaveBookmarks(validBookmarks);
+            // Clean up current anchor and recent history if needed
+            if (currentAnchorState.bookmarkId && !validBookmarks.find(b => b.id === currentAnchorState.bookmarkId)) {
+                yield saveCurrentAnchor(null);
+            }
+            if (recentHistoryState.previousBookmarkId && !validBookmarks.find(b => b.id === recentHistoryState.previousBookmarkId)) {
+                recentHistoryState.previousBookmarkId = null;
+                yield saveRecentHistory();
+            }
         }
-        else {
-            figma.notify('Anchors already up to date.');
-        }
+        return { updated: updatedCount, removed: removedCount };
     });
 }
 // --- Message Handler Functions ---
@@ -621,6 +917,8 @@ function handleRemoveBookmark(bookmarkId) {
 }
 function handleJumpToBookmark(bookmarkId) {
     return __awaiter(this, void 0, void 0, function* () {
+        // Auto-validate bookmarks before jumping
+        yield autoValidateBookmarks();
         try {
             const node = yield figma.getNodeByIdAsync(bookmarkId);
             if (!node || !('parent' in node)) {
@@ -629,6 +927,10 @@ function handleJumpToBookmark(bookmarkId) {
                 return;
             }
             yield updateBookmarkIfExists(bookmarkId, node.name);
+            // Add to recent history before setting as current anchor
+            yield addToRecentHistory(bookmarkId);
+            // Set current anchor state when navigating to bookmark
+            yield saveCurrentAnchor(bookmarkId);
             // Record as bookmark navigation in history
             if (!isNavigatingHistory) {
                 const targetPage = getContainingPage(node);
@@ -999,11 +1301,20 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
         switch (msg.type) {
             case 'ui-ready':
                 yield loadNavigationHistory(); // Load history on startup
+                yield loadCurrentAnchor(); // Load current anchor state on startup
+                yield loadRecentHistory(); // Load recent history state on startup
+                yield validateCurrentAnchor(); // Validate current anchor on startup
+                yield validateRecentHistory(); // Validate recent history on startup
+                yield autoValidateBookmarks(); // Auto-validate bookmarks on startup
                 yield sendBookmarksToUI();
                 sendSelectionStateToUI();
                 sendNavigationStateToUI(); // Send navigation state to UI
                 // Enforce fixed UI size to avoid host dialog drift when DevTools toggles
                 figma.ui.resize(188, 352);
+                // Additional size enforcement after a short delay to ensure proper initialization
+                setTimeout(() => {
+                    figma.ui.resize(188, 352);
+                }, 100);
                 break;
             case 'save-bookmark':
                 yield handleSaveBookmark(selectedLayers);
@@ -1036,8 +1347,8 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
             case 'navigate-emoji-set':
                 yield handleNavigateEmojiSet(msg.direction);
                 break;
-            case 'resync-bookmarks':
-                yield handleResyncBookmarks();
+            case 'close-plugin':
+                figma.closePlugin();
                 break;
             case 'go-back':
                 yield handleGoBack();
