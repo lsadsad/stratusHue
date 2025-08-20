@@ -1,5 +1,9 @@
 // Stratus_Hue: A Figma plugin for layer tagging and navigation.
 
+// Temporarily disable premium features to fix syntax error
+// import { premiumFeatures } from './premium/premium-features';
+// import { pricingManager } from './premium/pricing-models';
+
 // Emoji sets for layers (square emojis)
 const LAYER_EMOJI_SETS = [
   { name: 'Colors', emojis: ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜'] },
@@ -819,6 +823,10 @@ async function handleGoForward(): Promise<void> {
 // --- Plugin UI Setup ---
 figma.showUI(__html__, { width: 188, height: 352 });
 
+// Initialize premium features and pricing
+// premiumFeatures.initialize();
+// pricingManager.initialize();
+
 function debounce<T extends (...args: any[]) => unknown>(fn: T, wait = 100) {
   let timer: number | undefined;
   return (...args: Parameters<T>) => {
@@ -953,10 +961,12 @@ async function handleSaveBookmark(selectedLayers: readonly SceneNode[]) {
     figma.notify('Please select a layer to bookmark.');
     return;
   }
+  
   const node = selectedLayers[0];
   const bookmarks = await getBookmarks();
   const existingBookmarkIndex = bookmarks.findIndex(b => b.id === node.id);
   const pageName = getPageName(node);
+  
   if (existingBookmarkIndex !== -1) {
     if (bookmarks[existingBookmarkIndex].name !== node.name) {
       bookmarks[existingBookmarkIndex].name = node.name;
@@ -967,6 +977,12 @@ async function handleSaveBookmark(selectedLayers: readonly SceneNode[]) {
       figma.notify('Layer already bookmarked.');
     }
   } else {
+    // Check premium limits before adding new bookmark
+    // const canAdd = await premiumFeatures.checkBookmarkLimit(bookmarks.length);
+    // if (!canAdd) {
+    //   return; // Premium check will show upgrade prompt
+    // }
+    
     bookmarks.push({ id: node.id, name: node.name, pageName: pageName });
     await updateAndSaveBookmarks(bookmarks);
     figma.notify('Bookmark saved!');
@@ -1329,23 +1345,29 @@ async function handleNavigateEmojiSet(direction: 'prev' | 'next') {
   const hasLayerSelected = selectedLayers.length > 0;
 
   if (hasLayerSelected) {
-    // Navigate layer emoji sets
-    if (direction === 'next') {
-      currentLayerEmojiSetIndex = (currentLayerEmojiSetIndex + 1) % LAYER_EMOJI_SETS.length;
-    } else {
-      currentLayerEmojiSetIndex = currentLayerEmojiSetIndex === 0
-        ? LAYER_EMOJI_SETS.length - 1
-        : currentLayerEmojiSetIndex - 1;
-    }
+    // Check premium limits for layer emoji sets
+    const newIndex = direction === 'next' 
+      ? (currentLayerEmojiSetIndex + 1) % LAYER_EMOJI_SETS.length
+      : currentLayerEmojiSetIndex === 0 ? LAYER_EMOJI_SETS.length - 1 : currentLayerEmojiSetIndex - 1;
+    
+    // const canNavigate = await premiumFeatures.checkEmojiSetLimit(newIndex);
+    // if (!canNavigate) {
+    //   return; // Premium check will show upgrade prompt
+    // }
+    
+    currentLayerEmojiSetIndex = newIndex;
   } else {
-    // Navigate page emoji sets
-    if (direction === 'next') {
-      currentPageEmojiSetIndex = (currentPageEmojiSetIndex + 1) % PAGE_EMOJI_SETS.length;
-    } else {
-      currentPageEmojiSetIndex = currentPageEmojiSetIndex === 0
-        ? PAGE_EMOJI_SETS.length - 1
-        : currentPageEmojiSetIndex - 1;
-    }
+    // Check premium limits for page emoji sets
+    const newIndex = direction === 'next'
+      ? (currentPageEmojiSetIndex + 1) % PAGE_EMOJI_SETS.length
+      : currentPageEmojiSetIndex === 0 ? PAGE_EMOJI_SETS.length - 1 : currentPageEmojiSetIndex - 1;
+    
+    // const canNavigate = await premiumFeatures.checkEmojiSetLimit(newIndex);
+    // if (!canNavigate) {
+    //   return; // Premium check will show upgrade prompt
+    // }
+    
+    currentPageEmojiSetIndex = newIndex;
   }
 
   // Update UI with new emoji set
@@ -1420,6 +1442,32 @@ figma.ui.onmessage = async (msg) => {
 
       case 'navigate-emoji-set':
         await handleNavigateEmojiSet(msg.direction);
+        break;
+
+      case 'check-subscription-status':
+        // await premiumFeatures.refreshSubscriptionStatus();
+        break;
+
+      case 'activate-license':
+        // await premiumFeatures.activateLicense(msg.licenseKey);
+        break;
+
+      case 'open-upgrade-url':
+        // const upgradeUrl = premiumFeatures.getUpgradeUrl();
+        figma.notify('Upgrade features temporarily disabled');
+        // Note: Figma plugins can't directly open URLs, user needs to copy/paste
+        figma.ui.postMessage({
+          type: 'show-upgrade-url',
+          url: 'https://example.com'
+        });
+        break;
+
+      case 'select-pricing-tier':
+        // const checkoutUrl = pricingManager.generateCheckoutUrl(msg.variantId, figma.currentUser?.id || undefined);
+        figma.ui.postMessage({
+          type: 'show-upgrade-url',
+          url: 'https://example.com'
+        });
         break;
 
 

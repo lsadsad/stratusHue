@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["es2019"],
+    "target": "es2017",
+    "lib": ["es2017", "dom"],
+    "module": "commonjs",
     "strict": true,
-    "types": ["@figma/plugin-typings"],
+    "types": ["@figma/plugin-typings", "node"],
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true
   }
 }

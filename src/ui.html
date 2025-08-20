@@ -55,6 +55,10 @@
       <span class="arrow" aria-hidden="true">-</span>
       <span>Anchors</span>
     </div>
+    <div class="header-right">
+      <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors"><span class="icon" aria-hidden="true">⟳</span></button>
+      <span id="bookmark-count" class="top-badge" aria-live="polite">0</span>
+    </div>
   </h2>
   <div id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
     <div class="anchors-container">
@@ -69,6 +73,69 @@
   </div>
 
 </div>
+
+<!-- Premium Modal - TEMPORARILY DISABLED -->
+<!--
+<div id="premium-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Upgrade to Premium</h3>
+      <button id="close-premium-modal" class="close-btn">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="premium-message" class="premium-message"></div>
+      <div class="premium-features">
+        <h4>Premium Features:</h4>
+        <ul>
+          <li>✨ Unlimited bookmarks</li>
+          <li>🎨 All emoji sets</li>
+          <li>📤 Export bookmarks</li>
+          <li>👥 Team sharing</li>
+          <li>🚀 Advanced navigation</li>
+        </ul>
+      </div>
+      <div class="premium-actions">
+        <button id="upgrade-btn" class="premium-btn">Upgrade Now</button>
+        <button id="enter-license-btn" class="secondary-btn">Enter License Key</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="license-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Enter License Key</h3>
+      <button id="close-license-modal" class="close-btn">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="license-input-group">
+        <input type="text" id="license-key-input" placeholder="Enter your license key" />
+        <button id="activate-license-btn" class="premium-btn">Activate</button>
+      </div>
+      <div class="license-help">
+        <p>Find your license key in your Lemon Squeezy purchase email.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="pricing-modal" class="modal hidden">
+  <div class="modal-content pricing-modal-content">
+    <div class="modal-header">
+      <h3 id="pricing-modal-title">Choose Your Plan</h3>
+      <button id="close-pricing-modal" class="close-btn">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="pricing-message" class="pricing-message"></div>
+      <div id="pricing-tiers" class="pricing-tiers"></div>
+      <div class="pricing-footer">
+        <p class="pricing-note">All plans include a 30-day money-back guarantee</p>
+      </div>
+    </div>
+  </div>
+</div>
+-->
 
 <!-- Tooltip -->
 <div id="tooltip" class="tooltip"></div>
@@ -1014,6 +1081,419 @@
     background: rgba(255, 255, 255, 0.04);
     outline: none;
   }
+
+  /* Premium Modal Styles - TEMPORARILY DISABLED */
+  /*
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal.hidden {
+    display: none;
+  }
+  */
+
+  /*
+  .modal-content {
+    background: #1a1a1a;
+    border-radius: var(--border-radius-lg);
+    width: 90%;
+    max-width: 320px;
+    max-height: 80%;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid #2a2a2a;
+  }
+  */
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-lg);
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #f5f5f5;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-sm);
+  }
+
+  .close-btn:hover {
+    background: #2a2a2a;
+    color: #f5f5f5;
+  }
+
+  .modal-body {
+    padding: var(--spacing-xl);
+  }
+
+  .premium-message {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    color: rgba(255, 193, 7, 0.9);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .premium-features {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .premium-features h4 {
+    margin: 0 0 var(--spacing-lg) 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #f5f5f5;
+  }
+
+  .premium-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .premium-features li {
+    padding: var(--spacing-sm) 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .premium-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .premium-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    color: white;
+    border: none;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+
+  .premium-btn:hover {
+    background: linear-gradient(135deg, #ff5252, #ff7979);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  }
+
+  .premium-btn:active {
+    transform: translateY(0);
+  }
+
+  .secondary-btn {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid #2a2a2a;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+
+  .secondary-btn:hover {
+    background: #2a2a2a;
+    color: #f5f5f5;
+    border-color: #404040;
+  }
+
+  /* License Input Styles */
+  .license-input-group {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+  }
+
+  #license-key-input {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    color: #f5f5f5;
+    font-size: 14px;
+    font-family: 'Inter', monospace;
+  }
+
+  #license-key-input:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+  }
+
+  #license-key-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .license-help {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  /* Premium Badge Styles */
+  .premium-badge {
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    color: white;
+    padding: 0 var(--spacing-md);
+    border-radius: var(--spacing-xl);
+    font-size: var(--icon-size-sm);
+    font-weight: 600;
+    line-height: var(--button-height-sm);
+    height: var(--button-height-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Bookmark count styling */
+  #bookmark-count {
+    font-family: 'Inter', monospace;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+
+  #bookmark-count.at-limit {
+    background: rgba(255, 193, 7, 0.2);
+    color: rgba(255, 193, 7, 0.9);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+  }
+
+  /* Pricing Modal Styles */
+  .pricing-modal-content {
+    max-width: 400px;
+    max-height: 90%;
+  }
+
+  .pricing-message {
+    background: rgba(111, 176, 255, 0.1);
+    border: 1px solid rgba(111, 176, 255, 0.3);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    color: rgba(111, 176, 255, 0.9);
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .pricing-tiers {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .pricing-tier {
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    position: relative;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .pricing-tier:hover {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.05);
+  }
+
+  .pricing-tier.popular {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.08);
+  }
+
+  .pricing-tier.popular::before {
+    content: 'POPULAR';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .tier-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .tier-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f5f5f5;
+  }
+
+  .tier-price {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ff6b6b;
+  }
+
+  .tier-savings {
+    font-size: 11px;
+    color: rgba(255, 193, 7, 0.8);
+    margin-top: 2px;
+  }
+
+  .tier-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--spacing-lg) 0;
+  }
+
+  .tier-features li {
+    padding: var(--spacing-sm) 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .tier-features li::before {
+    content: '✓';
+    color: #4ade80;
+    font-weight: bold;
+    margin-right: var(--spacing-md);
+  }
+
+  .tier-limits {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .tier-limits h5 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tier-limits ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .tier-limits li {
+    padding: 2px 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+  }
+
+  .tier-select-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid #404040;
+    color: rgba(255, 255, 255, 0.8);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tier-select-btn:hover {
+    background: #2a2a2a;
+    border-color: #ff6b6b;
+    color: #f5f5f5;
+  }
+
+  .pricing-tier.popular .tier-select-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    border-color: transparent;
+    color: white;
+  }
+
+  .pricing-tier.popular .tier-select-btn:hover {
+    background: linear-gradient(135deg, #ff5252, #ff7979);
+  }
+
+  .pricing-footer {
+    text-align: center;
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid #2a2a2a;
+  }
+
+  .pricing-note {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    margin: 0;
+  }
+
+  /* Credits display for usage-based model */
+  .credits-display {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+  }
+
+  .credits-count {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(255, 193, 7, 0.9);
+  }
+
+  .credits-label {
+    font-size: 11px;
+    color: rgba(255, 193, 7, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 </style>
 
 <script>
@@ -1043,6 +1523,17 @@
   let hasLayerSelected = false;
   let tooltip = null;
   let hoverTimer = null;
+  let subscriptionStatus = { isPremium: false, isActive: false };
+  let bookmarkCount = 0;
+
+  // Simplified bookmark count update without premium features (global scope)
+  function updateBookmarkCount(count) {
+    bookmarkCount = count;
+    const bookmarkCountEl = document.getElementById('bookmark-count');
+    if (bookmarkCountEl) {
+      bookmarkCountEl.textContent = `${bookmarkCount}`;
+    }
+  }
 
   // Initialize UI when DOM is ready
   window.addEventListener('DOMContentLoaded', () => {
@@ -1063,6 +1554,9 @@
     setTimeout(() => {
       checkAndRecoverFromCollapsedState();
     }, 100);
+
+    // Request initial subscription status - TEMPORARILY DISABLED
+    // sendMessage('check-subscription-status');
   });
 
   function setupEventListeners() {
@@ -1094,10 +1588,12 @@
       el.addEventListener('blur', cancelTooltip);
     });
 
-    // Allow Esc to dismiss tooltip
+    // Allow Esc to dismiss tooltip and modals
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         cancelTooltip();
+        // closePremiumModal();
+        // closeLicenseModal();
       }
     });
 
@@ -1110,7 +1606,235 @@
 
     // Anchors
     document.getElementById('save-bookmark')?.addEventListener('click', () => sendMessage('save-bookmark'));
+    document.getElementById('refresh-anchors')?.addEventListener('click', (e) => { e.stopPropagation(); sendMessage('request-bookmarks'); });
 
+    // Premium modal events - TEMPORARILY DISABLED
+    // setupPremiumModalEvents();
+    // setupPricingModalEvents();
+
+
+    // Premium Modal Functions - TEMPORARILY DISABLED
+    /*
+    function setupPremiumModalEvents() {
+      // Premium modal
+      document.getElementById('close-premium-modal')?.addEventListener('click', closePremiumModal);
+      document.getElementById('upgrade-btn')?.addEventListener('click', handleUpgrade);
+      document.getElementById('enter-license-btn')?.addEventListener('click', showLicenseModal);
+
+      // License modal
+      document.getElementById('close-license-modal')?.addEventListener('click', closeLicenseModal);
+      document.getElementById('activate-license-btn')?.addEventListener('click', handleLicenseActivation);
+
+      // Click outside to close
+      document.getElementById('premium-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'premium-modal') closePremiumModal();
+      });
+      document.getElementById('license-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'license-modal') closeLicenseModal();
+      });
+    }
+    */
+
+    /*
+    function showPremiumModal(message) {
+      const modal = document.getElementById('premium-modal');
+      const messageEl = document.getElementById('premium-message');
+
+      if (messageEl) messageEl.textContent = message;
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closePremiumModal() {
+      const modal = document.getElementById('premium-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function showLicenseModal() {
+      closePremiumModal();
+      const modal = document.getElementById('license-modal');
+      const input = document.getElementById('license-key-input');
+
+      if (modal) modal.classList.remove('hidden');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    function closeLicenseModal() {
+      const modal = document.getElementById('license-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function handleUpgrade() {
+      sendMessage('open-upgrade-url');
+      closePremiumModal();
+    }
+
+    function handleLicenseActivation() {
+      const input = document.getElementById('license-key-input');
+      const licenseKey = input?.value?.trim();
+
+      if (!licenseKey) {
+        alert('Please enter a license key');
+        return;
+      }
+
+      sendMessage('activate-license', { licenseKey });
+      closeLicenseModal();
+    }
+    */
+
+    /*
+    function updateSubscriptionStatus(status) {
+      subscriptionStatus = status;
+
+      // Update UI elements based on subscription status
+      const bookmarkCountEl = document.getElementById('bookmark-count');
+      if (bookmarkCountEl) {
+        if (status.isPremium) {
+          bookmarkCountEl.textContent = `${bookmarkCount}`;
+          bookmarkCountEl.classList.remove('at-limit');
+        } else {
+          bookmarkCountEl.textContent = `${bookmarkCount}/10`;
+          if (bookmarkCount >= 10) {
+            bookmarkCountEl.classList.add('at-limit');
+          }
+        }
+      }
+    }
+
+    function updateBookmarkCount(count) {
+      bookmarkCount = count;
+      updateSubscriptionStatus(subscriptionStatus);
+    }
+    */
+
+    // (moved) updateBookmarkCount is now defined at global scope
+
+  // Pricing Modal Functions
+  function setupPricingModalEvents() {
+    document.getElementById('close-pricing-modal')?.addEventListener('click', closePricingModal);
+    
+    // Click outside to close
+    document.getElementById('pricing-modal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'pricing-modal') closePricingModal();
+    });
+  }
+
+  function showPricingModal(data) {
+    const modal = document.getElementById('pricing-modal');
+    const titleEl = document.getElementById('pricing-modal-title');
+    const messageEl = document.getElementById('pricing-message');
+    const tiersEl = document.getElementById('pricing-tiers');
+    
+    if (titleEl) titleEl.textContent = getPricingModalTitle(data.model);
+    if (messageEl) messageEl.textContent = data.message;
+    
+    if (tiersEl) {
+      tiersEl.innerHTML = '';
+      data.upgradeOptions.forEach(option => {
+        const tierEl = createPricingTierElement(option, data.model);
+        tiersEl.appendChild(tierEl);
+      });
+    }
+    
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closePricingModal() {
+    const modal = document.getElementById('pricing-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function getPricingModalTitle(model) {
+    const titles = {
+      'freemium': 'Upgrade to Premium',
+      'one-time': 'Get Lifetime Access',
+      'subscription': 'Choose Your Plan',
+      'tiered': 'Upgrade Your Tier',
+      'usage-based': 'Buy More Credits'
+    };
+    return titles[model] || 'Choose Your Plan';
+  }
+
+  function createPricingTierElement(option, model) {
+    const tierEl = document.createElement('div');
+    tierEl.className = `pricing-tier ${option.popular ? 'popular' : ''}`;
+    
+    let featuresHtml = '';
+    if (option.features) {
+      featuresHtml = `
+        <ul class="tier-features">
+          ${option.features.map(feature => `<li>${formatFeatureName(feature)}</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    let limitsHtml = '';
+    if (option.limits) {
+      limitsHtml = `
+        <div class="tier-limits">
+          <h5>What you get:</h5>
+          <ul>
+            <li>Bookmarks: ${option.limits.maxBookmarks === -1 ? 'Unlimited' : option.limits.maxBookmarks}</li>
+            <li>Emoji Sets: ${option.limits.maxEmojiSets === -1 ? 'All' : option.limits.maxEmojiSets}</li>
+            <li>History: ${option.limits.maxHistoryEntries === -1 ? 'Unlimited' : option.limits.maxHistoryEntries}</li>
+          </ul>
+        </div>
+      `;
+    }
+
+    let creditsHtml = '';
+    if (model === 'usage-based' && option.credits) {
+      creditsHtml = `
+        <div class="credits-display">
+          <div class="credits-count">${option.credits}</div>
+          <div class="credits-label">Credits</div>
+        </div>
+      `;
+    }
+
+    tierEl.innerHTML = `
+      <div class="tier-header">
+        <div class="tier-name">${option.name}</div>
+        <div class="tier-price-container">
+          <div class="tier-price">${option.price}</div>
+          ${option.savings ? `<div class="tier-savings">${option.savings}</div>` : ''}
+        </div>
+      </div>
+      ${creditsHtml}
+      ${limitsHtml}
+      ${featuresHtml}
+      <button class="tier-select-btn" onclick="selectPricingTier('${option.variantId || option.name}')">
+        ${model === 'usage-based' ? 'Buy Credits' : 'Select Plan'}
+      </button>
+    `;
+    
+    return tierEl;
+  }
+
+  function formatFeatureName(feature) {
+    const names = {
+      'unlimited_bookmarks': 'Unlimited bookmarks',
+      'all_emoji_sets': 'All emoji sets',
+      'export_bookmarks': 'Export bookmarks',
+      'team_sharing': 'Team sharing',
+      'advanced_navigation': 'Advanced navigation',
+      'priority_support': 'Priority support',
+      'all_features': 'All premium features',
+      'lifetime_updates': 'Lifetime updates',
+      'pay_per_bookmark': 'Pay per bookmark',
+      'pay_per_export': 'Pay per export',
+      'bulk_operations': 'Bulk operations'
+    };
+    return names[feature] || feature.replace(/_/g, ' ');
+  }
+
+  function selectPricingTier(variantId) {
+    sendMessage('select-pricing-tier', { variantId });
+    closePricingModal();
+  }
 
     // Footer fit-to-content
     document.getElementById('footer-fit')?.addEventListener('click', () => {
@@ -1474,6 +2198,9 @@
     const list = document.getElementById('bookmark-list');
     if (!list) return;
 
+    // Update bookmark count
+    updateBookmarkCount(bookmarks.length);
+
     list.innerHTML = '';
     bookmarks.forEach((bookmark) => {
       const li = document.createElement('li');
@@ -1547,6 +2274,56 @@
 
       case 'emoji-navigation-state':
         updateEmojiNavigation(msg.currentSetIndex, msg.totalSets, msg.setName);
+        break;
+
+      // Premium-related cases - TEMPORARILY DISABLED
+      /*
+      case 'subscription-status':
+        updateSubscriptionStatus(msg.status);
+        break;
+
+      case 'show-upgrade-prompt':
+        showPremiumModal(msg.message);
+        break;
+
+      case 'license-activated':
+        updateSubscriptionStatus(msg.status);
+        break;
+
+      case 'license-deactivated':
+        updateSubscriptionStatus({ isPremium: false, isActive: false });
+        break;
+
+      case 'show-upgrade-url':
+        // Show upgrade URL to user (Figma plugins can't open URLs directly)
+        const upgradeUrl = msg.url;
+        const urlMessage = `Copy this URL to upgrade:\n\n${upgradeUrl}`;
+
+        // Try to copy to clipboard if available
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(upgradeUrl).then(() => {
+            alert('Upgrade URL copied to clipboard!');
+          }).catch(() => {
+            alert(urlMessage);
+          });
+        } else {
+          alert(urlMessage);
+        }
+        break;
+
+      case 'show-pricing-modal':
+        showPricingModal(msg);
+        break;
+      */
+
+      case 'credits-updated':
+        // Update credits display if visible
+        const creditsEl = document.querySelector('.credits-count');
+        if (creditsEl) creditsEl.textContent = msg.credits;
+        break;
+
+      case 'tier-activated':
+        updateSubscriptionStatus({ isPremium: true, isActive: true });
         break;
     }
   });
