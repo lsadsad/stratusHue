@@ -1,0 +1,233 @@
+/* Button Components */
+
+/* Action Buttons */
+.action-btn {
+  width: var(--button-height-md);
+  height: var(--button-height-md);
+  font-size: var(--icon-size-sm);
+  border-radius: var(--border-radius-md);
+  border: none;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+  position: relative;
+  font-family: var(--font-family);
+  flex: 0 0 auto;
+}
+
+.action-btn .icon {
+  font-size: var(--icon-size-lg);
+  opacity: 0.8;
+}
+
+.action-btn .label {
+  display: none;
+  /* Hide names in the bar; shown via tooltip on hover */
+}
+
+.action-btn:hover {
+  background: var(--color-interactive-hover);
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  background: var(--theme-accent-pink);
+  transform: translateY(0);
+}
+
+/* Subtle accent colors for specific action buttons */
+#new-page-btn:hover {
+  background: var(--theme-accent-red);
+}
+
+#deselect-btn:hover {
+  background: var(--theme-accent-green);
+}
+
+#back-btn:hover,
+#forward-btn:hover {
+  background: var(--theme-accent-yellow);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--color-background-secondary);
+}
+
+.action-btn:disabled:hover {
+  background: var(--color-background-secondary);
+  transform: none;
+}
+
+/* Tags Buttons */
+.tags-btn {
+  width: 100%;
+  min-width: var(--min-button-width);
+  padding: var(--spacing-lg) var(--spacing-xxl);
+  font-size: var(--spacing-xl);
+  border-radius: var(--border-radius-xl);
+  border: none;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-normal);
+  text-align: center;
+  font-family: var(--font-family);
+  height: var(--button-height-lg);
+}
+
+/* Make Date button lighter weight */
+#add-date-btn {
+  font-weight: var(--font-weight-light);
+  padding: 0;
+}
+
+.tags-btn:hover {
+  background: var(--color-interactive-hover);
+}
+
+.tags-btn:active {
+  background: var(--color-interactive-active);
+}
+
+/* Disabled state for tags-style buttons */
+.tags-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--color-interactive-disabled);
+}
+
+.tags-btn:disabled:hover {
+  background: var(--color-interactive-disabled);
+}
+
+/* Emoji Buttons */
+.emoji-button {
+  font-size: var(--icon-size-xl);
+  width: 100%;
+  height: var(--button-height-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--border-radius-xl);
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  transition: all var(--transition-normal);
+}
+
+.emoji-button:hover {
+  background: var(--color-interactive-hover);
+  transform: scale(1.1);
+}
+
+.emoji-button:active {
+  background: var(--color-interactive-active);
+  transform: scale(0.95);
+}
+
+/* Emoji Navigation Buttons */
+.emoji-nav-btn {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: var(--icon-size-md);
+  border-radius: var(--border-radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  font-weight: var(--font-weight-light);
+  transition: all var(--transition-normal);
+  text-align: center;
+  font-family: var(--font-family);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 50%;
+  transform: translateY(-50%);
+  box-sizing: border-box;
+}
+
+.nav-arrow {
+  font-size: var(--icon-size-md);
+  font-weight: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#emoji-nav-left {
+  right: 32px;
+}
+
+#emoji-nav-right {
+  right: 0;
+}
+
+.emoji-nav-btn:hover:not(:disabled) {
+  background: var(--theme-bg-hover);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: var(--font-weight-semibold);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.emoji-nav-btn:active:not(:disabled) {
+  background: var(--theme-bg-active);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-heavy);
+  transform: translateY(-50%) scale(0.95);
+}
+
+.emoji-nav-btn:disabled {
+  opacity: 0.1;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+/* Header Action Buttons */
+.header-right .action-btn {
+  width: 24px;
+  height: 24px;
+  font-size: var(--icon-size-sm);
+}
+
+.header-right .action-btn .icon {
+  font-size: var(--icon-size-md);
+}
+
+/* Tags Header Emoji Nav Buttons */
+#tags-header .emoji-nav-btn {
+  width: var(--button-height-md);
+  height: var(--button-height-md);
+  background: var(--color-background-secondary);
+  border-radius: 50%;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--icon-size-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-normal);
+}
+
+#tags-header .emoji-nav-btn:hover {
+  background: var(--color-interactive-hover);
+  color: var(--color-text-primary);
+}
+
+#tags-header .emoji-nav-btn .nav-arrow {
+  font-size: var(--icon-size-md);
+  font-weight: var(--font-weight-normal);
+}

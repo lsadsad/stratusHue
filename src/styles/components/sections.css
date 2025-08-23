@@ -1,0 +1,279 @@
+/* Section Components */
+
+/* Quick Actions Section */
+#quick-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg) 0 var(--spacing-lg);
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.qa-spacer {
+  flex: 1 1 auto;
+}
+
+/* Top Badge */
+.top-badge {
+  background: var(--color-background-tertiary);
+  padding: 0 var(--spacing-md);
+  border-radius: var(--spacing-xl);
+  font-size: var(--icon-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: var(--button-height-sm);
+  height: var(--button-height-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Section Headers */
+.section-header {
+  font-size: var(--icon-size-sm);
+  margin: 0 0 0 0;
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-normal);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-background-main);
+  border-radius: 0;
+  padding: var(--spacing-xl) var(--spacing-xxl);
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.section-header:first-of-type {
+  margin-top: 0;
+}
+
+.section-header:hover {
+  background: var(--color-background-secondary);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-left: auto;
+}
+
+/* Tags Header - Updated to match specifications */
+#tags-header {
+  min-height: 40px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-background-main);
+  border-top: 1px solid var(--color-border-accent);
+  border-bottom: 1px solid var(--color-border-accent);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#tags-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+#tags-header .icon-container {
+  position: relative;
+  display: inline-block;
+  width: var(--arrow-width);
+  height: var(--icon-size-md);
+  line-height: var(--icon-size-md);
+}
+
+#tags-header .tag-icon {
+  font-size: var(--icon-size-md);
+  color: var(--color-text-secondary);
+  display: inline-block;
+  transition: opacity var(--transition-normal);
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+#tags-header .arrow {
+  display: none;
+  font-size: var(--icon-size-md);
+  font-weight: var(--font-weight-heavy);
+  color: var(--color-text-primary);
+  width: var(--arrow-width);
+  transition: opacity var(--transition-normal);
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Show arrow and hide emoji on hover */
+#tags-header:hover .arrow {
+  display: inline-block;
+  opacity: 1;
+}
+
+#tags-header:hover .tag-icon {
+  opacity: 0;
+}
+
+/* Show arrow and hide emoji on active/press */
+#tags-header:active .arrow {
+  display: inline-block;
+  opacity: 1;
+}
+
+#tags-header:active .tag-icon {
+  opacity: 0;
+}
+
+#tags-header .header-title {
+  font-size: 10px;
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#tags-header .header-subtitle {
+  color: #9ca3af;
+  font-weight: var(--font-weight-light);
+}
+
+#tags-header .header-subtitle .emoji-set-title {
+  font-size: 10px;
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#tags-header .header-subtitle .set-name {
+  font-weight: inherit;
+}
+
+#tags-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxl);
+}
+
+/* Arrow States */
+.arrow {
+  font-size: var(--icon-size-md);
+  font-weight: var(--font-weight-heavy);
+  color: var(--color-text-primary);
+  width: var(--arrow-width);
+}
+
+/* Color +/- based on expanded state (IDE-like) */
+.section-header[aria-expanded="true"] .arrow {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-normal);
+}
+
+.section-header[aria-expanded="false"] .arrow {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Adjust heading weight by expanded/collapsed state */
+.section-header[aria-expanded="true"] {
+  font-weight: var(--font-weight-normal);
+}
+
+.section-header[aria-expanded="false"] {
+  font-weight: var(--font-weight-bold);
+}
+
+/* Section Badge */
+.section-badge {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: var(--icon-size-md);
+  font-weight: inherit;
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--badge-size);
+  height: var(--badge-size);
+  line-height: var(--badge-size);
+  vertical-align: middle;
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+}
+
+#tags-badge,
+#anchors-badge {
+  color: var(--color-text-primary);
+}
+
+/* Status indicator should maintain its original styling */
+.header-right .top-badge {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Tags Status Bar - moved from header to content */
+.tags-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 0;
+  gap: 12px;
+}
+
+.tags-status-bar .top-badge {
+  font-size: 12px;
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.tags-status-bar .action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--color-background-secondary);
+  border: none;
+  border-radius: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.tags-status-bar .action-btn:hover {
+  background: var(--color-interactive-hover);
+  color: var(--color-text-primary);
+}
+
+.tags-status-bar .action-btn .icon {
+  font-size: 12px;
+}
+
+.tags-status-bar .action-btn .label {
+  font-size: 12px;
+  font-weight: var(--font-weight-normal);
+}

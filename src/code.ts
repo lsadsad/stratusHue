@@ -821,7 +821,10 @@ async function handleGoForward(): Promise<void> {
 }
 
 // --- Plugin UI Setup ---
-figma.showUI(__html__, { width: 188, height: 352 });
+// Track current width and last height so toggling width preserves height
+let currentUiWidth = 240; // default aligns with host
+let lastUiHeight = 352;
+figma.showUI(__html__, { width: currentUiWidth, height: lastUiHeight });
 
 // Initialize premium features and pricing
 // premiumFeatures.initialize();
@@ -1393,12 +1396,16 @@ figma.ui.onmessage = async (msg) => {
         await sendBookmarksToUI();
         sendSelectionStateToUI();
         sendNavigationStateToUI(); // Send navigation state to UI
-        // Enforce fixed UI size to avoid host dialog drift when DevTools toggles
-        figma.ui.resize(188, 352);
+        // Enforce size to avoid host dialog drift when DevTools toggles
+        currentUiWidth = 240;
+        lastUiHeight = 352;
+        figma.ui.resize(currentUiWidth, lastUiHeight);
         
         // Additional size enforcement after a short delay to ensure proper initialization
         setTimeout(() => {
-          figma.ui.resize(188, 352);
+          currentUiWidth = 240;
+          lastUiHeight = 352;
+          figma.ui.resize(currentUiWidth, lastUiHeight);
         }, 100);
         break;
 
@@ -1486,18 +1493,29 @@ figma.ui.onmessage = async (msg) => {
         await handleGoForward();
         break;
 
+      case 'request-bookmarks':
+        await sendBookmarksToUI();
+        break;
+
       case 'ensure-size':
-        // Keep plugin width constant at 188px
-        figma.ui.resize(188, 352);
+        // Keep plugin width consistent with host minimum
+        currentUiWidth = 240;
+        lastUiHeight = 352;
+        figma.ui.resize(currentUiWidth, lastUiHeight);
         break;
 
       case 'resize-ui': {
-        const width = typeof msg.width === 'number' ? msg.width : 188;
-        const height = typeof msg.height === 'number' ? msg.height : 352;
-        // Constrain width to our fixed width; adjust height within safe bounds
-        const clampedWidth = 188;
+        const height = typeof msg.height === 'number' ? msg.height : lastUiHeight;
         const clampedHeight = Math.max(200, Math.min(720, height));
-        figma.ui.resize(clampedWidth, clampedHeight);
+        lastUiHeight = Math.round(clampedHeight);
+        figma.ui.resize(currentUiWidth, lastUiHeight);
+        break;
+      }
+
+      case 'toggle-width': {
+        // Toggle between 240 and 184; preserve height
+        currentUiWidth = currentUiWidth === 240 ? 184 : 240;
+        figma.ui.resize(currentUiWidth, lastUiHeight);
         break;
       }
 

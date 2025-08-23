@@ -1,0 +1,75 @@
+/* Dark Theme - Default Theme */
+/* This is the current default theme extracted from the original styles */
+
+:root,
+[data-theme="dark"] {
+  /* Base Colors */
+  --theme-bg-primary: #0f0f0f;
+  --theme-bg-secondary: #1a1a1a;
+  --theme-bg-tertiary: #2a2a2a;
+  --theme-bg-elevated: #0a0a0a;
+  --theme-bg-accent: #404040;
+  --theme-bg-hover: rgba(42, 42, 42, 0.2);
+  --theme-bg-active: rgba(64, 64, 64, 0.2);
+
+  /* Text Colors */
+  --theme-text-primary: #f5f5f5;
+  --theme-text-secondary: #d4d4d4;
+  --theme-text-muted: rgba(255, 255, 255, 0.6);
+  --theme-text-subtle: rgba(255, 255, 255, 0.8);
+  --theme-text-disabled: rgba(255, 255, 255, 0.4);
+
+  /* Border Colors */
+  --theme-border-primary: #2a2a2a;
+  --theme-border-secondary: #404040;
+  --theme-border-accent: #13171B;
+
+  /* Interactive States */
+  --theme-interactive-hover: #2a2a2a;
+  --theme-interactive-active: #404040;
+  --theme-interactive-disabled: #0f0f0f;
+
+  /* Scrollbar Colors */
+  --theme-scrollbar-track: #0f0f0f;
+  --theme-scrollbar-thumb: #404040;
+  --theme-scrollbar-thumb-hover: #505050;
+
+  /* Accent Colors */
+  --theme-accent-red: rgba(255, 107, 107, 0.15);
+  --theme-accent-green: rgba(110, 222, 110, 0.15);
+  --theme-accent-yellow: rgba(255, 193, 7, 0.15);
+  --theme-accent-blue: rgba(111, 176, 255, 0.08);
+  --theme-accent-pink: rgba(255, 105, 180, 0.4);
+
+  /* Status Colors */
+  --theme-success: #4ade80;
+  --theme-warning: rgba(255, 193, 7, 0.9);
+  --theme-error: #ff6b6b;
+  --theme-info: rgba(111, 176, 255, 0.9);
+
+  /* Shadow Colors */
+  --theme-shadow-light: rgba(0, 0, 0, 0.32);
+  --theme-shadow-heavy: rgba(0, 0, 0, 0.5);
+
+  /* Semantic Color Tokens */
+  --color-background-main: var(--theme-bg-primary);
+  --color-background-secondary: var(--theme-bg-secondary);
+  --color-background-tertiary: var(--theme-bg-tertiary);
+  --color-background-elevated: var(--theme-bg-elevated);
+  --color-background-hover: var(--theme-interactive-hover);
+  --color-background-active: var(--theme-interactive-active);
+  
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-text-muted: var(--theme-text-muted);
+  --color-text-subtle: var(--theme-text-subtle);
+  --color-text-disabled: var(--theme-text-disabled);
+  
+  --color-border-primary: var(--theme-border-primary);
+  --color-border-secondary: var(--theme-border-secondary);
+  --color-border-accent: var(--theme-border-accent);
+  
+  --color-interactive-hover: var(--theme-interactive-hover);
+  --color-interactive-active: var(--theme-interactive-active);
+  --color-interactive-disabled: var(--theme-interactive-disabled);
+}

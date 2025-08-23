@@ -1,0 +1,81 @@
+/* Footer Component */
+
+/* Solid footer with centered handle and right-side icon */
+#footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--footer-height);
+  background: var(--color-background-elevated);
+  display: block;
+  padding: 0;
+  z-index: var(--z-footer);
+  outline: none;
+}
+
+#footer-resize {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  height: 100%;
+  padding: 0 var(--spacing-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  color: var(--color-text-muted);
+  cursor: ns-resize;
+  user-select: none;
+  outline: none;
+  border-radius: var(--border-radius-md);
+}
+
+#footer-resize .grip {
+  letter-spacing: var(--spacing-xs);
+  font-size: var(--spacing-xl);
+  opacity: 0.7;
+}
+
+#footer-resize:hover,
+#footer-resize:focus {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Footer Icon Buttons */
+.footer-icon-btn {
+  position: absolute;
+  top: 0;
+  width: calc(var(--footer-height) + var(--spacing-sm));
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--icon-size-sm);
+  line-height: 1;
+}
+
+/* Right-side fit-to-content button */
+#footer-fit.footer-icon-btn {
+  right: 0;
+}
+
+/* Left-side width toggle button */
+#footer-width-toggle.footer-icon-btn {
+  left: 0;
+}
+
+#footer-fit.footer-icon-btn:hover,
+#footer-fit.footer-icon-btn:focus,
+#footer-width-toggle.footer-icon-btn:hover,
+#footer-width-toggle.footer-icon-btn:focus {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.04);
+  outline: none;
+}
