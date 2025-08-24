@@ -1,11 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["es2019"],
+    "target": "es2019",
+    "lib": ["es2019", "dom"],
+    "module": "commonjs",
     "strict": true,
-    "types": ["@figma/plugin-typings"],
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
