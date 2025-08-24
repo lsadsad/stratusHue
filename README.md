@@ -101,11 +101,19 @@ This plugin is built with TypeScript and uses modern web technologies for optima
 
 ```
 Stratus_Hue/
-├── code.ts          # Main plugin logic (TypeScript)
-├── ui.html          # Plugin interface (HTML/CSS/JS)
-├── manifest.json    # Plugin configuration
-├── package.json     # Dependencies and scripts
-└── README.md        # This file
+├── src/
+│   ├── code.ts          # Main plugin logic (TypeScript)
+│   ├── core.ts          # Core functionality (bookmarks, navigation, etc.)
+│   ├── premium.ts       # Premium features & Lemon Squeezy integration
+│   ├── types.ts         # TypeScript type definitions
+│   ├── constants.ts     # Plugin constants and configuration
+│   ├── utils.ts         # Utility functions
+│   ├── styles.css       # Consolidated stylesheet
+│   └── ui.html          # Plugin interface (HTML/CSS/JS)
+├── manifest.json        # Plugin configuration
+├── package.json         # Dependencies and scripts
+├── tsconfig.json        # TypeScript configuration
+└── README.md            # This file
 ```
 
 ## 🎨 Design Philosophy
