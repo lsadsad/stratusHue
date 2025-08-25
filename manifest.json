@@ -1,13 +1,11 @@
 {
-  "name": "Stratus_Hue",
+  "name": "Stratus Hue",
   "id": "1525275589707623280",
   "api": "1.0.0",
   "main": "dist/code.js",
+  "ui": "dist/ui.html",
   "capabilities": [],
-  "enableProposedApi": true,
-  "documentAccess": "dynamic-page",
-  "editorType": [
-    "figma"
-  ],
-  "ui": "dist/ui.html"
+  "enableProposedApi": false,
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page"
 }

@@ -65,34 +65,3 @@ export function triggerValidationOnPageChange(): void {
   debouncedStateValidation();
 }
 
-// ===== CLEANUP UTILITIES =====
-export async function cleanupInvalidBookmarks(): Promise<{ removed: number }> {
-  const result = await validateAndSyncBookmarks();
-  
-  if (result.removed > 0) {
-    await sendBookmarksToUI();
-  }
-  
-  return { removed: result.removed };
-}
-
-// ===== HEALTH CHECK =====
-export async function performHealthCheck(): Promise<{
-  bookmarksValid: number;
-  bookmarksInvalid: number;
-  anchorValid: boolean;
-  historyValid: boolean;
-}> {
-  const validationResult = await validateAndSyncBookmarks();
-  
-  // Validate anchor and history states
-  await validateCurrentAnchor();
-  await validateRecentHistory();
-  
-  return {
-    bookmarksValid: validationResult.updated,
-    bookmarksInvalid: validationResult.removed,
-    anchorValid: true, // Simplified - would need more complex validation
-    historyValid: true  // Simplified - would need more complex validation
-  };
-}

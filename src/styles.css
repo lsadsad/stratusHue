@@ -1,12 +1,4 @@
-/*
-███████╗████████╗██████╗  █████╗ ████████╗██╗   ██╗███████╗    ██╗  ██╗██╗   ██╗███████╗
-██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║   ██║██╔════╝    ██║  ██║██║   ██║██╔════╝
-███████╗   ██║   ██████╔╝███████║   ██║   ██║   ██║███████╗    ███████║██║   ██║█████╗  
-╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██║   ██║╚════██║    ██╔══██║██║   ██║██╔══╝  
-███████║   ██║   ██║  ██║██║  ██║   ██║   ╚██████╔╝███████║    ██║  ██║╚██████╔╝███████╗
-╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚══════╝
-
-FIGMA PLUGIN - CONSOLIDATED STYLES
+/* FIGMA PLUGIN - CONSOLIDATED STYLES
 ==================================
 ✓ Responsive design system with CSS variables
 ✓ Figma theme integration
@@ -28,15 +20,7 @@ Grids: --nav-grid-cols, --tags-grid-cols, --tags-actions-cols
 Example: Change --spacing-lg from 8px to 12px to increase all container padding
 */
 
-/* 
-██████╗  █████╗ ███████╗███████╗    ████████╗██╗  ██╗███████╗███╗   ███╗███████╗
-██╔══██╗██╔══██╗██╔════╝██╔════╝    ╚══██╔══╝██║  ██║██╔════╝████╗ ████║██╔════╝
-██████╔╝███████║███████╗█████╗         ██║   ███████║█████╗  ██╔████╔██║█████╗  
-██╔══██╗██╔══██║╚════██║██╔══╝         ██║   ██╔══██║██╔══╝  ██║╚██╔╝██║██╔══╝  
-██████╔╝██║  ██║███████║███████╗       ██║   ██║  ██║███████╗██║ ╚═╝ ██║███████╗
-╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚══════╝
-Core design system variables for consistent theming
-*/
+/* BASE THEME - Core design system variables for consistent theming */
 :root {
   /* Spacing System */
   --spacing-xs: 2px;
@@ -105,15 +89,7 @@ Core design system variables for consistent theming
   --z-modal: 2000;
 }
 
-/* 
-███████╗██╗ ██████╗ ███╗   ███╗ █████╗     ████████╗██╗  ██╗███████╗███╗   ███╗███████╗
-██╔════╝██║██╔════╝ ████╗ ████║██╔══██╗    ╚══██╔══╝██║  ██║██╔════╝████╗ ████║██╔════╝
-█████╗  ██║██║  ███╗██╔████╔██║███████║       ██║   ███████║█████╗  ██╔████╔██║█████╗  
-██╔══╝  ██║██║   ██║██║╚██╔╝██║██╔══██║       ██║   ██╔══██║██╔══╝  ██║╚██╔╝██║██╔══╝  
-██║     ██║╚██████╔╝██║ ╚═╝ ██║██║  ██║       ██║   ██║  ██║███████╗██║ ╚═╝ ██║███████╗
-╚═╝     ╚═╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝       ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚══════╝
-Integration with Figma's native theme system (fallback to custom theme)
-*/
+/* FIGMA THEME - Integration with Figma's native theme system (fallback to custom theme) */
 :root {
   /* Figma Theme Variables (with fallbacks) */
   --figma-color-bg: #0f0f0f;
@@ -134,15 +110,7 @@ Integration with Figma's native theme system (fallback to custom theme)
   --figma-color-text-inverse: #000000;
 }
 
-/* 
-██████╗  █████╗ ██████╗ ██╗  ██╗    ████████╗██╗  ██╗███████╗███╗   ███╗███████╗
-██╔══██╗██╔══██╗██╔══██╗██║ ██╔╝    ╚══██╔══╝██║  ██║██╔════╝████╗ ████║██╔════╝
-██║  ██║███████║██████╔╝█████╔╝        ██║   ███████║█████╗  ██╔████╔██║█████╗  
-██║  ██║██╔══██║██╔══██╗██╔═██╗        ██║   ██╔══██║██╔══╝  ██║╚██╔╝██║██╔══╝  
-██████╔╝██║  ██║██║  ██║██║  ██╗       ██║   ██║  ██║███████╗██║ ╚═╝ ██║███████╗
-╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝       ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚══════╝
-Default dark theme colors and variables
-*/
+/* DARK THEME - Default dark theme colors and variables */
 :root,
 [data-theme="dark"] {
   /* Base Colors - Use Figma variables when available */
@@ -194,15 +162,7 @@ Default dark theme colors and variables
   --theme-shadow-heavy: rgba(0, 0, 0, 0.5);
 }
 
-/* 
-██╗     ██╗ ██████╗ ██╗  ██╗████████╗    ████████╗██╗  ██╗███████╗███╗   ███╗███████╗
-██║     ██║██╔════╝ ██║  ██║╚══██╔══╝    ╚══██╔══╝██║  ██║██╔════╝████╗ ████║██╔════╝
-██║     ██║██║  ███╗███████║   ██║          ██║   ███████║█████╗  ██╔████╔██║█████╗  
-██║     ██║██║   ██║██╔══██║   ██║          ██║   ██╔══██║██╔══╝  ██║╚██╔╝██║██╔══╝  
-███████╗██║╚██████╔╝██║  ██║   ██║          ██║   ██║  ██║███████╗██║ ╚═╝ ██║███████╗
-╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝          ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚══════╝
-Light theme colors and variables
-*/
+/* LIGHT THEME - Light theme colors and variables */
 [data-theme="light"] {
   /* Base Colors */
   --theme-bg-primary: #ffffff;
@@ -253,15 +213,7 @@ Light theme colors and variables
   --theme-shadow-heavy: rgba(0, 0, 0, 0.25);
 }
 
-/* 
-███████╗███████╗███╗   ███╗ █████╗ ███╗   ██╗████████╗██╗ ██████╗     ████████╗ ██████╗ ██╗  ██╗███████╗███╗   ██╗███████╗
-██╔════╝██╔════╝████╗ ████║██╔══██╗████╗  ██║╚══██╔══╝██║██╔════╝     ╚══██╔══╝██╔═══██╗██║ ██╔╝██╔════╝████╗  ██║██╔════╝
-███████╗█████╗  ██╔████╔██║███████║██╔██╗ ██║   ██║   ██║██║             ██║   ██║   ██║█████╔╝ █████╗  ██╔██╗ ██║███████╗
-╚════██║██╔══╝  ██║╚██╔╝██║██╔══██║██║╚██╗██║   ██║   ██║██║             ██║   ██║   ██║██╔═██╗ ██╔══╝  ██║╚██╗██║╚════██║
-███████║███████╗██║ ╚═╝ ██║██║  ██║██║ ╚████║   ██║   ██║╚██████╗        ██║   ╚██████╔╝██║  ██╗███████╗██║ ╚████║███████║
-╚══════╝╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝ ╚═════╝        ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝╚══════╝
-Consolidated semantic color tokens for consistent theming
-*/
+/* SEMANTIC TOKENS - Consolidated semantic color tokens for consistent theming */
 :root,
 [data-theme="dark"],
 [data-theme="light"] {
@@ -287,15 +239,7 @@ Consolidated semantic color tokens for consistent theming
   --color-interactive-disabled: var(--theme-interactive-disabled);
 }
 
-/* 
-██████╗  █████╗ ███████╗███████╗    ██╗      █████╗ ██╗   ██╗ ██████╗ ██╗   ██╗████████╗
-██╔══██╗██╔══██╗██╔════╝██╔════╝    ██║     ██╔══██╗╚██╗ ██╔╝██╔═══██╗██║   ██║╚══██╔══╝
-██████╔╝███████║███████╗█████╗      ██║     ███████║ ╚████╔╝ ██║   ██║██║   ██║   ██║   
-██╔══██╗██╔══██║╚════██║██╔══╝      ██║     ██╔══██║  ╚██╔╝  ██║   ██║██║   ██║   ██║   
-██████╔╝██║  ██║███████║███████╗    ███████╗██║  ██║   ██║   ╚██████╔╝╚██████╔╝   ██║   
-╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝    ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝  ╚═════╝    ╚═╝   
-Foundation layout styles and performance optimizations
-*/
+/* BASE LAYOUT - Foundation layout styles and performance optimizations */
 html,
 body {
   width: 100%;
@@ -1492,4 +1436,24 @@ i.grip {
   color: rgba(255, 255, 255, 0.85);
   background: rgba(255, 255, 255, 0.04);
   outline: none;
+}
+/* Emo
+ji button styles */
+.emoji-button {
+  font-size: 16px;
+  padding: 8px;
+  margin: 2px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.emoji-button:hover {
+  background-color: #f5f5f5;
+}
+
+.emoji-button:active {
+  background-color: #e0e0e0;
 }

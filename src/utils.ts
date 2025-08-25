@@ -15,14 +15,6 @@ export function debounce<T extends (...args: unknown[]) => unknown>(fn: T, wait 
   };
 }
 
-// ===== DATE UTILITIES =====
-export function getCurrentDateString(): string {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${month}.${day}`;
-}
-
 // ===== NODE UTILITIES =====
 export function getContainingPage(node: BaseNode): PageNode | null {
   let currentNode = node;
@@ -35,17 +27,6 @@ export function getContainingPage(node: BaseNode): PageNode | null {
 export function getPageName(node: BaseNode): string {
   const page = getContainingPage(node);
   return page?.name || 'Unknown Page';
-}
-
-export function isDescendantOf(childNode: BaseNode, parentNode: BaseNode): boolean {
-  let currentNode = childNode.parent;
-  while (currentNode) {
-    if (currentNode.id === parentNode.id) {
-      return true;
-    }
-    currentNode = currentNode.parent;
-  }
-  return false;
 }
 
 // ===== STRING UTILITIES =====
@@ -65,17 +46,6 @@ export function normalizePageName(name: string): string {
   const regex = new RegExp(`^(\\s*↳\\s*${emojiPattern})\\s+`, 'g');
   normalized = normalized.replace(regex, '$1 ');
   return normalized;
-}
-
-export function truncatePageTitle(text: string, maxLength: number = 32): string {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 1) + '…';
-}
-
-export function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 // ===== EMOJI UTILITIES =====
@@ -149,26 +119,4 @@ export function composePageTitle(parts: PageTitleParts): string {
     core += (tokens.length > 0 ? ' ' : '') + cleanTitle;
   }
   return normalizePageName(parts.leadingSpaces + core);
-}
-
-// ===== ID GENERATION =====
-export function generateHistoryId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substring(2);
-}
-
-// ===== FEATURE USAGE UTILITIES =====
-export function createDefaultUsage(feature: string) {
-  return {
-    feature,
-    count: 0,
-    lastUsed: 0,
-    dailyCount: 0,
-    lastDailyReset: Date.now(),
-  };
-}
-
-export function shouldResetDailyCount(usage: { lastDailyReset: number }): boolean {
-  const now = Date.now();
-  const oneDayMs = 24 * 60 * 60 * 1000;
-  return now - usage.lastDailyReset > oneDayMs;
 }
