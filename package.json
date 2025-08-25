@@ -3,22 +3,29 @@
   "version": "1.0.0",
   "description": "Your Figma Plugin",
   "main": "code.js",
+  "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json && esbuild dist/code.js --bundle --format=iife --platform=browser --target=es2019 --allow-overwrite --outfile=dist/code.js && copy src\\ui.html dist\\ui.html",
+    "build": "node esbuild.config.js",
+    "build:prod": "cross-env NODE_ENV=production node esbuild.config.js",
+    "dev": "node esbuild.config.js --watch",
+    "clean": "node -e \"import fs from 'fs'; if(fs.existsSync('dist')) fs.rmSync('dist',{recursive:true,force:true}); console.log('🧹 Cleaned dist directory')\"",
     "lint": "eslint --ext .ts,.tsx --ignore-pattern node_modules .",
     "lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix .",
-    "watch": "npm run build -- --watch"
+    "validate": "npm run lint && npm run build && echo Build validation completed successfully",
+    "type-check": "tsc --noEmit && tsc -p tsconfig.ui.json",
+    "info": "node -e \"import fs from 'fs'; const files=['dist/code.js','dist/ui.js','dist/styles.css']; console.log('📊 Build Output:'); files.forEach(f => { if(fs.existsSync(f)) { const size=(fs.statSync(f).size/1024).toFixed(1); console.log('  '+f+': '+size+' KB'); } });\""
   },
   "author": "",
   "license": "",
   "devDependencies": {
     "@figma/eslint-plugin-figma-plugins": "*",
-    "@figma/plugin-typings": "^1.114.0",
+    "@figma/plugin-typings": "^1.75.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.19.0",
     "eslint": "^8.57.0",
-    "esbuild": "^0.23.0",
-    "typescript": "~5.3.3"
+    "typescript": "^5.0.0"
   },
   "eslintConfig": {
     "extends": [

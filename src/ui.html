@@ -1,650 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!--
-██████╗ ████████╗██████╗  █████╗ ████████╗██╗   ██╗███████╗    ██╗  ██╗██╗   ██╗███████╗
-██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║   ██║██╔════╝    ██║  ██║██║   ██║██╔════╝
-███████╗   ██║   ██████╔╝███████║   ██║   ██║   ██║███████╗    ███████║██║   ██║█████╗  
-╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██║   ██║╚════██║    ██╔══██║██║   ██║██╔══╝  
-███████║   ██║   ██║  ██║██║  ██║   ██║   ╚██████╔╝███████║    ██║  ██║╚██████╔╝███████╗
-╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚══════╝
-
-FIGMA PLUGIN - ENHANCED HTML STRUCTURE
-=====================================
-✓ Semantic HTML5 elements
-✓ Proper heading hierarchy  
-✓ Reduced span usage
-✓ Accessibility compliant
-✓ List structures for navigation
--->
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stratus Hue Plugin</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+  <main class="scrollable-content">
+    <nav id="quick-actions" role="toolbar" aria-label="Quick actions">
+      <ul class="action-list">
+        <li>
+          <button id="back-btn" class="action-btn" aria-label="Go back" disabled>
+            <i class="icon" aria-hidden="true">←</i>
+            <span class="label">Back</span>
+          </button>
+        </li>
+        <li>
+          <button id="forward-btn" class="action-btn" aria-label="Go forward" disabled>
+            <i class="icon" aria-hidden="true">→</i>
+            <span class="label">Forward</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
 
-  <!-- 
-  ███╗   ███╗ █████╗ ██╗███╗   ██╗     ██████╗ ██████╗ ███╗   ██╗████████╗███████╗███╗   ██╗████████╗
-  ████╗ ████║██╔══██╗██║████╗  ██║    ██╔════╝██╔═══██╗████╗  ██║╚══██╔══╝██╔════╝████╗  ██║╚══██╔══╝
-  ██╔████╔██║███████║██║██╔██╗ ██║    ██║     ██║   ██║██╔██╗ ██║   ██║   █████╗  ██╔██╗ ██║   ██║   
-  ██║╚██╔╝██║██╔══██║██║██║╚██╗██║    ██║     ██║   ██║██║╚██╗██║   ██║   ██╔══╝  ██║╚██╗██║   ██║   
-  ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║    ╚██████╗╚██████╔╝██║ ╚████║   ██║   ███████╗██║ ╚████║   ██║   
-  ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═══╝   ╚═╝   
-  -->
-  <main class="scrollable-content"></main>
-  <!-- 
-    ██████╗ ██╗   ██╗██╗ ██████╗██╗  ██╗     █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗
-    ██╔═══██╗██║   ██║██║██╔════╝██║ ██╔╝    ██╔══██╗██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
-    ██║   ██║██║   ██║██║██║     █████╔╝     ███████║██║        ██║   ██║██║   ██║██╔██╗ ██║███████╗
-    ██║▄▄ ██║██║   ██║██║██║     ██╔═██╗     ██╔══██║██║        ██║   ██║██║   ██║██║╚██╗██║╚════██║
-    ╚██████╔╝╚██████╔╝██║╚██████╗██║  ██╗    ██║  ██║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║███████║
-     ╚══▀▀═╝  ╚═════╝ ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
-    Navigation toolbar with back/forward controls
-    -->
-  <nav id="quick-actions" role="toolbar" aria-label="Quick actions"></nav>
-  <ul class="action-list">
-    <li>
-      <button id="back-btn" class="action-btn" aria-label="Go back" disabled>
-        <i class="icon" aria-hidden="true">←</i>
-        <span class="label">Back</span>
-      </button>
-    </li>
-    <li>
-      <button id="forward-btn" class="action-btn" aria-label="Go forward" disabled>
-        <i class="icon" aria-hidden="true">→</i>
-        <span class="label">Forward</span>
-      </button>
-    </li>
-  </ul>
-  </nav>
+    <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="0"
+      aria-expanded="true" aria-controls="color-section">
+      <div class="header-left">
+        <div class="icon-container">
+          <i class="arrow" aria-hidden="true">-</i>
+          <i class="tag-icon">🏷️</i>
+        </div>
+        <h2 class="header-title">TAGS
+          <small class="header-subtitle"> /
+            <span id="emoji-set-indicator" class="emoji-set-title">
+              <span class="set-name">Colors</span>
+            </span>
+          </small>
+        </h2>
+      </div>
+      <nav class="header-right">
+        <ul class="emoji-nav-list">
+          <li>
+            <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set">
+              <i class="nav-arrow">←</i>
+            </button>
+          </li>
+          <li>
+            <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set">
+              <i class="nav-arrow">→</i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </header>
 
-  <!-- 
-     ██████╗ ██████╗ ██╗      ██████╗ ██████╗     ████████╗ █████╗  ██████╗ ███████╗
-    ██╔════╝██╔═══██╗██║     ██╔═══██╗██╔══██╗    ╚══██╔══╝██╔══██╗██╔════╝ ██╔════╝
-    ██║     ██║   ██║██║     ██║   ██║██████╔╝       ██║   ███████║██║  ███╗███████╗
-    ██║     ██║   ██║██║     ██║   ██║██╔══██╗       ██║   ██╔══██║██║   ██║╚════██║
-    ╚██████╗╚██████╔╝███████╗╚██████╔╝██║  ██║       ██║   ██║  ██║╚██████╔╝███████║
-     ╚═════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═╝       ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝
-    Collapsible section for emoji color tags with navigation
-    -->
-  <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="0"
-    aria-expanded="true" aria-controls="color-section"></header>
-  <div class="header-left">
-    <div class="icon-container">
-      <i class="arrow" aria-hidden="true">-</i>
-      <i class="tag-icon">🏷️</i>
-    </div>
-    <h2 class="header-title">TAGS
-      <small class="header-subtitle"> /
-        <span id="emoji-set-indicator" class="emoji-set-title">
-          <span class="set-name">Colors</span>
-        </span>
-      </small>
-    </h2>
-  </div>
-  <nav class="header-right">
-    <ul class="emoji-nav-list">
-      <li>
-        <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set">
-          <i class="nav-arrow">←</i>
-        </button>
-      </li>
-      <li>
-        <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set">
-          <i class="nav-arrow">→</i>
-        </button>
-      </li>
-    </ul>
-  </nav>
-  </header>
-  <!-- Color Tags Content Area -->
-  <section id="color-section" class="collapsible-content" role="region" aria-labelledby="tags-header">
-    <div class="color-grid-container">
-      <!-- Status indicator and deselect action -->
-      <div class="tags-status-bar">
-        <p id="status-indicator" class="top-badge" aria-live="polite">onPage</p>
-        <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
-          <i class="icon" aria-hidden="true">✕</i>
-          <span class="label">Deselect</span>
+    <section id="color-section" class="collapsible-content" role="region" aria-labelledby="tags-header">
+      <div class="color-grid-container">
+        <div class="tags-status-bar">
+          <p id="status-indicator" class="top-badge" aria-live="polite">onPage</p>
+          <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
+            <i class="icon" aria-hidden="true">✕</i>
+            <span class="label">Deselect</span>
+          </button>
+        </div>
+        <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
+        <button id="clear-color" class="clear-action" aria-label="Clear color tags">
+          <span class="action-bracket">[ [</span>
+          <span class="action-text">Remove 🏷️</span>
+          <span class="action-bracket">] ]</span>
         </button>
       </div>
+    </section>
 
-      <!-- Dynamic emoji button grid -->
-      <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
+    <header id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button"
+      tabindex="0" aria-expanded="true" aria-controls="anchors-section">
+      <div class="header-left">
+        <i class="arrow" aria-hidden="true">-</i>
+        <h2>Anchors</h2>
+      </div>
+      <div class="header-right">
+        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors">
+          <i class="icon" aria-hidden="true">⟳</i>
+        </button>
+        <p id="bookmark-count" class="top-badge" aria-live="polite">0</p>
+      </div>
+    </header>
 
-      <!-- Clear all tags action -->
-      <button id="clear-color" class="clear-action" aria-label="Clear color tags"></button>
-      <span class="action-bracket">[ [
-    </div>span>
-    <span class="action-text">Remove 🏷️</span>
-    <span class="action-bracket">] ]</span>
-    </setton>
-    </div>
-  </section>
-
-  <!-- 
-     █████╗ ███╗   ██╗ ██████╗██╗  ██╗ ██████╗ ██████╗ ███████╗
-    ██╔══██╗████╗  ██║██╔════╝██║  ██║██╔═══██╗██╔══██╗██╔════╝
-    ███████║██╔██╗ ██║██║     ███████║██║   ██║██████╔╝███████╗
-    ██╔══██║██║╚██╗██║██║     ██╔══██║██║   ██║██╔══██╗╚════██║
-    ██║  ██║██║ ╚████║╚██████╗██║  ██║╚██████╔╝██║  ██║███████║
-    ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
-    Bookmark management section with save/jump functionality
-    -->
-  <header id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button"
-    tabindex="0" aria-expanded="true" aria-controls="anchors-section">
-    <div class="header-left">
-      <i class="arrow" aria-hidden="true">-</i>
-      <h2>Anchors</h2>
-    </div>
-    <div class="header-right">
-      <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors">
-        <i class="icon" aria-hidden="true">⟳</i>
-      </button>
-      <p id="bookmark-count" class="top-badge" aria-live="polite">0</p>
-    </div>
-  </header>
-  <!-- Anchors Content Area -->
-  <section id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
-    <div class="anchors-container">
-      <!-- Dynamic bookmark list -->
-      <ul id="bookmark-list" role="list" aria-label="Bookmarks"></ul>
-
-      <!-- Save new bookmark action -->
-      <button id="save-bookmark" aria-label="Save bookmark"></button>
-      <span class="action-bracket">[ [</span>
-      <span class="action-text">Drop ⚓️</span>
-      <span class="action-bracket">] ]</span>
-      </button>
-    </div>
-  </section>
-
+    <section id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
+      <div class="anchors-container">
+        <ul id="bookmark-list" role="list" aria-label="Bookmarks"></ul>
+        <button id="save-bookmark" aria-label="Save bookmark">
+          <span class="action-bracket">[ [</span>
+          <span class="action-text">Drop ⚓️</span>
+          <span class="action-bracket">] ]</span>
+        </button>
+      </div>
+    </section>
   </main>
 
-  <!-- 
-  ██╗   ██╗██╗    ███████╗██╗     ███████╗███╗   ███╗███████╗███╗   ██╗████████╗███████╗
-  ██║   ██║██║    ██╔════╝██║     ██╔════╝████╗ ████║██╔════╝████╗  ██║╚══██╔══╝██╔════╝
-  ██║   ██║██║    █████╗  ██║     █████╗  ██╔████╔██║█████╗  ██╔██╗ ██║   ██║   ███████╗
-  ██║   ██║██║    ██╔══╝  ██║     ██╔══╝  ██║╚██╔╝██║██╔══╝  ██║╚██╗██║   ██║   ╚════██║
-  ╚██████╔╝██║    ███████╗███████╗███████╗██║ ╚═╝ ██║███████╗██║ ╚████║   ██║   ███████║
-   ╚═════╝ ╚═╝    ╚══════╝╚══════╝╚══════╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝
-  -->
-
-  <!-- Tooltip for hover interactions -->
   <div id="tooltip" class="tooltip"></div>
 
-  <!-- 
-  ███████╗ ██████╗  ██████╗ ████████╗███████╗██████╗ 
-  ██╔════╝██╔═══██╗██╔═══██╗╚══██╔══╝██╔════╝██╔══██╗
-  █████╗  ██║   ██║██║   ██║   ██║   █████╗  ██████╔╝
-  ██╔══╝  ██║   ██║██║   ██║   ██║   ██╔══╝  ██╔══██╗
-  ██║     ╚██████╔╝╚██████╔╝   ██║   ███████╗██║  ██║
-  ╚═╝      ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚═╝  ╚═╝
-  Resize controls and width toggle
-  -->
   <footer id="footer">
     <ul class="footer-controls">
       <li>
-        <!-- Width toggle control -->
         <button id="footer-width-toggle" class="footer-icon-btn" aria-label="Toggle width" title="Width">↔</button>
       </li>
       <li>
-        <!-- Resize handle -->
         <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel" tabindex="0">
           <i class="grip">: : :</i>
         </div>
       </li>
       <li>
-        <!-- Fit to content control -->
         <button id="footer-fit" class="footer-icon-btn" aria-label="Fit" title="Fit">↕</button>
       </li>
     </ul>
   </footer>
 
-  <!-- 
-  ███████╗████████╗██╗   ██╗██╗     ███████╗███████╗
-  ██╔════╝╚══██╔══╝╚██╗ ██╔╝██║     ██╔════╝██╔════╝
-  ███████╗   ██║    ╚████╔╝ ██║     █████╗  ███████╗
-  ╚════██║   ██║     ╚██╔╝  ██║     ██╔══╝  ╚════██║
-  ███████║   ██║      ██║   ███████╗███████╗███████║
-  ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝╚══════╝
-  -->
-  <link rel="stylesheet" href="styles.css">
-
-  <!-- 
-   ██████╗██████╗ ██████╗ ███████╗    ██╗      ██████╗  ██████╗ ██╗ ██████╗
-  ██╔════╝██╔══██╗██╔══██╗██╔════╝    ██║     ██╔═══██╗██╔════╝ ██║██╔════╝
-  ██║     ██║  ██║██████╔╝█████╗      ██║     ██║   ██║██║  ███╗██║██║     
-  ██║     ██║  ██║██╔══██╗██╔══╝      ██║     ██║   ██║██║   ██║██║██║     
-  ╚██████╗██████╔╝██║  ██║███████╗    ███████╗╚██████╔╝╚██████╔╝██║╚██████╗
-   ╚═════╝╚═════╝ ╚═╝  ╚═╝╚══════╝    ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝ ╚═════╝
-  JavaScript functionality for plugin interaction
-  -->
-  <script></script>
-  // ═══════════════════════════════════════════════════════════════════════════════════
-  // CORE FUNCTIONS & CONFIGURATION
-  // ═══════════════════════════════════════════════════════════════════════════════════
-
-  /** Helper function to send messages to plugin */
-  function sendMessage(type, data = {}) {
-  parent.postMessage({ pluginMessage: { type, ...data } }, '*');
-  }
-
-  // Configuration constants
-  const MAX_TITLE_LENGTH = 20;
-  const MAX_PAGE_TITLE_LENGTH = 32;
-
-  // Global state variables
-  let hasLayerSelected = false;
-  let tooltip = null;
-  let hoverTimer = null;
-  let bookmarkCount = 0;
-
-  // ═══════════════════════════════════════════════════════════════════════════════════
-  // INITIALIZATION & SETUP
-  // ═══════════════════════════════════════════════════════════════════════════════════
-
-  /** Update bookmark count display */
-  function updateBookmarkCount(count) {
-  bookmarkCount = count;
-  const bookmarkCountEl = document.getElementById('bookmark-count');
-  if (bookmarkCountEl) {
-  bookmarkCountEl.textContent = `${bookmarkCount}`;
-  }
-  }
-
-  /** Initialize UI when DOM is ready */
-  window.addEventListener('DOMContentLoaded', () => {
-  try {
-  tooltip = document.getElementById('tooltip');
-  setupEventListeners();
-  setupResizeHandle();
-
-  // Ensure proper sizing immediately (fill container)
-  document.body.style.width = '100%';
-  document.documentElement.style.width = '100%';
-
-  // Apply dark theme explicitly
-  document.documentElement.setAttribute('data-theme', 'dark');
-
-  // Send ui-ready immediately for better performance
-  sendMessage('ui-ready');
-
-  // Auto-recovery mechanism for collapsed state
-  setTimeout(() => {
-  checkAndRecoverFromCollapsedState();
-  }, 100);
-  } catch (error) {
-  console.error('Failed to initialize UI:', error);
-  // Still send ui-ready to prevent plugin from hanging
-  sendMessage('ui-ready');
-  }
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════════════
-  // EVENT LISTENERS & INTERACTIONS
-  // ═══════════════════════════════════════════════════════════════════════════════════
-  // Note: Width is managed by host, only height is adjusted via messages
-
-  /** Setup all event listeners for UI interactions */
-  function setupEventListeners() {
-  try {
-  // Quick Actions - with error handling
-  const deselectBtn = document.getElementById('deselect-btn');
-  const backBtn = document.getElementById('back-btn');
-  const forwardBtn = document.getElementById('forward-btn');
-
-  deselectBtn?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  sendMessage('deselect');
-  });
-
-  backBtn?.addEventListener('click', () => sendMessage('go-back'));
-  forwardBtn?.addEventListener('click', () => sendMessage('go-forward'));
-
-  // Tooltip setup
-  const hoverTargets = [
-  { el: deselectBtn, text: 'Deselect' },
-  { el: backBtn, text: 'Back' },
-  { el: forwardBtn, text: 'Forward' }
-  ];
-
-
-
-
-  hoverTargets.forEach(({ el, text }) => {
-  if (!el) return;
-  el.addEventListener('mouseenter', () => scheduleTooltip(text, el));
-  el.addEventListener('focus', () => scheduleTooltip(text, el));
-  el.addEventListener('mouseleave', cancelTooltip);
-  el.addEventListener('blur', cancelTooltip);
-  });
-
-  // Escape key handling
-  window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-  cancelTooltip();
-  }
-  });
-
-  // Other event listeners
-  document.getElementById('clear-color')?.addEventListener('click', () => sendMessage('clear-emoji'));
-
-  // Emoji navigation
-  document.getElementById('emoji-nav-left')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  sendMessage('navigate-emoji-set', { direction: 'prev' });
-  });
-  document.getElementById('emoji-nav-right')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  sendMessage('navigate-emoji-set', { direction: 'next' });
-  });
-
-  // Bookmark and anchor management
-  document.getElementById('save-bookmark')?.addEventListener('click', () => sendMessage('save-bookmark'));
-  document.getElementById('refresh-anchors')?.addEventListener('click', (e) => { e.stopPropagation();
-  sendMessage('request-bookmarks'); });
-
-  // Footer controls
-  document.getElementById('footer-fit')?.addEventListener('click', () => {
-  try {
-  const minHeight = 200;
-  const maxHeight = 720;
-  const contentHeight = computeVisibleContentBottomPx();
-  const clamped = Math.max(minHeight, Math.min(maxHeight, contentHeight));
-  sendMessage('resize-ui', { height: Math.ceil(clamped) });
-  } catch (_) { /* no-op */ }
-  });
-
-  document.getElementById('footer-width-toggle')?.addEventListener('click', () => {
-  try { sendMessage('toggle-width'); } catch (_) { /* no-op */ }
-  });
-
-  // Setup collapsible sections
-  setupCollapsibleSections();
-  } catch (error) {
-  console.error('Failed to setup event listeners:', error);
-  }
-  }
-
-  function setupCollapsibleSections() {
-
-
-
-
-
-  const headers = document.querySelectorAll('.section-header.collapsible');
-  headers.forEach(header => {
-  header.addEventListener('click', () => toggleCollapsible(header));
-  });
-  }
-
-  function toggleCollapsible(header) {
-  const targetId = header.getAttribute('data-target');
-  const target = document.getElementById(targetId);
-  const arrow = header.querySelector('.arrow');
-
-  if (target && arrow) {
-  const isExpanded = header.getAttribute('aria-expanded') === 'true';
-  header.setAttribute('aria-expanded', !isExpanded);
-  target.classList.toggle('collapsed', isExpanded);
-  arrow.textContent = isExpanded ? '+' : '-';
-  }
-  }
-
-  function setupResizeHandle() {
-  const handle = document.getElementById('footer-resize');
-  if (!handle) return;
-
-  let startY = 0;
-  const minHeight = 150;
-  const maxHeight = 720;
-
-  function onPointerDown(e) {
-  startY = e.clientY;
-  document.addEventListener('pointermove', onPointerMove);
-  document.addEventListener('pointerup', onPointerUp, { once: true });
-  }
-
-  function onPointerMove(e) {
-  const delta = e.clientY - startY;
-  const newHeight = Math.max(minHeight, Math.min(maxHeight, window.innerHeight - delta));
-  sendMessage('resize-ui', { height: newHeight });
-  }
-
-  function onPointerUp() {
-  document.removeEventListener('pointermove', onPointerMove);
-  }
-
-  handle.addEventListener('pointerdown', onPointerDown);
-  }
-
-  function computeVisibleContentBottomPx() {
-  let totalHeight = 0;
-
-  const quickActions = document.getElementById('quick-actions');
-  if (quickActions) totalHeight += quickActions.offsetHeight;
-
-  const tagsHeader = document.getElementById('tags-header');
-  const tagsContent = document.getElementById('color-section');
-  if (tagsHeader) totalHeight += tagsHeader.offsetHeight;
-  if (tagsContent && !tagsContent.classList.contains('collapsed')) {
-  totalHeight += tagsContent.offsetHeight;
-  }
-
-  const anchorsHeader = document.getElementById('anchors-header');
-  if (anchorsHeader) totalHeight += anchorsHeader.offsetHeight;
-
-  const anchorsContainer = document.querySelector('.anchors-container');
-  if (anchorsContainer) {
-  const style = window.getComputedStyle(anchorsContainer);
-  const pad = parseInt(style.paddingTop) + parseInt(style.paddingBottom);
-  totalHeight += pad;
-  const bookmarkList = document.getElementById('bookmark-list');
-  if (bookmarkList) {
-  const items = bookmarkList.querySelectorAll('.bookmark-item');
-  for (var i = 0; i < items.length; i++) { var el=items[i]; var height=0; try { // offsetHeight exists on HTMLElements
-    if (el && typeof (el).offsetHeight==='number' ) { height=(el).offsetHeight; } } catch (_) { height=0; } totalHeight
-    +=height || 0; } } const saveBtn=document.getElementById('save-bookmark'); if (saveBtn) totalHeight
-    +=saveBtn.offsetHeight; totalHeight +=8; // gap } totalHeight +=16; // small bottom padding return totalHeight; }
-    function checkAndRecoverFromCollapsedState() { try { const currentWidth=window.innerWidth; if (currentWidth < 160) {
-    const tagsSection=document.getElementById('color-section'); const
-    tagsHeader=document.querySelector('[data-target="color-section" ]'); if (tagsSection && tagsHeader &&
-    tagsSection.classList.contains('collapsed')) { tagsSection.classList.remove('collapsed'); const
-    arrow=tagsHeader.querySelector ? tagsHeader.querySelector('.arrow') : null; if (arrow) { arrow.textContent='-' ; if
-    (tagsHeader.setAttribute) tagsHeader.setAttribute('aria-expanded', 'true' ); } } const desiredHeight=Math.max(352,
-    window.innerHeight); sendMessage('resize-ui', { height: desiredHeight }); } } catch (_) { /* no-op */ } } //
-    ═══════════════════════════════════════════════════════════════════════════════════ // MESSAGE HANDLING //
-    ═══════════════════════════════════════════════════════════════════════════════════ /** Optimized message handler
-    with error handling */ window.addEventListener('message', (event)=> {
-    try {
-    const msg = event.data.pluginMessage;
-    if (!msg || typeof msg.type !== 'string') return;
-
-    switch (msg.type) {
-    case 'selection-state': {
-    if (msg.hasLayerSelected !== undefined && msg.layerEmojis && msg.pageEmojis) {
-    const emojis = msg.hasLayerSelected ? msg.layerEmojis : msg.pageEmojis;
-    updateEmojiButtons(emojis);
-    }
-    break;
-    }
-    case 'emoji-navigation-state': {
-    const indicator = document.querySelector('#emoji-set-indicator .set-name');
-    if (indicator && typeof msg.setName === 'string') {
-    indicator.textContent = msg.setName;
-    }
-    // Enable navigation buttons
-    const leftBtn = document.getElementById('emoji-nav-left');
-    const rightBtn = document.getElementById('emoji-nav-right');
-    leftBtn?.removeAttribute('disabled');
-    rightBtn?.removeAttribute('disabled');
-    break;
-    }
-    case 'bookmarks': {
-    if (Array.isArray(msg.bookmarks)) {
-    updateBookmarks(msg.bookmarks);
-    updateBookmarkCount(msg.bookmarks.length);
-    }
-    break;
-    }
-    case 'navigation-state': {
-    const backBtn = document.getElementById('back-btn');
-    const fwdBtn = document.getElementById('forward-btn');
-    if (backBtn) {
-    if (msg.canGoBack) backBtn.removeAttribute('disabled');
-    else backBtn.setAttribute('disabled', '');
-    }
-    if (fwdBtn) {
-    if (msg.canGoForward) fwdBtn.removeAttribute('disabled');
-    else fwdBtn.setAttribute('disabled', '');
-    }
-    break;
-    }
-    // Back-compat
-    case 'update-emoji-buttons':
-    if (Array.isArray(msg.emojis)) {
-    updateEmojiButtons(msg.emojis);
-    }
-    break;
-    case 'update-bookmarks':
-    if (Array.isArray(msg.bookmarks)) {
-    updateBookmarks(msg.bookmarks);
-    }
-    break;
-    default:
-    console.log('Unknown message type:', msg.type);
-    break;
-    }
-    } catch (error) {
-    console.error('Error handling message:', error);
-    }
-    });
-
-    // ═══════════════════════════════════════════════════════════════════════════════════
-    // UI UPDATE FUNCTIONS
-    // ═══════════════════════════════════════════════════════════════════════════════════
-
-    /** Update emoji buttons grid with new emoji set */
-    function updateEmojiButtons(emojis) {
-    const container = document.getElementById('color-emoji-buttons');
-    if (!container || !Array.isArray(emojis)) return;
-
-    // Use DocumentFragment for better performance
-    const fragment = document.createDocumentFragment();
-
-    emojis.forEach(emoji => {
-    if (typeof emoji === 'string') {
-    const button = document.createElement('button');
-    button.className = 'emoji-button';
-    button.textContent = emoji;
-    button.addEventListener('click', () => sendMessage('add-emoji', { emoji }));
-    fragment.appendChild(button);
-    }
-    });
-
-    // Single DOM update
-    container.innerHTML = '';
-    container.appendChild(fragment);
-    }
-
-    /** Update bookmarks list with current anchors */
-    function updateBookmarks(bookmarks) {
-    const list = document.getElementById('bookmark-list');
-    if (!list || !Array.isArray(bookmarks)) return;
-
-    // Use DocumentFragment for better performance
-    const fragment = document.createDocumentFragment();
-
-    bookmarks.forEach(bookmark => {
-    if (bookmark && bookmark.id && bookmark.name) {
-    const li = document.createElement('li');
-    li.className = 'bookmark-item';
-
-    // Create elements programmatically for better security
-    const content = document.createElement('div');
-    content.className = 'bookmark-content';
-
-    const name = document.createElement('div');
-    name.className = 'bookmark-name';
-    name.textContent = bookmark.name;
-
-    const page = document.createElement('div');
-    page.className = 'bookmark-page';
-    page.textContent = bookmark.pageName || 'Unknown Page';
-
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'bookmark-remove';
-    removeBtn.textContent = '×';
-
-    content.appendChild(name);
-    content.appendChild(page);
-    li.appendChild(content);
-    li.appendChild(removeBtn);
-
-    // Add event listeners
-    content.addEventListener('click', () => {
-    sendMessage('jump-to-bookmark', { id: bookmark.id });
-    });
-
-    removeBtn.addEventListener('click', (event) => {
-    event.stopPropagation();
-    sendMessage('remove-bookmark', { id: bookmark.id });
-    });
-
-    fragment.appendChild(li);
-    }
-    });
-
-    // Single DOM update
-    list.innerHTML = '';
-    list.appendChild(fragment);
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════════════════
-    // TOOLTIP SYSTEM
-    // ═══════════════════════════════════════════════════════════════════════════════════
-
-    /** Schedule tooltip display with delay */
-    function scheduleTooltip(text, element) {
-    cancelTooltip();
-    hoverTimer = setTimeout(() => showTooltip(text, element), 500);
-    }
-
-    function cancelTooltip() {
-    if (hoverTimer) {
-    clearTimeout(hoverTimer);
-    hoverTimer = null;
-    }
-    hideTooltip();
-    }
-
-    function showTooltip(text, element) {
-    if (!tooltip) return;
-    tooltip.textContent = text;
-    tooltip.classList.add('visible');
-    positionTooltip(element);
-    }
-
-    function hideTooltip() {
-    if (!tooltip) return;
-    tooltip.classList.remove('visible');
-    }
-
-    function positionTooltip(element) {
-    if (!tooltip) return;
-    const rect = element.getBoundingClientRect();
-    const tooltipRect = tooltip.getBoundingClientRect();
-    const left = rect.left + (rect.width - tooltipRect.width) / 2;
-    const top = rect.top - tooltipRect.height - 8;
-
-    tooltip.style.left = `${Math.max(8, Math.min(left, window.innerWidth - tooltipRect.width - 8))}px`;
-    tooltip.style.top = `${Math.max(8, top)}px`;
-    }
-    </script>
 </body>
 
 </html>
