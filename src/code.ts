@@ -108,6 +108,10 @@ figma.ui.onmessage = async (msg) => {
         await handleSaveBookmark();
         break;
 
+      case 'refresh-anchors':
+        await handleRefreshAnchors();
+        break;
+
       case 'jump-to-bookmark':
         if ('id' in msg && msg.id && typeof msg.id === 'string') {
           await handleJumpToBookmark(msg.id);
@@ -235,3 +239,9 @@ async function handleGoForward(): Promise<void> {
     await updateUIAfterNavigation();
   }
 }
+
+const handleRefreshAnchors = withErrorBoundary(async () => {
+  const { updated, removed } = await (await import('./bookmarks')).validateAndSyncBookmarks();
+  figma.notify(`Anchors resynced: ${updated} updated, ${removed} removed`);
+  await updateUIAfterNavigation();
+}, ErrorType.UNKNOWN);

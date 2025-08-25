@@ -267,6 +267,51 @@ export async function goForwardInHistory(): Promise<{ success: boolean; message:
   return result;
 }
 
+// ===== SELECTION-ONLY NAVIGATION =====
+function findPreviousSelectionIndex(startIndex: number): number {
+  for (let i = startIndex - 1; i >= 0; i--) {
+    const entry = navigationHistory[i];
+    if (entry && entry.type === 'selection') return i;
+  }
+  return -1;
+}
+
+function findNextSelectionIndex(startIndex: number): number {
+  for (let i = startIndex + 1; i < navigationHistory.length; i++) {
+    const entry = navigationHistory[i];
+    if (entry && entry.type === 'selection') return i;
+  }
+  return -1;
+}
+
+export async function goBackSelectionOnly(): Promise<{ success: boolean; message: string }> {
+  const targetIndex = findPreviousSelectionIndex(historyIndex);
+  if (targetIndex === -1) {
+    return { success: false, message: 'No previous selection to go back to.' };
+  }
+
+  const entry = navigationHistory[targetIndex];
+  setNavigatingThroughHistory(true);
+  const result = await navigateToHistoryEntry(entry);
+  if (result.success) setHistoryIndex(targetIndex);
+  setTimeout(() => setNavigatingThroughHistory(false), 150);
+  return result;
+}
+
+export async function goForwardSelectionOnly(): Promise<{ success: boolean; message: string }> {
+  const targetIndex = findNextSelectionIndex(historyIndex);
+  if (targetIndex === -1) {
+    return { success: false, message: 'No next selection to go forward to.' };
+  }
+
+  const entry = navigationHistory[targetIndex];
+  setNavigatingThroughHistory(true);
+  const result = await navigateToHistoryEntry(entry);
+  if (result.success) setHistoryIndex(targetIndex);
+  setTimeout(() => setNavigatingThroughHistory(false), 150);
+  return result;
+}
+
 async function navigateToHistoryEntry(entry: import('./types').HistoryEntry): Promise<{ success: boolean; message: string }> {
   try {
     // Check if we need to switch pages

@@ -86,7 +86,7 @@
         <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors">
           <i class="icon" aria-hidden="true">⟳</i>
         </button>
-        <p id="bookmark-count" class="top-badge" aria-live="polite">0</p>
+        <!-- <p id="bookmark-count" class="top-badge" aria-live="polite">0</p> -->
       </div>
     </header>
 
@@ -100,6 +100,9 @@
         </button>
       </div>
     </section>
+<!-- <p class="made-with">
+      made with <img src="../assets/LOGO-L3Vi_dsgn.svg" alt="L3Vi Design" class="logo-svg">
+    </p> -->
   </main>
 
   <div id="tooltip" class="tooltip"></div>
@@ -119,6 +122,170 @@
       </li>
     </ul>
   </footer>
+
+  <script>
+"use strict";
+(() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
+
+  // src/ui.ts
+  console.log("\u{1F50D} Script executing, DOM ready state:", document.readyState);
+  function sendMessage(type, data = {}) {
+    parent.postMessage({ pluginMessage: __spreadValues({ type }, data) }, "*");
+  }
+  function handlePluginMessage(event) {
+    const message = event.data.pluginMessage;
+    if (!message)
+      return;
+    console.log("\u{1F4E5} Received message from plugin:", message.type, message);
+    switch (message.type) {
+      case "selection-state":
+        const emojis = message.hasLayerSelected ? message.layerEmojis : message.pageEmojis;
+        if (emojis) {
+          updateEmojiButtons(emojis);
+        }
+        break;
+      case "bookmarks":
+        updateBookmarksList(message.bookmarks);
+        break;
+      case "navigation-state":
+        updateNavigationButtons(message.canGoBack, message.canGoForward);
+        break;
+      case "emoji-navigation-state":
+        updateEmojiSetIndicator(message.setName, message.currentSetIndex, message.totalSets);
+        break;
+      case "error":
+        console.error("Plugin error:", message.message);
+        break;
+      case "success":
+        console.log("Plugin success:", message.message);
+        break;
+    }
+  }
+  function updateEmojiButtons(emojis) {
+    const container = document.getElementById("color-emoji-buttons");
+    if (!container)
+      return;
+    container.innerHTML = "";
+    emojis.forEach((emoji) => {
+      const button = document.createElement("button");
+      button.className = "emoji-button";
+      button.textContent = emoji;
+      button.addEventListener("click", () => {
+        console.log("Emoji clicked:", emoji);
+        sendMessage("add-emoji", { emoji });
+      });
+      container.appendChild(button);
+    });
+  }
+  function initializePlugin() {
+    console.log("\u{1F680} Initializing plugin functionality...");
+    console.log("\u{1F4E4} Sending ui-ready message");
+    sendMessage("ui-ready");
+    console.log("\u2705 Plugin initialization complete - waiting for emoji data from plugin");
+  }
+  function setupEventListeners() {
+    const deselectBtn = document.getElementById("deselect-btn");
+    const backBtn = document.getElementById("back-btn");
+    const forwardBtn = document.getElementById("forward-btn");
+    const clearBtn = document.getElementById("clear-color");
+    const saveBtn = document.getElementById("save-bookmark");
+    if (deselectBtn) {
+      deselectBtn.addEventListener("click", () => {
+        console.log("Deselect clicked");
+        sendMessage("deselect");
+      });
+    }
+    if (backBtn) {
+      backBtn.addEventListener("click", () => {
+        console.log("Back clicked");
+        sendMessage("go-back");
+      });
+    }
+    if (forwardBtn) {
+      forwardBtn.addEventListener("click", () => {
+        console.log("Forward clicked");
+        sendMessage("go-forward");
+      });
+    }
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        console.log("Clear clicked");
+        sendMessage("clear-emoji");
+      });
+    }
+    if (saveBtn) {
+      saveBtn.addEventListener("click", () => {
+        console.log("Save bookmark clicked");
+        sendMessage("save-bookmark");
+      });
+    }
+  }
+  function updateBookmarksList(bookmarks) {
+    const bookmarkList = document.getElementById("bookmark-list");
+    if (!bookmarkList)
+      return;
+    bookmarkList.innerHTML = "";
+    bookmarks.forEach((bookmark) => {
+      const li = document.createElement("li");
+      li.className = "bookmark-item";
+      li.innerHTML = `
+      <div class="bookmark-content">
+        <div class="bookmark-name">${bookmark.name}</div>
+        <div class="bookmark-page">${bookmark.pageName}</div>
+      </div>
+    `;
+      li.addEventListener("click", () => {
+        sendMessage("jump-to-bookmark", { id: bookmark.id });
+      });
+      bookmarkList.appendChild(li);
+    });
+  }
+  function updateNavigationButtons(canGoBack, canGoForward) {
+    const backBtn = document.getElementById("back-btn");
+    const forwardBtn = document.getElementById("forward-btn");
+    if (backBtn)
+      backBtn.disabled = !canGoBack;
+    if (forwardBtn)
+      forwardBtn.disabled = !canGoForward;
+  }
+  function updateEmojiSetIndicator(setName, currentIndex, totalSets) {
+    const indicator = document.getElementById("emoji-set-indicator");
+    if (indicator) {
+      const setNameElement = indicator.querySelector(".set-name");
+      if (setNameElement) {
+        setNameElement.textContent = setName;
+      }
+    }
+  }
+  function handleDOMReady() {
+    initializePlugin();
+    setupEventListeners();
+    window.addEventListener("message", handlePluginMessage);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", handleDOMReady);
+  } else {
+    handleDOMReady();
+  }
+})();
+//# sourceMappingURL=ui.js.map
+  </script>
 
 </body>
 
