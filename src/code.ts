@@ -10,7 +10,10 @@ import {
   setUiWidth,
   setUiHeight,
   currentUiWidth,
-  lastUiHeight
+  lastUiHeight,
+  setPreviousSelection,
+  getPreviousSelection,
+  clearPreviousSelection
 } from './state';
 import {
   addBookmark,
@@ -57,6 +60,15 @@ const initializePlugin = withErrorBoundary(async () => {
 
 // ===== DEBOUNCED FUNCTIONS =====
 const debouncedSelectionUpdate = debounce(() => {
+  // Store current selection as previous before updating
+  const currentSelection = figma.currentPage.selection;
+  const currentPageId = figma.currentPage.id;
+  
+  if (currentSelection.length > 0) {
+    const nodeIds = currentSelection.map(node => node.id);
+    setPreviousSelection(nodeIds, currentPageId);
+  }
+  
   sendSelectionStateToUI();
   detectCurrentAnchorFromSelection();
   addSelectionToHistory();
@@ -127,6 +139,12 @@ figma.ui.onmessage = async (msg) => {
       case 'deselect':
         figma.currentPage.selection = [];
         sendSelectionStateToUI();
+        break;
+
+      case 'toggle-mode':
+        if ('mode' in msg && msg.mode === 'onLayer') {
+          await handleToggleToLayerMode();
+        }
         break;
 
       case 'go-back':
@@ -244,4 +262,51 @@ const handleRefreshAnchors = withErrorBoundary(async () => {
   const { updated, removed } = await (await import('./bookmarks')).validateAndSyncBookmarks();
   figma.notify(`Anchors resynced: ${updated} updated, ${removed} removed`);
   await updateUIAfterNavigation();
+}, ErrorType.UNKNOWN);
+
+const handleToggleToLayerMode = withErrorBoundary(async () => {
+  const previousSelection = getPreviousSelection();
+  
+  if (!previousSelection || previousSelection.nodeIds.length === 0) {
+    // No previous selection available
+    figma.notify('No previous layer selection available');
+    sendSelectionStateToUI();
+    return;
+  }
+  
+  try {
+    // Check if we're on the same page
+    if (previousSelection.pageId !== figma.currentPage.id) {
+      figma.notify('Previous selection is on a different page');
+      sendSelectionStateToUI();
+      return;
+    }
+    
+    // Try to find and select the previously selected nodes
+    const nodesToSelect: SceneNode[] = [];
+    
+    for (const nodeId of previousSelection.nodeIds) {
+      try {
+        const node = figma.getNodeById(nodeId);
+        if (node && node.parent === figma.currentPage) {
+          nodesToSelect.push(node);
+        }
+      } catch (error) {
+        console.warn(`Node ${nodeId} not found or not accessible`);
+      }
+    }
+    
+    if (nodesToSelect.length > 0) {
+      figma.currentPage.selection = nodesToSelect;
+      figma.notify(`Selected ${nodesToSelect.length} previously selected layer${nodesToSelect.length > 1 ? 's' : ''}`);
+    } else {
+      figma.notify('Previously selected layers are no longer available');
+    }
+    
+    sendSelectionStateToUI();
+  } catch (error) {
+    console.error('Error selecting previous layers:', error);
+    figma.notify('Failed to select previous layers');
+    sendSelectionStateToUI();
+  }
 }, ErrorType.UNKNOWN);

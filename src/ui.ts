@@ -9,6 +9,10 @@ interface PluginMessage {
   [key: string]: any;
 }
 
+// Toggle state management
+let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
+let hasPreviousSelection = false;
+
 // Helper function to send messages to plugin sandbox
 function sendMessage(type: string, data: Record<string, any> = {}): void {
   parent.postMessage({ pluginMessage: { type, ...data } }, '*');
@@ -28,6 +32,11 @@ function handlePluginMessage(event: MessageEvent): void {
       if (emojis) {
         updateEmojiButtons(emojis);
       }
+      // Update toggle state based on selection
+      updateToggleState(message.hasLayerSelected);
+      // Update previous selection state
+      hasPreviousSelection = message.hasPreviousSelection || false;
+      updateToggleUI();
       break;
     case 'bookmarks':
       updateBookmarksList(message.bookmarks);
@@ -44,6 +53,66 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'success':
       console.log('Plugin success:', message.message);
       break;
+  }
+}
+
+// Update toggle state based on selection
+function updateToggleState(hasLayerSelected: boolean): void {
+  const newMode = hasLayerSelected ? 'onLayer' : 'onPage';
+  if (currentToggleMode !== newMode) {
+    currentToggleMode = newMode;
+    updateToggleUI();
+  }
+}
+
+// Update toggle UI to reflect current state
+function updateToggleUI(): void {
+  const toggleButton = document.getElementById('toggle-mode');
+  if (!toggleButton) return;
+
+  const onPageOption = toggleButton.querySelector('[data-mode="onPage"]');
+  const onLayerOption = toggleButton.querySelector('[data-mode="onLayer"]');
+
+  if (onPageOption && onLayerOption) {
+    onPageOption.classList.toggle('active', currentToggleMode === 'onPage');
+    onLayerOption.classList.toggle('active', currentToggleMode === 'onLayer');
+
+    // Reflect active on root for CSS-driven indicator
+    toggleButton.setAttribute('data-active', currentToggleMode);
+    
+    // Handle disabled state for onLayer option
+    if (currentToggleMode === 'onPage' && !hasPreviousSelection) {
+      onLayerOption.classList.add('disabled');
+      toggleButton.setAttribute('aria-label', 'Toggle between page and layer mode (layer mode unavailable - no previous selection)');
+    } else {
+      onLayerOption.classList.remove('disabled');
+      toggleButton.setAttribute('aria-label', 'Toggle between page and layer mode');
+    }
+  }
+}
+
+// Handle toggle click
+function handleToggleClick(mode: 'onPage' | 'onLayer'): void {
+  if (currentToggleMode === mode) return;
+  
+  // Prevent switching to onLayer if no previous selection is available
+  if (mode === 'onLayer' && !hasPreviousSelection) {
+    console.log('Cannot switch to layer mode - no previous selection available');
+    return;
+  }
+
+  currentToggleMode = mode;
+  updateToggleUI();
+
+  if (mode === 'onPage') {
+    // Deselect all layers to switch to page mode
+    console.log('Switching to page mode - deselecting layers');
+    sendMessage('deselect');
+  } else {
+    // For layer mode, we need to ensure there's a selection
+    // This will be handled by the plugin's selection state
+    console.log('Switching to layer mode');
+    sendMessage('toggle-mode', { mode: 'onLayer' });
   }
 }
 
@@ -121,12 +190,14 @@ function initializePlugin(): void {
   console.log('📤 Sending ui-ready message');
   sendMessage('ui-ready');
 
+  // Initialize toggle state
+  updateToggleUI();
+
   console.log('✅ Plugin initialization complete - waiting for emoji data from plugin');
 }
 
 // Setup event listeners for UI controls
 function setupEventListeners(): void {
-  const deselectBtn = document.getElementById('deselect-btn');
   const backBtn = document.getElementById('back-btn');
   const forwardBtn = document.getElementById('forward-btn');
   const clearBtn = document.getElementById('clear-color');
@@ -138,13 +209,7 @@ function setupEventListeners(): void {
   const fitBtn = document.getElementById('footer-fit');
   const resizeHandle = document.getElementById('footer-resize');
   const collapsibleHeaders = Array.from(document.querySelectorAll<HTMLElement>('.section-header.collapsible'));
-
-  if (deselectBtn) {
-    deselectBtn.addEventListener('click', () => {
-      console.log('Deselect clicked');
-      sendMessage('deselect');
-    });
-  }
+  const toggleModeBtn = document.getElementById('toggle-mode');
 
   if (backBtn) {
     backBtn.addEventListener('click', () => {
@@ -306,6 +371,24 @@ function setupEventListeners(): void {
           onActivate(e);
         }
       });
+    });
+  }
+
+  // Toggle mode button
+  if (toggleModeBtn) {
+    toggleModeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const target = e.currentTarget as HTMLElement;
+      const onPageOption = target.querySelector('[data-mode="onPage"]');
+      const onLayerOption = target.querySelector('[data-mode="onLayer"]');
+
+      if (onPageOption && onLayerOption) {
+        if (onPageOption.classList.contains('active')) {
+          handleToggleClick('onLayer');
+        } else {
+          handleToggleClick('onPage');
+        }
+      }
     });
   }
 }

@@ -14,13 +14,13 @@
       <ul class="action-list">
         <li>
           <button id="back-btn" class="action-btn" aria-label="Go back" disabled>
-            <i class="icon" aria-hidden="true">←</i>
+            <i class="icon" aria-hidden="true">↩</i>
             <span class="label">Back</span>
           </button>
         </li>
         <li>
           <button id="forward-btn" class="action-btn" aria-label="Go forward" disabled>
-            <i class="icon" aria-hidden="true">→</i>
+            <i class="icon" aria-hidden="true">↪</i>
             <span class="label">Forward</span>
           </button>
         </li>
@@ -61,11 +61,13 @@
     <section id="color-section" class="collapsible-content" role="region" aria-labelledby="tags-header">
       <div class="color-grid-container">
         <div class="tags-status-bar">
-          <p id="status-indicator" class="top-badge" aria-live="polite">onPage</p>
-          <button id="deselect-btn" class="action-btn" aria-label="Deselect layers">
-            <i class="icon" aria-hidden="true">✕</i>
-            <span class="label">Deselect</span>
-          </button>
+          <div class="toggle-container">
+            <button id="toggle-mode" class="toggle-button" aria-label="Toggle between page and layer mode">
+              <span class="toggle-indicator" aria-hidden="true"></span>
+              <span class="toggle-option" data-mode="onPage">onPage</span>
+              <span class="toggle-option" data-mode="onLayer">onLayer</span>
+            </button>
+          </div>
         </div>
         <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
         <button id="clear-color" class="clear-action" aria-label="Clear color tags">
@@ -79,15 +81,18 @@
     <header id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button"
       tabindex="0" aria-expanded="true" aria-controls="anchors-section">
       <div class="header-left">
-        <i class="arrow" aria-hidden="true">-</i>
-        <h2>Anchors</h2>
+        <div class="icon-container">
+          <i class="arrow" aria-hidden="true">-</i>
+          <i class="tag-icon">⚓️</i>
+        </div>
+        <h2 class="header-title">ANCHORS</h2>
       </div>
-      <div class="header-right">
+      <nav class="header-right">
         <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors">
           <i class="icon" aria-hidden="true">⟳</i>
         </button>
         <!-- <p id="bookmark-count" class="top-badge" aria-live="polite">0</p> -->
-      </div>
+      </nav>
     </header>
 
     <section id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">

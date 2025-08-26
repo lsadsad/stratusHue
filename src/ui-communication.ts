@@ -4,7 +4,7 @@
 // Handles all communication between plugin and UI
 
 import type { Bookmark } from './types';
-import { getBookmarks, currentAnchorState, recentHistoryState, canGoBack, canGoForward, navigationHistory, historyIndex } from './state';
+import { getBookmarks, currentAnchorState, recentHistoryState, canGoBack, canGoForward, navigationHistory, historyIndex, getPreviousSelection } from './state';
 import { getNavigationState } from './navigation';
 import { getCurrentEmojiSet, getEmojiNavigationState } from './emoji-manager';
 
@@ -25,10 +25,13 @@ export function sendSelectionStateToUI(): void {
   const selectedLayers = figma.currentPage.selection;
   const hasLayerSelected = selectedLayers.length > 0;
   const currentEmojiSet = getCurrentEmojiSet(hasLayerSelected);
+  const previousSelection = getPreviousSelection();
+  const hasPreviousSelection = previousSelection && previousSelection.nodeIds.length > 0 && previousSelection.pageId === figma.currentPage.id;
 
   figma.ui.postMessage({
     type: 'selection-state',
     hasLayerSelected,
+    hasPreviousSelection,
     layerEmojis: hasLayerSelected ? currentEmojiSet.emojis : getCurrentEmojiSet(true).emojis,
     pageEmojis: !hasLayerSelected ? currentEmojiSet.emojis : getCurrentEmojiSet(false).emojis
   });
