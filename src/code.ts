@@ -22,7 +22,7 @@ import {
   validateCurrentAnchor,
   validateRecentHistory
 } from './bookmarks';
-import { jumpToBookmark, goBackInHistory, goForwardInHistory, addSelectionToHistory, addPageChangeToHistory } from './navigation';
+import { jumpToBookmark, goBackInHistory, goForwardInHistory, addSelectionToHistory, addPageChangeToHistory, findNearestExistingSelectionEntryAnyDirection } from './navigation';
 import {
   addEmojiToSelection,
   clearEmojiFromSelection,
@@ -265,48 +265,44 @@ const handleRefreshAnchors = withErrorBoundary(async () => {
 }, ErrorType.UNKNOWN);
 
 const handleToggleToLayerMode = withErrorBoundary(async () => {
-  const previousSelection = getPreviousSelection();
-  
-  if (!previousSelection || previousSelection.nodeIds.length === 0) {
-    // No previous selection available
-    figma.notify('No previous layer selection available');
+  const latestSelection = findNearestExistingSelectionEntryAnyDirection();
+
+  if (!latestSelection || !latestSelection.nodeId) {
+    figma.notify('No recent selection available');
     sendSelectionStateToUI();
     return;
   }
-  
+
   try {
-    // Check if we're on the same page
-    if (previousSelection.pageId !== figma.currentPage.id) {
-      figma.notify('Previous selection is on a different page');
-      sendSelectionStateToUI();
-      return;
-    }
-    
-    // Try to find and select the previously selected nodes
-    const nodesToSelect: SceneNode[] = [];
-    
-    for (const nodeId of previousSelection.nodeIds) {
-      try {
-        const node = figma.getNodeById(nodeId);
-        if (node && node.parent === figma.currentPage) {
-          nodesToSelect.push(node);
-        }
-      } catch (error) {
-        console.warn(`Node ${nodeId} not found or not accessible`);
+    // Navigate to page if needed
+    if (figma.currentPage.id !== latestSelection.pageId) {
+      const targetPage = figma.root.children.find(p => p.id === latestSelection.pageId && p.type === 'PAGE') as PageNode | undefined;
+      if (targetPage) {
+        await figma.setCurrentPageAsync(targetPage);
+      } else {
+        figma.notify(`Page no longer exists for recent selection`);
+        sendSelectionStateToUI();
+        return;
       }
     }
-    
-    if (nodesToSelect.length > 0) {
-      figma.currentPage.selection = nodesToSelect;
-      figma.notify(`Selected ${nodesToSelect.length} previously selected layer${nodesToSelect.length > 1 ? 's' : ''}`);
+
+    // Select the node if it exists
+    const node = await figma.getNodeByIdAsync(latestSelection.nodeId);
+    if (node) {
+      figma.currentPage.selection = [node as SceneNode];
+      if ('visible' in node && node.visible) {
+        figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
+      }
+      const label = latestSelection.nodeName || 'Layer';
+      figma.notify(`Selected: ${label}`);
     } else {
-      figma.notify('Previously selected layers are no longer available');
+      figma.notify('Previously selected layer is no longer available');
     }
-    
-    sendSelectionStateToUI();
+
+    await updateUIAfterNavigation();
   } catch (error) {
-    console.error('Error selecting previous layers:', error);
-    figma.notify('Failed to select previous layers');
+    console.error('Error selecting recent layer from history:', error);
+    figma.notify('Failed to select recent layer');
     sendSelectionStateToUI();
   }
 }, ErrorType.UNKNOWN);

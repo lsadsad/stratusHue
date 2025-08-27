@@ -39,7 +39,12 @@ function handlePluginMessage(event: MessageEvent): void {
       updateToggleUI();
       break;
     case 'bookmarks':
-      updateBookmarksList(message.bookmarks);
+      updateBookmarksList(
+        message.bookmarks,
+        message.currentAnchorId,
+        message.previousBookmarkId,
+        message.isInsideAnchor
+      );
       break;
     case 'navigation-state':
       updateNavigationButtons(message.canGoBack, message.canGoForward);
@@ -399,7 +404,12 @@ function updateUIState(data: any): void {
   console.log('Updating UI state:', data);
 }
 
-function updateBookmarksList(bookmarks: any[]): void {
+function updateBookmarksList(
+  bookmarks: any[],
+  currentAnchorId?: string | null,
+  previousBookmarkId?: string | null,
+  isInsideAnchor?: boolean
+): void {
   const bookmarkList = document.getElementById('bookmark-list');
   if (!bookmarkList) return;
 
@@ -407,15 +417,40 @@ function updateBookmarksList(bookmarks: any[]): void {
   bookmarks.forEach(bookmark => {
     const li = document.createElement('li');
     li.className = 'bookmark-item';
+
+    // Apply selection state classes
+    if (currentAnchorId && bookmark.id === currentAnchorId) {
+      li.classList.add('current-anchor');
+      if (isInsideAnchor) li.classList.add('inside-anchor');
+    } else if (previousBookmarkId && bookmark.id === previousBookmarkId) {
+      li.classList.add('recent-history');
+    }
+
+    // Inner content
     li.innerHTML = `
       <div class="bookmark-content">
         <div class="bookmark-name">${bookmark.name}</div>
         <div class="bookmark-page">${bookmark.pageName}</div>
       </div>
+      <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">
+        ✕
+      </button>
     `;
+
+    // Navigate on item click
     li.addEventListener('click', () => {
       sendMessage('jump-to-bookmark', { id: bookmark.id });
     });
+
+    // Remove button behavior
+    const removeBtn = li.querySelector('.bookmark-remove');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sendMessage('remove-bookmark', { id: bookmark.id });
+      });
+    }
+
     bookmarkList.appendChild(li);
   });
 }

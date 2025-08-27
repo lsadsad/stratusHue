@@ -109,6 +109,7 @@ export interface UIMessage {
 export interface SelectionStateMessage extends UIMessage {
   type: 'selection-state';
   hasLayerSelected: boolean;
+  hasPreviousSelection: boolean;
   layerEmojis: string[];
   pageEmojis: string[];
 }
