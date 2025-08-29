@@ -8,6 +8,63 @@ if (fs.existsSync('dist')) {
 }
 fs.mkdirSync('dist');
 
+function readUtf8OrNull(filePath) {
+	try {
+		return fs.readFileSync(filePath, 'utf8');
+	} catch (error) {
+		if (error && (error.code === 'ENOENT' || error.code === 'EBUSY')) {
+			return null;
+		}
+		throw error;
+	}
+}
+
+function inlineAssetDataUris(html) {
+	if (!html) return html;
+	return html.replace(/src=["']\.?\/?assets\/([^"']+)["']/g, (match, relPath) => {
+		const assetPath = path.join('assets', relPath);
+		if (!fs.existsSync(assetPath)) return match;
+		const ext = path.extname(assetPath).toLowerCase();
+		let mime = '';
+		if (ext === '.svg') mime = 'image/svg+xml';
+		else if (ext === '.png') mime = 'image/png';
+		else if (ext === '.jpg' || ext === '.jpeg') mime = 'image/jpeg';
+		else return match;
+		try {
+			const data = fs.readFileSync(assetPath);
+			const base64 = data.toString('base64');
+			return `src="data:${mime};base64,${base64}"`;
+		} catch (_err) {
+			return match;
+		}
+	});
+}
+
+// Recursively copy a directory
+function copyDirectory(srcDir, destDir) {
+	if (!fs.existsSync(srcDir)) return;
+	if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+	for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+		const srcPath = path.join(srcDir, entry.name);
+		const destPath = path.join(destDir, entry.name);
+		if (entry.isDirectory()) {
+			copyDirectory(srcPath, destPath);
+		} else if (entry.isFile()) {
+			fs.copyFileSync(srcPath, destPath);
+		}
+	}
+}
+
+function copyAssets() {
+	const sourceDir = 'assets';
+	const destinationDir = path.join('dist', 'assets');
+	if (!fs.existsSync(sourceDir)) return;
+	// Ensure destination exists and mirror contents
+	fs.mkdirSync(destinationDir, { recursive: true });
+	copyDirectory(sourceDir, destinationDir);
+	console.log('📦 Copied assets → dist/assets');
+}
+
 async function build() {
   try {
     // Build plugin code (runs in Figma sandbox)
@@ -61,7 +118,12 @@ async function build() {
         }
       }
     }
+    // Inline asset references so they work in Figma's sandbox
+    htmlContent = inlineAssetDataUris(htmlContent);
     fs.writeFileSync('dist/ui.html', htmlContent);
+
+    // Copy static assets used by the UI
+    copyAssets();
 
     console.log('✅ Build completed successfully');
   } catch (error) {
@@ -100,11 +162,75 @@ if (process.argv.includes('--watch')) {
     await uiContext.watch();
   }
 
+	// Initial copy of assets and watch for changes
+	copyAssets();
+	if (fs.existsSync('assets')) {
+		try {
+			fs.watch('assets', { recursive: true }, () => {
+				copyAssets();
+				// Re-inline assets into HTML
+				let htmlContent = readUtf8OrNull('src/ui.html');
+				if (!htmlContent) return;
+				const cssContent = readUtf8OrNull('src/styles.css') ?? '';
+				htmlContent = htmlContent.replace(
+					/<link rel="stylesheet" href="styles\.css">/,
+					`<style>${cssContent}</style>`
+				);
+				const jsBundlePath = 'dist/ui.js';
+				if (fs.existsSync(jsBundlePath)) {
+					const jsContent = readUtf8OrNull(jsBundlePath);
+					if (jsContent) {
+						if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
+							htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
+						} else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
+							htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${jsContent}<\/script>`);
+						} else {
+							htmlContent = htmlContent.replace('</body>', `<script>${jsContent}<\/script>\n</body>`);
+						}
+					}
+				}
+				htmlContent = inlineAssetDataUris(htmlContent);
+				fs.writeFileSync('dist/ui.html', htmlContent);
+				console.log('✅ Assets updated');
+			});
+		} catch (_err) {
+			// Fallback for environments without recursive watch support
+			fs.watch('assets', () => {
+				copyAssets();
+				let htmlContent = readUtf8OrNull('src/ui.html');
+				if (!htmlContent) return;
+				const cssContent = readUtf8OrNull('src/styles.css') ?? '';
+				htmlContent = htmlContent.replace(
+					/<link rel="stylesheet" href="styles\.css">/,
+					`<style>${cssContent}</style>`
+				);
+				const jsBundlePath = 'dist/ui.js';
+				if (fs.existsSync(jsBundlePath)) {
+					const jsContent = readUtf8OrNull(jsBundlePath);
+					if (jsContent) {
+						if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
+							htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
+						} else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
+							htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${jsContent}<\/script>`);
+						} else {
+							htmlContent = htmlContent.replace('</body>', `<script>${jsContent}<\/script>\n</body>`);
+						}
+					}
+				}
+				htmlContent = inlineAssetDataUris(htmlContent);
+				fs.writeFileSync('dist/ui.html', htmlContent);
+				console.log('✅ Assets updated');
+			});
+		}
+	}
+
   // Watch CSS and HTML files
   fs.watchFile('src/styles.css', () => {
     // Rebuild HTML with inlined CSS
-    let htmlContent = fs.readFileSync('src/ui.html', 'utf8');
-    const cssContent = fs.readFileSync('src/styles.css', 'utf8');
+    const htmlRead = readUtf8OrNull('src/ui.html');
+    if (!htmlRead) return;
+    let htmlContent = htmlRead;
+    const cssContent = readUtf8OrNull('src/styles.css') ?? '';
     htmlContent = htmlContent.replace(
       /<link rel="stylesheet" href="styles\.css">/,
       `<style>${cssContent}</style>`
@@ -112,7 +238,8 @@ if (process.argv.includes('--watch')) {
     if (fs.existsSync('src/ui.ts')) {
       const jsBundlePath = 'dist/ui.js';
       if (fs.existsSync(jsBundlePath)) {
-        const jsContent = fs.readFileSync(jsBundlePath, 'utf8');
+        const jsContent = readUtf8OrNull(jsBundlePath);
+        if (!jsContent) return;
         if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
           htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
         } else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
@@ -122,13 +249,16 @@ if (process.argv.includes('--watch')) {
         }
       }
     }
+    htmlContent = inlineAssetDataUris(htmlContent);
     fs.writeFileSync('dist/ui.html', htmlContent);
     console.log('✅ CSS updated and inlined');
   });
 
   fs.watchFile('src/ui.html', () => {
-    let htmlContent = fs.readFileSync('src/ui.html', 'utf8');
-    const cssContent = fs.readFileSync('src/styles.css', 'utf8');
+    const htmlRead = readUtf8OrNull('src/ui.html');
+    if (!htmlRead) return;
+    let htmlContent = htmlRead;
+    const cssContent = readUtf8OrNull('src/styles.css') ?? '';
     htmlContent = htmlContent.replace(
       /<link rel="stylesheet" href="styles\.css">/,
       `<style>${cssContent}</style>`
@@ -136,7 +266,8 @@ if (process.argv.includes('--watch')) {
     if (fs.existsSync('src/ui.ts')) {
       const jsBundlePath = 'dist/ui.js';
       if (fs.existsSync(jsBundlePath)) {
-        const jsContent = fs.readFileSync(jsBundlePath, 'utf8');
+        const jsContent = readUtf8OrNull(jsBundlePath);
+        if (!jsContent) return;
         if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
           htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
         } else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
@@ -146,19 +277,23 @@ if (process.argv.includes('--watch')) {
         }
       }
     }
+    htmlContent = inlineAssetDataUris(htmlContent);
     fs.writeFileSync('dist/ui.html', htmlContent);
     console.log('✅ HTML updated with inlined CSS');
   });
 
   // Watch built UI JS to re-inline into HTML
   fs.watchFile('dist/ui.js', () => {
-    let htmlContent = fs.readFileSync('src/ui.html', 'utf8');
-    const cssContent = fs.readFileSync('src/styles.css', 'utf8');
+    const htmlRead = readUtf8OrNull('src/ui.html');
+    if (!htmlRead) return;
+    let htmlContent = htmlRead;
+    const cssContent = readUtf8OrNull('src/styles.css') ?? '';
     htmlContent = htmlContent.replace(
       /<link rel="stylesheet" href="styles\.css">/,
       `<style>${cssContent}</style>`
     );
-    const jsContent = fs.readFileSync('dist/ui.js', 'utf8');
+    const jsContent = readUtf8OrNull('dist/ui.js');
+    if (!jsContent) return;
     if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
       htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
     } else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
@@ -166,6 +301,7 @@ if (process.argv.includes('--watch')) {
     } else {
       htmlContent = htmlContent.replace('</body>', `<script>${jsContent}<\/script>\n</body>`);
     }
+    htmlContent = inlineAssetDataUris(htmlContent);
     fs.writeFileSync('dist/ui.html', htmlContent);
     console.log('✅ UI JS updated and inlined');
   });

@@ -24,6 +24,24 @@
             <span class="label">Forward</span>
           </button>
         </li>
+        <li class="align-right">
+          <button id="date-btn" class="action-btn" aria-label="Add date">
+            <i class="icon" aria-hidden="true">🗓️</i>
+            <span class="label">Date</span>
+          </button>
+        </li>
+        <li>
+          <button id="new-page-btn" class="action-btn" aria-label="Create new page">
+            <i class="icon" aria-hidden="true">📄</i>
+            <span class="label">New Page</span>
+          </button>
+        </li>
+        <li>
+          <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
+            <i class="icon" aria-hidden="true">≡</i>
+            <span class="label">Settings</span>
+          </button>
+        </li>
       </ul>
     </nav>
 
@@ -34,13 +52,7 @@
           <i class="arrow" aria-hidden="true">-</i>
           <i class="tag-icon">🏷️</i>
         </div>
-        <h2 class="header-title">TAGS
-          <small class="header-subtitle"> /
-            <span id="emoji-set-indicator" class="emoji-set-title">
-              <span class="set-name">Colors</span>
-            </span>
-          </small>
-        </h2>
+        <h2 class="header-title">TAGS</h2>
       </div>
       <nav class="header-right">
         <ul class="emoji-nav-list">
@@ -61,6 +73,9 @@
     <section id="color-section" class="collapsible-content" role="region" aria-labelledby="tags-header">
       <div class="color-grid-container">
         <div class="tags-status-bar">
+          <span id="emoji-set-indicator" class="emoji-set-title">
+            <span class="set-name">Colors</span>
+          </span>
           <div class="toggle-container">
             <button id="toggle-mode" class="toggle-button" aria-label="Toggle between page and layer mode">
               <span class="toggle-indicator" aria-hidden="true"></span>
@@ -105,10 +120,21 @@
         </button>
       </div>
     </section>
-<!-- <p class="made-with">
-      made with <img src="../assets/LOGO-L3Vi_dsgn.svg" alt="L3Vi Design" class="logo-svg">
-    </p> -->
   </main>
+
+  <div id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="settings-panel" role="document">
+      <header class="settings-header">
+        <h2 class="settings-title">Settings</h2>
+        <button id="settings-close" class="action-btn" aria-label="Close settings">
+          <i class="icon" aria-hidden="true">✕</i>
+        </button>
+      </header>
+      <div class="settings-content" tabindex="0">
+        <p>Settings coming soon.</p>
+      </div>
+    </div>
+  </div>
 
   <div id="tooltip" class="tooltip"></div>
 
@@ -126,6 +152,11 @@
         <button id="footer-fit" class="footer-icon-btn" aria-label="Fit" title="Fit">↕</button>
       </li>
     </ul>
+    <div class="footer-branding">
+      <span class="made-with">
+        made with <img src="./assets/LOGO-L3Vi_dsgn.svg" alt="L3Vi Design" class="logo-svg">
+      </span>
+    </div>
   </footer>
 
   <script>

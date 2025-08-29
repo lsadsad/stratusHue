@@ -754,7 +754,7 @@ h3 {
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-lg) 0 var(--spacing-lg);
-  height: calc(var(--spacing-lg) * 3);
+  min-height: calc(var(--spacing-lg) * 3);
   align-self: stretch;
   background: var(--color-background-elevated);
   flex-wrap: nowrap;
@@ -768,7 +768,7 @@ h3 {
 
 #quick-actions .action-btn {
   width: calc(var(--spacing-lg) * 3);
-  height: calc(var(--spacing-lg) * 3);
+  min-height: calc(var(--spacing-lg) * 3);
   font-size: var(--icon-size-sm);
   background: var(--color-background-main);
   color: var(--color-text-secondary);
@@ -784,6 +784,10 @@ h3 {
   margin: 0;
   padding: 0;
   width: 100%;
+}
+
+.action-list li.align-right {
+  margin-left: auto;
 }
 
 .action-list li {
@@ -1010,10 +1014,10 @@ h3 {
 .tags-status-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
-  padding: var(--spacing-lg) 0;
-  gap: var(--spacing-xxl);
+  padding: 0;
+  gap: var(--spacing-lg);
 }
 
 .tags-status-bar .top-badge {
@@ -1059,22 +1063,22 @@ h3 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xl);
   background: var(--color-background-elevated);
-  padding: var(--container-padding) calc(var(--container-padding) + var(--spacing-lg)) var(--container-padding);
+  padding: calc(var(--container-padding) + var(--spacing-lg));
   border-radius: var(--border-radius-md);
   transition: padding var(--transition-normal);
 }
 
 .emoji-set-title {
-  flex: 1;
+  flex: 0 0 auto;
   font-weight: var(--font-weight-normal);
   color: var(--theme-text-primary);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-tight);
   text-align: left;
   margin: 0;
-  padding: 0 0 0 var(--spacing-lg);
+  padding: 0;
 }
 
 .set-name {
@@ -1500,7 +1504,7 @@ i.grip {
   }
   
   .color-grid-container {
-    padding: var(--spacing-md) var(--spacing-md);
+    padding: calc(var(--container-padding) + var(--spacing-md));
   }
 }
 
@@ -1515,6 +1519,10 @@ i.grip {
     font-size: var(--icon-size-lg);
     height: var(--button-height-md);
   }
+  
+  .color-grid-container {
+    padding: calc(var(--container-padding) + var(--spacing-lg));
+  }
 }
 
 /* Standard width - 4 columns (default) */
@@ -1528,6 +1536,10 @@ i.grip {
     font-size: var(--icon-size-xl);
     height: var(--button-height-lg);
   }
+  
+  .color-grid-container {
+    padding: calc(var(--container-padding) + var(--spacing-lg));
+  }
 }
 
 /* Wide width - 5 columns for larger panels */
@@ -1540,6 +1552,10 @@ i.grip {
   .emoji-button {
     font-size: var(--icon-size-xl);
     height: var(--button-height-lg);
+  }
+  
+  .color-grid-container {
+    padding: calc(var(--container-padding) + var(--spacing-xl));
   }
 }
 
@@ -1556,7 +1572,7 @@ i.grip {
   }
   
   .color-grid-container {
-    padding: var(--container-padding) calc(var(--container-padding) + var(--spacing-xxl)) var(--container-padding);
+    padding: calc(var(--container-padding) + var(--spacing-xxl));
   }
 }
 
@@ -1572,6 +1588,55 @@ i.grip {
   padding: 0;
   z-index: var(--z-footer);
   outline: none;
+}
+
+/* ===== SETTINGS OVERLAY ===== */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+}
+
+.settings-overlay.open {
+  display: flex;
+}
+
+.settings-panel {
+  background: var(--color-background-main);
+  border: var(--border-width) solid var(--color-border-accent);
+  border-radius: var(--border-radius-lg);
+  width: min(560px, 96%);
+  height: min(80vh, 560px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 40px var(--theme-shadow-heavy);
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-xl) var(--spacing-xxl);
+  border-bottom: var(--border-width) solid var(--color-border-accent);
+}
+
+.settings-title {
+  margin: 0;
+  font-size: var(--icon-size-md);
+  color: var(--color-text-secondary);
+  letter-spacing: var(--letter-spacing-tight);
+  text-transform: uppercase;
+}
+
+.settings-content {
+  flex: 1;
+  padding: var(--spacing-xxl);
+  overflow: auto;
+  color: var(--color-text-primary);
 }
 
 #footer-resize {
@@ -1637,12 +1702,40 @@ i.grip {
   outline: none;
 }
 
-/* ===== TOGGLE COMPONENT ===== */
-.toggle-container {
+/* Footer Branding */
+.footer-branding {
+  position: absolute;
+  bottom: calc(var(--footer-height) + var(--spacing-xs));
+  right: var(--spacing-sm);
+  pointer-events: none;
+  z-index: var(--z-tooltip);
+}
+
+.footer-branding .made-with {
+  font-size: 9px;
+  color: var(--color-text-muted);
+  opacity: 0.6;
   display: flex;
   align-items: center;
+  gap: 2px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.footer-branding .logo-svg {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  vertical-align: middle;
+  opacity: 0.7;
+}
+
+/* ===== TOGGLE COMPONENT ===== */
+.toggle-container {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  width: 100%;
+  width: auto;
 }
 
 .toggle-button {
@@ -1655,8 +1748,6 @@ i.grip {
   border-radius: var(--border-radius-pill);
   cursor: pointer;
   transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
-  min-width: var(--toggle-min-width);
-  height: var(--toggle-height);
   box-shadow: none;
 }
 
@@ -1696,6 +1787,7 @@ i.grip {
   color: var(--color-text-muted);
   z-index: 1;
   user-select: none;
+  padding: 0 var(--spacing-sm);
 }
 
 .toggle-option.active {
@@ -1829,6 +1921,28 @@ i.grip {
 }
 
 #quick-actions .action-btn:not(:disabled) .icon {
+  color: var(--figma-color-border-brand);
+}
+
+/* Settings quick-action: transparent by default, white icon, larger icon size */
+#quick-actions #settings-btn {
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
+#quick-actions #settings-btn .icon {
+  font-size: var(--icon-size-lg);
+  color: var(--color-text-primary);
+}
+
+/* Keep brand blue on hover/active */
+#quick-actions #settings-btn:hover,
+#quick-actions #settings-btn:active {
+  color: var(--figma-color-border-brand);
+}
+
+#quick-actions #settings-btn:hover .icon,
+#quick-actions #settings-btn:active .icon {
   color: var(--figma-color-border-brand);
 }
 

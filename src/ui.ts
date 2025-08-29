@@ -207,6 +207,11 @@ function setupEventListeners(): void {
   const forwardBtn = document.getElementById('forward-btn');
   const clearBtn = document.getElementById('clear-color');
   const saveBtn = document.getElementById('save-bookmark');
+  const dateBtn = document.getElementById('date-btn');
+  const newPageBtn = document.getElementById('new-page-btn');
+  const settingsBtn = document.getElementById('settings-btn');
+  const settingsOverlay = document.getElementById('settings-overlay');
+  const settingsCloseBtn = document.getElementById('settings-close');
   const emojiNavLeft = document.getElementById('emoji-nav-left');
   const emojiNavRight = document.getElementById('emoji-nav-right');
   const refreshAnchorsBtn = document.getElementById('refresh-anchors');
@@ -243,6 +248,70 @@ function setupEventListeners(): void {
       sendMessage('save-bookmark');
     });
   }
+
+  // Date button (basic handler; functionality wired later)
+  if (dateBtn) {
+    dateBtn.addEventListener('click', () => {
+      console.log('Date button clicked');
+      // Future: sendMessage('add-date') or similar
+    });
+  }
+
+  // New Page (functionality to be implemented later)
+  if (newPageBtn) {
+    newPageBtn.addEventListener('click', () => {
+      console.log('New Page clicked');
+      // Intentionally not sending a message yet; functionality to be implemented later
+    });
+  }
+
+  // Settings overlay open/close
+  const openSettings = () => {
+    if (!settingsOverlay) return;
+    settingsOverlay.setAttribute('aria-hidden', 'false');
+    settingsOverlay.classList.add('open');
+    // Move focus into the panel content for accessibility
+    const content = settingsOverlay.querySelector<HTMLElement>('.settings-content');
+    if (content) content.focus();
+  };
+
+  const closeSettings = () => {
+    if (!settingsOverlay) return;
+    settingsOverlay.setAttribute('aria-hidden', 'true');
+    settingsOverlay.classList.remove('open');
+    // Return focus to the settings button
+    if (settingsBtn instanceof HTMLElement) settingsBtn.focus();
+  };
+
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+      console.log('Open settings');
+      openSettings();
+    });
+  }
+
+  if (settingsCloseBtn) {
+    settingsCloseBtn.addEventListener('click', () => {
+      console.log('Close settings');
+      closeSettings();
+    });
+  }
+
+  // Close when clicking backdrop
+  if (settingsOverlay) {
+    settingsOverlay.addEventListener('click', (e) => {
+      if (e.target === settingsOverlay) {
+        closeSettings();
+      }
+    });
+  }
+
+  // Escape to close
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && settingsOverlay && settingsOverlay.getAttribute('aria-hidden') === 'false') {
+      closeSettings();
+    }
+  });
 
   // Emoji set navigation
   if (emojiNavLeft) {
