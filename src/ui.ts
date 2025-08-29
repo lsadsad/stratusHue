@@ -1,6 +1,8 @@
 // Figma Plugin UI - TypeScript Implementation
 // Handles all UI interactions and communication with the plugin sandbox
 
+import lottie from 'lottie-web';
+
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
 // Type definitions for better development experience
@@ -8,6 +10,18 @@ interface PluginMessage {
   type: string;
   [key: string]: any;
 }
+
+interface LottieAnimationConfig {
+  container: HTMLElement;
+  animationData: any;
+  renderer?: 'svg' | 'canvas' | 'html';
+  loop?: boolean;
+  autoplay?: boolean;
+  name?: string;
+}
+
+// Store active Lottie animations for management
+const activeLottieAnimations = new Map<string, any>();
 
 // Toggle state management
 let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
@@ -187,6 +201,106 @@ function updateEmojiButtons(emojis: string[]): void {
   });
 }
 
+// Lottie Animation Utilities
+function initializeLottieAnimation(config: LottieAnimationConfig): any {
+  try {
+    const animation = lottie.loadAnimation({
+      container: config.container,
+      renderer: config.renderer || 'svg',
+      loop: config.loop !== false, // Default to true
+      autoplay: config.autoplay !== false, // Default to true
+      animationData: config.animationData,
+      name: config.name || `lottie-${Date.now()}`
+    });
+
+    // Store animation for management
+    if (config.name) {
+      activeLottieAnimations.set(config.name, animation);
+    }
+
+    console.log('✨ Lottie animation initialized:', config.name || 'unnamed');
+    return animation;
+  } catch (error) {
+    console.error('❌ Failed to initialize Lottie animation:', error);
+    return null;
+  }
+}
+
+function loadLottieFromElement(element: HTMLElement): any {
+  const lottieData = element.getAttribute('data-lottie');
+  if (!lottieData) {
+    console.warn('No Lottie data found on element');
+    return null;
+  }
+
+  try {
+    const animationData = JSON.parse(lottieData.replace(/&#39;/g, "'"));
+    const animationName = element.getAttribute('data-lottie-name') || `lottie-${element.id || Date.now()}`;
+    
+    return initializeLottieAnimation({
+      container: element,
+      animationData,
+      renderer: (element.getAttribute('data-lottie-renderer') as any) || 'svg',
+      loop: element.getAttribute('data-lottie-loop') !== 'false',
+      autoplay: element.getAttribute('data-lottie-autoplay') !== 'false',
+      name: animationName
+    });
+  } catch (error) {
+    console.error('❌ Failed to parse Lottie data:', error);
+    return null;
+  }
+}
+
+function initializeAllLottieElements(): void {
+  const lottieElements = document.querySelectorAll('[data-lottie]');
+  console.log(`🎬 Found ${lottieElements.length} Lottie elements to initialize`);
+  
+  lottieElements.forEach((element) => {
+    loadLottieFromElement(element as HTMLElement);
+  });
+}
+
+function destroyLottieAnimation(name: string): void {
+  const animation = activeLottieAnimations.get(name);
+  if (animation) {
+    animation.destroy();
+    activeLottieAnimations.delete(name);
+    console.log('🗑️ Destroyed Lottie animation:', name);
+  }
+}
+
+function destroyAllLottieAnimations(): void {
+  activeLottieAnimations.forEach((animation, name) => {
+    animation.destroy();
+    console.log('🗑️ Destroyed Lottie animation:', name);
+  });
+  activeLottieAnimations.clear();
+}
+
+function playLottieAnimation(name: string): void {
+  const animation = activeLottieAnimations.get(name);
+  if (animation) {
+    animation.play();
+    console.log('▶️ Playing Lottie animation:', name);
+  }
+}
+
+function pauseLottieAnimation(name: string): void {
+  const animation = activeLottieAnimations.get(name);
+  if (animation) {
+    animation.pause();
+    console.log('⏸️ Paused Lottie animation:', name);
+  }
+}
+
+function stopLottieAnimation(name: string): void {
+  const animation = activeLottieAnimations.get(name);
+  if (animation) {
+    animation.stop();
+    console.log('⏹️ Stopped Lottie animation:', name);
+  }
+}
+
 // Main plugin initialization
 function initializePlugin(): void {
   console.log('🚀 Initializing plugin functionality...');
@@ -197,6 +311,9 @@ function initializePlugin(): void {
 
   // Initialize toggle state
   updateToggleUI();
+
+  // Initialize Lottie animations
+  initializeAllLottieElements();
 
   console.log('✅ Plugin initialization complete - waiting for emoji data from plugin');
 }
