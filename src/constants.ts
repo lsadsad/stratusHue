@@ -8,16 +8,14 @@ import type { EmojiSet } from './types';
 export const LAYER_EMOJI_SETS: EmojiSet[] = [
   { name: 'Colors', emojis: ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜'] },
   { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
-  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] },
-  { name: 'Date', emojis: ['📅', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'] }
+  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
 ];
 
 // Emoji sets for pages (circle emojis)
 export const PAGE_EMOJI_SETS: EmojiSet[] = [
   { name: 'Colors', emojis: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'] },
   { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
-  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] },
-  { name: 'Date', emojis: ['📅', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'] }
+  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
 ];
 
 // Legacy constants for backward compatibility
