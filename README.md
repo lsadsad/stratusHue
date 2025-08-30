@@ -94,8 +94,13 @@ This plugin is built with TypeScript and uses modern web technologies for optima
 ### Development Workflow
 1. Open the project in Visual Studio Code
 2. Run `npm run build` to compile TypeScript to JavaScript
-3. Use `npm run watch` for automatic compilation on file changes
+3. Use `npm run dev` for automatic compilation on file changes
 4. Test your changes in Figma by reloading the plugin
+
+### Production Build
+1. Run `npm run build:plugin-ready` to create a production-ready build
+2. The `plugin-ready/` folder will contain all files needed for distribution
+3. Run `npm run package` to create a distributable zip file
 
 ## 📁 Project Structure
 
@@ -110,6 +115,12 @@ Stratus_Hue/
 │   ├── utils.ts         # Utility functions
 │   ├── styles.css       # Consolidated stylesheet
 │   └── ui.html          # Plugin interface (HTML/CSS/JS)
+├── scripts/
+│   ├── build-plugin-ready.js  # Production build script
+│   └── package-plugin.js      # Distribution packaging script
+├── dist/                # Development build output
+├── plugin-ready/        # Production-ready distribution files
+├── packages/            # Packaged plugin zip files
 ├── manifest.json        # Plugin configuration
 ├── package.json         # Dependencies and scripts
 ├── tsconfig.json        # TypeScript configuration

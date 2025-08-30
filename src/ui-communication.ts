@@ -5,7 +5,7 @@
 
 import type { Bookmark } from './types';
 import { getBookmarks, currentAnchorState, recentHistoryState, canGoBack, canGoForward, navigationHistory, historyIndex } from './state';
-import { getNavigationState } from './navigation';
+import { getNavigationState, hasAnySelectionEntry } from './navigation';
 import { getCurrentEmojiSet, getEmojiNavigationState } from './emoji-manager';
 
 // ===== UI MESSAGE SENDERS =====
@@ -25,10 +25,12 @@ export function sendSelectionStateToUI(): void {
   const selectedLayers = figma.currentPage.selection;
   const hasLayerSelected = selectedLayers.length > 0;
   const currentEmojiSet = getCurrentEmojiSet(hasLayerSelected);
+  const hasPreviousSelection = hasAnySelectionEntry();
 
   figma.ui.postMessage({
     type: 'selection-state',
     hasLayerSelected,
+    hasPreviousSelection,
     layerEmojis: hasLayerSelected ? currentEmojiSet.emojis : getCurrentEmojiSet(true).emojis,
     pageEmojis: !hasLayerSelected ? currentEmojiSet.emojis : getCurrentEmojiSet(false).emojis
   });
@@ -98,14 +100,16 @@ export async function sendInitialUIState(): Promise<void> {
 
 // ===== UI RESIZE HELPERS =====
 export function resizeUI(width: number, height: number): void {
-  const clampedWidth = Math.max(240, Math.min(400, width));
+  const clampedWidth = Math.max(188, Math.min(400, width));
   const clampedHeight = Math.max(150, Math.min(800, height));
   
   figma.ui.resize(clampedWidth, clampedHeight);
 }
 
 export function toggleUIWidth(currentWidth: number, currentHeight: number): number {
-  const newWidth = currentWidth === 240 ? 320 : 240;
+  const compactWidth = 188;
+  const defaultWidth = 240;
+  const newWidth = currentWidth <= compactWidth ? defaultWidth : compactWidth;
   figma.ui.resize(newWidth, currentHeight);
   return newWidth;
 }

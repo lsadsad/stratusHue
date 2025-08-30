@@ -10,7 +10,10 @@ import {
   setUiWidth,
   setUiHeight,
   currentUiWidth,
-  lastUiHeight
+  lastUiHeight,
+  setPreviousSelection,
+  getPreviousSelection,
+  clearPreviousSelection
 } from './state';
 import {
   addBookmark,
@@ -19,7 +22,7 @@ import {
   validateCurrentAnchor,
   validateRecentHistory
 } from './bookmarks';
-import { jumpToBookmark, goBackInHistory, goForwardInHistory, addSelectionToHistory, addPageChangeToHistory } from './navigation';
+import { jumpToBookmark, goBackInHistory, goForwardInHistory, addSelectionToHistory, addPageChangeToHistory, findNearestExistingSelectionEntryAnyDirection } from './navigation';
 import {
   addEmojiToSelection,
   clearEmojiFromSelection,
@@ -57,6 +60,15 @@ const initializePlugin = withErrorBoundary(async () => {
 
 // ===== DEBOUNCED FUNCTIONS =====
 const debouncedSelectionUpdate = debounce(() => {
+  // Store current selection as previous before updating
+  const currentSelection = figma.currentPage.selection;
+  const currentPageId = figma.currentPage.id;
+  
+  if (currentSelection.length > 0) {
+    const nodeIds = currentSelection.map(node => node.id);
+    setPreviousSelection(nodeIds, currentPageId);
+  }
+  
   sendSelectionStateToUI();
   detectCurrentAnchorFromSelection();
   addSelectionToHistory();
@@ -108,6 +120,10 @@ figma.ui.onmessage = async (msg) => {
         await handleSaveBookmark();
         break;
 
+      case 'refresh-anchors':
+        await handleRefreshAnchors();
+        break;
+
       case 'jump-to-bookmark':
         if ('id' in msg && msg.id && typeof msg.id === 'string') {
           await handleJumpToBookmark(msg.id);
@@ -123,6 +139,12 @@ figma.ui.onmessage = async (msg) => {
       case 'deselect':
         figma.currentPage.selection = [];
         sendSelectionStateToUI();
+        break;
+
+      case 'toggle-mode':
+        if ('mode' in msg && msg.mode === 'onLayer') {
+          await handleToggleToLayerMode();
+        }
         break;
 
       case 'go-back':
@@ -235,3 +257,52 @@ async function handleGoForward(): Promise<void> {
     await updateUIAfterNavigation();
   }
 }
+
+const handleRefreshAnchors = withErrorBoundary(async () => {
+  const { updated, removed } = await (await import('./bookmarks')).validateAndSyncBookmarks();
+  figma.notify(`Anchors resynced: ${updated} updated, ${removed} removed`);
+  await updateUIAfterNavigation();
+}, ErrorType.UNKNOWN);
+
+const handleToggleToLayerMode = withErrorBoundary(async () => {
+  const latestSelection = findNearestExistingSelectionEntryAnyDirection();
+
+  if (!latestSelection || !latestSelection.nodeId) {
+    figma.notify('No recent selection available');
+    sendSelectionStateToUI();
+    return;
+  }
+
+  try {
+    // Navigate to page if needed
+    if (figma.currentPage.id !== latestSelection.pageId) {
+      const targetPage = figma.root.children.find(p => p.id === latestSelection.pageId && p.type === 'PAGE') as PageNode | undefined;
+      if (targetPage) {
+        await figma.setCurrentPageAsync(targetPage);
+      } else {
+        figma.notify(`Page no longer exists for recent selection`);
+        sendSelectionStateToUI();
+        return;
+      }
+    }
+
+    // Select the node if it exists
+    const node = await figma.getNodeByIdAsync(latestSelection.nodeId);
+    if (node) {
+      figma.currentPage.selection = [node as SceneNode];
+      if ('visible' in node && node.visible) {
+        figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
+      }
+      const label = latestSelection.nodeName || 'Layer';
+      figma.notify(`Selected: ${label}`);
+    } else {
+      figma.notify('Previously selected layer is no longer available');
+    }
+
+    await updateUIAfterNavigation();
+  } catch (error) {
+    console.error('Error selecting recent layer from history:', error);
+    figma.notify('Failed to select recent layer');
+    sendSelectionStateToUI();
+  }
+}, ErrorType.UNKNOWN);

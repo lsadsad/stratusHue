@@ -61,6 +61,29 @@ export let recentHistoryState: RecentHistoryState = {
   lastUpdated: 0 
 };
 
+// ===== PREVIOUS SELECTION STATE =====
+export let previousSelectionState: {
+  nodeIds: string[];
+  pageId: string;
+  timestamp: number;
+} | null = null;
+
+export function setPreviousSelection(nodeIds: string[], pageId: string): void {
+  previousSelectionState = {
+    nodeIds,
+    pageId,
+    timestamp: Date.now()
+  };
+}
+
+export function getPreviousSelection() {
+  return previousSelectionState;
+}
+
+export function clearPreviousSelection(): void {
+  previousSelectionState = null;
+}
+
 export function setCurrentAnchor(bookmarkId: string | null): void {
   currentAnchorState.bookmarkId = bookmarkId;
   currentAnchorState.timestamp = Date.now();

@@ -7,8 +7,11 @@
   "scripts": {
     "build": "node esbuild.config.js",
     "build:prod": "cross-env NODE_ENV=production node esbuild.config.js",
+    "build:plugin-ready": "npm run build:prod && node scripts/build-plugin-ready.js",
+    "package": "node scripts/package-plugin.js",
     "dev": "node esbuild.config.js --watch",
     "clean": "node -e \"import fs from 'fs'; if(fs.existsSync('dist')) fs.rmSync('dist',{recursive:true,force:true}); console.log('🧹 Cleaned dist directory')\"",
+    "clean:all": "node -e \"import fs from 'fs'; ['dist','plugin-ready'].forEach(d => { if(fs.existsSync(d)) { fs.rmSync(d,{recursive:true,force:true}); console.log('🧹 Cleaned '+d+' directory'); } })\"",
     "lint": "eslint --ext .ts,.tsx --ignore-pattern node_modules .",
     "lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix .",
     "validate": "npm run lint && npm run build && echo Build validation completed successfully",
@@ -48,5 +51,8 @@
         }
       ]
     }
+  },
+  "dependencies": {
+    "lottie-web": "^5.13.0"
   }
 }

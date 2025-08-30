@@ -267,6 +267,113 @@ export async function goForwardInHistory(): Promise<{ success: boolean; message:
   return result;
 }
 
+// ===== SELECTION-ONLY NAVIGATION =====
+function findPreviousSelectionIndex(startIndex: number): number {
+  for (let i = startIndex - 1; i >= 0; i--) {
+    const entry = navigationHistory[i];
+    if (entry && entry.type === 'selection') return i;
+  }
+  return -1;
+}
+
+function findNextSelectionIndex(startIndex: number): number {
+  for (let i = startIndex + 1; i < navigationHistory.length; i++) {
+    const entry = navigationHistory[i];
+    if (entry && entry.type === 'selection') return i;
+  }
+  return -1;
+}
+
+export async function goBackSelectionOnly(): Promise<{ success: boolean; message: string }> {
+  const targetIndex = findPreviousSelectionIndex(historyIndex);
+  if (targetIndex === -1) {
+    return { success: false, message: 'No previous selection to go back to.' };
+  }
+
+  const entry = navigationHistory[targetIndex];
+  setNavigatingThroughHistory(true);
+  const result = await navigateToHistoryEntry(entry);
+  if (result.success) setHistoryIndex(targetIndex);
+  setTimeout(() => setNavigatingThroughHistory(false), 150);
+  return result;
+}
+
+export async function goForwardSelectionOnly(): Promise<{ success: boolean; message: string }> {
+  const targetIndex = findNextSelectionIndex(historyIndex);
+  if (targetIndex === -1) {
+    return { success: false, message: 'No next selection to go forward to.' };
+  }
+
+  const entry = navigationHistory[targetIndex];
+  setNavigatingThroughHistory(true);
+  const result = await navigateToHistoryEntry(entry);
+  if (result.success) setHistoryIndex(targetIndex);
+  setTimeout(() => setNavigatingThroughHistory(false), 150);
+  return result;
+}
+
+// ===== HISTORY QUERIES =====
+export function getLatestSelectionEntry(): import('./types').HistoryEntry | null {
+  for (let i = historyIndex; i >= 0; i--) {
+    const entry = navigationHistory[i];
+    if (entry && entry.type === 'selection') return entry;
+  }
+  return null;
+}
+
+export function getLatestExistingSelectionEntry(): import('./types').HistoryEntry | null {
+  for (let i = historyIndex; i >= 0; i--) {
+    const entry = navigationHistory[i];
+    if (entry && entry.type === 'selection' && entry.nodeId) {
+      try {
+        const node = figma.getNodeById(entry.nodeId);
+        if (node) return entry;
+      } catch (_err) {
+        // skip invalid
+      }
+    }
+  }
+  return null;
+}
+
+export function findNearestExistingSelectionEntry(startIndex?: number): import('./types').HistoryEntry | null {
+  const from = typeof startIndex === 'number' ? startIndex : historyIndex;
+  for (let i = from; i >= 0; i--) {
+    const entry = navigationHistory[i];
+    if (entry && entry.type === 'selection' && entry.nodeId) {
+      try {
+        const node = figma.getNodeById(entry.nodeId);
+        if (node) return entry;
+      } catch (_err) {
+        // continue scanning
+      }
+    }
+  }
+  return null;
+}
+
+export function findNearestExistingSelectionEntryAnyDirection(): import('./types').HistoryEntry | null {
+  // Prefer going backward from current index; if none, try forward
+  const backward = findNearestExistingSelectionEntry(historyIndex);
+  if (backward) return backward;
+  for (let i = historyIndex + 1; i < navigationHistory.length; i++) {
+    const entry = navigationHistory[i];
+    if (entry && entry.type === 'selection' && entry.nodeId) {
+      try {
+        const node = figma.getNodeById(entry.nodeId);
+        if (node) return entry;
+      } catch (_err) {
+        // skip
+      }
+    }
+  }
+  return null;
+}
+
+export function hasAnySelectionEntry(): boolean {
+  return navigationHistory.some(e => e && e.type === 'selection');
+}
+
 async function navigateToHistoryEntry(entry: import('./types').HistoryEntry): Promise<{ success: boolean; message: string }> {
   try {
     // Check if we need to switch pages

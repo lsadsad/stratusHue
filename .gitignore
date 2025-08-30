@@ -91,6 +91,12 @@ out
 .nuxt
 dist
 
+# Plugin distribution folder
+plugin-ready
+
+# Plugin packages
+packages
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js

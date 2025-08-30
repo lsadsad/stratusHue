@@ -1,6 +1,8 @@
 // Figma Plugin UI - TypeScript Implementation
 // Handles all UI interactions and communication with the plugin sandbox
 
+import lottie from 'lottie-web';
+
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
 // Type definitions for better development experience
@@ -8,6 +10,22 @@ interface PluginMessage {
   type: string;
   [key: string]: any;
 }
+
+interface LottieAnimationConfig {
+  container: HTMLElement;
+  animationData: any;
+  renderer?: 'svg' | 'canvas' | 'html';
+  loop?: boolean;
+  autoplay?: boolean;
+  name?: string;
+}
+
+// Store active Lottie animations for management
+const activeLottieAnimations = new Map<string, any>();
+
+// Toggle state management
+let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
+let hasPreviousSelection = false;
 
 // Helper function to send messages to plugin sandbox
 function sendMessage(type: string, data: Record<string, any> = {}): void {
@@ -28,9 +46,19 @@ function handlePluginMessage(event: MessageEvent): void {
       if (emojis) {
         updateEmojiButtons(emojis);
       }
+      // Update toggle state based on selection
+      updateToggleState(message.hasLayerSelected);
+      // Update previous selection state
+      hasPreviousSelection = message.hasPreviousSelection || false;
+      updateToggleUI();
       break;
     case 'bookmarks':
-      updateBookmarksList(message.bookmarks);
+      updateBookmarksList(
+        message.bookmarks,
+        message.currentAnchorId,
+        message.previousBookmarkId,
+        message.isInsideAnchor
+      );
       break;
     case 'navigation-state':
       updateNavigationButtons(message.canGoBack, message.canGoForward);
@@ -45,6 +73,112 @@ function handlePluginMessage(event: MessageEvent): void {
       console.log('Plugin success:', message.message);
       break;
   }
+}
+
+// Update toggle state based on selection
+function updateToggleState(hasLayerSelected: boolean): void {
+  const newMode = hasLayerSelected ? 'onLayer' : 'onPage';
+  if (currentToggleMode !== newMode) {
+    currentToggleMode = newMode;
+    updateToggleUI();
+  }
+}
+
+// Update toggle UI to reflect current state
+function updateToggleUI(): void {
+  const toggleButton = document.getElementById('toggle-mode');
+  if (!toggleButton) return;
+
+  const onPageOption = toggleButton.querySelector('[data-mode="onPage"]');
+  const onLayerOption = toggleButton.querySelector('[data-mode="onLayer"]');
+
+  if (onPageOption && onLayerOption) {
+    onPageOption.classList.toggle('active', currentToggleMode === 'onPage');
+    onLayerOption.classList.toggle('active', currentToggleMode === 'onLayer');
+
+    // Reflect active on root for CSS-driven indicator
+    toggleButton.setAttribute('data-active', currentToggleMode);
+    
+    // Handle disabled state for onLayer option
+    if (currentToggleMode === 'onPage' && !hasPreviousSelection) {
+      onLayerOption.classList.add('disabled');
+      toggleButton.setAttribute('aria-label', 'Toggle between page and layer mode (layer mode unavailable - no previous selection)');
+    } else {
+      onLayerOption.classList.remove('disabled');
+      toggleButton.setAttribute('aria-label', 'Toggle between page and layer mode');
+    }
+  }
+}
+
+// Handle toggle click
+function handleToggleClick(mode: 'onPage' | 'onLayer'): void {
+  if (currentToggleMode === mode) return;
+  
+  // Prevent switching to onLayer if no previous selection is available
+  if (mode === 'onLayer' && !hasPreviousSelection) {
+    console.log('Cannot switch to layer mode - no previous selection available');
+    return;
+  }
+
+  currentToggleMode = mode;
+  updateToggleUI();
+
+  if (mode === 'onPage') {
+    // Deselect all layers to switch to page mode
+    console.log('Switching to page mode - deselecting layers');
+    sendMessage('deselect');
+  } else {
+    // For layer mode, we need to ensure there's a selection
+    // This will be handled by the plugin's selection state
+    console.log('Switching to layer mode');
+    sendMessage('toggle-mode', { mode: 'onLayer' });
+  }
+}
+
+// Compute natural content height (ignoring current flex-driven viewport size)
+function computeFitHeight(): number {
+  const main = document.querySelector('main.scrollable-content') as HTMLElement | null;
+  const footer = document.getElementById('footer');
+  const footerHeight = footer ? footer.offsetHeight : 0;
+
+  if (!main) {
+    const fallback = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) + footerHeight;
+    return Math.ceil(fallback);
+  }
+
+  // Preserve existing inline styles to restore later
+  const prevFlex = main.style.flex;
+  const prevHeight = main.style.height;
+  const prevMaxHeight = main.style.maxHeight;
+
+  // Temporarily remove flex constraints to measure natural content height
+  main.style.flex = '0 0 auto';
+  main.style.height = 'auto';
+  main.style.maxHeight = 'none';
+
+  // Measure only visible (non-collapsed) children
+  const mainRect = main.getBoundingClientRect();
+  let visibleBottom = mainRect.top;
+  const children = Array.from(main.children) as HTMLElement[];
+  for (const child of children) {
+    const isCollapsible = child.classList.contains('collapsible-content');
+    const isCollapsed = child.classList.contains('collapsed');
+    if (isCollapsible && isCollapsed) {
+      continue;
+    }
+    const rect = child.getBoundingClientRect();
+    // Skip elements with zero height (not rendered)
+    if (rect.height <= 0) continue;
+    visibleBottom = Math.max(visibleBottom, rect.bottom);
+  }
+  const naturalScrollHeight = Math.max(0, Math.ceil(visibleBottom - mainRect.top));
+
+  // Restore previous styles
+  main.style.flex = prevFlex;
+  main.style.height = prevHeight;
+  main.style.maxHeight = prevMaxHeight;
+
+  return Math.ceil(naturalScrollHeight + footerHeight);
 }
 
 // Simple emoji button updater
@@ -67,6 +201,106 @@ function updateEmojiButtons(emojis: string[]): void {
   });
 }
 
+// Lottie Animation Utilities
+function initializeLottieAnimation(config: LottieAnimationConfig): any {
+  try {
+    const animation = lottie.loadAnimation({
+      container: config.container,
+      renderer: config.renderer || 'svg',
+      loop: config.loop !== false, // Default to true
+      autoplay: config.autoplay !== false, // Default to true
+      animationData: config.animationData,
+      name: config.name || `lottie-${Date.now()}`
+    });
+
+    // Store animation for management
+    if (config.name) {
+      activeLottieAnimations.set(config.name, animation);
+    }
+
+    console.log('✨ Lottie animation initialized:', config.name || 'unnamed');
+    return animation;
+  } catch (error) {
+    console.error('❌ Failed to initialize Lottie animation:', error);
+    return null;
+  }
+}
+
+function loadLottieFromElement(element: HTMLElement): any {
+  const lottieData = element.getAttribute('data-lottie');
+  if (!lottieData) {
+    console.warn('No Lottie data found on element');
+    return null;
+  }
+
+  try {
+    const animationData = JSON.parse(lottieData.replace(/&#39;/g, "'"));
+    const animationName = element.getAttribute('data-lottie-name') || `lottie-${element.id || Date.now()}`;
+    
+    return initializeLottieAnimation({
+      container: element,
+      animationData,
+      renderer: (element.getAttribute('data-lottie-renderer') as any) || 'svg',
+      loop: element.getAttribute('data-lottie-loop') !== 'false',
+      autoplay: element.getAttribute('data-lottie-autoplay') !== 'false',
+      name: animationName
+    });
+  } catch (error) {
+    console.error('❌ Failed to parse Lottie data:', error);
+    return null;
+  }
+}
+
+function initializeAllLottieElements(): void {
+  const lottieElements = document.querySelectorAll('[data-lottie]');
+  console.log(`🎬 Found ${lottieElements.length} Lottie elements to initialize`);
+  
+  lottieElements.forEach((element) => {
+    loadLottieFromElement(element as HTMLElement);
+  });
+}
+
+function destroyLottieAnimation(name: string): void {
+  const animation = activeLottieAnimations.get(name);
+  if (animation) {
+    animation.destroy();
+    activeLottieAnimations.delete(name);
+    console.log('🗑️ Destroyed Lottie animation:', name);
+  }
+}
+
+function destroyAllLottieAnimations(): void {
+  activeLottieAnimations.forEach((animation, name) => {
+    animation.destroy();
+    console.log('🗑️ Destroyed Lottie animation:', name);
+  });
+  activeLottieAnimations.clear();
+}
+
+function playLottieAnimation(name: string): void {
+  const animation = activeLottieAnimations.get(name);
+  if (animation) {
+    animation.play();
+    console.log('▶️ Playing Lottie animation:', name);
+  }
+}
+
+function pauseLottieAnimation(name: string): void {
+  const animation = activeLottieAnimations.get(name);
+  if (animation) {
+    animation.pause();
+    console.log('⏸️ Paused Lottie animation:', name);
+  }
+}
+
+function stopLottieAnimation(name: string): void {
+  const animation = activeLottieAnimations.get(name);
+  if (animation) {
+    animation.stop();
+    console.log('⏹️ Stopped Lottie animation:', name);
+  }
+}
+
 // Main plugin initialization
 function initializePlugin(): void {
   console.log('🚀 Initializing plugin functionality...');
@@ -75,23 +309,34 @@ function initializePlugin(): void {
   console.log('📤 Sending ui-ready message');
   sendMessage('ui-ready');
 
+  // Initialize toggle state
+  updateToggleUI();
+
+  // Initialize Lottie animations
+  initializeAllLottieElements();
+
   console.log('✅ Plugin initialization complete - waiting for emoji data from plugin');
 }
 
 // Setup event listeners for UI controls
 function setupEventListeners(): void {
-  const deselectBtn = document.getElementById('deselect-btn');
   const backBtn = document.getElementById('back-btn');
   const forwardBtn = document.getElementById('forward-btn');
   const clearBtn = document.getElementById('clear-color');
   const saveBtn = document.getElementById('save-bookmark');
-
-  if (deselectBtn) {
-    deselectBtn.addEventListener('click', () => {
-      console.log('Deselect clicked');
-      sendMessage('deselect');
-    });
-  }
+  const dateBtn = document.getElementById('date-btn');
+  const newPageBtn = document.getElementById('new-page-btn');
+  const settingsBtn = document.getElementById('settings-btn');
+  const settingsOverlay = document.getElementById('settings-overlay');
+  const settingsCloseBtn = document.getElementById('settings-close');
+  const emojiNavLeft = document.getElementById('emoji-nav-left');
+  const emojiNavRight = document.getElementById('emoji-nav-right');
+  const refreshAnchorsBtn = document.getElementById('refresh-anchors');
+  const widthToggleBtn = document.getElementById('footer-width-toggle');
+  const fitBtn = document.getElementById('footer-fit');
+  const resizeHandle = document.getElementById('footer-resize');
+  const collapsibleHeaders = Array.from(document.querySelectorAll<HTMLElement>('.section-header.collapsible'));
+  const toggleModeBtn = document.getElementById('toggle-mode');
 
   if (backBtn) {
     backBtn.addEventListener('click', () => {
@@ -120,6 +365,223 @@ function setupEventListeners(): void {
       sendMessage('save-bookmark');
     });
   }
+
+  // Date button (basic handler; functionality wired later)
+  if (dateBtn) {
+    dateBtn.addEventListener('click', () => {
+      console.log('Date button clicked');
+      // Future: sendMessage('add-date') or similar
+    });
+  }
+
+  // New Page (functionality to be implemented later)
+  if (newPageBtn) {
+    newPageBtn.addEventListener('click', () => {
+      console.log('New Page clicked');
+      // Intentionally not sending a message yet; functionality to be implemented later
+    });
+  }
+
+  // Settings overlay open/close
+  const openSettings = () => {
+    if (!settingsOverlay) return;
+    settingsOverlay.setAttribute('aria-hidden', 'false');
+    settingsOverlay.classList.add('open');
+    // Move focus into the panel content for accessibility
+    const content = settingsOverlay.querySelector<HTMLElement>('.settings-content');
+    if (content) content.focus();
+  };
+
+  const closeSettings = () => {
+    if (!settingsOverlay) return;
+    settingsOverlay.setAttribute('aria-hidden', 'true');
+    settingsOverlay.classList.remove('open');
+    // Return focus to the settings button
+    if (settingsBtn instanceof HTMLElement) settingsBtn.focus();
+  };
+
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+      console.log('Open settings');
+      openSettings();
+    });
+  }
+
+  if (settingsCloseBtn) {
+    settingsCloseBtn.addEventListener('click', () => {
+      console.log('Close settings');
+      closeSettings();
+    });
+  }
+
+  // Close when clicking backdrop
+  if (settingsOverlay) {
+    settingsOverlay.addEventListener('click', (e) => {
+      if (e.target === settingsOverlay) {
+        closeSettings();
+      }
+    });
+  }
+
+  // Escape to close
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && settingsOverlay && settingsOverlay.getAttribute('aria-hidden') === 'false') {
+      closeSettings();
+    }
+  });
+
+  // Emoji set navigation
+  if (emojiNavLeft) {
+    emojiNavLeft.addEventListener('click', (e) => {
+      e.stopPropagation();
+      console.log('Emoji set: previous');
+      sendMessage('navigate-emoji-set', { direction: 'prev' });
+    });
+  }
+  if (emojiNavRight) {
+    emojiNavRight.addEventListener('click', (e) => {
+      e.stopPropagation();
+      console.log('Emoji set: next');
+      sendMessage('navigate-emoji-set', { direction: 'next' });
+    });
+  }
+
+  // Anchors refresh button (inside header)
+  if (refreshAnchorsBtn) {
+    refreshAnchorsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      console.log('Refresh anchors clicked');
+      sendMessage('refresh-anchors');
+    });
+  }
+
+  // Toggle compact/full width
+  if (widthToggleBtn) {
+    widthToggleBtn.addEventListener('click', () => {
+      console.log('Toggle width');
+      sendMessage('toggle-width');
+    });
+  }
+
+  // Fit height to content
+  if (fitBtn) {
+    fitBtn.addEventListener('click', () => {
+      const contentHeight = computeFitHeight();
+      console.log('Fit height to content (natural):', contentHeight);
+      sendMessage('resize-ui', { height: contentHeight });
+    });
+  }
+
+  // Drag to resize height
+  if (resizeHandle) {
+    let isDragging = false;
+    let startY = 0;
+    let startHeight = 0;
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      const deltaY = e.clientY - startY;
+      const newHeight = Math.max(150, Math.min(800, Math.round(startHeight + deltaY)));
+      sendMessage('resize-ui', { height: newHeight });
+    };
+
+    const onMouseUp = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    resizeHandle.addEventListener('mousedown', (e: MouseEvent) => {
+      isDragging = true;
+      startY = e.clientY;
+      startHeight = window.innerHeight;
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    });
+
+    resizeHandle.addEventListener('keydown', (e: KeyboardEvent) => {
+      const step = 16;
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        const direction = e.key === 'ArrowUp' ? -1 : 1;
+        const newHeight = Math.max(150, Math.min(800, window.innerHeight + direction * step));
+        sendMessage('resize-ui', { height: newHeight });
+        e.preventDefault();
+      }
+    });
+  }
+
+  // Collapsible section headers
+  if (collapsibleHeaders.length > 0) {
+    const computeTarget = (header: HTMLElement): HTMLElement | null => {
+      const targetId = header.getAttribute('data-target');
+      if (targetId) return document.getElementById(targetId);
+      // Fallback: next sibling section
+      let sibling: Element | null = header.nextElementSibling;
+      while (sibling && !(sibling as HTMLElement).classList.contains('collapsible-content')) {
+        sibling = sibling.nextElementSibling;
+      }
+      return sibling as HTMLElement | null;
+    };
+
+    const toggleSection = (header: HTMLElement, target: HTMLElement): void => {
+      const currentlyExpanded = header.getAttribute('aria-expanded') !== 'false';
+      const nextExpanded = !currentlyExpanded;
+      header.setAttribute('aria-expanded', String(nextExpanded));
+      if (!nextExpanded) {
+        target.classList.add('collapsed');
+      } else {
+        target.classList.remove('collapsed');
+      }
+      // After transition, optionally adjust height if needed
+      // Small delay allows CSS transition to compute new height
+      window.setTimeout(() => {
+        const contentHeight = computeFitHeight();
+        sendMessage('resize-ui', { height: contentHeight });
+      }, 200);
+    };
+
+    collapsibleHeaders.forEach((header) => {
+      const target = computeTarget(header);
+      if (!target) return;
+
+      // Ensure ARIA linkage
+      if (!header.getAttribute('aria-controls')) {
+        if (target.id) header.setAttribute('aria-controls', target.id);
+      }
+
+      const onActivate = (e?: Event) => {
+        if (e) e.preventDefault();
+        toggleSection(header, target);
+      };
+
+      header.addEventListener('click', onActivate);
+      header.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onActivate(e);
+        }
+      });
+    });
+  }
+
+  // Toggle mode button
+  if (toggleModeBtn) {
+    toggleModeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const target = e.currentTarget as HTMLElement;
+      const onPageOption = target.querySelector('[data-mode="onPage"]');
+      const onLayerOption = target.querySelector('[data-mode="onLayer"]');
+
+      if (onPageOption && onLayerOption) {
+        if (onPageOption.classList.contains('active')) {
+          handleToggleClick('onLayer');
+        } else {
+          handleToggleClick('onPage');
+        }
+      }
+    });
+  }
 }
 
 // UI state update functions
@@ -128,7 +590,12 @@ function updateUIState(data: any): void {
   console.log('Updating UI state:', data);
 }
 
-function updateBookmarksList(bookmarks: any[]): void {
+function updateBookmarksList(
+  bookmarks: any[],
+  currentAnchorId?: string | null,
+  previousBookmarkId?: string | null,
+  isInsideAnchor?: boolean
+): void {
   const bookmarkList = document.getElementById('bookmark-list');
   if (!bookmarkList) return;
 
@@ -136,15 +603,40 @@ function updateBookmarksList(bookmarks: any[]): void {
   bookmarks.forEach(bookmark => {
     const li = document.createElement('li');
     li.className = 'bookmark-item';
+
+    // Apply selection state classes
+    if (currentAnchorId && bookmark.id === currentAnchorId) {
+      li.classList.add('current-anchor');
+      if (isInsideAnchor) li.classList.add('inside-anchor');
+    } else if (previousBookmarkId && bookmark.id === previousBookmarkId) {
+      li.classList.add('recent-history');
+    }
+
+    // Inner content
     li.innerHTML = `
       <div class="bookmark-content">
         <div class="bookmark-name">${bookmark.name}</div>
         <div class="bookmark-page">${bookmark.pageName}</div>
       </div>
+      <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">
+        ✕
+      </button>
     `;
+
+    // Navigate on item click
     li.addEventListener('click', () => {
       sendMessage('jump-to-bookmark', { id: bookmark.id });
     });
+
+    // Remove button behavior
+    const removeBtn = li.querySelector('.bookmark-remove');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sendMessage('remove-bookmark', { id: bookmark.id });
+      });
+    }
+
     bookmarkList.appendChild(li);
   });
 }
