@@ -34,6 +34,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --button-height-sm: 16px;
   --button-height-md: 24px;
   --button-height-lg: 32px;
+  --icon-size-xs: 6px;
   --icon-size-sm: 8px;
   --icon-size-md: 10px;
   --icon-size-lg: 16px;
@@ -362,6 +363,11 @@ h3 {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
+}
+
+/* Disable scrolling when content doesn't require it */
+.scrollable-content.no-scroll {
+  overflow-y: hidden;
 }
 
 .scrollable-content::-webkit-scrollbar {
@@ -829,21 +835,27 @@ h3 {
   min-height: calc(var(--spacing-lg) * 3);
   align-self: stretch;
   background: var(--color-background-elevated);
-  flex-wrap: nowrap;
-  overflow: hidden;
+  flex-wrap: wrap;
+  overflow: visible;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Scoped toolbar tweaks */
 #quick-actions .action-list {
   gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 #quick-actions .action-btn {
   width: calc(var(--spacing-lg) * 3);
+  min-width: calc(var(--spacing-lg) * 3);
   min-height: calc(var(--spacing-lg) * 3);
   font-size: var(--icon-size-sm);
   background: var(--color-background-secondary);
   color: var(--color-text-secondary);
+  flex-shrink: 0;
 }
 
 /* Action List */
@@ -856,6 +868,8 @@ h3 {
   margin: 0;
   padding: 0;
   width: 100%;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .action-list li.align-right {
@@ -864,6 +878,7 @@ h3 {
 
 .action-list li {
   display: flex;
+  flex-shrink: 0;
 }
 
 /* Top Badge */
@@ -894,6 +909,7 @@ h3 {
   justify-content: space-between;
   align-items: center;
   background: var(--color-background-secondary);
+  border: 1px solid #000;
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
   padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-xxl);
@@ -1147,7 +1163,7 @@ h3 {
   gap: 0;
   background: var(--color-background-elevated);
   padding: var(--spacing-lg);
-  border: 0.8px solid var(--theme-border-translucent);
+  border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
   position: relative;
@@ -1307,7 +1323,7 @@ h3 {
 
 .bookmark-item.current-anchor {
   /* background: var(--theme-accent-blue); */
-  border: 0.8px solid var(--figma-color-border-brand);
+  border: 1px solid var(--figma-color-border-brand);
   border-radius: var(--border-radius-lg);
 }
 
@@ -1598,6 +1614,50 @@ i.grip {
   }
 }
 
+/* ===== RESPONSIVE ACTION BUTTONS ===== */
+
+/* Very narrow widths - stack buttons or reduce size */
+@media (max-width: 160px) {
+  #quick-actions {
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm) 0 var(--spacing-sm);
+  }
+  
+  #quick-actions .action-list {
+    gap: var(--spacing-xs);
+    justify-content: center;
+  }
+  
+  #quick-actions .action-btn {
+    width: calc(var(--spacing-lg) * 2.5);
+    min-width: calc(var(--spacing-lg) * 2.5);
+    min-height: calc(var(--spacing-lg) * 2.5);
+    font-size: var(--icon-size-xs);
+  }
+  
+  .action-list li.align-right {
+    margin-left: 0;
+  }
+}
+
+/* Narrow widths - reduce button spacing */
+@media (min-width: 161px) and (max-width: 200px) {
+  #quick-actions {
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md) 0 var(--spacing-md);
+  }
+  
+  #quick-actions .action-list {
+    gap: var(--spacing-xs);
+  }
+  
+  #quick-actions .action-btn {
+    width: calc(var(--spacing-lg) * 2.8);
+    min-width: calc(var(--spacing-lg) * 2.8);
+  }
+}
+
 /* ===== RESPONSIVE GRID LAYOUTS ===== */
 
 /* Consistent 4x4 grid (16 tokens) across all screen sizes */
@@ -1788,6 +1848,8 @@ i.grip {
   justify-content: center;
   font-size: var(--icon-size-sm);
   line-height: 1;
+  transition: all var(--transition-fast);
+  border-radius: var(--border-radius-sm);
 }
 
 #footer-fit.footer-icon-btn {
@@ -1798,20 +1860,49 @@ i.grip {
   left: 0;
 }
 
-#footer-fit.footer-icon-btn:hover,
-#footer-fit.footer-icon-btn:focus,
-#footer-width-toggle.footer-icon-btn:hover,
-#footer-width-toggle.footer-icon-btn:focus {
+/* Hover states with proper reset mechanisms */
+.footer-icon-btn:hover {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+}
+
+.footer-icon-btn:focus {
   color: var(--theme-text-primary);
   background: var(--theme-overlay-xweak);
   outline: none;
 }
 
+.footer-icon-btn:active {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xxweak);
+  transform: scale(0.95);
+}
+
+/* Ensure proper state reset when not hovered/focused */
+.footer-icon-btn:not(:hover):not(:focus):not(:active) {
+  color: var(--color-text-muted);
+  background: transparent;
+  transform: none;
+}
+
+/* Additional state management classes */
+.footer-icon-btn.hover-active {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+}
+
+/* Force reset styles for stuck states */
+.footer-icon-btn.force-reset {
+  color: var(--color-text-muted) !important;
+  background: transparent !important;
+  transform: none !important;
+}
+
 /* Footer Branding */
 .footer-branding {
   position: absolute;
-  bottom: calc(var(--footer-height) + var(--spacing-xs));
-  right: var(--spacing-sm);
+  bottom: calc(var(--footer-height) + var(--spacing-md));
+  right: var(--spacing-lg);
   pointer-events: none;
   z-index: var(--z-tooltip);
 }
@@ -2161,4 +2252,288 @@ i.grip {
 .nav-arrow {
   font-size: var(--font-size-sm);
   font-style: normal;
+}
+
+/* LEMON SQUEEZY SETTINGS STYLES */
+.settings-section {
+  margin-bottom: var(--spacing-xxl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--figma-color-border);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.settings-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--figma-color-text);
+  margin: 0 0 var(--spacing-lg) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.subscription-status {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--figma-color-bg-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: 11px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--figma-color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.status-dot.active {
+  background: #18a0fb;
+}
+
+.status-dot.inactive {
+  background: #f24822;
+}
+
+.status-dot.checking {
+  background: #ffc107;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.license-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.input-group label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--figma-color-text);
+}
+
+.input-group input {
+  padding: var(--spacing-md);
+  border: 1px solid var(--figma-color-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--figma-color-bg);
+  color: var(--figma-color-text);
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--figma-color-border-selected);
+  box-shadow: 0 0 0 1px var(--figma-color-border-selected);
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.btn-primary, .btn-secondary {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--figma-color-bg-brand);
+  color: var(--figma-color-text-onbrand);
+}
+
+.btn-primary:hover {
+  background: var(--figma-color-bg-brand-hover);
+}
+
+.btn-primary:disabled {
+  background: var(--figma-color-bg-disabled);
+  color: var(--figma-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--figma-color-bg-secondary);
+  color: var(--figma-color-text);
+  border: 1px solid var(--figma-color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--figma-color-bg-hover);
+}
+
+.feedback-message {
+  font-size: 11px;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  margin-top: var(--spacing-sm);
+  display: none;
+}
+
+.feedback-message.success {
+  background: #e8f5e8;
+  color: #2d7d32;
+  border: 1px solid #c8e6c9;
+  display: block;
+}
+
+.feedback-message.error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+  display: block;
+}
+
+.feedback-message.info {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+  display: block;
+}
+
+.setting-item {
+  margin-bottom: var(--spacing-md);
+}
+
+.setting-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: 11px;
+  color: var(--figma-color-text);
+  cursor: pointer;
+}
+
+.setting-label input[type="checkbox"] {
+  margin: 0;
+}
+
+.about-text {
+  font-size: 11px;
+  color: var(--figma-color-text-secondary);
+  margin: var(--spacing-sm) 0;
+  line-height: 1.4;
+}
+
+/* Theme Selector Styles */
+.theme-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: var(--spacing-md);
+  border: 1px solid var(--figma-color-border);
+  border-radius: var(--border-radius-md);
+  background: var(--figma-color-bg);
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.theme-option:hover {
+  background: var(--figma-color-bg-hover);
+  border-color: var(--figma-color-border-selected);
+}
+
+.theme-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-option input[type="radio"]:checked + .theme-option-content {
+  color: var(--figma-color-text-onbrand);
+}
+
+.theme-option input[type="radio"]:checked + .theme-option-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--figma-color-bg-brand);
+  border-radius: var(--border-radius-md);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.theme-option input[type="radio"]:checked ~ .theme-option {
+  border-color: var(--figma-color-border-brand);
+  background: var(--figma-color-bg-brand-secondary);
+}
+
+.theme-option-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  position: relative;
+}
+
+.theme-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.theme-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--figma-color-text);
+}
+
+.theme-description {
+  font-size: 10px;
+  color: var(--figma-color-text-secondary);
+  margin-left: auto;
+}
+
+.theme-option input[type="radio"]:checked + .theme-option-content .theme-name {
+  color: var(--figma-color-text);
+  font-weight: 600;
+}
+
+.theme-option input[type="radio"]:checked + .theme-option-content .theme-description {
+  color: var(--figma-color-text-secondary);
+}
+
+/* Theme option selected state */
+.theme-option:has(input[type="radio"]:checked) {
+  border-color: var(--figma-color-border-brand);
+  background: var(--figma-color-bg-brand-secondary, rgba(24, 160, 251, 0.05));
 }

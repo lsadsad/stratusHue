@@ -169,6 +169,12 @@ figma.ui.onmessage = async (msg) => {
         break;
       }
 
+      case 'open-url':
+        if ('url' in msg && msg.url && typeof msg.url === 'string') {
+          handleOpenUrl(msg.url);
+        }
+        break;
+
       default:
         console.log('Unknown message type:', msg.type);
     }
@@ -262,6 +268,17 @@ const handleRefreshAnchors = withErrorBoundary(async () => {
   const { updated, removed } = await (await import('./bookmarks')).validateAndSyncBookmarks();
   figma.notify(`Anchors resynced: ${updated} updated, ${removed} removed`);
   await updateUIAfterNavigation();
+}, ErrorType.UNKNOWN);
+
+const handleOpenUrl = withErrorBoundary(async (url: string) => {
+  try {
+    // Use Figma's built-in method to open URLs
+    figma.openExternal(url);
+    figma.notify('Opening checkout page...');
+  } catch (error) {
+    console.error('Failed to open URL:', error);
+    figma.notify('Failed to open URL');
+  }
 }, ErrorType.UNKNOWN);
 
 const handleToggleToLayerMode = withErrorBoundary(async () => {

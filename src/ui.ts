@@ -2,6 +2,7 @@
 // Handles all UI interactions and communication with the plugin sandbox
 
 import lottie from 'lottie-web';
+import { LemonSqueezyService, defaultLemonSqueezyConfig } from './lemon-squeezy';
 
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
@@ -22,6 +23,9 @@ interface LottieAnimationConfig {
 
 // Store active Lottie animations for management
 const activeLottieAnimations = new Map<string, any>();
+
+// Lemon Squeezy service instance
+const lemonSqueezyService = new LemonSqueezyService(defaultLemonSqueezyConfig);
 
 // Toggle state management
 let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
@@ -98,7 +102,7 @@ function updateToggleUI(): void {
 
     // Reflect active on root for CSS-driven indicator
     toggleButton.setAttribute('data-active', currentToggleMode);
-    
+
     // Handle disabled state for onLayer option
     if (currentToggleMode === 'onPage' && !hasPreviousSelection) {
       onLayerOption.classList.add('disabled');
@@ -113,7 +117,7 @@ function updateToggleUI(): void {
 // Handle toggle click
 function handleToggleClick(mode: 'onPage' | 'onLayer'): void {
   if (currentToggleMode === mode) return;
-  
+
   // Prevent switching to onLayer if no previous selection is available
   if (mode === 'onLayer' && !hasPreviousSelection) {
     console.log('Cannot switch to layer mode - no previous selection available');
@@ -181,6 +185,38 @@ function computeFitHeight(): number {
   return Math.ceil(naturalScrollHeight + footerHeight);
 }
 
+// Check if scrolling should be enabled based on content height
+function updateScrollBehavior(): void {
+  const main = document.querySelector('main.scrollable-content') as HTMLElement | null;
+  if (!main) return;
+
+  // Get the current container height
+  const containerHeight = main.clientHeight;
+
+  // Calculate the actual content height (visible content only)
+  let contentHeight = 0;
+  const children = Array.from(main.children) as HTMLElement[];
+
+  for (const child of children) {
+    const isCollapsible = child.classList.contains('collapsible-content');
+    const isCollapsed = child.classList.contains('collapsed');
+
+    // Skip collapsed collapsible content
+    if (isCollapsible && isCollapsed) {
+      continue;
+    }
+
+    contentHeight += child.offsetHeight;
+  }
+
+  // Enable/disable scrolling based on whether content exceeds container
+  if (contentHeight <= containerHeight) {
+    main.classList.add('no-scroll');
+  } else {
+    main.classList.remove('no-scroll');
+  }
+}
+
 // Simple emoji button updater
 function updateEmojiButtons(emojis: string[]): void {
   const container = document.getElementById('color-emoji-buttons');
@@ -191,14 +227,17 @@ function updateEmojiButtons(emojis: string[]): void {
     const button = document.createElement('button');
     button.className = 'emoji-button';
     button.textContent = emoji;
-    
+
     button.addEventListener('click', () => {
       console.log('Emoji clicked:', emoji);
       sendMessage('add-emoji', { emoji });
     });
-    
+
     container.appendChild(button);
   });
+
+  // Update scroll behavior after content changes
+  setTimeout(updateScrollBehavior, 50);
 }
 
 // Lottie Animation Utilities
@@ -236,7 +275,7 @@ function loadLottieFromElement(element: HTMLElement): any {
   try {
     const animationData = JSON.parse(lottieData.replace(/&#39;/g, "'"));
     const animationName = element.getAttribute('data-lottie-name') || `lottie-${element.id || Date.now()}`;
-    
+
     return initializeLottieAnimation({
       container: element,
       animationData,
@@ -254,7 +293,7 @@ function loadLottieFromElement(element: HTMLElement): any {
 function initializeAllLottieElements(): void {
   const lottieElements = document.querySelectorAll('[data-lottie]');
   console.log(`🎬 Found ${lottieElements.length} Lottie elements to initialize`);
-  
+
   lottieElements.forEach((element) => {
     loadLottieFromElement(element as HTMLElement);
   });
@@ -304,7 +343,7 @@ function stopLottieAnimation(name: string): void {
 // Main plugin initialization
 function initializePlugin(): void {
   console.log('🚀 Initializing plugin functionality...');
-  
+
   // Send ui-ready message to plugin sandbox
   console.log('📤 Sending ui-ready message');
   sendMessage('ui-ready');
@@ -314,6 +353,9 @@ function initializePlugin(): void {
 
   // Initialize Lottie animations
   initializeAllLottieElements();
+
+  // Initialize scroll behavior
+  updateScrollBehavior();
 
   console.log('✅ Plugin initialization complete - waiting for emoji data from plugin');
 }
@@ -461,6 +503,25 @@ function setupEventListeners(): void {
       console.log('Toggle width');
       sendMessage('toggle-width');
     });
+
+    // Add hover state management to prevent stuck states
+    widthToggleBtn.addEventListener('mouseenter', () => {
+      widthToggleBtn.classList.add('hover-active');
+    });
+
+    widthToggleBtn.addEventListener('mouseleave', () => {
+      widthToggleBtn.classList.remove('hover-active');
+      // Force style reset
+      widthToggleBtn.style.removeProperty('background');
+      widthToggleBtn.style.removeProperty('color');
+    });
+
+    widthToggleBtn.addEventListener('blur', () => {
+      widthToggleBtn.classList.remove('hover-active');
+      // Force style reset
+      widthToggleBtn.style.removeProperty('background');
+      widthToggleBtn.style.removeProperty('color');
+    });
   }
 
   // Fit height to content
@@ -469,6 +530,25 @@ function setupEventListeners(): void {
       const contentHeight = computeFitHeight();
       console.log('Fit height to content (natural):', contentHeight);
       sendMessage('resize-ui', { height: contentHeight });
+    });
+
+    // Add hover state management to prevent stuck states
+    fitBtn.addEventListener('mouseenter', () => {
+      fitBtn.classList.add('hover-active');
+    });
+
+    fitBtn.addEventListener('mouseleave', () => {
+      fitBtn.classList.remove('hover-active');
+      // Force style reset
+      fitBtn.style.removeProperty('background');
+      fitBtn.style.removeProperty('color');
+    });
+
+    fitBtn.addEventListener('blur', () => {
+      fitBtn.classList.remove('hover-active');
+      // Force style reset
+      fitBtn.style.removeProperty('background');
+      fitBtn.style.removeProperty('color');
     });
   }
 
@@ -536,6 +616,7 @@ function setupEventListeners(): void {
       // After transition, optionally adjust height if needed
       // Small delay allows CSS transition to compute new height
       window.setTimeout(() => {
+        updateScrollBehavior();
         const contentHeight = computeFitHeight();
         sendMessage('resize-ui', { height: contentHeight });
       }, 200);
@@ -582,6 +663,86 @@ function setupEventListeners(): void {
       }
     });
   }
+
+  // Theme switching
+  setupThemeSwitching();
+
+  // Lemon Squeezy event listeners
+  setupLemonSqueezyEventListeners();
+
+  // Setup footer button state management
+  setupFooterButtonStateManagement();
+}
+
+// Footer button state management to prevent stuck hover states
+function setupFooterButtonStateManagement(): void {
+  const footerButtons = document.querySelectorAll('.footer-icon-btn');
+
+  footerButtons.forEach((button) => {
+    const btn = button as HTMLElement;
+
+    // Add a global mouse move listener to detect when mouse is no longer over the button
+    let isMouseOver = false;
+
+    btn.addEventListener('mouseenter', () => {
+      isMouseOver = true;
+    });
+
+    btn.addEventListener('mouseleave', () => {
+      isMouseOver = false;
+      // Force reset styles
+      btn.style.removeProperty('background');
+      btn.style.removeProperty('color');
+      btn.style.removeProperty('transform');
+    });
+
+    // Handle focus/blur for keyboard navigation
+    btn.addEventListener('focus', () => {
+      // Focus styles are handled by CSS
+    });
+
+    btn.addEventListener('blur', () => {
+      if (!isMouseOver) {
+        // Force reset styles when losing focus and not hovered
+        btn.style.removeProperty('background');
+        btn.style.removeProperty('color');
+        btn.style.removeProperty('transform');
+      }
+    });
+
+    // Handle mouse up to reset active states
+    btn.addEventListener('mouseup', () => {
+      // Small delay to allow CSS transitions to complete
+      setTimeout(() => {
+        if (!isMouseOver) {
+          btn.style.removeProperty('background');
+          btn.style.removeProperty('color');
+          btn.style.removeProperty('transform');
+        }
+      }, 150);
+    });
+  });
+
+  // Global mouse move listener to catch edge cases
+  document.addEventListener('mousemove', (e) => {
+    footerButtons.forEach((button) => {
+      const btn = button as HTMLElement;
+      const rect = btn.getBoundingClientRect();
+      const isOver = (
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom
+      );
+
+      if (!isOver && !btn.matches(':focus')) {
+        // Mouse is not over this button and it's not focused
+        btn.style.removeProperty('background');
+        btn.style.removeProperty('color');
+        btn.style.removeProperty('transform');
+      }
+    });
+  });
 }
 
 // UI state update functions
@@ -639,12 +800,15 @@ function updateBookmarksList(
 
     bookmarkList.appendChild(li);
   });
+
+  // Update scroll behavior after content changes
+  setTimeout(updateScrollBehavior, 50);
 }
 
 function updateNavigationButtons(canGoBack: boolean, canGoForward: boolean): void {
   const backBtn = document.getElementById('back-btn') as HTMLButtonElement;
   const forwardBtn = document.getElementById('forward-btn') as HTMLButtonElement;
-  
+
   if (backBtn) backBtn.disabled = !canGoBack;
   if (forwardBtn) forwardBtn.disabled = !canGoForward;
 }
@@ -659,16 +823,146 @@ function updateEmojiSetIndicator(setName: string, currentIndex: number, totalSet
   }
 }
 
+// Utility function to reset all footer button states
+function resetFooterButtonStates(): void {
+  const footerButtons = document.querySelectorAll('.footer-icon-btn');
+  footerButtons.forEach((button) => {
+    const btn = button as HTMLElement;
+    btn.classList.remove('hover-active');
+    btn.style.removeProperty('background');
+    btn.style.removeProperty('color');
+    btn.style.removeProperty('transform');
+  });
+}
+
+// Safe localStorage wrapper for Figma plugin environment
+function safeLocalStorage() {
+  try {
+    // Test if localStorage is available
+    const test = 'test';
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return {
+      getItem: (key: string) => localStorage.getItem(key),
+      setItem: (key: string, value: string) => localStorage.setItem(key, value),
+      available: true
+    };
+  } catch (e) {
+    // localStorage is not available (Figma plugin sandbox)
+    console.warn('localStorage not available, using memory storage');
+    const memoryStorage: { [key: string]: string } = {};
+    return {
+      getItem: (key: string) => memoryStorage[key] || null,
+      setItem: (key: string, value: string) => { memoryStorage[key] = value; },
+      available: false
+    };
+  }
+}
+
+const storage = safeLocalStorage();
+
+// Theme switching functionality
+function setupThemeSwitching(): void {
+  const themeRadios = document.querySelectorAll('input[name="theme"]');
+
+  // Load saved theme preference (defaults to 'figma' if not available)
+  const savedTheme = storage.getItem('figma-plugin-theme') || 'figma';
+  applyTheme(savedTheme);
+
+  // Set the correct radio button
+  const savedThemeRadio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`) as HTMLInputElement;
+  if (savedThemeRadio) {
+    savedThemeRadio.checked = true;
+  }
+
+  // Add event listeners to theme radio buttons
+  themeRadios.forEach((radio) => {
+    radio.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.checked) {
+        const theme = target.value;
+        applyTheme(theme);
+        storage.setItem('figma-plugin-theme', theme);
+        console.log('Theme changed to:', theme);
+      }
+    });
+  });
+}
+
+function applyTheme(theme: string): void {
+  const htmlElement = document.documentElement;
+
+  // Remove existing theme attributes
+  htmlElement.removeAttribute('data-theme');
+
+  // Apply new theme
+  switch (theme) {
+    case 'light':
+      htmlElement.setAttribute('data-theme', 'light');
+      break;
+    case 'dark':
+      htmlElement.setAttribute('data-theme', 'dark');
+      break;
+    case 'figma':
+    default:
+      // Figma theme is the default (no data-theme attribute needed)
+      break;
+  }
+
+  // Update the UI to reflect theme change
+  updateThemeUI(theme);
+}
+
+function updateThemeUI(theme: string): void {
+  // Update any theme-specific UI elements if needed
+  const themeRadio = document.querySelector(`input[name="theme"][value="${theme}"]`) as HTMLInputElement;
+  if (themeRadio && !themeRadio.checked) {
+    themeRadio.checked = true;
+  }
+
+  // Dispatch a custom event for other parts of the app to listen to
+  window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }));
+}
+
 // DOM Ready handling
 function handleDOMReady(): void {
   // Initialize plugin functionality
   initializePlugin();
-  
+
   // Setup all event listeners
   setupEventListeners();
-  
+
   // Listen for messages from plugin
   window.addEventListener('message', handlePluginMessage);
+
+  // Update scroll behavior on window resize
+  window.addEventListener('resize', () => {
+    setTimeout(updateScrollBehavior, 100);
+  });
+
+  // Reset footer button states on various events that might cause stuck states
+  window.addEventListener('blur', resetFooterButtonStates);
+  window.addEventListener('focus', resetFooterButtonStates);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      setTimeout(resetFooterButtonStates, 100);
+    }
+  });
+
+  // Periodic cleanup to prevent stuck states (every 2 seconds)
+  setInterval(() => {
+    const footerButtons = document.querySelectorAll('.footer-icon-btn');
+    footerButtons.forEach((button) => {
+      const btn = button as HTMLElement;
+      // Only reset if not currently being interacted with
+      if (!btn.matches(':hover') && !btn.matches(':focus') && !btn.matches(':active')) {
+        btn.classList.remove('hover-active');
+        btn.style.removeProperty('background');
+        btn.style.removeProperty('color');
+        btn.style.removeProperty('transform');
+      }
+    });
+  }, 2000);
 }
 
 // Initialize when DOM is ready
@@ -677,3 +971,159 @@ if (document.readyState === 'loading') {
 } else {
   handleDOMReady();
 }
+
+// ===== LEMON SQUEEZY FUNCTIONS =====
+
+function setupLemonSqueezyEventListeners(): void {
+  const testApiBtn = document.getElementById('test-api-btn');
+  const validateLicenseBtn = document.getElementById('validate-license-btn');
+  const upgradeBtn = document.getElementById('upgrade-btn');
+  const licenseKeyInput = document.getElementById('license-key-input') as HTMLInputElement;
+
+  if (testApiBtn) {
+    testApiBtn.addEventListener('click', handleTestApiConnection);
+  }
+
+  if (validateLicenseBtn && licenseKeyInput) {
+    validateLicenseBtn.addEventListener('click', () => {
+      const licenseKey = licenseKeyInput.value.trim();
+      if (licenseKey) {
+        handleValidateLicense(licenseKey);
+      } else {
+        showFeedback('license-feedback', 'Please enter a license key', 'error');
+      }
+    });
+
+    // Validate on Enter key
+    licenseKeyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const licenseKey = licenseKeyInput.value.trim();
+        if (licenseKey) {
+          handleValidateLicense(licenseKey);
+        }
+      }
+    });
+  }
+
+  if (upgradeBtn) {
+    upgradeBtn.addEventListener('click', handleUpgradeClick);
+  }
+
+  // Initialize subscription status check
+  checkSubscriptionStatus();
+}
+
+async function handleTestApiConnection(): Promise<void> {
+  const testApiBtn = document.getElementById('test-api-btn') as HTMLButtonElement;
+  const originalText = testApiBtn.textContent;
+
+  testApiBtn.disabled = true;
+  testApiBtn.textContent = 'Testing...';
+
+  try {
+    const result = await lemonSqueezyService.testConnection();
+    showFeedback('api-feedback', result.message, result.success ? 'success' : 'error');
+  } catch (error) {
+    showFeedback('api-feedback', 'Connection test failed', 'error');
+  } finally {
+    testApiBtn.disabled = false;
+    testApiBtn.textContent = originalText;
+  }
+}
+
+async function handleValidateLicense(licenseKey: string): Promise<void> {
+  const validateBtn = document.getElementById('validate-license-btn') as HTMLButtonElement;
+  const originalText = validateBtn.textContent;
+
+  validateBtn.disabled = true;
+  validateBtn.textContent = 'Validating...';
+
+  try {
+    const result = await lemonSqueezyService.validateLicense(licenseKey);
+
+    if (result && result.valid) {
+      showFeedback('license-feedback', 'License validated successfully!', 'success');
+      updateSubscriptionStatus(true, result.license_key.expires_at);
+
+      // Store license key locally (you might want to encrypt this)
+      localStorage.setItem('figma-plugin-license', licenseKey);
+    } else {
+      showFeedback('license-feedback', 'Invalid license key', 'error');
+      updateSubscriptionStatus(false);
+    }
+  } catch (error) {
+    showFeedback('license-feedback', 'License validation failed', 'error');
+  } finally {
+    validateBtn.disabled = false;
+    validateBtn.textContent = originalText;
+  }
+}
+
+function handleUpgradeClick(): void {
+  const checkoutUrl = lemonSqueezyService.generateCheckoutUrl();
+
+  // Send message to plugin to open URL
+  sendMessage('open-url', { url: checkoutUrl });
+
+  showFeedback('api-feedback', 'Opening checkout page...', 'info');
+}
+
+function showFeedback(elementId: string, message: string, type: 'success' | 'error' | 'info'): void {
+  const feedbackElement = document.getElementById(elementId);
+  if (feedbackElement) {
+    feedbackElement.textContent = message;
+    feedbackElement.className = `feedback-message ${type}`;
+
+    // Auto-hide after 5 seconds for success/info messages
+    if (type === 'success' || type === 'info') {
+      setTimeout(() => {
+        feedbackElement.style.display = 'none';
+      }, 5000);
+    }
+  }
+}
+
+function updateSubscriptionStatus(isActive: boolean, expiresAt?: string | null): void {
+  const statusDot = document.getElementById('status-dot');
+  const statusText = document.getElementById('status-text');
+
+  if (statusDot && statusText) {
+    statusDot.className = `status-dot ${isActive ? 'active' : 'inactive'}`;
+
+    if (isActive) {
+      const expiryText = expiresAt ? ` (expires ${new Date(expiresAt).toLocaleDateString()})` : '';
+      statusText.textContent = `Premium Active${expiryText}`;
+    } else {
+      statusText.textContent = 'Free Version';
+    }
+  }
+}
+
+async function checkSubscriptionStatus(): Promise<void> {
+  const statusDot = document.getElementById('status-dot');
+  const statusText = document.getElementById('status-text');
+
+  if (statusDot && statusText) {
+    statusDot.className = 'status-dot checking';
+    statusText.textContent = 'Checking subscription...';
+  }
+
+  // Check for stored license key
+  const storedLicense = localStorage.getItem('figma-plugin-license');
+
+  if (storedLicense) {
+    try {
+      const result = await lemonSqueezyService.validateLicense(storedLicense);
+      if (result && result.valid) {
+        updateSubscriptionStatus(true, result.license_key.expires_at);
+        return;
+      }
+    } catch (error) {
+      console.error('Failed to validate stored license:', error);
+    }
+  }
+
+  // Default to free version
+  updateSubscriptionStatus(false);
+}
+

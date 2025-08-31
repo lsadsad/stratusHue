@@ -135,7 +135,89 @@
         </button>
       </header>
       <div class="settings-content" tabindex="0">
-        <p>Settings coming soon.</p>
+        <!-- Lemon Squeezy Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">🍋 Premium Features</h3>
+          
+          <div id="subscription-status" class="subscription-status">
+            <div class="status-indicator">
+              <span class="status-dot" id="status-dot"></span>
+              <span id="status-text">Checking subscription...</span>
+            </div>
+          </div>
+
+          <div id="license-section" class="license-section">
+            <div class="input-group">
+              <label for="license-key-input">License Key:</label>
+              <input type="text" id="license-key-input" placeholder="Enter your license key" />
+              <button id="validate-license-btn" class="btn-primary">Validate</button>
+            </div>
+            <div id="license-feedback" class="feedback-message"></div>
+          </div>
+
+          <div class="action-buttons">
+            <button id="test-api-btn" class="btn-secondary">Test API Connection</button>
+            <button id="upgrade-btn" class="btn-primary">Upgrade to Premium</button>
+          </div>
+
+          <div id="api-feedback" class="feedback-message"></div>
+        </div>
+
+        <!-- Plugin Settings Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">⚙️ Plugin Settings</h3>
+          
+          <!-- Theme Selection -->
+          <div class="setting-item">
+            <label class="setting-label">Theme:</label>
+            <div class="theme-selector">
+              <label class="theme-option">
+                <input type="radio" name="theme" value="figma" id="theme-figma" checked>
+                <span class="theme-option-content">
+                  <span class="theme-icon">🎨</span>
+                  <span class="theme-name">Figma</span>
+                  <span class="theme-description">Auto-match Figma's theme</span>
+                </span>
+              </label>
+              <label class="theme-option">
+                <input type="radio" name="theme" value="dark" id="theme-dark">
+                <span class="theme-option-content">
+                  <span class="theme-icon">🌙</span>
+                  <span class="theme-name">Dark</span>
+                  <span class="theme-description">Dark theme</span>
+                </span>
+              </label>
+              <label class="theme-option">
+                <input type="radio" name="theme" value="light" id="theme-light">
+                <span class="theme-option-content">
+                  <span class="theme-icon">☀️</span>
+                  <span class="theme-name">Light</span>
+                  <span class="theme-description">Light theme</span>
+                </span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="auto-save-bookmarks" checked>
+              Auto-save bookmarks
+            </label>
+          </div>
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="show-emoji-tooltips" checked>
+              Show emoji tooltips
+            </label>
+          </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">ℹ️ About</h3>
+          <p class="about-text">Stratus Hue Plugin v1.0.0</p>
+          <p class="about-text">Enhance your Figma workflow with emoji tags and navigation.</p>
+        </div>
       </div>
     </div>
   </div>
