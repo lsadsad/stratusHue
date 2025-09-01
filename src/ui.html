@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Stratus Hue Plugin</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -29,14 +29,12 @@
             <i class="icon" aria-hidden="true">🗓️</i>
             <span class="label">Date</span>
           </button>
-        </li>
-        <li>
           <button id="new-page-btn" class="action-btn" aria-label="Create new page">
             <i class="icon" aria-hidden="true">📄</i>
             <span class="label">New Page</span>
           </button>
         </li>
-        <li>
+        <li class="align-right">
           <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
             <i class="icon" aria-hidden="true">≡</i>
             <span class="label">Settings</span>
@@ -49,7 +47,7 @@
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
         <div class="icon-container">
-          <i class="arrow" aria-hidden="true">-</i>
+          <i class="arrow" aria-hidden="true"></i>
           <i class="tag-icon">🏷️</i>
         </div>
         <h2 class="header-title">TAGS</h2>
@@ -101,7 +99,7 @@
       tabindex="0" aria-expanded="true" aria-controls="anchors-section">
       <div class="header-left">
         <div class="icon-container">
-          <i class="arrow" aria-hidden="true">-</i>
+          <i class="arrow" aria-hidden="true"></i>
           <i class="tag-icon">⚓️</i>
         </div>
         <h2 class="header-title">ANCHORS</h2>
@@ -117,6 +115,10 @@
     <section id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
       <div class="anchors-container">
         <ul id="bookmark-list" role="list" aria-label="Bookmarks"></ul>
+        <div id="anchors-null-state" class="null-state" role="status" aria-hidden="true">
+          <div class="null-state-icon">⚓️</div>
+          <div class="null-state-description">Pick your target and drop an anchor to save your spot</div>
+        </div>
         <button id="save-bookmark" aria-label="Save bookmark">
           <!-- <span class="action-bracket">[ [</span> -->
           <span class="action-text">Drop ⚓️</span>
@@ -135,7 +137,89 @@
         </button>
       </header>
       <div class="settings-content" tabindex="0">
-        <p>Settings coming soon.</p>
+        <!-- Lemon Squeezy Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">🍋 Premium Features</h3>
+          
+          <div id="subscription-status" class="subscription-status">
+            <div class="status-indicator">
+              <span class="status-dot" id="status-dot"></span>
+              <span id="status-text">Checking subscription...</span>
+            </div>
+          </div>
+
+          <div id="license-section" class="license-section">
+            <div class="input-group">
+              <label for="license-key-input">License Key:</label>
+              <input type="text" id="license-key-input" placeholder="Enter your license key" />
+              <button id="validate-license-btn" class="btn-primary">Validate</button>
+            </div>
+            <div id="license-feedback" class="feedback-message"></div>
+          </div>
+
+          <div class="action-buttons">
+            <button id="test-api-btn" class="btn-secondary">Test API Connection</button>
+            <button id="upgrade-btn" class="btn-primary">Upgrade to Premium</button>
+          </div>
+
+          <div id="api-feedback" class="feedback-message"></div>
+        </div>
+
+        <!-- Plugin Settings Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">⚙️ Plugin Settings</h3>
+          
+          <!-- Theme Selection -->
+          <div class="setting-item">
+            <label class="setting-label">Theme:</label>
+            <div class="theme-selector">
+              <label class="theme-option">
+                <input type="radio" name="theme" value="figma" id="theme-figma" checked>
+                <span class="theme-option-content">
+                  <span class="theme-icon">🎨</span>
+                  <span class="theme-name">Figma</span>
+                  <span class="theme-description">Auto-match Figma's theme</span>
+                </span>
+              </label>
+              <label class="theme-option">
+                <input type="radio" name="theme" value="dark" id="theme-dark">
+                <span class="theme-option-content">
+                  <span class="theme-icon">🌙</span>
+                  <span class="theme-name">Dark</span>
+                  <span class="theme-description">Dark theme</span>
+                </span>
+              </label>
+              <label class="theme-option">
+                <input type="radio" name="theme" value="light" id="theme-light">
+                <span class="theme-option-content">
+                  <span class="theme-icon">☀️</span>
+                  <span class="theme-name">Light</span>
+                  <span class="theme-description">Light theme</span>
+                </span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="auto-save-bookmarks" checked>
+              Auto-save bookmarks
+            </label>
+          </div>
+          <div class="setting-item">
+            <label class="setting-label">
+              <input type="checkbox" id="show-emoji-tooltips" checked>
+              Show emoji tooltips
+            </label>
+          </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">ℹ️ About</h3>
+          <p class="about-text">Stratus Hue Plugin v1.0.0</p>
+          <p class="about-text">Enhance your Figma workflow with emoji tags and navigation.</p>
+        </div>
       </div>
     </div>
   </div>

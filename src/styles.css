@@ -34,8 +34,10 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --button-height-sm: 16px;
   --button-height-md: 24px;
   --button-height-lg: 32px;
+  --icon-size-xs: 6px;
   --icon-size-sm: 8px;
   --icon-size-md: 10px;
+  --icon-size-md-plus: 12px;
   --icon-size-lg: 16px;
   --icon-size-xl: 18px;
 
@@ -50,7 +52,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --border-radius-xs: 2px;
 
   /* Content Constraints */
-  --max-content-height: 300px;
+  --max-content-height: 500px;
   --badge-size: 14px;
   --arrow-width: 10px;
   --scrollbar-width: 2px;
@@ -72,7 +74,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   /* Misc Component Sizes */
   --spinner-size: 12px;
   --elevation-nudge: 1px;
-  --touch-target-min: 44px;
+  --touch-target-min: 32px;
   --border-radius-pill: 999px;
   --toggle-height: 28px;
   --toggle-min-width: 156px;
@@ -87,16 +89,14 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 
   /* Responsive Grid Breakpoints */
   --breakpoint-narrow: 200px;
-  --breakpoint-medium: 280px;
-  --breakpoint-wide: 360px;
-  --breakpoint-xwide: 440px;
+  --breakpoint-wide: 280px;
 
   /* Adaptive Sizing */
   --container-min-width: 188px;
   --container-max-width: 188px;
 
   /* Minimum Height Calculation */
-  --min-plugin-height: 150px;
+  --min-plugin-height: 488px;
 
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
@@ -118,73 +118,73 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --z-modal: 2000;
 }
 
-/* FIGMA THEME - Integration with Figma's native theme system (fallback to custom theme) */
+/* FIGMA THEME FALLBACKS - Default values when Figma variables aren't available */
 :root {
-  /* Figma Theme Variables (with fallbacks) */
-  --figma-color-bg: #0f0f0f;
-  --figma-color-bg-secondary: #1a1a1a;
-  --figma-color-text: #f5f5f5;
-  --figma-color-text-secondary: #d4d4d4;
-  --figma-color-border: #2a2a2a;
+  /* Figma Theme Variables (fallback values for development/testing) */
+  --figma-color-bg: #2c2c2c;
+  --figma-color-bg-secondary: #3c3c3c;
+  --figma-color-text: #ffffff;
+  --figma-color-text-secondary: #cccccc;
+  --figma-color-border: #4c4c4c;
   --figma-color-border-brand: #18a0fb;
   --figma-color-bg-brand: rgba(24, 160, 251, 0.1);
   --figma-color-bg-selected: rgba(24, 160, 251, 0.2);
   --figma-color-bg-hover: rgba(255, 255, 255, 0.1);
   --figma-color-bg-disabled: rgba(255, 255, 255, 0.05);
   --figma-color-text-disabled: rgba(255, 255, 255, 0.3);
-  --figma-color-icon: #f5f5f5;
-  --figma-color-icon-secondary: #d4d4d4;
+  --figma-color-icon: #ffffff;
+  --figma-color-icon-secondary: #cccccc;
   --figma-color-icon-disabled: rgba(255, 255, 255, 0.3);
   --figma-color-bg-inverse: #ffffff;
   --figma-color-text-inverse: #000000;
 }
 
-/* DARK THEME - Default dark theme colors and variables */
+/* DARK THEME - Pure dark theme without Figma integration */
 :root,
 [data-theme="dark"] {
-  /* Base Colors - Use Figma variables when available */
-  --theme-bg-primary: var(--figma-color-bg, #0f0f0f);
-  --theme-bg-secondary: var(--figma-color-bg-secondary, #1a1a1a);
-  --theme-bg-tertiary: var(--figma-color-bg-secondary, #2a2a2a);
-  --theme-bg-elevated: var(--figma-color-bg, #0a0a0a);
-  --theme-bg-accent: var(--figma-color-bg-secondary, #404040);
-  --theme-bg-hover: var(--figma-color-bg-hover, rgba(42, 42, 42, 0.2));
-  --theme-bg-active: var(--figma-color-bg-selected, rgba(64, 64, 64, 0.2));
+  /* Base Colors - Pure dark theme */
+  --theme-bg-primary: #0f0f0f;
+  --theme-bg-secondary: #1a1a1a;
+  --theme-bg-tertiary: #2a2a2a;
+  --theme-bg-elevated: #0a0a0a;
+  --theme-bg-accent: #404040;
+  --theme-bg-hover: rgba(42, 42, 42, 0.2);
+  --theme-bg-active: rgba(64, 64, 64, 0.2);
 
   /* Text Colors */
-  --theme-text-primary: var(--figma-color-text, #f5f5f5);
-  --theme-text-secondary: var(--figma-color-text-secondary, #d4d4d4);
-  --theme-text-muted: var(--figma-color-text-disabled, rgba(255, 255, 255, 0.6));
-  --theme-text-subtle: var(--figma-color-text-secondary, rgba(255, 255, 255, 0.8));
-  --theme-text-disabled: var(--figma-color-text-disabled, rgba(255, 255, 255, 0.4));
+  --theme-text-primary: #f5f5f5;
+  --theme-text-secondary: #d4d4d4;
+  --theme-text-muted: rgba(255, 255, 255, 0.6);
+  --theme-text-subtle: rgba(255, 255, 255, 0.8);
+  --theme-text-disabled: rgba(255, 255, 255, 0.4);
 
   /* Border Colors */
-  --theme-border-primary: var(--figma-color-border, #2a2a2a);
-  --theme-border-secondary: var(--figma-color-border, #404040);
-  --theme-border-accent: var(--figma-color-border, #13171B);
+  --theme-border-primary: #2a2a2a;
+  --theme-border-secondary: #404040;
+  --theme-border-accent: #13171B;
 
   /* Interactive States */
-  --theme-interactive-hover: var(--figma-color-bg-hover, #2a2a2a);
-  --theme-interactive-active: var(--figma-color-bg-selected, #404040);
-  --theme-interactive-disabled: var(--figma-color-bg-disabled, #0f0f0f);
+  --theme-interactive-hover: #2a2a2a;
+  --theme-interactive-active: #404040;
+  --theme-interactive-disabled: #0f0f0f;
 
   /* Scrollbar Colors */
-  --theme-scrollbar-track: var(--figma-color-bg, #0f0f0f);
-  --theme-scrollbar-thumb: var(--figma-color-border, #404040);
-  --theme-scrollbar-thumb-hover: var(--figma-color-border, #505050);
+  --theme-scrollbar-track: #0f0f0f;
+  --theme-scrollbar-thumb: #404040;
+  --theme-scrollbar-thumb-hover: #505050;
 
   /* Accent Colors */
   --theme-accent-red: rgba(255, 107, 107, 0.15);
   --theme-accent-green: rgba(110, 222, 110, 0.15);
   --theme-accent-yellow: rgba(255, 193, 7, 0.15);
-  --theme-accent-blue: var(--figma-color-bg-brand, rgba(111, 176, 255, 0.08));
+  --theme-accent-blue: rgba(111, 176, 255, 0.08);
   --theme-accent-pink: rgba(255, 105, 180, 0.4);
 
   /* Status Colors */
   --theme-success: #4ade80;
   --theme-warning: rgba(255, 193, 7, 0.9);
   --theme-error: #ff6b6b;
-  --theme-info: var(--figma-color-bg-brand, rgba(111, 176, 255, 0.9));
+  --theme-info: rgba(111, 176, 255, 0.9);
 
   /* Shadow Colors */
   --theme-shadow-light: rgba(0, 0, 0, 0.32);
@@ -203,6 +203,75 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --theme-info-border-stronger: rgba(111, 176, 255, 0.5);
   --theme-border-hover: rgba(255, 255, 255, 0.34);
   --theme-border-contrast: rgba(255, 255, 255, 0.55);
+  --theme-shadow-ambient: rgba(0, 0, 0, 0.4);
+  --theme-shadow-inset-hairline: rgba(0, 0, 0, 0.45);
+  --theme-warning-bg-weak: rgba(255, 193, 7, 0.2);
+  --theme-warning-border-weak: rgba(255, 193, 7, 0.3);
+}
+
+/* FIGMA THEME - Uses Figma's native theme variables for seamless integration */
+[data-theme="figma"] {
+  /* Base Colors - Direct Figma integration */
+  --theme-bg-primary: var(--figma-color-bg);
+  --theme-bg-secondary: var(--figma-color-bg-secondary);
+  --theme-bg-tertiary: var(--figma-color-bg-secondary);
+  --theme-bg-elevated: var(--figma-color-bg);
+  --theme-bg-accent: var(--figma-color-bg-secondary);
+  --theme-bg-hover: var(--figma-color-bg-hover);
+  --theme-bg-active: var(--figma-color-bg-selected);
+
+  /* Text Colors */
+  --theme-text-primary: var(--figma-color-text);
+  --theme-text-secondary: var(--figma-color-text-secondary);
+  --theme-text-muted: var(--figma-color-text-disabled);
+  --theme-text-subtle: var(--figma-color-text-secondary);
+  --theme-text-disabled: var(--figma-color-text-disabled);
+
+  /* Border Colors */
+  --theme-border-primary: var(--figma-color-border);
+  --theme-border-secondary: var(--figma-color-border);
+  --theme-border-accent: var(--figma-color-border);
+
+  /* Interactive States */
+  --theme-interactive-hover: var(--figma-color-bg-hover);
+  --theme-interactive-active: var(--figma-color-bg-selected);
+  --theme-interactive-disabled: var(--figma-color-bg-disabled);
+
+  /* Scrollbar Colors */
+  --theme-scrollbar-track: var(--figma-color-bg);
+  --theme-scrollbar-thumb: var(--figma-color-border);
+  --theme-scrollbar-thumb-hover: var(--figma-color-border);
+
+  /* Accent Colors - Use Figma's brand colors */
+  --theme-accent-red: rgba(255, 107, 107, 0.15);
+  --theme-accent-green: rgba(110, 222, 110, 0.15);
+  --theme-accent-yellow: rgba(255, 193, 7, 0.15);
+  --theme-accent-blue: var(--figma-color-bg-brand);
+  --theme-accent-pink: rgba(255, 105, 180, 0.4);
+
+  /* Status Colors */
+  --theme-success: #4ade80;
+  --theme-warning: rgba(255, 193, 7, 0.9);
+  --theme-error: #ff6b6b;
+  --theme-info: var(--figma-color-border-brand);
+
+  /* Shadow Colors */
+  --theme-shadow-light: rgba(0, 0, 0, 0.32);
+  --theme-shadow-heavy: rgba(0, 0, 0, 0.5);
+
+  /* Overlay and Utility */
+  --theme-overlay-xxweak: rgba(255, 255, 255, 0.02);
+  --theme-overlay-xweak: rgba(255, 255, 255, 0.04);
+  --theme-text-strong: var(--figma-color-text);
+  --theme-border-translucent: var(--figma-color-border);
+  --theme-border-soft: var(--figma-color-border);
+  --theme-info-border: var(--figma-color-border-brand);
+  --theme-info-border-strong: var(--figma-color-border-brand);
+  --theme-info-bg-strong: var(--figma-color-bg-brand);
+  --theme-info-bg-stronger: var(--figma-color-bg-brand);
+  --theme-info-border-stronger: var(--figma-color-border-brand);
+  --theme-border-hover: var(--figma-color-bg-hover);
+  --theme-border-contrast: var(--figma-color-border);
   --theme-shadow-ambient: rgba(0, 0, 0, 0.4);
   --theme-shadow-inset-hairline: rgba(0, 0, 0, 0.45);
   --theme-warning-bg-weak: rgba(255, 193, 7, 0.2);
@@ -362,6 +431,11 @@ h3 {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
+}
+
+/* Disable scrolling when content doesn't require it */
+.scrollable-content.no-scroll {
+  overflow-y: hidden;
 }
 
 .scrollable-content::-webkit-scrollbar {
@@ -601,9 +675,25 @@ h3 {
   background: var(--theme-accent-green);
 }
 
+#back-btn,
+#forward-btn {
+  color: var(--color-text-primary) !important;
+}
+
+#back-btn .icon,
+#forward-btn .icon {
+  color: var(--color-text-primary) !important;
+}
+
 #back-btn:hover,
 #forward-btn:hover {
   background: var(--theme-accent-yellow);
+  color: var(--color-text-primary) !important;
+}
+
+#back-btn:hover .icon,
+#forward-btn:hover .icon {
+  color: var(--color-text-primary) !important;
 }
 
 /* Header Styling */
@@ -627,9 +717,11 @@ h3 {
   align-items: center;
   justify-content: center;
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  font-size: var(--icon-size-md);
+  font-size: var(--icon-size-lg);
   line-height: 1;
 }
 
@@ -686,9 +778,10 @@ h3 {
   justify-content: center;
 
   /* Specific properties */
-  font-size: var(--icon-size-xl);
+  font-size: var(--icon-size-lg);
   width: 100%;
-  height: calc(var(--spacing-xs) + var(--spacing-xxl));
+  height: var(--button-height-md);
+  padding: var(--spacing-sm);
   border-radius: var(--border-radius-xl);
   background: transparent;
   color: var(--color-text-primary);
@@ -812,9 +905,9 @@ h3 {
   font-weight: var(--font-weight-normal);
 }
 
-/* Ensure Tags header uses the same hover background as Anchors */
+/* Ensure Tags header uses transparent background on hover */
 #tags-header:hover {
-  background: var(--color-background-secondary);
+  background: transparent;
 }
 
 /* ===== SECTIONS ===== */
@@ -825,25 +918,32 @@ h3 {
   flex-direction: row;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg) 0 var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-sm) 0 var(--spacing-lg);
   min-height: calc(var(--spacing-lg) * 3);
   align-self: stretch;
   background: var(--color-background-elevated);
-  flex-wrap: nowrap;
-  overflow: hidden;
+  flex-wrap: wrap;
+  overflow: visible;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Scoped toolbar tweaks */
 #quick-actions .action-list {
   gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 #quick-actions .action-btn {
   width: calc(var(--spacing-lg) * 3);
+  min-width: calc(var(--spacing-lg) * 3);
   min-height: calc(var(--spacing-lg) * 3);
   font-size: var(--icon-size-sm);
   background: var(--color-background-secondary);
   color: var(--color-text-secondary);
+  flex-shrink: 0;
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 }
 
 /* Action List */
@@ -856,14 +956,19 @@ h3 {
   margin: 0;
   padding: 0;
   width: 100%;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .action-list li.align-right {
   margin-left: auto;
+  display: flex;
+  gap: var(--spacing-sm);
 }
 
 .action-list li {
   display: flex;
+  flex-shrink: 0;
 }
 
 /* Top Badge */
@@ -885,18 +990,20 @@ h3 {
 .section-header {
   font-size: var(--icon-size-sm);
   margin: 0 0 0 0;
-  font-weight: var(--font-weight-normal);
-  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
   cursor: pointer;
   user-select: none;
   transition: all var(--transition-normal);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--color-background-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: var(--border-width) solid var(--color-border-accent);
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-xxl);
+  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
@@ -911,6 +1018,7 @@ h3 {
 
 .section-header:hover {
   background: var(--color-background-secondary);
+  color: var(--figma-color-border-brand);
 }
 
 /* Header layout patterns */
@@ -921,7 +1029,7 @@ h3 {
 }
 
 .header-left {
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xxl);
 }
 
 .header-right {
@@ -933,8 +1041,8 @@ h3 {
 #tags-header {
   min-height: unset;
   height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-xxl);
-  background: var(--color-background-secondary);
+  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
+  background: transparent;
   border-top: var(--border-width) solid var(--color-border-accent);
   border-bottom: var(--border-width) solid var(--color-border-accent);
   box-sizing: border-box;
@@ -947,6 +1055,7 @@ h3 {
 
 /* Anchors Header - match Tags header strokes */
 #anchors-header {
+  background: transparent;
   border-top: var(--border-width) solid var(--color-border-accent);
   border-bottom: var(--border-width) solid var(--color-border-accent);
 }
@@ -961,7 +1070,7 @@ h3 {
 }
 
 #tags-header .header-left {
-  gap: var(--spacing-md);
+  gap: var(--spacing-xl);
 }
 
 #tags-header .icon-container {
@@ -984,8 +1093,8 @@ h3 {
 
 #tags-header .arrow {
   display: none;
-  font-size: var(--icon-size-md);
-  font-weight: var(--font-weight-heavy);
+  font-size: var(--icon-size-lg);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   width: var(--arrow-width);
   transition: opacity var(--transition-normal);
@@ -1006,8 +1115,8 @@ h3 {
 }
 
 #tags-header .header-title {
-  font-weight: var(--font-weight-normal);
-  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-tight);
 }
@@ -1062,10 +1171,19 @@ h3 {
 
 /* Arrow States */
 .arrow {
-  font-size: var(--icon-size-md);
+  font-size: var(--icon-size-lg);
   font-weight: var(--font-weight-heavy);
   color: var(--color-text-primary);
   width: var(--arrow-width);
+}
+
+.arrow::before {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
 }
 
 .section-header[aria-expanded="true"] .arrow {
@@ -1073,17 +1191,25 @@ h3 {
   font-weight: var(--font-weight-normal);
 }
 
-.section-header[aria-expanded="false"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-bold);
+.section-header[aria-expanded="true"] .arrow::before {
+  content: "−";
 }
 
-.section-header[aria-expanded="true"] {
+.section-header[aria-expanded="false"] .arrow {
+  color: var(--color-text-primary);
   font-weight: var(--font-weight-normal);
 }
 
+.section-header[aria-expanded="false"] .arrow::before {
+  content: "+";
+}
+
+.section-header[aria-expanded="true"] {
+  font-weight: var(--font-weight-semibold);
+}
+
 .section-header[aria-expanded="false"] {
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-semibold);
 }
 
 .header-right .top-badge {
@@ -1146,8 +1272,8 @@ h3 {
   align-items: center;
   gap: 0;
   background: var(--color-background-elevated);
-  padding: var(--spacing-lg);
-  border: 0.8px solid var(--theme-border-translucent);
+  padding: calc(var(--spacing-lg) + var(--spacing-sm)) var(--spacing-lg);
+  border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
   position: relative;
@@ -1197,7 +1323,6 @@ h3 {
   /* Inherit from .btn-base */
   border: none;
   cursor: pointer;
-  transition: all var(--transition-normal);
   font-family: var(--font-family);
   display: inline-flex;
   align-items: center;
@@ -1208,13 +1333,18 @@ h3 {
   padding: 0 calc(var(--spacing-lg) * 2);
   font-size: var(--spacing-xl);
   border-radius: var(--border-radius-pill);
-  background: #000;
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-light);
+  background: var(--figma-color-bg-hover);
+  color: var(--figma-color-text);
+  font-weight: var(--font-weight-normal);
   justify-content: space-between;
   opacity: 1;
   height: var(--button-height-md);
   box-sizing: border-box;
+}
+
+/* Remove transitions specifically for save-bookmark (Drop button) */
+#save-bookmark {
+  transition: none !important;
 }
 
 .clear-action .icon {
@@ -1222,18 +1352,24 @@ h3 {
   opacity: 0.7;
 }
 
-.clear-action:hover,
+.clear-action:hover {
+  background: var(--figma-color-bg-hover);
+  border: var(--border-width) solid var(--figma-color-border-brand);
+  color: var(--figma-color-border-brand);
+}
+
 #save-bookmark:hover {
-  background: var(--theme-bg-hover);
-  font-weight: var(--font-weight-semibold);
-  transform: scale(1.05);
+  background: var(--figma-color-bg-hover);
+  color: var(--figma-color-border-brand);
+  border: var(--border-width) solid var(--figma-color-border-brand);
+  /* No transform for Drop button */
 }
 
 .clear-action:active,
 #save-bookmark:active {
-  background: var(--theme-bg-active);
-  font-weight: var(--font-weight-bold);
-  transform: scale(0.95);
+  background: var(--figma-color-bg-selected);
+  color: var(--figma-color-text);
+  /* No transform for Drop button */
 }
 
 /* Anchors Section */
@@ -1254,10 +1390,44 @@ h3 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: calc(var(--spacing-lg) * 2 - var(--spacing-sm));
   background: var(--color-background-elevated);
-  padding: calc(var(--spacing-xxl) * 2 - var(--spacing-lg)) calc(var(--container-padding) + var(--spacing-lg)) calc(var(--spacing-xxl) * 2) calc(var(--container-padding) + var(--spacing-lg));
+  padding: calc(var(--spacing-xxl) * 2 - var(--spacing-lg) - var(--spacing-lg)) var(--container-padding) calc(var(--spacing-xxl) * 2) var(--container-padding);
   border-radius: var(--border-radius-md);
+}
+
+/* Null State */
+.null-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--spacing-xxl) var(--spacing-lg);
+  gap: var(--spacing-md);
+  opacity: 0.8;
+  width: 100%;
+}
+
+.null-state-icon {
+  font-size: calc(var(--icon-size-xl) * 2);
+  opacity: 0.6;
+  margin-bottom: var(--spacing-sm);
+}
+
+.null-state-title {
+  font-size: var(--icon-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.null-state-description {
+  font-size: var(--icon-size-md);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-subtle);
+  line-height: 1.4;
+  max-width: 160px;
 }
 
 #bookmark-list {
@@ -1267,6 +1437,9 @@ h3 {
   padding: 0;
   margin: 0;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 /* Bookmark Items */
@@ -1277,7 +1450,7 @@ h3 {
   font-size: var(--spacing-xl);
   background: transparent;
   border-radius: 0;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
   /* Provide extra space on the right so content breathes near the remove affordance */
   padding-right: calc(var(--spacing-lg) + var(--spacing-xl));
   cursor: pointer;
@@ -1307,7 +1480,7 @@ h3 {
 
 .bookmark-item.current-anchor {
   /* background: var(--theme-accent-blue); */
-  border: 0.8px solid var(--figma-color-border-brand);
+  border: 1px solid var(--figma-color-border-brand);
   border-radius: var(--border-radius-lg);
 }
 
@@ -1377,26 +1550,28 @@ h3 {
 }
 
 .bookmark-remove {
-  color: var(--color-text-primary);
-  background: none;
+  color: var(--figma-color-text);
+  background: var(--figma-color-bg-hover);
   border: none;
   font-size: var(--icon-size-md);
   cursor: pointer;
   padding: 0;
   margin: 0;
-  transition: opacity var(--transition-normal), background var(--transition-normal);
   opacity: 0;
   /* hidden by default */
   pointer-events: none;
   /* avoid intercepting clicks when hidden */
-  width: calc(var(--button-height-md) - var(--spacing-sm));
-  height: 100%;
+  width: var(--button-height-md);
+  height: var(--button-height-md);
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
   right: 0;
-  top: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: none !important;
+  /* Explicitly disable all transitions */
 }
 
 /* Reveal remove button on hover of the whole bookmark row */
@@ -1406,23 +1581,27 @@ h3 {
   pointer-events: auto;
   color: var(--color-text-primary);
   /* keep icon visible */
-  background: transparent;
-  /* don't override button-specific hover */
 }
 
 .bookmark-remove:hover {
-  background: var(--theme-error);
-  /* red background */
+  background: var(--figma-color-bg-hover--);
+  /* black background */
   color: var(--color-text-primary);
-  /* white text/icon */
+  /* primary text color */
+  font-weight: var(--font-weight-semibold);
   opacity: 1;
+  transform: translateY(-50%);
+  /* maintain centering, prevent any scaling */
 }
 
-/* Ensure red hover state applies even when parent row is hovered */
+/* Ensure hover state applies even when parent row is hovered */
 .bookmark-item:hover .bookmark-remove:hover {
-  background: var(--theme-error);
+  background: var(--figma-color-bg-hover--);
   color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
   opacity: 1;
+  transform: translateY(-50%);
+  /* maintain centering, prevent any scaling */
 }
 
 /* Save button inherits merged styles above; block removed to reduce redundancy */
@@ -1441,23 +1620,27 @@ h3 {
   font-weight: inherit;
 }
 
-/* Make action titles brand-colored and uppercase (brackets stay subtle) */
+/* Action text styling - consolidated for maintenance */
 .clear-action .action-text,
 #save-bookmark .action-text {
   color: var(--color-text-primary);
-  text-transform: uppercase;
+  letter-spacing: 0.55px;
+  transition: color var(--transition-normal);
+}
+
+.clear-action:hover .action-text,
+#save-bookmark:hover .action-text {
+  color: var(--figma-color-border-brand);
 }
 
 .clear-action:hover .action-bracket,
 #save-bookmark:hover .action-bracket {
   opacity: 0.9;
-  font-weight: var(--font-weight-semibold);
 }
 
 .clear-action:active .action-bracket,
 #save-bookmark:active .action-bracket {
   opacity: 1;
-  font-weight: var(--font-weight-bold);
 }
 
 /* Bookmark count styling */
@@ -1589,8 +1772,28 @@ i.grip {
     min-height: var(--touch-target-min);
   }
 
+  /* Override min-height for save-bookmark to allow 24px height */
+  #save-bookmark {
+    min-height: var(--button-height-md);
+  }
+
+  /* Override min-height for clear-action to allow 24px height */
+  .clear-action {
+    min-height: var(--button-height-md);
+  }
+
+  /* Override min-height for bookmark-remove to allow 24px height */
+  .bookmark-remove {
+    min-height: var(--button-height-md);
+  }
+
   .bookmark-item {
     min-height: var(--touch-target-min);
+  }
+
+  /* Override min-height for bookmark-item to allow 24px height */
+  .bookmark-item {
+    min-height: var(--button-height-md);
   }
 
   .section-header {
@@ -1598,86 +1801,55 @@ i.grip {
   }
 }
 
+/* ===== RESPONSIVE ACTION BUTTONS ===== */
+
+/* Very narrow widths - compact layout */
+@media (max-width: 200px) {
+  #quick-actions {
+    flex-wrap: nowrap;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm) 0 var(--spacing-sm);
+  }
+
+  #quick-actions .action-list {
+    gap: var(--spacing-xs);
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+
+  #quick-actions .action-btn {
+    width: calc(var(--spacing-lg) * 2.5);
+    min-width: calc(var(--spacing-lg) * 2.5);
+    min-height: calc(var(--spacing-lg) * 2.5);
+    font-size: var(--icon-size-xs);
+    flex-shrink: 1;
+  }
+}
+
 /* ===== RESPONSIVE GRID LAYOUTS ===== */
 
-/* Consistent 4x4 grid (16 tokens) across all screen sizes */
-@media (max-width: 199px) {
-  .color-grid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: var(--spacing-xs);
-  }
-
-  .emoji-button {
-    font-size: var(--icon-size-lg);
-    height: calc(var(--button-height-md) + var(--spacing-xxl));
-  }
-
-  .color-grid-container {
-    padding: calc(var(--container-padding) + var(--spacing-md));
-  }
+/* Simplified responsive grid - two breakpoints only */
+.color-grid {
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: var(--spacing-xs);
 }
 
-@media (min-width: 200px) and (max-width: 279px) {
-  .color-grid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: var(--spacing-sm);
-  }
-
-  .emoji-button {
-    font-size: var(--icon-size-lg);
-    height: calc(var(--button-height-md) + var(--spacing-xxl));
-  }
-
-  .color-grid-container {
-    padding: calc(var(--container-padding) + var(--spacing-lg));
-  }
+.color-grid-container {
+  padding: calc(var(--container-padding) + var(--spacing-md));
 }
 
-@media (min-width: 280px) and (max-width: 359px) {
+/* Larger screens - more spacing and bigger elements */
+@media (min-width: 280px) {
   .color-grid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: var(--spacing-sm);
-  }
-
-  .emoji-button {
-    font-size: var(--icon-size-xl);
-    height: calc(var(--button-height-lg) + var(--spacing-xxl));
-  }
-
-  .color-grid-container {
-    padding: calc(var(--container-padding) + var(--spacing-lg));
-  }
-}
-
-@media (min-width: 360px) and (max-width: 439px) {
-  .color-grid {
-    grid-template-columns: repeat(4, 1fr);
     grid-gap: var(--spacing-md);
   }
 
   .emoji-button {
-    font-size: var(--icon-size-xl);
-    height: calc(var(--button-height-lg) + var(--spacing-xxl));
+    font-size: var(--icon-size-lg);
   }
 
   .color-grid-container {
     padding: calc(var(--container-padding) + var(--spacing-xl));
-  }
-}
-
-@media (min-width: 440px) {
-  .color-grid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: var(--spacing-md);
-  }
-
-  .emoji-button {
-    font-size: var(--icon-size-xl);
-    height: calc(var(--button-height-lg) + var(--spacing-xxl));
-  }
-
-  .color-grid-container {
-    padding: calc(var(--container-padding) + var(--spacing-xxl));
   }
 }
 
@@ -1731,8 +1903,9 @@ i.grip {
 
 .settings-title {
   margin: 0;
-  font-size: var(--icon-size-md);
-  color: var(--color-text-secondary);
+  font-size: var(--icon-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
   letter-spacing: var(--letter-spacing-tight);
   text-transform: uppercase;
 }
@@ -1788,6 +1961,8 @@ i.grip {
   justify-content: center;
   font-size: var(--icon-size-sm);
   line-height: 1;
+  transition: all var(--transition-fast);
+  border-radius: var(--border-radius-sm);
 }
 
 #footer-fit.footer-icon-btn {
@@ -1798,27 +1973,56 @@ i.grip {
   left: 0;
 }
 
-#footer-fit.footer-icon-btn:hover,
-#footer-fit.footer-icon-btn:focus,
-#footer-width-toggle.footer-icon-btn:hover,
-#footer-width-toggle.footer-icon-btn:focus {
+/* Hover states with proper reset mechanisms */
+.footer-icon-btn:hover {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+}
+
+.footer-icon-btn:focus {
   color: var(--theme-text-primary);
   background: var(--theme-overlay-xweak);
   outline: none;
 }
 
+.footer-icon-btn:active {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xxweak);
+  transform: scale(0.95);
+}
+
+/* Ensure proper state reset when not hovered/focused */
+.footer-icon-btn:not(:hover):not(:focus):not(:active) {
+  color: var(--color-text-muted);
+  background: transparent;
+  transform: none;
+}
+
+/* Additional state management classes */
+.footer-icon-btn.hover-active {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+}
+
+/* Force reset styles for stuck states */
+.footer-icon-btn.force-reset {
+  color: var(--color-text-muted) !important;
+  background: transparent !important;
+  transform: none !important;
+}
+
 /* Footer Branding */
 .footer-branding {
   position: absolute;
-  bottom: calc(var(--footer-height) + var(--spacing-xs));
-  right: var(--spacing-sm);
+  bottom: calc(var(--footer-height) + var(--spacing-md));
+  right: var(--spacing-lg);
   pointer-events: none;
   z-index: var(--z-tooltip);
 }
 
 .footer-branding .made-with {
   font-size: 9px;
-  color: var(--color-text-muted);
+  color: var(--color-text-subtle);
   opacity: 0.6;
   display: flex;
   align-items: center;
@@ -1929,7 +2133,7 @@ i.grip {
 
 /* Normalize group gaps */
 .section-header .header-left {
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xxl);
 }
 
 .section-header .header-right {
@@ -1957,8 +2161,8 @@ i.grip {
 
 .section-header .arrow {
   display: none;
-  font-size: var(--icon-size-md);
-  font-weight: var(--font-weight-heavy);
+  font-size: var(--icon-size-lg);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   width: var(--arrow-width);
   transition: opacity var(--transition-normal);
@@ -1981,8 +2185,8 @@ i.grip {
 /* Title and subtitle shared styling */
 .section-header .header-title {
   font-size: var(--icon-size-md);
-  font-weight: var(--font-weight-normal);
-  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-tight);
 }
@@ -2046,16 +2250,30 @@ i.grip {
 
 #quick-actions #settings-btn .icon {
   font-size: var(--icon-size-lg);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(calc(var(--spacing-sm) * -1));
 }
 
 /* Keep brand blue on hover/active */
-#quick-actions #settings-btn:hover,
-#quick-actions #settings-btn:active {
+#quick-actions #settings-btn:hover {
+  background: var(--color-interactive-hover);
+  color: var(--figma-color-border-brand);
+  transform: scale(1.1);
+}
+
+#quick-actions #settings-btn:hover .icon {
   color: var(--figma-color-border-brand);
 }
 
-#quick-actions #settings-btn:hover .icon,
+#quick-actions #settings-btn:active {
+  background: var(--color-interactive-active);
+  color: var(--figma-color-border-brand);
+}
+
 #quick-actions #settings-btn:active .icon {
   color: var(--figma-color-border-brand);
 }
@@ -2073,12 +2291,33 @@ i.grip {
 /* Refresh icon in headers to 10pt equivalent */
 #refresh-anchors .icon {
   font-size: var(--icon-size-md);
+  color: var(--color-text-primary);
 }
 
 /* Remove background fill on refresh button to match heading */
 #refresh-anchors {
   background: transparent;
   color: var(--color-text-primary);
+}
+
+#refresh-anchors:hover {
+  background: var(--color-interactive-hover);
+  color: var(--figma-color-border-brand);
+  transform: scale(1.1);
+}
+
+#refresh-anchors:hover .icon {
+  color: var(--figma-color-border-brand);
+}
+
+#refresh-anchors:active {
+  background: var(--color-interactive-active);
+  color: var(--figma-color-border-brand);
+  transform: scale(0.95);
+}
+
+#refresh-anchors:active .icon {
+  color: var(--figma-color-border-brand);
 }
 
 /* Color consistency adjustments */
@@ -2161,4 +2400,298 @@ i.grip {
 .nav-arrow {
   font-size: var(--font-size-sm);
   font-style: normal;
+}
+
+/* LEMON SQUEEZY SETTINGS STYLES */
+.settings-section {
+  margin-bottom: var(--spacing-xxl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--figma-color-border);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.settings-section-title {
+  font-size: var(--icon-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: var(--border-width) solid var(--color-border-accent);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.subscription-status {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--figma-color-bg-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: 11px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--figma-color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.status-dot.active {
+  background: #18a0fb;
+}
+
+.status-dot.inactive {
+  background: #f24822;
+}
+
+.status-dot.checking {
+  background: #ffc107;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.license-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.input-group label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--figma-color-text);
+}
+
+.input-group input {
+  padding: var(--spacing-md);
+  border: 1px solid var(--figma-color-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--figma-color-bg);
+  color: var(--figma-color-text);
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--figma-color-border-selected);
+  box-shadow: 0 0 0 1px var(--figma-color-border-selected);
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--figma-color-bg-brand);
+  color: var(--figma-color-text-onbrand);
+}
+
+.btn-primary:hover {
+  background: var(--figma-color-bg-brand-hover);
+}
+
+.btn-primary:disabled {
+  background: var(--figma-color-bg-disabled);
+  color: var(--figma-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--figma-color-bg-secondary);
+  color: var(--figma-color-text);
+  border: 1px solid var(--figma-color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--figma-color-bg-hover);
+}
+
+.feedback-message {
+  font-size: 11px;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  margin-top: var(--spacing-sm);
+  display: none;
+}
+
+.feedback-message.success {
+  background: #e8f5e8;
+  color: #2d7d32;
+  border: 1px solid #c8e6c9;
+  display: block;
+}
+
+.feedback-message.error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+  display: block;
+}
+
+.feedback-message.info {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+  display: block;
+}
+
+.setting-item {
+  margin-bottom: var(--spacing-md);
+}
+
+.setting-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: 11px;
+  color: var(--figma-color-text);
+  cursor: pointer;
+}
+
+.setting-label input[type="checkbox"] {
+  margin: 0;
+}
+
+.about-text {
+  font-size: 11px;
+  color: var(--figma-color-text-secondary);
+  margin: var(--spacing-sm) 0;
+  line-height: 1.4;
+}
+
+/* Theme Selector Styles */
+.theme-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: var(--spacing-md);
+  border: 1px solid var(--figma-color-border);
+  border-radius: var(--border-radius-md);
+  background: var(--figma-color-bg);
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.theme-option:hover {
+  background: var(--figma-color-bg-hover);
+  border-color: var(--figma-color-border-selected);
+}
+
+.theme-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-option input[type="radio"]:checked+.theme-option-content {
+  color: var(--figma-color-text-onbrand);
+}
+
+.theme-option input[type="radio"]:checked+.theme-option-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--figma-color-bg-brand);
+  border-radius: var(--border-radius-md);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.theme-option input[type="radio"]:checked~.theme-option {
+  border-color: var(--figma-color-border-brand);
+  background: var(--figma-color-bg-brand-secondary);
+}
+
+.theme-option-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  position: relative;
+}
+
+.theme-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.theme-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--figma-color-text);
+}
+
+.theme-description {
+  font-size: 10px;
+  color: var(--figma-color-text-secondary);
+  margin-left: auto;
+}
+
+.theme-option input[type="radio"]:checked+.theme-option-content .theme-name {
+  color: var(--figma-color-text);
+  font-weight: 600;
+}
+
+.theme-option input[type="radio"]:checked+.theme-option-content .theme-description {
+  color: var(--figma-color-text-secondary);
+}
+
+/* Theme option selected state */
+.theme-option:has(input[type="radio"]:checked) {
+  border-color: var(--figma-color-border-brand);
+  background: var(--figma-color-bg-brand-secondary, rgba(24, 160, 251, 0.05));
 }

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lemon Squeezy Connection Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #18a0fb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0d8ce8; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .success { background: #e8f5e8; color: #2d7d32; }
+        .error { background: #ffebee; color: #c62828; }
+        .info { background: #e3f2fd; color: #1565c0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍋 Lemon Squeezy Connection Test</h1>
+        
+        <div class="test-section">
+            <h3>1. Test API Connection</h3>
+            <button onclick="testConnection()">Test Connection</button>
+            <div id="connection-result" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test License Validation</h3>
+            <input type="text" id="license-input" placeholder="Enter license key (try: test-license-key)" style="width: 300px; padding: 8px;">
+            <button onclick="testLicense()">Validate License</button>
+            <div id="license-result" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test Checkout URL</h3>
+            <input type="email" id="email-input" placeholder="Email (optional)" style="width: 200px; padding: 8px;">
+            <button onclick="generateCheckout()">Generate Checkout URL</button>
+            <div id="checkout-result" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Configuration Status</h3>
+            <div id="config-status" class="result info">
+                <strong>Current Config:</strong><br>
+                Store ID: 207900<br>
+                Test Mode: true<br>
+                Status: Ready for testing
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lemon Squeezy configuration
+        const config = {
+            storeId: '207900',
+            apiKey: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5NGQ1OWNlZi1kYmI4LTRlYTUtYjE3OC1kMjU0MGZjZDY5MTkiLCJqdGkiOiIxYzEwYzQ4NGJjOTcxY2MyZTI0MzI2MjM5MjYyOTkzMjIwMjI1NTlmMjI0OWUwMGVjZDFmMjRlZmNiMTkzNDEzNzY3OTYyNDAzMmQzZTcyMSIsImlhdCI6MTc1NTU2ODM2OC4zMTkwODQsIm5iZiI6MTc1NTU2ODM2OC4zMTkwODcsImV4cCI6MjA3MTEwMTE2OC4yOTA0NzQsInN1YiI6IjUzMDA1NzkiLCJzY29wZXMiOltdfQ.BJErJvY_ayHVHPRW25MNbRVaS_qqJIdaB2D1Gy6c_4jsn-fA0pnF-Aq2-UgNgbtx81ymcIAaUQ7nkeajFfurNfCu1wupoiTwNjEVZcNpzxcpyWPYqR_m-gJ59qW0RdlJ7GBokxa2sXZQPxxQ4D0Ri8yLPPfyvE08lRf_-8lUm_IJSduy8GmGpq82R32-I62VrrpFj3mifXWmHYtodLFvpgXYIzo3L44V8pe_vHYFfk0Aw8vgc_TtXvdlWM0WXlZY_dVTwuB2BaqspCuHvqY_2PZDhQwuJFADecWAq5cdvhOQiAlwI4vU3uVglPMWcqlQl2Kvu0H-uXaocRocXlIFiCZw4QZPW3PP1ZziXqxLOk4qPrnXsupSGlcxxac6d-JRKL3gv_IGFwIFC1vaeR5NrF1kvTHlUvkxO5BQhNJAkvOgoIoc46VEjA2JI1n_0Uhay3z6KLVNfzwI3AEFdhCk9Z6m9u3QHPNMoXed8Iev78HogoiFODpqowTdi_TPthUV',
+            productId: '612804',
+            variantId: '957231',
+            testMode: true
+        };
+
+        const baseUrl = 'https://api.lemonsqueezy.com/v1';
+
+        async function testConnection() {
+            const button = document.querySelector('button');
+            const result = document.getElementById('connection-result');
+            
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            result.style.display = 'block';
+            result.className = 'result info';
+            result.textContent = 'Testing connection...';
+
+            try {
+                const response = await fetch(`${baseUrl}/stores/${config.storeId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${config.apiKey}`,
+                        'Accept': 'application/vnd.api+json',
+                        'Content-Type': 'application/vnd.api+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    result.className = 'result success';
+                    result.innerHTML = `✅ <strong>Connection Successful!</strong><br>Store: ${data.data.attributes.name}<br>Status: ${response.status}`;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>Connection Failed</strong><br>Status: ${response.status}<br>Error: ${response.statusText}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ <strong>Connection Error</strong><br>${error.message}`;
+            }
+
+            button.disabled = false;
+            button.textContent = 'Test Connection';
+        }
+
+        async function testLicense() {
+            const licenseKey = document.getElementById('license-input').value.trim();
+            const result = document.getElementById('license-result');
+            
+            if (!licenseKey) {
+                result.style.display = 'block';
+                result.className = 'result error';
+                result.textContent = '❌ Please enter a license key';
+                return;
+            }
+
+            result.style.display = 'block';
+            result.className = 'result info';
+            result.textContent = 'Validating license...';
+
+            try {
+                const response = await fetch(`${baseUrl}/licenses/validate`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${config.apiKey}`,
+                        'Accept': 'application/vnd.api+json',
+                        'Content-Type': 'application/vnd.api+json'
+                    },
+                    body: JSON.stringify({
+                        license_key: licenseKey,
+                        instance_name: 'Figma Plugin Test'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.valid) {
+                        result.className = 'result success';
+                        result.innerHTML = `✅ <strong>License Valid!</strong><br>Status: ${data.license_key.status}<br>Customer: ${data.license_key.customer.email}`;
+                    } else {
+                        result.className = 'result error';
+                        result.innerHTML = `❌ <strong>License Invalid</strong><br>The license key is not valid.`;
+                    }
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>Validation Failed</strong><br>Status: ${response.status}<br>Error: ${response.statusText}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `❌ <strong>Validation Error</strong><br>${error.message}`;
+            }
+        }
+
+        function generateCheckout() {
+            const email = document.getElementById('email-input').value.trim();
+            const result = document.getElementById('checkout-result');
+            
+            const params = new URLSearchParams({
+                store: config.storeId,
+                product: config.productId,
+                variant: config.variantId
+            });
+
+            if (email) {
+                params.append('checkout[email]', email);
+            }
+
+            const checkoutUrl = `https://checkout.lemonsqueezy.com/checkout/buy/${config.variantId}?${params.toString()}`;
+            
+            result.style.display = 'block';
+            result.className = 'result success';
+            result.innerHTML = `✅ <strong>Checkout URL Generated:</strong><br><a href="${checkoutUrl}" target="_blank">${checkoutUrl}</a><br><br><button onclick="window.open('${checkoutUrl}', '_blank')">Open Checkout Page</button>`;
+        }
+    </script>
+</body>
+</html>

@@ -13,7 +13,13 @@ import {
   lastUiHeight,
   setPreviousSelection,
   getPreviousSelection,
-  clearPreviousSelection
+  clearPreviousSelection,
+  loadLicenseState,
+  saveLicenseState,
+  setLicenseKey,
+  setLicenseValid,
+  getLicenseState,
+  shouldRevalidateLicense
 } from './state';
 import {
   addBookmark,
@@ -53,9 +59,13 @@ figma.showUI(__html__, { width: currentUiWidth, height: lastUiHeight });
 
 const initializePlugin = withErrorBoundary(async () => {
   await loadAnchorState();
+  await loadLicenseState();
   await validateRecentHistory();
   await validateCurrentAnchor();
   await sendInitialUIState();
+  
+  // Send initial license status to UI
+  await handleGetLicenseStatus();
 }, ErrorType.STORAGE_ERROR);
 
 // ===== DEBOUNCED FUNCTIONS =====
@@ -169,6 +179,32 @@ figma.ui.onmessage = async (msg) => {
         break;
       }
 
+      case 'open-url':
+        if ('url' in msg && msg.url && typeof msg.url === 'string') {
+          handleOpenUrl(msg.url);
+        }
+        break;
+
+      case 'validate-license':
+        if ('licenseKey' in msg && msg.licenseKey && typeof msg.licenseKey === 'string') {
+          await handleValidateLicense(msg.licenseKey);
+        }
+        break;
+
+      case 'get-license-status':
+        await handleGetLicenseStatus();
+        break;
+
+      case 'clear-license':
+        await handleClearLicense();
+        break;
+
+      case 'license-validation-result':
+        if ('success' in msg && 'licenseKey' in msg) {
+          await handleLicenseValidationResult(msg);
+        }
+        break;
+
       default:
         console.log('Unknown message type:', msg.type);
     }
@@ -264,6 +300,17 @@ const handleRefreshAnchors = withErrorBoundary(async () => {
   await updateUIAfterNavigation();
 }, ErrorType.UNKNOWN);
 
+const handleOpenUrl = withErrorBoundary(async (url: string) => {
+  try {
+    // Use Figma's built-in method to open URLs
+    figma.openExternal(url);
+    figma.notify('Opening checkout page...');
+  } catch (error) {
+    console.error('Failed to open URL:', error);
+    figma.notify('Failed to open URL');
+  }
+}, ErrorType.UNKNOWN);
+
 const handleToggleToLayerMode = withErrorBoundary(async () => {
   const latestSelection = findNearestExistingSelectionEntryAnyDirection();
 
@@ -304,5 +351,106 @@ const handleToggleToLayerMode = withErrorBoundary(async () => {
     console.error('Error selecting recent layer from history:', error);
     figma.notify('Failed to select recent layer');
     sendSelectionStateToUI();
+  }
+}, ErrorType.UNKNOWN);
+
+// ===== LICENSE MANAGEMENT HANDLERS =====
+const handleValidateLicense = withErrorBoundary(async (licenseKey: string) => {
+  try {
+    // Store the license key
+    setLicenseKey(licenseKey);
+    
+    // Send validation request to UI (which will handle the API call)
+    figma.ui.postMessage({
+      type: 'validate-license-request',
+      licenseKey: licenseKey
+    });
+    
+    figma.notify('Validating license...');
+  } catch (error) {
+    console.error('License validation error:', error);
+    figma.notify('Failed to validate license');
+    
+    // Send error to UI
+    figma.ui.postMessage({
+      type: 'license-validation-result',
+      success: false,
+      error: 'Validation failed'
+    });
+  }
+}, ErrorType.UNKNOWN);
+
+const handleGetLicenseStatus = withErrorBoundary(async () => {
+  await loadLicenseState();
+  const state = getLicenseState();
+  
+  // Check if we should revalidate
+  if (state.licenseKey && shouldRevalidateLicense()) {
+    // Send revalidation request to UI
+    figma.ui.postMessage({
+      type: 'validate-license-request',
+      licenseKey: state.licenseKey,
+      isRevalidation: true
+    });
+  } else {
+    // Send current status to UI
+    figma.ui.postMessage({
+      type: 'license-status',
+      isValid: state.isValid,
+      expiresAt: state.expiresAt,
+      hasLicenseKey: !!state.licenseKey
+    });
+  }
+}, ErrorType.UNKNOWN);
+
+const handleClearLicense = withErrorBoundary(async () => {
+  setLicenseKey(null);
+  setLicenseValid(false);
+  await saveLicenseState();
+  
+  figma.notify('License cleared');
+  
+  // Send updated status to UI
+  figma.ui.postMessage({
+    type: 'license-status',
+    isValid: false,
+    expiresAt: null,
+    hasLicenseKey: false
+  });
+}, ErrorType.UNKNOWN);
+
+const handleLicenseValidationResult = withErrorBoundary(async (msg: any) => {
+  const { success, licenseKey, expiresAt, error, isRevalidation } = msg;
+  
+  if (success) {
+    setLicenseKey(licenseKey);
+    setLicenseValid(true, expiresAt);
+    await saveLicenseState();
+    
+    if (!isRevalidation) {
+      figma.notify('License validated successfully!');
+    }
+    
+    // Send updated status to UI
+    figma.ui.postMessage({
+      type: 'license-status',
+      isValid: true,
+      expiresAt: expiresAt,
+      hasLicenseKey: true
+    });
+  } else {
+    setLicenseValid(false);
+    await saveLicenseState();
+    
+    if (!isRevalidation) {
+      figma.notify('License validation failed');
+    }
+    
+    // Send error result to UI
+    figma.ui.postMessage({
+      type: 'license-validation-result',
+      success: false,
+      error: error || 'Invalid license key'
+    });
   }
 }, ErrorType.UNKNOWN);

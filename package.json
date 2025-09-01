@@ -53,6 +53,7 @@
     }
   },
   "dependencies": {
-    "lottie-web": "^5.13.0"
+    "lottie-web": "^5.13.0",
+    "@lemonsqueezy/lemonsqueezy.js": "^3.2.0"
   }
 }

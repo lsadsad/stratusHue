@@ -3,60 +3,60 @@ import path from 'path';
 
 // Clean plugin-ready directory
 if (fs.existsSync('plugin-ready')) {
-  fs.rmSync('plugin-ready', { recursive: true });
+    fs.rmSync('plugin-ready', { recursive: true });
 }
 fs.mkdirSync('plugin-ready', { recursive: true });
 
 // Recursively copy a directory
 function copyDirectory(srcDir, destDir) {
-  if (!fs.existsSync(srcDir)) return;
-  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
-  for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
-    const srcPath = path.join(srcDir, entry.name);
-    const destPath = path.join(destDir, entry.name);
-    if (entry.isDirectory()) {
-      copyDirectory(srcPath, destPath);
-    } else if (entry.isFile()) {
-      fs.copyFileSync(srcPath, destPath);
+    if (!fs.existsSync(srcDir)) return;
+    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+    for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+        const srcPath = path.join(srcDir, entry.name);
+        const destPath = path.join(destDir, entry.name);
+        if (entry.isDirectory()) {
+            copyDirectory(srcPath, destPath);
+        } else if (entry.isFile()) {
+            fs.copyFileSync(srcPath, destPath);
+        }
     }
-  }
 }
 
 console.log('🚀 Building plugin-ready distribution...');
 
 // Copy essential plugin files
 const filesToCopy = [
-  { src: 'dist/code.js', dest: 'plugin-ready/code.js' },
-  { src: 'dist/ui.html', dest: 'plugin-ready/ui.html' },
-  { src: 'icon.svg', dest: 'plugin-ready/icon.svg' }
+    { src: 'dist/code.js', dest: 'plugin-ready/code.js' },
+    { src: 'dist/ui.html', dest: 'plugin-ready/ui.html' },
+    { src: 'icon.svg', dest: 'plugin-ready/icon.svg' }
 ];
 
 filesToCopy.forEach(({ src, dest }) => {
-  if (fs.existsSync(src)) {
-    fs.copyFileSync(src, dest);
-    console.log(`✅ Copied ${src} → ${dest}`);
-  } else {
-    console.warn(`⚠️  Source file not found: ${src}`);
-  }
+    if (fs.existsSync(src)) {
+        fs.copyFileSync(src, dest);
+        console.log(`✅ Copied ${src} → ${dest}`);
+    } else {
+        console.warn(`⚠️  Source file not found: ${src}`);
+    }
 });
 
 // Copy assets if they exist
 if (fs.existsSync('dist/assets')) {
-  copyDirectory('dist/assets', 'plugin-ready/assets');
-  console.log('✅ Copied assets → plugin-ready/assets');
+    copyDirectory('dist/assets', 'plugin-ready/assets');
+    console.log('✅ Copied assets → plugin-ready/assets');
 }
 
 // Create production manifest (without source maps references)
 const manifest = {
-  "name": "Stratus Hue",
-  "id": "1525275589707623280",
-  "api": "1.0.0",
-  "main": "code.js",
-  "ui": "ui.html",
-  "capabilities": [],
-  "enableProposedApi": false,
-  "editorType": ["figma"],
-  "documentAccess": "dynamic-page"
+    "name": "Stratus Hue",
+    "id": "1525275589707623280",
+    "api": "1.0.0",
+    "main": "code.js",
+    "ui": "ui.html",
+    "capabilities": [],
+    "enableProposedApi": false,
+    "editorType": ["figma"],
+    "documentAccess": "dynamic-page"
 };
 
 fs.writeFileSync('plugin-ready/manifest.json', JSON.stringify(manifest, null, 2));
@@ -99,10 +99,10 @@ console.log('✅ Created plugin-ready/README.md');
 
 // Get file sizes for info
 const getFileSize = (filePath) => {
-  if (fs.existsSync(filePath)) {
-    return (fs.statSync(filePath).size / 1024).toFixed(1) + ' KB';
-  }
-  return 'N/A';
+    if (fs.existsSync(filePath)) {
+        return (fs.statSync(filePath).size / 1024).toFixed(1) + ' KB';
+    }
+    return 'N/A';
 };
 
 console.log('\n📊 Plugin-Ready Build Summary:');

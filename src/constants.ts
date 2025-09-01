@@ -69,7 +69,7 @@ export const MAX_PAGE_TITLE_LENGTH = 32;
 
 // Default UI dimensions
 export const DEFAULT_UI_WIDTH = 240;
-export const DEFAULT_UI_HEIGHT = 352;
+export const DEFAULT_UI_HEIGHT = 488;
 
 // ===== TIMING CONSTANTS =====
 export const DEBOUNCE_DELAY = 100;
