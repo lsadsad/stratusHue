@@ -76,6 +76,15 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'success':
       console.log('Plugin success:', message.message);
       break;
+    case 'license-status':
+      handleLicenseStatusUpdate(message);
+      break;
+    case 'validate-license-request':
+      handleLicenseValidationRequest(message);
+      break;
+    case 'license-validation-result':
+      handleLicenseValidationResult(message);
+      break;
   }
 }
 
@@ -617,8 +626,9 @@ function setupEventListeners(): void {
       // Small delay allows CSS transition to compute new height
       window.setTimeout(() => {
         updateScrollBehavior();
-        const contentHeight = computeFitHeight();
-        sendMessage('resize-ui', { height: contentHeight });
+        // Removed automatic height fitting to maintain fixed 393px height
+        // const contentHeight = computeFitHeight();
+        // sendMessage('resize-ui', { height: contentHeight });
       }, 200);
     };
 
@@ -758,48 +768,61 @@ function updateBookmarksList(
   isInsideAnchor?: boolean
 ): void {
   const bookmarkList = document.getElementById('bookmark-list');
-  if (!bookmarkList) return;
+  const nullState = document.getElementById('anchors-null-state');
+  if (!bookmarkList || !nullState) return;
 
   bookmarkList.innerHTML = '';
-  bookmarks.forEach(bookmark => {
-    const li = document.createElement('li');
-    li.className = 'bookmark-item';
+  
+  // Show/hide null state based on bookmarks
+  if (bookmarks.length === 0) {
+    nullState.style.display = 'flex';
+    nullState.setAttribute('aria-hidden', 'false');
+    bookmarkList.style.display = 'none';
+  } else {
+    nullState.style.display = 'none';
+    nullState.setAttribute('aria-hidden', 'true');
+    bookmarkList.style.display = 'flex';
+    
+    bookmarks.forEach(bookmark => {
+      const li = document.createElement('li');
+      li.className = 'bookmark-item';
 
-    // Apply selection state classes
-    if (currentAnchorId && bookmark.id === currentAnchorId) {
-      li.classList.add('current-anchor');
-      if (isInsideAnchor) li.classList.add('inside-anchor');
-    } else if (previousBookmarkId && bookmark.id === previousBookmarkId) {
-      li.classList.add('recent-history');
-    }
+      // Apply selection state classes
+      if (currentAnchorId && bookmark.id === currentAnchorId) {
+        li.classList.add('current-anchor');
+        if (isInsideAnchor) li.classList.add('inside-anchor');
+      } else if (previousBookmarkId && bookmark.id === previousBookmarkId) {
+        li.classList.add('recent-history');
+      }
 
-    // Inner content
-    li.innerHTML = `
-      <div class="bookmark-content">
-        <div class="bookmark-name">${bookmark.name}</div>
-        <div class="bookmark-page">${bookmark.pageName}</div>
-      </div>
-      <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">
-        ✕
-      </button>
-    `;
+      // Inner content
+      li.innerHTML = `
+        <div class="bookmark-content">
+          <div class="bookmark-name">${bookmark.name}</div>
+          <div class="bookmark-page">${bookmark.pageName}</div>
+        </div>
+        <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">
+          ✕
+        </button>
+      `;
 
-    // Navigate on item click
-    li.addEventListener('click', () => {
-      sendMessage('jump-to-bookmark', { id: bookmark.id });
-    });
-
-    // Remove button behavior
-    const removeBtn = li.querySelector('.bookmark-remove');
-    if (removeBtn) {
-      removeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        sendMessage('remove-bookmark', { id: bookmark.id });
+      // Navigate on item click
+      li.addEventListener('click', () => {
+        sendMessage('jump-to-bookmark', { id: bookmark.id });
       });
-    }
 
-    bookmarkList.appendChild(li);
-  });
+      // Remove button behavior
+      const removeBtn = li.querySelector('.bookmark-remove');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sendMessage('remove-bookmark', { id: bookmark.id });
+        });
+      }
+
+      bookmarkList.appendChild(li);
+    });
+  }
 
   // Update scroll behavior after content changes
   setTimeout(updateScrollBehavior, 50);
@@ -835,38 +858,22 @@ function resetFooterButtonStates(): void {
   });
 }
 
-// Safe localStorage wrapper for Figma plugin environment
-function safeLocalStorage() {
-  try {
-    // Test if localStorage is available
-    const test = 'test';
-    localStorage.setItem(test, test);
-    localStorage.removeItem(test);
-    return {
-      getItem: (key: string) => localStorage.getItem(key),
-      setItem: (key: string, value: string) => localStorage.setItem(key, value),
-      available: true
-    };
-  } catch (e) {
-    // localStorage is not available (Figma plugin sandbox)
-    console.warn('localStorage not available, using memory storage');
-    const memoryStorage: { [key: string]: string } = {};
-    return {
-      getItem: (key: string) => memoryStorage[key] || null,
-      setItem: (key: string, value: string) => { memoryStorage[key] = value; },
-      available: false
-    };
-  }
-}
+// License state management - now handled by plugin backend
+let currentLicenseState = {
+  isValid: false,
+  expiresAt: null as string | null,
+  hasLicenseKey: false
+};
 
-const storage = safeLocalStorage();
+// Theme storage using memory (since themes are UI-only preferences)
+const themeStorage: { [key: string]: string } = {};
 
 // Theme switching functionality
 function setupThemeSwitching(): void {
   const themeRadios = document.querySelectorAll('input[name="theme"]');
 
   // Load saved theme preference (defaults to 'figma' if not available)
-  const savedTheme = storage.getItem('figma-plugin-theme') || 'figma';
+  const savedTheme = themeStorage['figma-plugin-theme'] || 'figma';
   applyTheme(savedTheme);
 
   // Set the correct radio button
@@ -882,7 +889,7 @@ function setupThemeSwitching(): void {
       if (target.checked) {
         const theme = target.value;
         applyTheme(theme);
-        storage.setItem('figma-plugin-theme', theme);
+        themeStorage['figma-plugin-theme'] = theme;
         console.log('Theme changed to:', theme);
       }
     });
@@ -904,13 +911,13 @@ function applyTheme(theme: string): void {
       htmlElement.setAttribute('data-theme', 'dark');
       break;
     case 'figma':
+      htmlElement.setAttribute('data-theme', 'figma');
+      break;
     default:
-      // Figma theme is the default (no data-theme attribute needed)
+      // Default to figma theme
+      htmlElement.setAttribute('data-theme', 'figma');
       break;
   }
-
-  // Update the UI to reflect theme change
-  updateThemeUI(theme);
 }
 
 function updateThemeUI(theme: string): void {
@@ -1038,25 +1045,17 @@ async function handleValidateLicense(licenseKey: string): Promise<void> {
   validateBtn.disabled = true;
   validateBtn.textContent = 'Validating...';
 
-  try {
-    const result = await lemonSqueezyService.validateLicense(licenseKey);
-
-    if (result && result.valid) {
-      showFeedback('license-feedback', 'License validated successfully!', 'success');
-      updateSubscriptionStatus(true, result.license_key.expires_at);
-
-      // Store license key locally (you might want to encrypt this)
-      localStorage.setItem('figma-plugin-license', licenseKey);
-    } else {
-      showFeedback('license-feedback', 'Invalid license key', 'error');
-      updateSubscriptionStatus(false);
-    }
-  } catch (error) {
-    showFeedback('license-feedback', 'License validation failed', 'error');
-  } finally {
+  // Send validation request to plugin backend
+  sendMessage('validate-license', { licenseKey });
+  
+  // Show immediate feedback - the plugin will send back the result
+  showFeedback('license-feedback', 'Validating license...', 'info');
+  
+  // Reset button state after a short delay (will be updated when result comes back)
+  setTimeout(() => {
     validateBtn.disabled = false;
     validateBtn.textContent = originalText;
-  }
+  }, 1000);
 }
 
 function handleUpgradeClick(): void {
@@ -1108,22 +1107,70 @@ async function checkSubscriptionStatus(): Promise<void> {
     statusText.textContent = 'Checking subscription...';
   }
 
-  // Check for stored license key
-  const storedLicense = localStorage.getItem('figma-plugin-license');
-
-  if (storedLicense) {
-    try {
-      const result = await lemonSqueezyService.validateLicense(storedLicense);
-      if (result && result.valid) {
-        updateSubscriptionStatus(true, result.license_key.expires_at);
-        return;
-      }
-    } catch (error) {
-      console.error('Failed to validate stored license:', error);
-    }
-  }
-
-  // Default to free version
-  updateSubscriptionStatus(false);
+  // Request license status from plugin backend
+  sendMessage('get-license-status');
 }
 
+
+// ===== LICENSE MESSAGE HANDLERS =====
+function handleLicenseStatusUpdate(message: any): void {
+  currentLicenseState = {
+    isValid: message.isValid || false,
+    expiresAt: message.expiresAt || null,
+    hasLicenseKey: message.hasLicenseKey || false
+  };
+  
+  updateSubscriptionStatus(currentLicenseState.isValid, currentLicenseState.expiresAt);
+}
+
+async function handleLicenseValidationRequest(message: any): void {
+  const { licenseKey, isRevalidation } = message;
+  
+  try {
+    // Perform the API call in the UI (since it needs network access)
+    const result = await lemonSqueezyService.validateLicense(licenseKey);
+    
+    // Send result back to plugin
+    sendMessage('license-validation-result', {
+      success: result && result.valid,
+      licenseKey: licenseKey,
+      expiresAt: result?.license_key?.expires_at || null,
+      isRevalidation: isRevalidation || false
+    });
+    
+  } catch (error) {
+    console.error('License validation failed:', error);
+    
+    // Send error back to plugin
+    sendMessage('license-validation-result', {
+      success: false,
+      licenseKey: licenseKey,
+      error: 'API call failed',
+      isRevalidation: isRevalidation || false
+    });
+  }
+}
+
+function handleLicenseValidationResult(message: any): void {
+  const validateBtn = document.getElementById('validate-license-btn') as HTMLButtonElement;
+  
+  if (message.success) {
+    showFeedback('license-feedback', 'License validated successfully!', 'success');
+    updateSubscriptionStatus(true, message.expiresAt);
+    
+    // Clear the input field on success
+    const licenseInput = document.getElementById('license-key-input') as HTMLInputElement;
+    if (licenseInput) {
+      licenseInput.value = '';
+    }
+  } else {
+    showFeedback('license-feedback', message.error || 'Invalid license key', 'error');
+    updateSubscriptionStatus(false);
+  }
+  
+  // Reset button state
+  if (validateBtn) {
+    validateBtn.disabled = false;
+    validateBtn.textContent = 'Validate';
+  }
+}

@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Stratus Hue Plugin</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -29,14 +29,12 @@
             <i class="icon" aria-hidden="true">🗓️</i>
             <span class="label">Date</span>
           </button>
-        </li>
-        <li>
           <button id="new-page-btn" class="action-btn" aria-label="Create new page">
             <i class="icon" aria-hidden="true">📄</i>
             <span class="label">New Page</span>
           </button>
         </li>
-        <li>
+        <li class="align-right">
           <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
             <i class="icon" aria-hidden="true">≡</i>
             <span class="label">Settings</span>
@@ -49,7 +47,7 @@
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
         <div class="icon-container">
-          <i class="arrow" aria-hidden="true">-</i>
+          <i class="arrow" aria-hidden="true"></i>
           <i class="tag-icon">🏷️</i>
         </div>
         <h2 class="header-title">TAGS</h2>
@@ -101,7 +99,7 @@
       tabindex="0" aria-expanded="true" aria-controls="anchors-section">
       <div class="header-left">
         <div class="icon-container">
-          <i class="arrow" aria-hidden="true">-</i>
+          <i class="arrow" aria-hidden="true"></i>
           <i class="tag-icon">⚓️</i>
         </div>
         <h2 class="header-title">ANCHORS</h2>
@@ -117,6 +115,10 @@
     <section id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
       <div class="anchors-container">
         <ul id="bookmark-list" role="list" aria-label="Bookmarks"></ul>
+        <div id="anchors-null-state" class="null-state" role="status" aria-hidden="true">
+          <div class="null-state-icon">⚓️</div>
+          <div class="null-state-description">Pick your target and drop an anchor to save your spot</div>
+        </div>
         <button id="save-bookmark" aria-label="Save bookmark">
           <!-- <span class="action-bracket">[ [</span> -->
           <span class="action-text">Drop ⚓️</span>

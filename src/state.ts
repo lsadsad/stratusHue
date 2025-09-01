@@ -6,6 +6,15 @@
 import type { Bookmark, CurrentAnchorState, RecentHistoryState, HistoryEntry } from './types';
 import { DEFAULT_UI_WIDTH, DEFAULT_UI_HEIGHT } from './constants';
 
+// ===== LICENSE STATE INTERFACE =====
+interface LicenseState {
+  licenseKey: string | null;
+  isValid: boolean;
+  expiresAt: string | null;
+  lastValidated: number;
+  validationAttempts: number;
+}
+
 // ===== UI STATE =====
 export let currentUiWidth = DEFAULT_UI_WIDTH;
 export let lastUiHeight = DEFAULT_UI_HEIGHT;
@@ -176,4 +185,68 @@ export function updateValidationTime(): void {
 
 export function shouldValidate(interval: number = 30000): boolean {
   return Date.now() - lastValidationTime >= interval;
+}
+
+// ===== LICENSE STATE =====
+export let licenseState: LicenseState = {
+  licenseKey: null,
+  isValid: false,
+  expiresAt: null,
+  lastValidated: 0,
+  validationAttempts: 0
+};
+
+export function setLicenseKey(key: string | null): void {
+  licenseState.licenseKey = key;
+  licenseState.lastValidated = Date.now();
+}
+
+export function setLicenseValid(isValid: boolean, expiresAt: string | null = null): void {
+  licenseState.isValid = isValid;
+  licenseState.expiresAt = expiresAt;
+  licenseState.lastValidated = Date.now();
+  
+  if (!isValid) {
+    licenseState.validationAttempts++;
+  } else {
+    licenseState.validationAttempts = 0;
+  }
+}
+
+export function getLicenseState(): LicenseState {
+  return { ...licenseState };
+}
+
+export function shouldRevalidateLicense(): boolean {
+  const oneHour = 60 * 60 * 1000;
+  return Date.now() - licenseState.lastValidated >= oneHour;
+}
+
+export async function loadLicenseState(): Promise<void> {
+  try {
+    const data = await figma.clientStorage.getAsync('licenseState');
+    if (data) {
+      licenseState = { ...licenseState, ...data };
+    }
+  } catch (error) {
+    console.error('Failed to load license state:', error);
+  }
+}
+
+export async function saveLicenseState(): Promise<void> {
+  try {
+    await figma.clientStorage.setAsync('licenseState', licenseState);
+  } catch (error) {
+    console.error('Failed to save license state:', error);
+  }
+}
+
+export function clearLicenseState(): void {
+  licenseState = {
+    licenseKey: null,
+    isValid: false,
+    expiresAt: null,
+    lastValidated: 0,
+    validationAttempts: 0
+  };
 }
