@@ -14,30 +14,25 @@
       <ul class="action-list">
         <li>
           <button id="back-btn" class="action-btn" aria-label="Go back" disabled>
-            <i class="icon" aria-hidden="true">↩</i>
-            <span class="label">Back</span>
+            ↩<span class="label">Back</span>
           </button>
         </li>
         <li>
           <button id="forward-btn" class="action-btn" aria-label="Go forward" disabled>
-            <i class="icon" aria-hidden="true">↪</i>
-            <span class="label">Forward</span>
+            ↪<span class="label">Forward</span>
           </button>
         </li>
         <li class="align-right">
           <button id="date-btn" class="action-btn" aria-label="Add date">
-            <i class="icon" aria-hidden="true">🗓️</i>
-            <span class="label">Date</span>
+            🗓️<span class="label">Date</span>
           </button>
           <button id="new-page-btn" class="action-btn" aria-label="Create new page">
-            <i class="icon" aria-hidden="true">📄</i>
-            <span class="label">New Page</span>
+            📄<span class="label">New Page</span>
           </button>
         </li>
         <li class="align-right">
           <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
-            <i class="icon" aria-hidden="true">≡</i>
-            <span class="label">Settings</span>
+<span class="icon">≡</span>
           </button>
         </li>
       </ul>
@@ -71,18 +66,8 @@
               <span class="set-name">Colors</span>
             </span>
             <nav class="emoji-nav-container">
-              <ul class="emoji-nav-list">
-                <li>
-                  <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set">
-                    <i class="nav-arrow">←</i>
-                  </button>
-                </li>
-                <li>
-                  <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set">
-                    <i class="nav-arrow">→</i>
-                  </button>
-                </li>
-              </ul>
+              <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set">←</button>
+              <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set">→</button>
             </nav>
           </div>
           <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
@@ -105,9 +90,7 @@
         <h2 class="header-title">ANCHORS</h2>
       </div>
       <nav class="header-right">
-        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors">
-          <i class="icon" aria-hidden="true">⟳</i>
-        </button>
+        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors">⟳</button>
         <!-- <p id="bookmark-count" class="top-badge" aria-live="polite">0</p> -->
       </nav>
     </header>
@@ -132,9 +115,7 @@
     <div class="settings-panel" role="document">
       <header class="settings-header">
         <h2 class="settings-title">Settings</h2>
-        <button id="settings-close" class="action-btn" aria-label="Close settings">
-          <i class="icon" aria-hidden="true">✕</i>
-        </button>
+        <button id="settings-close" class="action-btn" aria-label="Close settings">✕</button>
       </header>
       <div class="settings-content" tabindex="0">
         <!-- Lemon Squeezy Section -->
@@ -182,11 +163,19 @@
                 </span>
               </label>
               <label class="theme-option">
-                <input type="radio" name="theme" value="dark" id="theme-dark">
+                <input type="radio" name="theme" value="boilerplate" id="theme-boilerplate">
                 <span class="theme-option-content">
                   <span class="theme-icon">🌙</span>
-                  <span class="theme-name">Dark</span>
-                  <span class="theme-description">Dark theme</span>
+                  <span class="theme-name">Boilerplate</span>
+                  <span class="theme-description">Basic dark theme</span>
+                </span>
+              </label>
+              <label class="theme-option">
+                <input type="radio" name="theme" value="cybertron" id="theme-cybertron">
+                <span class="theme-option-content">
+                  <span class="theme-icon">🤖</span>
+                  <span class="theme-name">Cybertron</span>
+                  <span class="theme-description">Futuristic cyberpunk theme</span>
                 </span>
               </label>
               <label class="theme-option">
@@ -237,12 +226,13 @@
         </div>
       </li>
       <li>
-        <button id="footer-fit" class="footer-icon-btn" aria-label="Fit" title="Fit">↕</button>
+        <button id="footer-fit" class="footer-icon-btn" aria-label="Auto-fit disabled - click to enable" title="Auto-fit: OFF">↕</button>
       </li>
     </ul>
     <div class="footer-branding">
       <span class="made-with">
-        made with <img src="./assets/LOGO-L3Vi_dsgn.svg" alt="L3Vi Design" class="logo-svg">
+        made with <img src="./assets/LOGO-L3Vi_dsgn-dark.svg" alt="L3Vi Design" class="logo-svg logo-dark">
+        <img src="./assets/LOGO-L3Vi_dsgn-light.svg" alt="L3Vi Design" class="logo-svg logo-light">
       </span>
     </div>
   </footer>

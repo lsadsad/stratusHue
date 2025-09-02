@@ -31,6 +31,9 @@ const lemonSqueezyService = new LemonSqueezyService(defaultLemonSqueezyConfig);
 let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
 let hasPreviousSelection = false;
 
+// Auto-fit state management
+let isAutoFitEnabled = false;
+
 // Helper function to send messages to plugin sandbox
 function sendMessage(type: string, data: Record<string, any> = {}): void {
   parent.postMessage({ pluginMessage: { type, ...data } }, '*');
@@ -224,6 +227,13 @@ function updateScrollBehavior(): void {
   } else {
     main.classList.remove('no-scroll');
   }
+
+  // Auto-fit height adjustment when enabled
+  if (isAutoFitEnabled) {
+    const newHeight = computeFitHeight();
+    console.log('Auto-fit: adjusting height to', newHeight);
+    sendMessage('resize-ui', { height: newHeight });
+  }
 }
 
 // Simple emoji button updater
@@ -359,6 +369,9 @@ function initializePlugin(): void {
 
   // Initialize toggle state
   updateToggleUI();
+
+  // Initialize auto-fit button state
+  updateAutoFitButtonState();
 
   // Initialize Lottie animations
   initializeAllLottieElements();
@@ -533,12 +546,20 @@ function setupEventListeners(): void {
     });
   }
 
-  // Fit height to content
+  // Fit height to content - toggle auto-fit mode
   if (fitBtn) {
     fitBtn.addEventListener('click', () => {
-      const contentHeight = computeFitHeight();
-      console.log('Fit height to content (natural):', contentHeight);
-      sendMessage('resize-ui', { height: contentHeight });
+      isAutoFitEnabled = !isAutoFitEnabled;
+      updateAutoFitButtonState();
+      
+      if (isAutoFitEnabled) {
+        // Immediately fit to current content when enabling
+        const contentHeight = computeFitHeight();
+        console.log('Auto-fit enabled: adjusting height to', contentHeight);
+        sendMessage('resize-ui', { height: contentHeight });
+      } else {
+        console.log('Auto-fit disabled');
+      }
     });
 
     // Add hover state management to prevent stuck states
@@ -571,6 +592,10 @@ function setupEventListeners(): void {
       if (!isDragging) return;
       const deltaY = e.clientY - startY;
       const newHeight = Math.max(150, Math.min(800, Math.round(startHeight + deltaY)));
+      
+      // Disable auto-fit when user manually resizes
+      disableAutoFit('manual drag resize');
+      
       sendMessage('resize-ui', { height: newHeight });
     };
 
@@ -582,6 +607,9 @@ function setupEventListeners(): void {
     };
 
     resizeHandle.addEventListener('mousedown', (e: MouseEvent) => {
+      // Disable auto-fit as soon as user starts manual resize
+      disableAutoFit('manual resize initiated');
+      
       isDragging = true;
       startY = e.clientY;
       startHeight = window.innerHeight;
@@ -594,6 +622,10 @@ function setupEventListeners(): void {
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         const direction = e.key === 'ArrowUp' ? -1 : 1;
         const newHeight = Math.max(150, Math.min(800, window.innerHeight + direction * step));
+        
+        // Disable auto-fit when user manually resizes with keyboard
+        disableAutoFit('manual keyboard resize');
+        
         sendMessage('resize-ui', { height: newHeight });
         e.preventDefault();
       }
@@ -622,13 +654,10 @@ function setupEventListeners(): void {
       } else {
         target.classList.remove('collapsed');
       }
-      // After transition, optionally adjust height if needed
+      // After transition, update scroll behavior and auto-fit if enabled
       // Small delay allows CSS transition to compute new height
       window.setTimeout(() => {
         updateScrollBehavior();
-        // Removed automatic height fitting to maintain fixed 393px height
-        // const contentHeight = computeFitHeight();
-        // sendMessage('resize-ui', { height: contentHeight });
       }, 200);
     };
 
@@ -846,6 +875,31 @@ function updateEmojiSetIndicator(setName: string, currentIndex: number, totalSet
   }
 }
 
+// Disable auto-fit and update UI state
+function disableAutoFit(reason?: string): void {
+  if (isAutoFitEnabled) {
+    isAutoFitEnabled = false;
+    updateAutoFitButtonState();
+    console.log(`Auto-fit disabled${reason ? `: ${reason}` : ''}`);
+  }
+}
+
+// Update auto-fit button visual state
+function updateAutoFitButtonState(): void {
+  const fitBtn = document.getElementById('footer-fit');
+  if (!fitBtn) return;
+
+  if (isAutoFitEnabled) {
+    fitBtn.classList.add('active');
+    fitBtn.setAttribute('aria-label', 'Auto-fit enabled - click to disable');
+    fitBtn.setAttribute('title', 'Auto-fit: ON');
+  } else {
+    fitBtn.classList.remove('active');
+    fitBtn.setAttribute('aria-label', 'Auto-fit disabled - click to enable');
+    fitBtn.setAttribute('title', 'Auto-fit: OFF');
+  }
+}
+
 // Utility function to reset all footer button states
 function resetFooterButtonStates(): void {
   const footerButtons = document.querySelectorAll('.footer-icon-btn');
@@ -907,8 +961,11 @@ function applyTheme(theme: string): void {
     case 'light':
       htmlElement.setAttribute('data-theme', 'light');
       break;
-    case 'dark':
-      htmlElement.setAttribute('data-theme', 'dark');
+    case 'boilerplate':
+      htmlElement.setAttribute('data-theme', 'boilerplate');
+      break;
+    case 'cybertron':
+      htmlElement.setAttribute('data-theme', 'cybertron');
       break;
     case 'figma':
       htmlElement.setAttribute('data-theme', 'figma');
