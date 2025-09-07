@@ -189,6 +189,33 @@ export async function validateCurrentAnchor(): Promise<void> {
   }
 }
 
+// ===== BOOKMARK REORDERING =====
+export async function reorderBookmarks(newOrderIds: string[]): Promise<{ success: boolean; message: string }>{
+  try {
+    const current = await getBookmarks();
+    if (newOrderIds.length !== current.length) {
+      return { success: false, message: 'Reorder list length mismatch' };
+    }
+
+    const idToBookmark = new Map(current.map(b => [b.id, b] as const));
+    const reordered: Bookmark[] = [];
+
+    for (const id of newOrderIds) {
+      const item = idToBookmark.get(id);
+      if (!item) {
+        return { success: false, message: 'Reorder contains unknown id' };
+      }
+      reordered.push(item);
+    }
+
+    await setBookmarks(reordered);
+    return { success: true, message: 'Anchors reordered' };
+  } catch (error) {
+    console.error('Failed to reorder bookmarks:', error);
+    return { success: false, message: 'Failed to reorder anchors' };
+  }
+}
+
 export async function detectCurrentAnchorFromSelection(): Promise<void> {
   const selection = figma.currentPage.selection;
   

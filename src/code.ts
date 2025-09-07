@@ -26,7 +26,8 @@ import {
   removeBookmark,
   detectCurrentAnchorFromSelection,
   validateCurrentAnchor,
-  validateRecentHistory
+  validateRecentHistory,
+  reorderBookmarks
 } from './bookmarks';
 import { jumpToBookmark, goBackInHistory, goForwardInHistory, addSelectionToHistory, addPageChangeToHistory, findNearestExistingSelectionEntryAnyDirection } from './navigation';
 import {
@@ -39,6 +40,7 @@ import {
   sendSelectionStateToUI,
   updateUIAfterNavigation,
   updateUIAfterEmojiChange,
+  updateUIAfterBookmarkChange,
   resizeUI,
   toggleUIWidth,
   sendNavigationStateToUI
@@ -143,6 +145,12 @@ figma.ui.onmessage = async (msg) => {
       case 'remove-bookmark':
         if ('id' in msg && msg.id && typeof msg.id === 'string') {
           await handleRemoveBookmark(msg.id);
+        }
+        break;
+
+      case 'reorder-bookmarks':
+        if ('order' in msg && Array.isArray(msg.order) && msg.order.every((id: unknown) => typeof id === 'string')) {
+          await handleReorderBookmarks(msg.order as string[]);
         }
         break;
 
@@ -291,6 +299,14 @@ const handleRemoveBookmark = withErrorBoundary(async (bookmarkId: string) => {
   figma.notify('Bookmark removed.');
   await updateUIAfterNavigation();
 }, ErrorType.BOOKMARK_NOT_FOUND);
+
+const handleReorderBookmarks = withErrorBoundary(async (order: string[]) => {
+  const result = await reorderBookmarks(order);
+  figma.notify(result.message);
+  if (result.success) {
+    await updateUIAfterBookmarkChange();
+  }
+}, ErrorType.UNKNOWN);
 
 async function handleGoBack(): Promise<void> {
   const result = await goBackInHistory();

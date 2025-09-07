@@ -860,9 +860,65 @@ function updateBookmarksList(
     nullState.setAttribute('aria-hidden', 'true');
     bookmarkList.style.display = 'flex';
     
+    // Drag-and-drop state
+    let dragStartIndex: number | null = null;
+    let isDragging = false;
+    let hoverIndex: number | null = null;
+    let insertAfter = false;
+
+    // Create a single drop indicator overlay per render
+    const dropIndicator = document.createElement('div');
+    dropIndicator.className = 'drop-indicator';
+    bookmarkList.appendChild(dropIndicator);
+
+    const getItems = (): HTMLElement[] => {
+      return Array.from(bookmarkList.querySelectorAll('.bookmark-item')) as HTMLElement[];
+    };
+
+    const getItemIndex = (el: Element): number => {
+      const children = getItems();
+      return children.indexOf(el as HTMLElement);
+    };
+
+    const buildOrderFromDom = (): string[] => {
+      return getItems().map((child) => (child as HTMLElement).dataset.id || '');
+    };
+
+    const handleDropReorder = (targetLi: HTMLElement) => {
+      if (dragStartIndex === null) return;
+      const from = dragStartIndex;
+
+      // Determine target index using hover state; fallback to element index
+      const baseIndex = getItemIndex(targetLi);
+      let to = baseIndex;
+      if (hoverIndex !== null && baseIndex === hoverIndex) {
+        to = insertAfter ? hoverIndex + 1 : hoverIndex;
+      }
+
+      const items = getItems();
+      if (from === -1) return;
+      if (to < 0) to = 0;
+      if (to > items.length) to = items.length;
+
+      const draggedEl = items[from];
+      if (!draggedEl) return;
+
+      // If moving forward, and inserting after, account for removal shifting
+      const refItems = getItems();
+      const refNode = refItems[to] || dropIndicator.nextSibling || null;
+      bookmarkList.insertBefore(draggedEl, refNode);
+
+      const order = buildOrderFromDom().filter(Boolean);
+      if (order.length === bookmarks.length) {
+        sendMessage('reorder-bookmarks', { order });
+      }
+    };
+
     bookmarks.forEach(bookmark => {
       const li = document.createElement('li');
       li.className = 'bookmark-item';
+      li.setAttribute('draggable', 'true');
+      (li as HTMLElement).dataset.id = bookmark.id;
 
       // Apply selection state classes
       if (currentAnchorId && bookmark.id === currentAnchorId) {
@@ -885,6 +941,7 @@ function updateBookmarksList(
 
       // Navigate on item click
       li.addEventListener('click', () => {
+        if (isDragging) return;
         sendMessage('jump-to-bookmark', { id: bookmark.id });
       });
 
@@ -895,9 +952,88 @@ function updateBookmarksList(
           e.stopPropagation();
           sendMessage('remove-bookmark', { id: bookmark.id });
         });
+        // Ensure remove button doesn't initiate drag
+        removeBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+        removeBtn.addEventListener('dragstart', (e) => e.stopPropagation());
       }
 
+      // Drag-and-drop handlers
+      li.addEventListener('dragstart', (e) => {
+        isDragging = true;
+        dragStartIndex = getItemIndex(li);
+        li.classList.add('dragging');
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', bookmark.id);
+        }
+        // Show indicator initially at current position
+        const listRect = bookmarkList.getBoundingClientRect();
+        const liRect = li.getBoundingClientRect();
+        dropIndicator.style.top = `${liRect.top - listRect.top}px`;
+        dropIndicator.classList.add('visible');
+      });
+
+      li.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        li.classList.add('drag-over');
+      });
+
+      li.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const listRect = bookmarkList.getBoundingClientRect();
+        const liRect = li.getBoundingClientRect();
+        const mid = liRect.top + liRect.height / 2;
+        hoverIndex = getItemIndex(li);
+        insertAfter = e.clientY >= mid;
+        const y = insertAfter ? liRect.bottom : liRect.top;
+        dropIndicator.style.top = `${y - listRect.top}px`;
+        dropIndicator.classList.add('visible');
+      });
+
+      li.addEventListener('dragleave', () => {
+        li.classList.remove('drag-over');
+      });
+
+      li.addEventListener('drop', (e) => {
+        e.preventDefault();
+        li.classList.remove('drag-over');
+        handleDropReorder(li);
+        dropIndicator.classList.remove('visible');
+      });
+
+      li.addEventListener('dragend', () => {
+        isDragging = false;
+        dragStartIndex = null;
+        li.classList.remove('dragging');
+        hoverIndex = null;
+        insertAfter = false;
+        dropIndicator.classList.remove('visible');
+        // After drag ends, update scroll behavior as layout might change
+        setTimeout(updateScrollBehavior, 50);
+      });
+
       bookmarkList.appendChild(li);
+    });
+
+    // Handle dragging over empty space to position indicator at the end
+    bookmarkList.addEventListener('dragover', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const items = getItems();
+      if (items.length === 0) return;
+      const last = items[items.length - 1];
+      const listRect = bookmarkList.getBoundingClientRect();
+      const lastRect = last.getBoundingClientRect();
+      if (e.clientY > lastRect.bottom) {
+        hoverIndex = items.length - 1;
+        insertAfter = true;
+        dropIndicator.style.top = `${lastRect.bottom - listRect.top}px`;
+        dropIndicator.classList.add('visible');
+      }
+    });
+
+    bookmarkList.addEventListener('drop', () => {
+      dropIndicator.classList.remove('visible');
     });
   }
 
