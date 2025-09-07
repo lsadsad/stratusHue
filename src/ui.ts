@@ -124,6 +124,12 @@ function updateToggleUI(): void {
       toggleButton.setAttribute('aria-label', 'Toggle between page and layer mode');
     }
   }
+
+  // Ensure page-only actions are visible only in onPage mode
+  const pageActionsGroup = document.getElementById('page-actions-group');
+  if (pageActionsGroup) {
+    pageActionsGroup.style.display = currentToggleMode === 'onPage' ? 'inline-flex' : 'none';
+  }
 }
 
 // Handle toggle click
@@ -172,10 +178,29 @@ function computeFitHeight(): number {
   main.style.height = 'auto';
   main.style.maxHeight = 'none';
 
+  // Temporarily lift max-height from expanded collapsible sections so we
+  // measure their full natural height (CSS sets max-height: 600px)
+  const children = Array.from(main.children) as HTMLElement[];
+  const modifiedSections: Array<{ el: HTMLElement; prevMaxHeight: string; prevHeight: string; prevOverflow: string }>= [];
+  for (const child of children) {
+    const isCollapsible = child.classList.contains('collapsible-content');
+    const isCollapsed = child.classList.contains('collapsed');
+    if (isCollapsible && !isCollapsed) {
+      modifiedSections.push({
+        el: child,
+        prevMaxHeight: child.style.maxHeight,
+        prevHeight: child.style.height,
+        prevOverflow: child.style.overflow
+      });
+      child.style.maxHeight = 'none';
+      child.style.height = 'auto';
+      child.style.overflow = 'visible';
+    }
+  }
+
   // Measure only visible (non-collapsed) children
   const mainRect = main.getBoundingClientRect();
   let visibleBottom = mainRect.top;
-  const children = Array.from(main.children) as HTMLElement[];
   for (const child of children) {
     const isCollapsible = child.classList.contains('collapsible-content');
     const isCollapsed = child.classList.contains('collapsed');
@@ -193,6 +218,11 @@ function computeFitHeight(): number {
   main.style.flex = prevFlex;
   main.style.height = prevHeight;
   main.style.maxHeight = prevMaxHeight;
+  for (const entry of modifiedSections) {
+    entry.el.style.maxHeight = entry.prevMaxHeight;
+    entry.el.style.height = entry.prevHeight;
+    entry.el.style.overflow = entry.prevOverflow;
+  }
 
   return Math.ceil(naturalScrollHeight + footerHeight);
 }
@@ -205,21 +235,10 @@ function updateScrollBehavior(): void {
   // Get the current container height
   const containerHeight = main.clientHeight;
 
-  // Calculate the actual content height (visible content only)
-  let contentHeight = 0;
-  const children = Array.from(main.children) as HTMLElement[];
-
-  for (const child of children) {
-    const isCollapsible = child.classList.contains('collapsible-content');
-    const isCollapsed = child.classList.contains('collapsed');
-
-    // Skip collapsed collapsible content
-    if (isCollapsible && isCollapsed) {
-      continue;
-    }
-
-    contentHeight += child.offsetHeight;
-  }
+  // Use the element's actual scrollHeight which accurately reflects
+  // the scrollable content, including padding and layout, while
+  // respecting collapsed sections (which have max-height: 0)
+  const contentHeight = main.scrollHeight;
 
   // Enable/disable scrolling based on whether content exceeds container
   if (contentHeight <= containerHeight) {
@@ -390,6 +409,9 @@ function setupEventListeners(): void {
   const saveBtn = document.getElementById('save-bookmark');
   const dateBtn = document.getElementById('date-btn');
   const newPageBtn = document.getElementById('new-page-btn');
+  const indentTitleBtn = document.getElementById('indent-title-btn');
+  const outdentTitleBtn = document.getElementById('outdent-title-btn');
+  const pageActionsGroup = document.getElementById('page-actions-group');
   const settingsBtn = document.getElementById('settings-btn');
   const settingsOverlay = document.getElementById('settings-overlay');
   const settingsCloseBtn = document.getElementById('settings-close');
@@ -430,21 +452,45 @@ function setupEventListeners(): void {
     });
   }
 
-  // Date button (basic handler; functionality wired later)
+  // Date button: request plugin to add/replace today's date
   if (dateBtn) {
     dateBtn.addEventListener('click', () => {
       console.log('Date button clicked');
-      // Future: sendMessage('add-date') or similar
+      sendMessage('add-date');
     });
   }
 
-  // New Page (functionality to be implemented later)
+  // New Page: request plugin to create a new dated page
   if (newPageBtn) {
     newPageBtn.addEventListener('click', () => {
       console.log('New Page clicked');
-      // Intentionally not sending a message yet; functionality to be implemented later
+      sendMessage('create-new-page');
     });
   }
+
+  // Indent page title: insert 4 spaces before title text
+  if (indentTitleBtn) {
+    indentTitleBtn.addEventListener('click', () => {
+      console.log('Indent title clicked');
+      sendMessage('indent-title');
+    });
+  }
+
+  // Outdent page title: remove 4 leading spaces (if present) before arrow/emoji
+  if (outdentTitleBtn) {
+    outdentTitleBtn.addEventListener('click', () => {
+      console.log('Outdent title clicked');
+      sendMessage('outdent-title');
+    });
+  }
+
+  // Visibility of page actions depends on current toggle mode (onPage only)
+  const updatePageActionsVisibility = () => {
+    if (!pageActionsGroup) return;
+    const onPage = currentToggleMode === 'onPage';
+    pageActionsGroup.style.display = onPage ? 'inline-flex' : 'none';
+  };
+  updatePageActionsVisibility();
 
   // Settings overlay open/close
   const openSettings = () => {
@@ -591,7 +637,7 @@ function setupEventListeners(): void {
     const onMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
       const deltaY = e.clientY - startY;
-      const newHeight = Math.max(150, Math.min(800, Math.round(startHeight + deltaY)));
+      const newHeight = Math.max(150, Math.round(startHeight + deltaY));
       
       // Disable auto-fit when user manually resizes
       disableAutoFit('manual drag resize');
@@ -621,7 +667,7 @@ function setupEventListeners(): void {
       const step = 16;
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         const direction = e.key === 'ArrowUp' ? -1 : 1;
-        const newHeight = Math.max(150, Math.min(800, window.innerHeight + direction * step));
+        const newHeight = Math.max(150, window.innerHeight + direction * step);
         
         // Disable auto-fit when user manually resizes with keyboard
         disableAutoFit('manual keyboard resize');
@@ -700,6 +746,8 @@ function setupEventListeners(): void {
           handleToggleClick('onPage');
         }
       }
+      // Update visibility after toggle
+      setTimeout(() => updatePageActionsVisibility(), 0);
     });
   }
 

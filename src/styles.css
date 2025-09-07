@@ -999,7 +999,7 @@ h3 {
   padding: 0;
   font-size: var(--icon-size-md);
   border-radius: var(--border-radius-sm);
-  background: transparent;
+  background: var(--color-background-main);
   color: var(--figma-color-border-brand);
   font-weight: var(--font-weight-light);
   box-sizing: border-box;
@@ -1014,13 +1014,13 @@ h3 {
 }
 
 .emoji-nav-btn:hover:not(:disabled) {
-  background: var(--color-background-secondary);
+  background: var(--color-background-main);
   color: var(--figma-color-border-brand);
   transform: scale(1.05);
 }
 
 .emoji-nav-btn:active:not(:disabled) {
-  background: var(--color-background-secondary);
+  background: var(--color-background-main);
   color: var(--figma-color-border-brand);
   transform: scale(0.95);
 }
@@ -1028,7 +1028,7 @@ h3 {
 .emoji-nav-btn:disabled {
   opacity: 0.1;
   cursor: not-allowed;
-  background: transparent;
+  background: var(--color-background-main);
 }
 
 /* Header Action Buttons */
@@ -1103,7 +1103,6 @@ h3 {
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-sm) 0 var(--spacing-lg);
-  height: calc(var(--spacing-lg) * 3);
   align-self: stretch;
   background: var(--color-background-elevated);
   flex-wrap: nowrap;
@@ -1724,7 +1723,7 @@ h3 {
   font-size: var(--icon-size-sm);
   color: var(--color-text-primary);
   font-weight: normal;
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
   opacity: 0.6;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1736,7 +1735,7 @@ h3 {
 
 .bookmark-remove {
   color: var(--figma-color-text);
-  background: var(--figma-color-bg-hover);
+  background: transparent;
   border: none;
   font-size: var(--icon-size-md);
   cursor: pointer;
@@ -1747,16 +1746,17 @@ h3 {
   pointer-events: none;
   /* avoid intercepting clicks when hidden */
   width: var(--button-height-md);
-  height: var(--button-height-md);
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  transform: none;
   transition: none !important;
   /* Explicitly disable all transitions */
+  border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0;
 }
 
 /* Reveal remove button on hover of the whole bookmark row */
@@ -1766,27 +1766,24 @@ h3 {
   pointer-events: auto;
   color: var(--color-text-primary);
   /* keep icon visible */
+  background: transparent;
 }
 
 .bookmark-remove:hover {
-  background: var(--figma-color-bg-hover--);
-  /* black background */
+  background: var(--theme-accent-red);
+  /* add fill only when hovering the remove button */
   color: var(--color-text-primary);
   /* primary text color */
   font-weight: var(--font-weight-semibold);
   opacity: 1;
-  transform: translateY(-50%);
-  /* maintain centering, prevent any scaling */
 }
 
 /* Ensure hover state applies even when parent row is hovered */
 .bookmark-item:hover .bookmark-remove:hover {
-  background: var(--figma-color-bg-hover--);
+  background: var(--theme-accent-red);
   color: var(--color-text-primary);
   font-weight: var(--font-weight-semibold);
   opacity: 1;
-  transform: translateY(-50%);
-  /* maintain centering, prevent any scaling */
 }
 
 /* Save button inherits merged styles above; block removed to reduce redundancy */
@@ -2218,7 +2215,7 @@ i.grip {
 }
 
 .footer-branding .made-with {
-  font-size: 9px;
+  font-size: var(--icon-size-sm);
   color: var(--color-text-subtle);
   opacity: 0.6;
   display: flex;
@@ -2430,6 +2427,44 @@ i.grip {
   color: var(--figma-color-border-brand);
 }
 
+/* Indent controls: no fill in any state */
+#quick-actions #indent-title-btn,
+#quick-actions #outdent-title-btn {
+  background: transparent;
+}
+
+#quick-actions #indent-title-btn:hover,
+#quick-actions #outdent-title-btn:hover {
+  background: transparent;
+  transform: none;
+}
+
+#quick-actions #indent-title-btn:active,
+#quick-actions #outdent-title-btn:active {
+  background: transparent;
+  transform: none;
+}
+
+/* Indent icon color behavior: white by default, blue on hover/press */
+#quick-actions #indent-title-btn {
+  color: var(--figma-color-bg-inverse);
+}
+
+#quick-actions #indent-title-btn:hover,
+#quick-actions #indent-title-btn:active {
+  color: var(--figma-color-border-brand);
+}
+
+/* Outdent icon color behavior: white by default, blue on hover/press */
+#quick-actions #outdent-title-btn {
+  color: var(--figma-color-bg-inverse);
+}
+
+#quick-actions #outdent-title-btn:hover,
+#quick-actions #outdent-title-btn:active {
+  color: var(--figma-color-border-brand);
+}
+
 /* Settings quick-action: transparent by default, white icon, larger icon size */
 #quick-actions #settings-btn {
   background: transparent;
@@ -2449,9 +2484,9 @@ i.grip {
 
 /* Keep brand blue on hover/active */
 #quick-actions #settings-btn:hover {
-  background: var(--color-interactive-hover);
+  background: transparent;
   color: var(--figma-color-border-brand);
-  transform: scale(1.1);
+  transform: none;
 }
 
 #quick-actions #settings-btn:hover .icon {
@@ -2477,7 +2512,7 @@ i.grip {
   font-size: var(--icon-size-md);
 }
 
-/* Refresh icon in headers to 10pt equivalent */
+/* Refresh icon in headers: match header icon size */
 #refresh-anchors .icon {
   font-size: var(--icon-size-md);
   color: var(--color-text-primary);
@@ -2564,26 +2599,27 @@ i.grip {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--figma-color-border);
+  border: var(--border-width) solid var(--color-border-accent);
   border-radius: var(--border-radius-sm);
-  background: var(--figma-color-bg);
-  color: var(--figma-color-text);
+  background: var(--color-background-main);
+  color: var(--color-text-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .emoji-nav-btn:hover {
-  background: var(--figma-color-bg-hover);
-  border-color: var(--figma-color-border-strong);
+  background: var(--color-background-main);
+  border-color: var(--color-border-accent);
 }
 
 .emoji-nav-btn:active {
-  background: var(--figma-color-bg-pressed);
+  background: var(--color-background-main);
 }
 
 .emoji-nav-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  background: var(--color-background-main);
 }
 
 .nav-arrow {

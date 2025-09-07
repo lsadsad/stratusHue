@@ -26,9 +26,17 @@
           <button id="date-btn" class="action-btn" aria-label="Add date">
             🗓️<span class="label">Date</span>
           </button>
-          <button id="new-page-btn" class="action-btn" aria-label="Create new page">
-            📄<span class="label">New Page</span>
-          </button>
+          <div id="page-actions-group" role="group" aria-label="Page actions">
+            <button id="new-page-btn" class="action-btn" aria-label="Create new page">
+              📄<span class="label">New Page</span>
+            </button>
+            <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
+              ↤<span class="label">Outdent</span>
+            </button>
+            <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
+              ↦<span class="label">Indent</span>
+            </button>
+          </div>
         </li>
         <li class="align-right">
           <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
@@ -90,7 +98,7 @@
         <h2 class="header-title">ANCHORS</h2>
       </div>
       <nav class="header-right">
-        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors">⟳</button>
+        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors"><span class="icon">⟳</span></button>
         <!-- <p id="bookmark-count" class="top-badge" aria-live="polite">0</p> -->
       </nav>
     </header>
@@ -231,7 +239,7 @@
     </ul>
     <div class="footer-branding">
       <span class="made-with">
-        made with <img src="./assets/LOGO-L3Vi_dsgn-dark.svg" alt="L3Vi Design" class="logo-svg logo-dark">
+        made w/ <img src="./assets/LOGO-L3Vi_dsgn-dark.svg" alt="L3Vi Design" class="logo-svg logo-dark">
         <img src="./assets/LOGO-L3Vi_dsgn-light.svg" alt="L3Vi Design" class="logo-svg logo-light">
       </span>
     </div>

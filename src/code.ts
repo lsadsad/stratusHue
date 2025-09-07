@@ -4,7 +4,7 @@
 // Optimized modular architecture with error handling and performance
 
 // ===== IMPORTS =====
-import { debounce } from './utils';
+import { debounce, addOrReplaceDateInLayerName, addOrReplaceDateInPageTitle } from './utils';
 import {
   loadAnchorState,
   setUiWidth,
@@ -167,7 +167,7 @@ figma.ui.onmessage = async (msg) => {
 
       case 'resize-ui':
         if ('height' in msg && typeof msg.height === 'number' && msg.height > 0) {
-          const newHeight = Math.max(150, Math.min(800, msg.height));
+          const newHeight = Math.max(150, msg.height);
           setUiHeight(newHeight);
           resizeUI(currentUiWidth, newHeight);
         }
@@ -183,6 +183,20 @@ figma.ui.onmessage = async (msg) => {
         if ('url' in msg && msg.url && typeof msg.url === 'string') {
           handleOpenUrl(msg.url);
         }
+        break;
+
+      case 'add-date':
+        await handleAddDate();
+        break;
+
+      case 'create-new-page':
+        await handleCreateNewPage();
+        break;
+      case 'indent-title':
+        await handleIndentTitle();
+        break;
+      case 'outdent-title':
+        await handleOutdentTitle();
         break;
 
       case 'validate-license':
@@ -300,6 +314,67 @@ const handleRefreshAnchors = withErrorBoundary(async () => {
   await updateUIAfterNavigation();
 }, ErrorType.UNKNOWN);
 
+const handleAddDate = withErrorBoundary(async () => {
+  const selection = figma.currentPage.selection;
+
+  if (selection.length === 0) {
+    // Apply to current page title
+    const page = figma.currentPage;
+    const oldName = page.name;
+    const newName = addOrReplaceDateInPageTitle(oldName);
+    if (newName !== oldName) {
+      page.name = newName;
+      figma.notify(`Updated page title: ${newName}`);
+    } else {
+      figma.notify('Page title unchanged');
+    }
+  } else {
+    // Apply to selected layers
+    let updatedCount = 0;
+    for (const node of selection) {
+      if ('name' in node) {
+        const oldName = (node as any).name as string;
+        const newName = addOrReplaceDateInLayerName(oldName);
+        if (newName !== oldName) {
+          (node as any).name = newName;
+          updatedCount++;
+        }
+      }
+    }
+    figma.notify(`Updated ${updatedCount} layer${updatedCount === 1 ? '' : 's'} with today's date`);
+  }
+
+  await updateUIAfterNavigation();
+}, ErrorType.UNKNOWN);
+
+// Insert 4 spaces before the current page title's text
+const handleIndentTitle = withErrorBoundary(async () => {
+  const page = figma.currentPage;
+  const oldName = page.name;
+  const newName = (await import('./utils')).addIndentToPageTitle(oldName);
+  if (newName !== oldName) {
+    page.name = newName;
+    figma.notify(`Indented page title`);
+  } else {
+    figma.notify('Page title unchanged');
+  }
+  await updateUIAfterNavigation();
+}, ErrorType.UNKNOWN);
+
+// Remove 4 leading spaces from the current page title (if present)
+const handleOutdentTitle = withErrorBoundary(async () => {
+  const page = figma.currentPage;
+  const oldName = page.name;
+  const newName = (await import('./utils')).removeIndentFromPageTitle(oldName);
+  if (newName !== oldName) {
+    page.name = newName;
+    figma.notify(`Outdented page title`);
+  } else {
+    figma.notify('Page title unchanged');
+  }
+  await updateUIAfterNavigation();
+}, ErrorType.UNKNOWN);
+
 const handleOpenUrl = withErrorBoundary(async (url: string) => {
   try {
     // Use Figma's built-in method to open URLs
@@ -309,6 +384,36 @@ const handleOpenUrl = withErrorBoundary(async (url: string) => {
     console.error('Failed to open URL:', error);
     figma.notify('Failed to open URL');
   }
+}, ErrorType.UNKNOWN);
+
+// Create a new page, name it with today's date prefix, and switch to it
+const handleCreateNewPage = withErrorBoundary(async () => {
+  // Create page
+  const page = figma.createPage();
+  // Title format: "↳ MM.DD : newPage"
+  const today = (await import('./utils')).getTodayDateToken();
+  const baseTitle = 'newPage';
+  page.name = `↳ ${today} : ${baseTitle}`;
+
+  // Move the new page to be immediately after the current page
+  const currentIndex = figma.root.children.indexOf(figma.currentPage);
+  const targetIndex = Math.min(currentIndex + 1, figma.root.children.length - 1);
+  try {
+    figma.root.insertChild(targetIndex, page);
+  } catch (_e) {
+    // If insertChild fails (shouldn't), ignore and keep default position
+  }
+
+  // Switch to the new page
+  await figma.setCurrentPageAsync(page);
+
+  // Clear selection and notify
+  figma.currentPage.selection = [];
+  figma.notify(`Created page: ${page.name}`);
+
+  // Update UI/navigation
+  addPageChangeToHistory();
+  await updateUIAfterNavigation();
 }, ErrorType.UNKNOWN);
 
 const handleToggleToLayerMode = withErrorBoundary(async () => {

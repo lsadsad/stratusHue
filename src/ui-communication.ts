@@ -101,7 +101,7 @@ export async function sendInitialUIState(): Promise<void> {
 // ===== UI RESIZE HELPERS =====
 export function resizeUI(width: number, height: number): void {
   const clampedWidth = Math.max(188, Math.min(400, width));
-  const clampedHeight = Math.max(150, Math.min(800, height));
+  const clampedHeight = Math.max(150, height);
   
   figma.ui.resize(clampedWidth, clampedHeight);
 }
