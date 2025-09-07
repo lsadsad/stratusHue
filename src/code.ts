@@ -193,6 +193,27 @@ figma.ui.onmessage = async (msg) => {
         }
         break;
 
+      // === THEME PERSISTENCE ===
+      case 'get-theme-preference': {
+        try {
+          const theme = await figma.clientStorage.getAsync('themePreference');
+          figma.ui.postMessage({ type: 'theme-preference', theme: theme || 'figma' });
+        } catch (_e) {
+          figma.ui.postMessage({ type: 'theme-preference', theme: 'figma' });
+        }
+        break;
+      }
+
+      case 'set-theme-preference':
+        if ('theme' in msg && typeof msg.theme === 'string') {
+          try {
+            await figma.clientStorage.setAsync('themePreference', msg.theme);
+          } catch (_e) {
+            // ignore storage errors; preference is non-critical
+          }
+        }
+        break;
+
       case 'add-date':
         await handleAddDate();
         break;
@@ -327,7 +348,10 @@ async function handleGoForward(): Promise<void> {
 const handleRefreshAnchors = withErrorBoundary(async () => {
   const { updated, removed } = await (await import('./bookmarks')).validateAndSyncBookmarks();
   figma.notify(`Anchors resynced: ${updated} updated, ${removed} removed`);
-  await updateUIAfterNavigation();
+  // Force fresh bookmark list so other windows see deletes/reorders after manual refresh
+  await (await import('./ui-communication')).sendBookmarksToUI({ forceReload: true });
+  sendNavigationStateToUI();
+  sendSelectionStateToUI();
 }, ErrorType.UNKNOWN);
 
 const handleAddDate = withErrorBoundary(async () => {

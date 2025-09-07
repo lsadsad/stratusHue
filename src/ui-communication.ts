@@ -9,8 +9,9 @@ import { getNavigationState, hasAnySelectionEntry } from './navigation';
 import { getCurrentEmojiSet, getEmojiNavigationState } from './emoji-manager';
 
 // ===== UI MESSAGE SENDERS =====
-export async function sendBookmarksToUI(): Promise<void> {
-  const bookmarks: Bookmark[] = await getBookmarks();
+export async function sendBookmarksToUI(options?: { forceReload?: boolean }): Promise<void> {
+  const forceReload = !!(options && options.forceReload);
+  const bookmarks: Bookmark[] = await getBookmarks(forceReload);
   
   figma.ui.postMessage({
     type: 'bookmarks',

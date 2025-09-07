@@ -1103,22 +1103,16 @@ let currentLicenseState = {
   hasLicenseKey: false
 };
 
-// Theme storage using memory (since themes are UI-only preferences)
-const themeStorage: { [key: string]: string } = {};
+// Theme storage helper using backend persistence via clientStorage
+const THEME_STORAGE_KEY = 'figma-plugin-theme';
+let inMemoryTheme: string | null = null;
 
 // Theme switching functionality
 function setupThemeSwitching(): void {
   const themeRadios = document.querySelectorAll('input[name="theme"]');
 
-  // Load saved theme preference (defaults to 'figma' if not available)
-  const savedTheme = themeStorage['figma-plugin-theme'] || 'figma';
-  applyTheme(savedTheme);
-
-  // Set the correct radio button
-  const savedThemeRadio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`) as HTMLInputElement;
-  if (savedThemeRadio) {
-    savedThemeRadio.checked = true;
-  }
+  // Request saved theme from backend
+  sendMessage('get-theme-preference');
 
   // Add event listeners to theme radio buttons
   themeRadios.forEach((radio) => {
@@ -1127,7 +1121,9 @@ function setupThemeSwitching(): void {
       if (target.checked) {
         const theme = target.value;
         applyTheme(theme);
-        themeStorage['figma-plugin-theme'] = theme;
+        inMemoryTheme = theme;
+        // Persist to backend storage
+        sendMessage('set-theme-preference', { theme });
         console.log('Theme changed to:', theme);
       }
     });
@@ -1182,6 +1178,19 @@ function handleDOMReady(): void {
 
   // Listen for messages from plugin
   window.addEventListener('message', handlePluginMessage);
+
+  // Listen specifically for theme preference from backend
+  window.addEventListener('message', (event: MessageEvent) => {
+    const msg = (event.data && (event.data as any).pluginMessage) || null;
+    if (!msg) return;
+    if (msg.type === 'theme-preference') {
+      const theme = (msg.theme as string) || 'figma';
+      inMemoryTheme = theme;
+      applyTheme(theme);
+      const radio = document.querySelector(`input[name="theme"][value="${theme}"]`) as HTMLInputElement;
+      if (radio) radio.checked = true;
+    }
+  });
 
   // Update scroll behavior on window resize
   window.addEventListener('resize', () => {

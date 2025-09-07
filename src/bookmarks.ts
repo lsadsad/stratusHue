@@ -117,7 +117,7 @@ export async function updateBookmarksForPage(pageId: string, newPageName: string
 
 // ===== BOOKMARK VALIDATION =====
 export async function validateAndSyncBookmarks(): Promise<{ updated: number; removed: number }> {
-  const bookmarks = await getBookmarks();
+  const bookmarks = await getBookmarks(true);
   let updated = 0;
   let removed = 0;
   const validBookmarks: Bookmark[] = [];
