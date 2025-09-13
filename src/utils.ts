@@ -35,6 +35,21 @@ export function sanitizeForMatching(name: string): string {
   return name.replace(/[\uFE0F\u200B-\u200D\u2060\u00A0\uFEFF\uFFFD]/g, '');
 }
 
+// Remove only variation selectors (VS16) for cross-platform emoji matching
+function stripVariationSelectors(input: string): string {
+  return input.replace(/\uFE0F/g, '');
+}
+
+// Given an emoji, generate common display variants (with/without VS16)
+function getEmojiVariants(emoji: string): string[] {
+  const base = stripVariationSelectors(emoji);
+  const withVs16 = base + '\uFE0F';
+  const variants = new Set<string>([base, withVs16]);
+  // Preserve original too in case it contains other codepoints
+  variants.add(emoji);
+  return Array.from(variants);
+}
+
 export function normalizePageName(name: string): string {
   // First remove problematic invisible/replacement chars
   let normalized = sanitizeForMatching(name);
@@ -54,34 +69,21 @@ export function normalizePageName(name: string): string {
 
 // ===== EMOJI UTILITIES =====
 export function removeEmojiPrefix(name: string): string {
-  // Remove a LEADING emoji tag (layer/page) and an optional single space after it.
-  const allLayerEmojis = LAYER_EMOJI_SETS.flatMap(set => set.emojis);
-  const allPageEmojis = PAGE_EMOJI_SETS.flatMap(set => set.emojis);
-  const allEmojis = [...allLayerEmojis, ...allPageEmojis];
-
-  for (const emoji of allEmojis) {
-    if (name.startsWith(emoji + ' ')) {
-      return name.slice((emoji + ' ').length);
-    }
-    if (name.startsWith(emoji)) {
-      return name.slice(emoji.length);
-    }
+  // Remove a LEADING emoji tag (layer/page) and any following single space.
+  const { emoji, remainder } = detectLeadingEmoji(name);
+  if (emoji) {
+    return remainder.replace(/^\s+/, '');
   }
   return name;
 }
 
 export function replaceColorEmoji(name: string, newEmoji: string): string {
-  // Get all emojis from all sets
-  const allLayerEmojis = LAYER_EMOJI_SETS.flatMap(set => set.emojis);
-  const allPageEmojis = PAGE_EMOJI_SETS.flatMap(set => set.emojis);
-  const allEmojis = [...allLayerEmojis, ...allPageEmojis];
-
-  for (const emoji of allEmojis) {
-    if (name.includes(emoji)) {
-      return name.replace(emoji, newEmoji);
-    }
+  // Replace only a LEADING tag emoji if present; otherwise prefix a new one
+  const { emoji, remainder } = detectLeadingEmoji(name);
+  if (emoji) {
+    return `${newEmoji} ${remainder.replace(/^\s+/, '')}`;
   }
-  return newEmoji + ' ' + name;
+  return `${newEmoji} ${name}`;
 }
 
 // ===== PAGE TITLE UTILITIES =====
@@ -97,9 +99,10 @@ export function parsePageTitleParts(rawName: string): PageTitleParts {
   const dateMatch = beforeColon.match(/\b(\d{2}\.\d{2})\b/);
   const date = dateMatch ? dateMatch[1] : null;
 
-  // Extract emoji explicitly from our page emoji sets anywhere before colon (match full emoji)
+  // Extract emoji from page emoji sets anywhere before colon, tolerant of VS16 differences
   const allPageEmojis = PAGE_EMOJI_SETS.flatMap(set => set.emojis);
-  const emoji = allPageEmojis.find(e => beforeColon.includes(e)) || null;
+  const normalizedBefore = stripVariationSelectors(beforeColon);
+  const emoji = allPageEmojis.find(e => normalizedBefore.includes(stripVariationSelectors(e))) || null;
 
   // Title is everything after the colon, trimmed of only leading spaces
   const title = afterColon.length > 0 ? afterColon.replace(/^\s+/, '') : name.replace(/^(\s*↳\s*)/, '');
@@ -175,12 +178,15 @@ export function detectLeadingEmoji(name: string): { emoji: string | null; remain
   const allPageEmojis = PAGE_EMOJI_SETS.flatMap(set => set.emojis);
   const allEmojis = [...allLayerEmojis, ...allPageEmojis];
 
-  for (const e of allEmojis) {
-    if (name.startsWith(e + ' ')) {
-      return { emoji: e, remainder: name.slice((e + ' ').length) };
-    }
-    if (name.startsWith(e)) {
-      return { emoji: e, remainder: name.slice(e.length) };
+  for (const canonical of allEmojis) {
+    const variants = getEmojiVariants(canonical);
+    for (const variant of variants) {
+      if (name.startsWith(variant + ' ')) {
+        return { emoji: variant, remainder: name.slice((variant + ' ').length) };
+      }
+      if (name.startsWith(variant)) {
+        return { emoji: variant, remainder: name.slice(variant.length) };
+      }
     }
   }
   return { emoji: null, remainder: name };
