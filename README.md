@@ -109,7 +109,6 @@ Stratus_Hue/
 ├── src/
 │   ├── code.ts          # Main plugin logic (TypeScript)
 │   ├── core.ts          # Core functionality (bookmarks, navigation, etc.)
-│   ├── premium.ts       # Premium features & Lemon Squeezy integration
 │   ├── types.ts         # TypeScript type definitions
 │   ├── constants.ts     # Plugin constants and configuration
 │   ├── utils.ts         # Utility functions

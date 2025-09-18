@@ -46,59 +46,6 @@ export interface PageTitleParts {
   title: string; // text after colon, or full name if no colon
 }
 
-// ===== PREMIUM TYPES =====
-export interface SubscriptionStatus {
-  isActive: boolean;
-  isPremium: boolean;
-  expiresAt?: string;
-  customerId?: string;
-  subscriptionId?: string;
-}
-
-export interface FeatureUsage {
-  feature: string;
-  count: number;
-  lastUsed: number;
-  dailyCount: number;
-  lastDailyReset: number;
-}
-
-export interface UserTier {
-  tierId: string;
-  tierName: string;
-  isActive: boolean;
-  expiresAt?: number;
-  credits?: number;
-  features: string[];
-  limits: {
-    maxBookmarks: number;
-    maxEmojiSets: number;
-    maxHistoryEntries: number;
-  };
-}
-
-// ===== LEMON SQUEEZY TYPES =====
-export interface LemonSqueezyConfig {
-  storeId: string;
-  apiKey: string;
-  productId: string;
-  variantId: string;
-}
-
-export interface LicenseValidationResponse {
-  valid: boolean;
-  license_key: {
-    id: string;
-    status: string;
-    expires_at: string | null;
-    customer: {
-      id: string;
-      email: string;
-    };
-  };
-}
-
-export type PricingModel = 'freemium' | 'one-time' | 'subscription' | 'tiered' | 'usage-based';
 
 // ===== UI MESSAGE TYPES =====
 export interface UIMessage {

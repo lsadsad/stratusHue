@@ -2,7 +2,6 @@
 // Handles all UI interactions and communication with the plugin sandbox
 
 import lottie from 'lottie-web';
-import { LemonSqueezyService, defaultLemonSqueezyConfig } from './lemon-squeezy';
 
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
@@ -24,8 +23,6 @@ interface LottieAnimationConfig {
 // Store active Lottie animations for management
 const activeLottieAnimations = new Map<string, any>();
 
-// Lemon Squeezy service instance
-const lemonSqueezyService = new LemonSqueezyService(defaultLemonSqueezyConfig);
 
 // Toggle state management
 let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
@@ -78,15 +75,6 @@ function handlePluginMessage(event: MessageEvent): void {
       break;
     case 'success':
       console.log('Plugin success:', message.message);
-      break;
-    case 'license-status':
-      handleLicenseStatusUpdate(message);
-      break;
-    case 'validate-license-request':
-      handleLicenseValidationRequest(message);
-      break;
-    case 'license-validation-result':
-      handleLicenseValidationResult(message);
       break;
   }
 }
@@ -754,8 +742,16 @@ function setupEventListeners(): void {
   // Theme switching
   setupThemeSwitching();
 
-  // Lemon Squeezy event listeners
-  setupLemonSqueezyEventListeners();
+  // Ko-fi button
+  const kofiBtnElement = document.getElementById('kofi-btn');
+  if (kofiBtnElement) {
+    kofiBtnElement.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Ko-fi button clicked');
+      // Open Ko-fi page in external browser
+      sendMessage('open-kofi');
+    });
+  }
 
   // Setup footer button state management
   setupFooterButtonStateManagement();
@@ -1096,12 +1092,7 @@ function resetFooterButtonStates(): void {
   });
 }
 
-// License state management - now handled by plugin backend
-let currentLicenseState = {
-  isValid: false,
-  expiresAt: null as string | null,
-  hasLicenseKey: false
-};
+// License management removed
 
 // Theme storage helper using backend persistence via clientStorage
 const THEME_STORAGE_KEY = 'figma-plugin-theme';
@@ -1227,200 +1218,4 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', handleDOMReady);
 } else {
   handleDOMReady();
-}
-
-// ===== LEMON SQUEEZY FUNCTIONS =====
-
-function setupLemonSqueezyEventListeners(): void {
-  const testApiBtn = document.getElementById('test-api-btn');
-  const validateLicenseBtn = document.getElementById('validate-license-btn');
-  const upgradeBtn = document.getElementById('upgrade-btn');
-  const licenseKeyInput = document.getElementById('license-key-input') as HTMLInputElement;
-
-  if (testApiBtn) {
-    testApiBtn.addEventListener('click', handleTestApiConnection);
-  }
-
-  if (validateLicenseBtn && licenseKeyInput) {
-    validateLicenseBtn.addEventListener('click', () => {
-      const licenseKey = licenseKeyInput.value.trim();
-      if (licenseKey) {
-        handleValidateLicense(licenseKey);
-      } else {
-        showFeedback('license-feedback', 'Please enter a license key', 'error');
-      }
-    });
-
-    // Validate on Enter key
-    licenseKeyInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const licenseKey = licenseKeyInput.value.trim();
-        if (licenseKey) {
-          handleValidateLicense(licenseKey);
-        }
-      }
-    });
-  }
-
-  if (upgradeBtn) {
-    upgradeBtn.addEventListener('click', handleUpgradeClick);
-  }
-
-  // Initialize subscription status check
-  checkSubscriptionStatus();
-}
-
-async function handleTestApiConnection(): Promise<void> {
-  const testApiBtn = document.getElementById('test-api-btn') as HTMLButtonElement;
-  const originalText = testApiBtn.textContent;
-
-  testApiBtn.disabled = true;
-  testApiBtn.textContent = 'Testing...';
-
-  try {
-    const result = await lemonSqueezyService.testConnection();
-    showFeedback('api-feedback', result.message, result.success ? 'success' : 'error');
-  } catch (error) {
-    showFeedback('api-feedback', 'Connection test failed', 'error');
-  } finally {
-    testApiBtn.disabled = false;
-    testApiBtn.textContent = originalText;
-  }
-}
-
-async function handleValidateLicense(licenseKey: string): Promise<void> {
-  const validateBtn = document.getElementById('validate-license-btn') as HTMLButtonElement;
-  const originalText = validateBtn.textContent;
-
-  validateBtn.disabled = true;
-  validateBtn.textContent = 'Validating...';
-
-  // Send validation request to plugin backend
-  sendMessage('validate-license', { licenseKey });
-  
-  // Show immediate feedback - the plugin will send back the result
-  showFeedback('license-feedback', 'Validating license...', 'info');
-  
-  // Reset button state after a short delay (will be updated when result comes back)
-  setTimeout(() => {
-    validateBtn.disabled = false;
-    validateBtn.textContent = originalText;
-  }, 1000);
-}
-
-function handleUpgradeClick(): void {
-  const checkoutUrl = lemonSqueezyService.generateCheckoutUrl();
-
-  // Send message to plugin to open URL
-  sendMessage('open-url', { url: checkoutUrl });
-
-  showFeedback('api-feedback', 'Opening checkout page...', 'info');
-}
-
-function showFeedback(elementId: string, message: string, type: 'success' | 'error' | 'info'): void {
-  const feedbackElement = document.getElementById(elementId);
-  if (feedbackElement) {
-    feedbackElement.textContent = message;
-    feedbackElement.className = `feedback-message ${type}`;
-
-    // Auto-hide after 5 seconds for success/info messages
-    if (type === 'success' || type === 'info') {
-      setTimeout(() => {
-        feedbackElement.style.display = 'none';
-      }, 5000);
-    }
-  }
-}
-
-function updateSubscriptionStatus(isActive: boolean, expiresAt?: string | null): void {
-  const statusDot = document.getElementById('status-dot');
-  const statusText = document.getElementById('status-text');
-
-  if (statusDot && statusText) {
-    statusDot.className = `status-dot ${isActive ? 'active' : 'inactive'}`;
-
-    if (isActive) {
-      const expiryText = expiresAt ? ` (expires ${new Date(expiresAt).toLocaleDateString()})` : '';
-      statusText.textContent = `Premium Active${expiryText}`;
-    } else {
-      statusText.textContent = 'Free Version';
-    }
-  }
-}
-
-async function checkSubscriptionStatus(): Promise<void> {
-  const statusDot = document.getElementById('status-dot');
-  const statusText = document.getElementById('status-text');
-
-  if (statusDot && statusText) {
-    statusDot.className = 'status-dot checking';
-    statusText.textContent = 'Checking subscription...';
-  }
-
-  // Request license status from plugin backend
-  sendMessage('get-license-status');
-}
-
-
-// ===== LICENSE MESSAGE HANDLERS =====
-function handleLicenseStatusUpdate(message: any): void {
-  currentLicenseState = {
-    isValid: message.isValid || false,
-    expiresAt: message.expiresAt || null,
-    hasLicenseKey: message.hasLicenseKey || false
-  };
-  
-  updateSubscriptionStatus(currentLicenseState.isValid, currentLicenseState.expiresAt);
-}
-
-async function handleLicenseValidationRequest(message: any): void {
-  const { licenseKey, isRevalidation } = message;
-  
-  try {
-    // Perform the API call in the UI (since it needs network access)
-    const result = await lemonSqueezyService.validateLicense(licenseKey);
-    
-    // Send result back to plugin
-    sendMessage('license-validation-result', {
-      success: result && result.valid,
-      licenseKey: licenseKey,
-      expiresAt: result?.license_key?.expires_at || null,
-      isRevalidation: isRevalidation || false
-    });
-    
-  } catch (error) {
-    console.error('License validation failed:', error);
-    
-    // Send error back to plugin
-    sendMessage('license-validation-result', {
-      success: false,
-      licenseKey: licenseKey,
-      error: 'API call failed',
-      isRevalidation: isRevalidation || false
-    });
-  }
-}
-
-function handleLicenseValidationResult(message: any): void {
-  const validateBtn = document.getElementById('validate-license-btn') as HTMLButtonElement;
-  
-  if (message.success) {
-    showFeedback('license-feedback', 'License validated successfully!', 'success');
-    updateSubscriptionStatus(true, message.expiresAt);
-    
-    // Clear the input field on success
-    const licenseInput = document.getElementById('license-key-input') as HTMLInputElement;
-    if (licenseInput) {
-      licenseInput.value = '';
-    }
-  } else {
-    showFeedback('license-feedback', message.error || 'Invalid license key', 'error');
-    updateSubscriptionStatus(false);
-  }
-  
-  // Reset button state
-  if (validateBtn) {
-    validateBtn.disabled = false;
-    validateBtn.textContent = 'Validate';
-  }
 }
