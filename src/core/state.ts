@@ -30,8 +30,8 @@ export function setUiHeight(height: number): void {
 // ===== BOOKMARK STATE =====
 let bookmarksCache: Bookmark[] | null = null;
 
-export async function getBookmarks(): Promise<Bookmark[]> {
-  if (bookmarksCache) {
+export async function getBookmarks(forceReload: boolean = false): Promise<Bookmark[]> {
+  if (!forceReload && bookmarksCache) {
     return bookmarksCache;
   }
   

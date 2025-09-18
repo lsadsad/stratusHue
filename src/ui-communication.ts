@@ -9,8 +9,9 @@ import { getNavigationState, hasAnySelectionEntry } from './navigation';
 import { getCurrentEmojiSet, getEmojiNavigationState } from './emoji-manager';
 
 // ===== UI MESSAGE SENDERS =====
-export async function sendBookmarksToUI(): Promise<void> {
-  const bookmarks: Bookmark[] = await getBookmarks();
+export async function sendBookmarksToUI(options?: { forceReload?: boolean }): Promise<void> {
+  const forceReload = !!(options && options.forceReload);
+  const bookmarks: Bookmark[] = await getBookmarks(forceReload);
   
   figma.ui.postMessage({
     type: 'bookmarks',
@@ -101,7 +102,7 @@ export async function sendInitialUIState(): Promise<void> {
 // ===== UI RESIZE HELPERS =====
 export function resizeUI(width: number, height: number): void {
   const clampedWidth = Math.max(188, Math.min(400, width));
-  const clampedHeight = Math.max(150, Math.min(800, height));
+  const clampedHeight = Math.max(150, height);
   
   figma.ui.resize(clampedWidth, clampedHeight);
 }

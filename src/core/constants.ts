@@ -8,53 +8,20 @@ import type { EmojiSet } from './types';
 export const LAYER_EMOJI_SETS: EmojiSet[] = [
   { name: 'Colors', emojis: ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜'] },
   { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
-  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
+  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🪦', '⭐', '📱'] }
 ];
 
 // Emoji sets for pages (circle emojis)
 export const PAGE_EMOJI_SETS: EmojiSet[] = [
   { name: 'Colors', emojis: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'] },
   { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
-  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🔮', '⭐', '📱'] }
+  { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🪦', '⭐', '📱'] }
 ];
 
 // Legacy constants for backward compatibility
 export const LAYER_EMOJI_LIST = LAYER_EMOJI_SETS[0].emojis;
 export const PAGE_EMOJI_LIST = PAGE_EMOJI_SETS[0].emojis;
 
-// ===== PREMIUM FEATURES =====
-export const PREMIUM_FEATURES = {
-  // Core Features
-  UNLIMITED_BOOKMARKS: 'unlimited_bookmarks',
-  ADVANCED_NAVIGATION: 'advanced_navigation', 
-  CUSTOM_EMOJI_SETS: 'custom_emoji_sets',
-  EXPORT_BOOKMARKS: 'export_bookmarks',
-  TEAM_SHARING: 'team_sharing',
-  
-  // Advanced Features
-  BULK_OPERATIONS: 'bulk_operations',
-  CUSTOM_THEMES: 'custom_themes',
-  API_ACCESS: 'api_access',
-  PRIORITY_SUPPORT: 'priority_support',
-  ANALYTICS: 'analytics',
-  AUTOMATION: 'automation',
-  INTEGRATIONS: 'integrations',
-} as const;
-
-// ===== FREE TIER LIMITS =====
-export const FREE_LIMITS = {
-  // Core Limits
-  MAX_BOOKMARKS: 10,
-  MAX_EMOJI_SETS: 2,
-  MAX_HISTORY_ENTRIES: 20,
-  
-  // Advanced Limits
-  MAX_EXPORTS_PER_DAY: 3,
-  MAX_BULK_OPERATIONS: 0,
-  MAX_CUSTOM_THEMES: 0,
-  MAX_API_CALLS_PER_DAY: 0,
-  MAX_TEAM_MEMBERS: 0,
-} as const;
 
 // ===== NAVIGATION CONSTANTS =====
 export const MAX_HISTORY_ENTRIES = 100;

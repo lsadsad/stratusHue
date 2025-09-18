@@ -117,7 +117,7 @@ export async function updateBookmarksForPage(pageId: string, newPageName: string
 
 // ===== BOOKMARK VALIDATION =====
 export async function validateAndSyncBookmarks(): Promise<{ updated: number; removed: number }> {
-  const bookmarks = await getBookmarks();
+  const bookmarks = await getBookmarks(true);
   let updated = 0;
   let removed = 0;
   const validBookmarks: Bookmark[] = [];
@@ -186,6 +186,33 @@ export async function validateCurrentAnchor(): Promise<void> {
     console.log('Error validating current anchor:', error);
     setCurrentAnchor(null);
     await saveAnchorState();
+  }
+}
+
+// ===== BOOKMARK REORDERING =====
+export async function reorderBookmarks(newOrderIds: string[]): Promise<{ success: boolean; message: string }>{
+  try {
+    const current = await getBookmarks();
+    if (newOrderIds.length !== current.length) {
+      return { success: false, message: 'Reorder list length mismatch' };
+    }
+
+    const idToBookmark = new Map(current.map(b => [b.id, b] as const));
+    const reordered: Bookmark[] = [];
+
+    for (const id of newOrderIds) {
+      const item = idToBookmark.get(id);
+      if (!item) {
+        return { success: false, message: 'Reorder contains unknown id' };
+      }
+      reordered.push(item);
+    }
+
+    await setBookmarks(reordered);
+    return { success: true, message: 'Anchors reordered' };
+  } catch (error) {
+    console.error('Failed to reorder bookmarks:', error);
+    return { success: false, message: 'Failed to reorder anchors' };
   }
 }
 

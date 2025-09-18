@@ -139,9 +139,9 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --figma-color-text-inverse: #000000;
 }
 
-/* DARK THEME - Pure dark theme without Figma integration */
+/* BOILERPLATE THEME - Pure dark theme without Figma integration */
 :root,
-[data-theme="dark"] {
+[data-theme="boilerplate"] {
   /* Base Colors - Pure dark theme */
   --theme-bg-primary: #0f0f0f;
   --theme-bg-secondary: #1a1a1a;
@@ -207,6 +207,184 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --theme-shadow-inset-hairline: rgba(0, 0, 0, 0.45);
   --theme-warning-bg-weak: rgba(255, 193, 7, 0.2);
   --theme-warning-border-weak: rgba(255, 193, 7, 0.3);
+}
+
+/* CYBERTRON THEME - Futuristic dark theme inspired by Transformers */
+[data-theme="cybertron"] {
+  /* Base Colors - Cybertron inspired palette */
+  --theme-bg-primary: #0a0a0f;
+  --theme-bg-secondary: #141420;
+  --theme-bg-tertiary: #1e1e2e;
+  --theme-bg-elevated: #050508;
+  --theme-bg-accent: #2a2a3a;
+  --theme-bg-hover: rgba(0, 255, 255, 0.08);
+  --theme-bg-active: rgba(255, 0, 255, 0.12);
+
+  /* Text Colors - Electric blue and cyan tones */
+  --theme-text-primary: #00ffff;
+  --theme-text-secondary: #66d9ff;
+  --theme-text-muted: rgba(0, 255, 255, 0.6);
+  --theme-text-subtle: rgba(102, 217, 255, 0.8);
+  --theme-text-disabled: rgba(0, 255, 255, 0.3);
+
+  /* Border Colors - Neon accents */
+  --theme-border-primary: #1a1a2e;
+  --theme-border-secondary: #2a2a3a;
+  --theme-border-accent: #00ccff;
+
+  /* Interactive States - Glowing effects */
+  --theme-interactive-hover: rgba(0, 255, 255, 0.15);
+  --theme-interactive-active: rgba(255, 0, 255, 0.2);
+  --theme-interactive-disabled: #0a0a0f;
+
+  /* Scrollbar Colors */
+  --theme-scrollbar-track: #0a0a0f;
+  --theme-scrollbar-thumb: #00ccff;
+  --theme-scrollbar-thumb-hover: #00ffff;
+
+  /* Accent Colors - Vibrant cyberpunk palette */
+  --theme-accent-red: rgba(255, 20, 147, 0.2);
+  --theme-accent-green: rgba(0, 255, 127, 0.2);
+  --theme-accent-yellow: rgba(255, 215, 0, 0.2);
+  --theme-accent-blue: rgba(0, 191, 255, 0.15);
+  --theme-accent-pink: rgba(255, 0, 255, 0.3);
+
+  /* Status Colors - Bright and electric */
+  --theme-success: #00ff7f;
+  --theme-warning: #ffd700;
+  --theme-error: #ff1493;
+  --theme-info: #00bfff;
+
+  /* Shadow Colors - Glowing effects */
+  --theme-shadow-light: rgba(0, 255, 255, 0.2);
+  --theme-shadow-heavy: rgba(0, 255, 255, 0.4);
+
+  /* Overlay and Utility - Cyberpunk glow effects */
+  --theme-overlay-xxweak: rgba(0, 255, 255, 0.03);
+  --theme-overlay-xweak: rgba(0, 255, 255, 0.06);
+  --theme-text-strong: rgba(0, 255, 255, 0.95);
+  --theme-border-translucent: rgba(0, 255, 255, 0.25);
+  --theme-border-soft: rgba(0, 255, 255, 0.3);
+  --theme-info-border: rgba(0, 191, 255, 0.4);
+  --theme-info-border-strong: rgba(0, 191, 255, 0.6);
+  --theme-info-bg-strong: rgba(0, 191, 255, 0.15);
+  --theme-info-bg-stronger: rgba(0, 191, 255, 0.2);
+  --theme-info-border-stronger: rgba(0, 191, 255, 0.7);
+  --theme-border-hover: rgba(0, 255, 255, 0.4);
+  --theme-border-contrast: rgba(0, 255, 255, 0.7);
+  --theme-shadow-ambient: rgba(0, 255, 255, 0.3);
+  --theme-shadow-inset-hairline: rgba(0, 255, 255, 0.25);
+  --theme-warning-bg-weak: rgba(255, 215, 0, 0.15);
+  --theme-warning-border-weak: rgba(255, 215, 0, 0.3);
+}
+
+/* CYBERTRON THEME ENHANCEMENTS - Special effects and animations */
+[data-theme="cybertron"] {
+  /* Add subtle glow effects to interactive elements */
+  --cybertron-glow: 0 0 10px rgba(0, 255, 255, 0.3);
+  --cybertron-glow-strong: 0 0 20px rgba(0, 255, 255, 0.5);
+  --cybertron-glow-accent: 0 0 15px rgba(255, 0, 255, 0.4);
+}
+
+[data-theme="cybertron"] .emoji-button:hover {
+  box-shadow: var(--cybertron-glow);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+[data-theme="cybertron"] .action-btn:hover {
+  box-shadow: var(--cybertron-glow);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+[data-theme="cybertron"] .section-header:hover {
+  box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.1);
+  border-color: rgba(0, 255, 255, 0.4);
+}
+
+[data-theme="cybertron"] .bookmark-item:hover {
+  box-shadow: var(--cybertron-glow);
+  border-left: 2px solid var(--theme-accent-blue);
+}
+
+[data-theme="cybertron"] .clear-action:hover,
+[data-theme="cybertron"] #save-bookmark:hover {
+  box-shadow: var(--cybertron-glow-accent);
+  border: 1px solid rgba(255, 0, 255, 0.3);
+}
+
+/* Cybertron theme animations */
+[data-theme="cybertron"] .emoji-button {
+  transition: all 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+}
+
+[data-theme="cybertron"] .action-btn {
+  transition: all 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+}
+
+[data-theme="cybertron"] .section-header {
+  transition: all 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Cybertron scrollbar styling */
+[data-theme="cybertron"] .scrollable-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #00ccff, #00ffff);
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+[data-theme="cybertron"] .scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #00ffff, #ff00ff);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+/* Cybertron footer enhancements */
+[data-theme="cybertron"] #footer {
+  border-top: 1px solid rgba(0, 255, 255, 0.3);
+  background: linear-gradient(180deg, rgba(10, 10, 15, 0.9) 0%, rgba(20, 20, 32, 0.95) 100%);
+}
+
+[data-theme="cybertron"] .footer-icon-btn:hover {
+  box-shadow: var(--cybertron-glow);
+  color: #00ffff;
+}
+
+/* Cybertron text glow effects */
+[data-theme="cybertron"] .header-title {
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+}
+
+[data-theme="cybertron"] .emoji-set-title {
+  text-shadow: 0 0 5px rgba(102, 217, 255, 0.4);
+}
+
+/* Cybertron special button effects */
+[data-theme="cybertron"] .clear-action,
+[data-theme="cybertron"] #save-bookmark {
+  background: linear-gradient(135deg, rgba(20, 20, 32, 0.8) 0%, rgba(30, 30, 46, 0.9) 100%);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  color: #00ffff;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+}
+
+[data-theme="cybertron"] .clear-action:active,
+[data-theme="cybertron"] #save-bookmark:active {
+  background: linear-gradient(135deg, rgba(255, 0, 255, 0.2) 0%, rgba(0, 255, 255, 0.2) 100%);
+  transform: scale(0.98);
+}
+
+/* Cybertron bookmark items */
+[data-theme="cybertron"] .bookmark-item {
+  background: linear-gradient(90deg, rgba(20, 20, 32, 0.6) 0%, rgba(30, 30, 46, 0.8) 100%);
+  border: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+[data-theme="cybertron"] .bookmark-item.current-anchor {
+  border-left: 3px solid #00ffff;
+  box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.1);
+}
+
+[data-theme="cybertron"] .bookmark-item.recent-history {
+  border-left: 3px solid #ff00ff;
+  box-shadow: inset 0 0 15px rgba(255, 0, 255, 0.1);
 }
 
 /* FIGMA THEME - Uses Figma's native theme variables for seamless integration */
@@ -349,7 +527,8 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 
 /* SEMANTIC TOKENS - Consolidated semantic color tokens for consistent theming */
 :root,
-[data-theme="dark"],
+[data-theme="boilerplate"],
+[data-theme="cybertron"],
 [data-theme="light"] {
   --color-background-main: var(--theme-bg-primary);
   --color-background-secondary: var(--theme-bg-secondary);
@@ -476,6 +655,11 @@ h3 {
   gap: var(--spacing-xxl);
   padding: calc(var(--spacing-xxl) * 2) calc(var(--container-padding) + var(--spacing-lg)) calc(var(--spacing-xxl) * 2 - var(--spacing-lg)) calc(var(--container-padding) + var(--spacing-lg));
   min-height: 120px;
+}
+
+/* Boilerplate: use elevated background for Tags content section */
+[data-theme="boilerplate"] .tags-content-wrapper {
+  background: var(--color-background-elevated);
 }
 
 .collapsible-content.collapsed {
@@ -696,6 +880,11 @@ h3 {
   color: var(--color-text-primary) !important;
 }
 
+/* Settings button - prevent movement on hover */
+#settings-btn:hover {
+  transform: none;
+}
+
 /* Header Styling */
 .header-left {
   display: flex;
@@ -815,7 +1004,7 @@ h3 {
   padding: 0;
   font-size: var(--icon-size-md);
   border-radius: var(--border-radius-sm);
-  background: transparent;
+  background: var(--color-background-main);
   color: var(--figma-color-border-brand);
   font-weight: var(--font-weight-light);
   box-sizing: border-box;
@@ -830,13 +1019,13 @@ h3 {
 }
 
 .emoji-nav-btn:hover:not(:disabled) {
-  background: var(--color-background-secondary);
+  background: var(--color-background-main);
   color: var(--figma-color-border-brand);
   transform: scale(1.05);
 }
 
 .emoji-nav-btn:active:not(:disabled) {
-  background: var(--color-background-secondary);
+  background: var(--color-background-main);
   color: var(--figma-color-border-brand);
   transform: scale(0.95);
 }
@@ -844,18 +1033,18 @@ h3 {
 .emoji-nav-btn:disabled {
   opacity: 0.1;
   cursor: not-allowed;
-  background: transparent;
+  background: var(--color-background-main);
 }
 
 /* Header Action Buttons */
 .header-right .action-btn {
   width: var(--button-height-md);
   height: var(--button-height-md);
-  font-size: var(--icon-size-sm);
+  font-size: var(--icon-size-md);
 }
 
 .header-right .action-btn .icon {
-  font-size: var(--icon-size-md);
+  font-size: var(--icon-size-lg);
 }
 
 /* Tags Header Emoji Nav Buttons */
@@ -919,11 +1108,10 @@ h3 {
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-sm) 0 var(--spacing-lg);
-  min-height: calc(var(--spacing-lg) * 3);
   align-self: stretch;
   background: var(--color-background-elevated);
-  flex-wrap: wrap;
-  overflow: visible;
+  flex-wrap: nowrap;
+  overflow: hidden;
   width: 100%;
   box-sizing: border-box;
 }
@@ -931,7 +1119,7 @@ h3 {
 /* Scoped toolbar tweaks */
 #quick-actions .action-list {
   gap: var(--spacing-sm);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
 }
 
@@ -939,7 +1127,7 @@ h3 {
   width: calc(var(--spacing-lg) * 3);
   min-width: calc(var(--spacing-lg) * 3);
   min-height: calc(var(--spacing-lg) * 3);
-  font-size: var(--icon-size-sm);
+  font-size: var(--icon-size-md);
   background: var(--color-background-secondary);
   color: var(--color-text-secondary);
   flex-shrink: 0;
@@ -956,7 +1144,7 @@ h3 {
   margin: 0;
   padding: 0;
   width: 100%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
 }
 
@@ -1073,7 +1261,8 @@ h3 {
   gap: var(--spacing-xl);
 }
 
-#tags-header .icon-container {
+/* Unified icon container for all section headers */
+.section-header .icon-container {
   position: relative;
   display: inline-block;
   width: var(--arrow-width);
@@ -1081,7 +1270,7 @@ h3 {
   line-height: var(--icon-size-md);
 }
 
-#tags-header .tag-icon {
+.section-header .tag-icon {
   font-size: var(--icon-size-md);
   color: var(--color-text-secondary);
   display: inline-block;
@@ -1091,7 +1280,7 @@ h3 {
   top: 0;
 }
 
-#tags-header .arrow {
+.section-header .arrow {
   display: none;
   font-size: var(--icon-size-lg);
   font-weight: var(--font-weight-normal);
@@ -1103,14 +1292,14 @@ h3 {
   top: 0;
 }
 
-#tags-header:hover .arrow,
-#tags-header:active .arrow {
+.section-header:hover .arrow,
+.section-header:active .arrow {
   display: inline-block;
   opacity: 1;
 }
 
-#tags-header:hover .tag-icon,
-#tags-header:active .tag-icon {
+.section-header:hover .tag-icon,
+.section-header:active .tag-icon {
   opacity: 0;
 }
 
@@ -1440,6 +1629,7 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  position: relative;
 }
 
 /* Bookmark Items */
@@ -1486,6 +1676,24 @@ h3 {
 
 .bookmark-item.current-anchor .bookmark-name {
   color: var(--figma-color-border-brand);
+}
+
+/* Drag-and-drop visual indicator */
+.drop-indicator {
+  position: absolute;
+  left: var(--spacing-lg);
+  right: var(--spacing-lg);
+  height: 2px;
+  background: var(--color-text-primary);
+  border-radius: 1px;
+  pointer-events: none;
+  opacity: 0.95;
+  z-index: var(--z-tooltip);
+  display: none;
+}
+
+.drop-indicator.visible {
+  display: block;
 }
 
 .bookmark-item.current-anchor.inside-anchor {
@@ -1539,7 +1747,7 @@ h3 {
   font-size: var(--icon-size-sm);
   color: var(--color-text-primary);
   font-weight: normal;
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
   opacity: 0.6;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1551,7 +1759,7 @@ h3 {
 
 .bookmark-remove {
   color: var(--figma-color-text);
-  background: var(--figma-color-bg-hover);
+  background: transparent;
   border: none;
   font-size: var(--icon-size-md);
   cursor: pointer;
@@ -1562,16 +1770,17 @@ h3 {
   pointer-events: none;
   /* avoid intercepting clicks when hidden */
   width: var(--button-height-md);
-  height: var(--button-height-md);
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  transform: none;
   transition: none !important;
   /* Explicitly disable all transitions */
+  border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0;
 }
 
 /* Reveal remove button on hover of the whole bookmark row */
@@ -1581,27 +1790,24 @@ h3 {
   pointer-events: auto;
   color: var(--color-text-primary);
   /* keep icon visible */
+  background: transparent;
 }
 
 .bookmark-remove:hover {
-  background: var(--figma-color-bg-hover--);
-  /* black background */
+  background: var(--theme-accent-red);
+  /* add fill only when hovering the remove button */
   color: var(--color-text-primary);
   /* primary text color */
   font-weight: var(--font-weight-semibold);
   opacity: 1;
-  transform: translateY(-50%);
-  /* maintain centering, prevent any scaling */
 }
 
 /* Ensure hover state applies even when parent row is hovered */
 .bookmark-item:hover .bookmark-remove:hover {
-  background: var(--figma-color-bg-hover--);
+  background: var(--theme-accent-red);
   color: var(--color-text-primary);
   font-weight: var(--font-weight-semibold);
   opacity: 1;
-  transform: translateY(-50%);
-  /* maintain centering, prevent any scaling */
 }
 
 /* Save button inherits merged styles above; block removed to reduce redundancy */
@@ -1819,9 +2025,10 @@ i.grip {
 
   #quick-actions .action-btn {
     width: calc(var(--spacing-lg) * 2.5);
-    min-width: calc(var(--spacing-lg) * 2.5);
+    /* min-width: calc(var(--spacing-lg) * 2.5); */
     min-height: calc(var(--spacing-lg) * 2.5);
-    font-size: var(--icon-size-xs);
+    /* Keep icon size consistent - do not resize icons when width is collapsed */
+    font-size: var(--icon-size-md);
     flex-shrink: 1;
   }
 }
@@ -1917,6 +2124,100 @@ i.grip {
   color: var(--color-text-primary);
 }
 
+/* Settings sections */
+.settings-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.settings-section-title {
+  font-size: var(--icon-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.about-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: var(--spacing-xs) 0;
+  line-height: 1.4;
+}
+
+/* Support section */
+.support-section {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: var(--border-width) solid var(--color-border-secondary);
+}
+
+.support-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+/* Ko-fi button */
+.kofi-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--figma-color-bg-brand);
+  color: var(--figma-color-text-onbrand);
+  text-decoration: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-duration-fast) var(--transition-timing-function);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.kofi-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--transition-duration-medium) var(--transition-timing-function);
+}
+
+.kofi-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--figma-color-bg-brand-tertiary);
+  background: var(--figma-color-bg-brand-hover);
+}
+
+.kofi-button:hover::before {
+  left: 100%;
+}
+
+.kofi-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px var(--figma-color-bg-brand-tertiary);
+  background: var(--figma-color-bg-brand-pressed);
+}
+
+.kofi-icon {
+  font-size: var(--icon-size-md);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.kofi-text {
+  font-weight: var(--font-weight-medium);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 #footer-resize {
   position: absolute;
   left: 50%;
@@ -2004,6 +2305,17 @@ i.grip {
   background: var(--theme-overlay-xweak);
 }
 
+/* Active state for toggle buttons like auto-fit */
+.footer-icon-btn.active {
+  color: var(--figma-color-border-brand, #18a0fb);
+  background: var(--figma-color-bg-brand, rgba(24, 160, 251, 0.1));
+}
+
+.footer-icon-btn.active:hover {
+  color: var(--figma-color-border-brand, #18a0fb);
+  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.2));
+}
+
 /* Force reset styles for stuck states */
 .footer-icon-btn.force-reset {
   color: var(--color-text-muted) !important;
@@ -2021,7 +2333,7 @@ i.grip {
 }
 
 .footer-branding .made-with {
-  font-size: 9px;
+  font-size: var(--icon-size-sm);
   color: var(--color-text-subtle);
   opacity: 0.6;
   display: flex;
@@ -2171,16 +2483,7 @@ i.grip {
   top: 0;
 }
 
-.section-header:hover .arrow,
-.section-header:active .arrow {
-  display: inline-block;
-  opacity: 1;
-}
 
-.section-header:hover .tag-icon,
-.section-header:active .tag-icon {
-  opacity: 0;
-}
 
 /* Title and subtitle shared styling */
 .section-header .header-title {
@@ -2207,9 +2510,9 @@ i.grip {
   font-weight: inherit;
 }
 
-/* Quick Actions icon sizing to 10pt equivalent */
+/* Quick Actions icon sizing to 16px equivalent */
 #quick-actions .action-btn .icon {
-  font-size: var(--icon-size-md);
+  font-size: var(--icon-size-lg);
 }
 
 /* Darker quick action hover/active states */
@@ -2242,10 +2545,49 @@ i.grip {
   color: var(--figma-color-border-brand);
 }
 
+/* Indent controls: no fill in any state */
+#quick-actions #indent-title-btn,
+#quick-actions #outdent-title-btn {
+  background: transparent;
+}
+
+#quick-actions #indent-title-btn:hover,
+#quick-actions #outdent-title-btn:hover {
+  background: transparent;
+  transform: none;
+}
+
+#quick-actions #indent-title-btn:active,
+#quick-actions #outdent-title-btn:active {
+  background: transparent;
+  transform: none;
+}
+
+/* Indent icon color behavior: white by default, blue on hover/press */
+#quick-actions #indent-title-btn {
+  color: var(--figma-color-bg-inverse);
+}
+
+#quick-actions #indent-title-btn:hover,
+#quick-actions #indent-title-btn:active {
+  color: var(--figma-color-border-brand);
+}
+
+/* Outdent icon color behavior: white by default, blue on hover/press */
+#quick-actions #outdent-title-btn {
+  color: var(--figma-color-bg-inverse);
+}
+
+#quick-actions #outdent-title-btn:hover,
+#quick-actions #outdent-title-btn:active {
+  color: var(--figma-color-border-brand);
+}
+
 /* Settings quick-action: transparent by default, white icon, larger icon size */
 #quick-actions #settings-btn {
   background: transparent;
   color: var(--color-text-primary);
+  font-size: var(--icon-size-lg);
 }
 
 #quick-actions #settings-btn .icon {
@@ -2260,9 +2602,9 @@ i.grip {
 
 /* Keep brand blue on hover/active */
 #quick-actions #settings-btn:hover {
-  background: var(--color-interactive-hover);
+  background: transparent;
   color: var(--figma-color-border-brand);
-  transform: scale(1.1);
+  transform: none;
 }
 
 #quick-actions #settings-btn:hover .icon {
@@ -2288,9 +2630,9 @@ i.grip {
   font-size: var(--icon-size-md);
 }
 
-/* Refresh icon in headers to 10pt equivalent */
+/* Refresh icon in headers: match header icon size */
 #refresh-anchors .icon {
-  font-size: var(--icon-size-md);
+  /* font-size: var(--icon-size-md); */
   color: var(--color-text-primary);
 }
 
@@ -2375,26 +2717,27 @@ i.grip {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--figma-color-border);
+  border: var(--border-width) solid var(--color-border-accent);
   border-radius: var(--border-radius-sm);
-  background: var(--figma-color-bg);
-  color: var(--figma-color-text);
+  background: var(--color-background-main);
+  color: var(--color-text-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .emoji-nav-btn:hover {
-  background: var(--figma-color-bg-hover);
-  border-color: var(--figma-color-border-strong);
+  background: var(--color-background-main);
+  border-color: var(--color-border-accent);
 }
 
 .emoji-nav-btn:active {
-  background: var(--figma-color-bg-pressed);
+  background: var(--color-background-main);
 }
 
 .emoji-nav-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  background: var(--color-background-main);
 }
 
 .nav-arrow {
@@ -2402,205 +2745,6 @@ i.grip {
   font-style: normal;
 }
 
-/* LEMON SQUEEZY SETTINGS STYLES */
-.settings-section {
-  margin-bottom: var(--spacing-xxl);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--figma-color-border);
-}
-
-.settings-section:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.settings-section-title {
-  font-size: var(--icon-size-md);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  margin: 0 0 var(--spacing-lg) 0;
-  padding-bottom: var(--spacing-sm);
-  border-bottom: var(--border-width) solid var(--color-border-accent);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.subscription-status {
-  margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  background: var(--figma-color-bg-secondary);
-  border-radius: var(--border-radius-md);
-}
-
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  font-size: 11px;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--figma-color-text-tertiary);
-  flex-shrink: 0;
-}
-
-.status-dot.active {
-  background: #18a0fb;
-}
-
-.status-dot.inactive {
-  background: #f24822;
-}
-
-.status-dot.checking {
-  background: #ffc107;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.license-section {
-  margin-bottom: var(--spacing-lg);
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
-}
-
-.input-group label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--figma-color-text);
-}
-
-.input-group input {
-  padding: var(--spacing-md);
-  border: 1px solid var(--figma-color-border);
-  border-radius: var(--border-radius-sm);
-  background: var(--figma-color-bg);
-  color: var(--figma-color-text);
-  font-size: 11px;
-  font-family: inherit;
-}
-
-.input-group input:focus {
-  outline: none;
-  border-color: var(--figma-color-border-selected);
-  box-shadow: 0 0 0 1px var(--figma-color-border-selected);
-}
-
-.action-buttons {
-  display: flex;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-}
-
-.btn-primary,
-.btn-secondary {
-  padding: var(--spacing-md) var(--spacing-lg);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.btn-primary {
-  background: var(--figma-color-bg-brand);
-  color: var(--figma-color-text-onbrand);
-}
-
-.btn-primary:hover {
-  background: var(--figma-color-bg-brand-hover);
-}
-
-.btn-primary:disabled {
-  background: var(--figma-color-bg-disabled);
-  color: var(--figma-color-text-disabled);
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: var(--figma-color-bg-secondary);
-  color: var(--figma-color-text);
-  border: 1px solid var(--figma-color-border);
-}
-
-.btn-secondary:hover {
-  background: var(--figma-color-bg-hover);
-}
-
-.feedback-message {
-  font-size: 11px;
-  padding: var(--spacing-md);
-  border-radius: var(--border-radius-sm);
-  margin-top: var(--spacing-sm);
-  display: none;
-}
-
-.feedback-message.success {
-  background: #e8f5e8;
-  color: #2d7d32;
-  border: 1px solid #c8e6c9;
-  display: block;
-}
-
-.feedback-message.error {
-  background: #ffebee;
-  color: #c62828;
-  border: 1px solid #ffcdd2;
-  display: block;
-}
-
-.feedback-message.info {
-  background: #e3f2fd;
-  color: #1565c0;
-  border: 1px solid #bbdefb;
-  display: block;
-}
-
-.setting-item {
-  margin-bottom: var(--spacing-md);
-}
-
-.setting-label {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  font-size: 11px;
-  color: var(--figma-color-text);
-  cursor: pointer;
-}
-
-.setting-label input[type="checkbox"] {
-  margin: 0;
-}
-
-.about-text {
-  font-size: 11px;
-  color: var(--figma-color-text-secondary);
-  margin: var(--spacing-sm) 0;
-  line-height: 1.4;
-}
 
 /* Theme Selector Styles */
 .theme-selector {
@@ -2694,4 +2838,276 @@ i.grip {
 .theme-option:has(input[type="radio"]:checked) {
   border-color: var(--figma-color-border-brand);
   background: var(--figma-color-bg-brand-secondary, rgba(24, 160, 251, 0.05));
+}
+
+/* =
+==== LOGO THEME SWITCHING ===== */
+.logo-svg {
+  height: 12px;
+  width: auto;
+  vertical-align: middle;
+  transition: opacity var(--transition-fast);
+}
+
+/* Default: show dark logo, hide light logo */
+.logo-dark {
+  display: inline;
+}
+
+.logo-light {
+  display: none;
+}
+
+/* Light theme: show light logo, hide dark logo */
+[data-theme="light"] .logo-dark {
+  display: none;
+}
+
+[data-theme="light"] .logo-light {
+  display: inline;
+}
+
+/* Figma theme: use dark logo by default (most Figma interfaces are dark) */
+[data-theme="figma"] .logo-dark {
+  display: inline;
+}
+
+[data-theme="figma"] .logo-light {
+  display: none;
+}
+
+/* Boilerplate theme: use dark logo */
+[data-theme="boilerplate"] .logo-dark {
+  display: inline;
+}
+
+[data-theme="boilerplate"] .logo-light {
+  display: none;
+}
+
+/* Cybertron theme: use dark logo with special glow effect */
+[data-theme="cybertron"] .logo-dark {
+  display: inline;
+  filter: drop-shadow(0 0 3px rgba(0, 255, 255, 0.6));
+}
+
+[data-theme="cybertron"] .logo-light {
+  display: none;
+}
+
+/* Media query fallback for systems without theme attribute */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .logo-dark {
+    display: none;
+  }
+
+  :root:not([data-theme]) .logo-light {
+    display: inline;
+  }
+}
+
+/* ===== 
+SECTION HEADERS - UNIFIED SYSTEM ===== */
+
+/* Base section header styling */
+.section-header {
+  font-size: var(--icon-size-sm);
+  margin: 0 0 0 0;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-normal);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-bottom: var(--border-width) solid var(--color-border-accent);
+  border-radius: 0;
+  height: calc(var(--spacing-lg) * 5);
+  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
+  gap: var(--spacing-lg);
+  align-self: stretch;
+  box-sizing: border-box;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.section-header:first-of-type {
+  margin-top: 0;
+}
+
+.section-header:hover {
+  background: var(--color-background-secondary);
+  color: var(--figma-color-border-brand);
+}
+
+/* Header layout patterns */
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  gap: var(--spacing-xxl);
+}
+
+.header-right {
+  gap: var(--spacing-lg);
+  margin-left: auto;
+}
+
+/* Unified icon container for all section headers */
+.section-header .icon-container {
+  position: relative;
+  display: inline-block;
+  width: var(--arrow-width);
+  height: var(--icon-size-md);
+  line-height: var(--icon-size-md);
+}
+
+.section-header .tag-icon {
+  font-size: var(--icon-size-md);
+  color: var(--color-text-secondary);
+  display: inline-block;
+  transition: opacity var(--transition-normal);
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.section-header .arrow {
+  display: none;
+  font-size: var(--icon-size-lg);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
+  width: var(--arrow-width);
+  transition: opacity var(--transition-normal);
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Show arrow on hover, hide icon */
+.section-header:hover .arrow,
+.section-header:active .arrow {
+  display: inline-block;
+  opacity: 1;
+}
+
+.section-header:hover .tag-icon,
+.section-header:active .tag-icon {
+  opacity: 0;
+}
+
+/* Arrow States - Unified expand/collapse indicators */
+.arrow {
+  font-size: var(--icon-size-lg);
+  font-weight: var(--font-weight-heavy);
+  color: var(--color-text-primary);
+  width: var(--arrow-width);
+}
+
+.arrow::before {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+}
+
+.section-header[aria-expanded="true"] .arrow {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-normal);
+}
+
+.section-header[aria-expanded="true"] .arrow::before {
+  content: "−";
+}
+
+.section-header[aria-expanded="false"] .arrow {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-normal);
+}
+
+.section-header[aria-expanded="false"] .arrow::before {
+  content: "+";
+}
+
+.section-header[aria-expanded="true"] {
+  font-weight: var(--font-weight-semibold);
+}
+
+.section-header[aria-expanded="false"] {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Header Title Styling */
+.header-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+  margin: 0;
+  font-size: inherit;
+  font-weight: var(--font-weight-semibold);
+  color: inherit;
+}
+
+.header-title small {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* Specific header styling */
+#tags-header {
+  min-height: unset;
+  height: calc(var(--spacing-lg) * 5);
+  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
+  background: transparent;
+  border-top: var(--border-width) solid var(--color-border-accent);
+  border-bottom: var(--border-width) solid var(--color-border-accent);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  align-self: stretch;
+}
+
+#anchors-header {
+  background: transparent;
+  border-top: var(--border-width) solid var(--color-border-accent);
+  border-bottom: var(--border-width) solid var(--color-border-accent);
+}
+
+/* Remove bottom border when headers are collapsed */
+#tags-header[aria-expanded="false"] {
+  border-bottom: none;
+}
+
+#anchors-header[aria-expanded="false"] {
+  border-bottom: none;
+}
+
+#tags-header .header-left {
+  gap: var(--spacing-xl);
+}
+
+#tags-header .header-right {
+  gap: var(--spacing-xxl);
+}
+
+/* Ensure Tags header uses transparent background on hover */
+#tags-header:hover {
+  background: transparent;
+}
+
+.header-right .top-badge {
+  text-transform: none;
+  letter-spacing: normal;
 }

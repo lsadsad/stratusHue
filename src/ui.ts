@@ -2,7 +2,6 @@
 // Handles all UI interactions and communication with the plugin sandbox
 
 import lottie from 'lottie-web';
-import { LemonSqueezyService, defaultLemonSqueezyConfig } from './lemon-squeezy';
 
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
@@ -24,12 +23,13 @@ interface LottieAnimationConfig {
 // Store active Lottie animations for management
 const activeLottieAnimations = new Map<string, any>();
 
-// Lemon Squeezy service instance
-const lemonSqueezyService = new LemonSqueezyService(defaultLemonSqueezyConfig);
 
 // Toggle state management
 let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
 let hasPreviousSelection = false;
+
+// Auto-fit state management
+let isAutoFitEnabled = false;
 
 // Helper function to send messages to plugin sandbox
 function sendMessage(type: string, data: Record<string, any> = {}): void {
@@ -76,15 +76,6 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'success':
       console.log('Plugin success:', message.message);
       break;
-    case 'license-status':
-      handleLicenseStatusUpdate(message);
-      break;
-    case 'validate-license-request':
-      handleLicenseValidationRequest(message);
-      break;
-    case 'license-validation-result':
-      handleLicenseValidationResult(message);
-      break;
   }
 }
 
@@ -120,6 +111,12 @@ function updateToggleUI(): void {
       onLayerOption.classList.remove('disabled');
       toggleButton.setAttribute('aria-label', 'Toggle between page and layer mode');
     }
+  }
+
+  // Ensure page-only actions are visible only in onPage mode
+  const pageActionsGroup = document.getElementById('page-actions-group');
+  if (pageActionsGroup) {
+    pageActionsGroup.style.display = currentToggleMode === 'onPage' ? 'inline-flex' : 'none';
   }
 }
 
@@ -169,10 +166,29 @@ function computeFitHeight(): number {
   main.style.height = 'auto';
   main.style.maxHeight = 'none';
 
+  // Temporarily lift max-height from expanded collapsible sections so we
+  // measure their full natural height (CSS sets max-height: 600px)
+  const children = Array.from(main.children) as HTMLElement[];
+  const modifiedSections: Array<{ el: HTMLElement; prevMaxHeight: string; prevHeight: string; prevOverflow: string }>= [];
+  for (const child of children) {
+    const isCollapsible = child.classList.contains('collapsible-content');
+    const isCollapsed = child.classList.contains('collapsed');
+    if (isCollapsible && !isCollapsed) {
+      modifiedSections.push({
+        el: child,
+        prevMaxHeight: child.style.maxHeight,
+        prevHeight: child.style.height,
+        prevOverflow: child.style.overflow
+      });
+      child.style.maxHeight = 'none';
+      child.style.height = 'auto';
+      child.style.overflow = 'visible';
+    }
+  }
+
   // Measure only visible (non-collapsed) children
   const mainRect = main.getBoundingClientRect();
   let visibleBottom = mainRect.top;
-  const children = Array.from(main.children) as HTMLElement[];
   for (const child of children) {
     const isCollapsible = child.classList.contains('collapsible-content');
     const isCollapsed = child.classList.contains('collapsed');
@@ -190,6 +206,11 @@ function computeFitHeight(): number {
   main.style.flex = prevFlex;
   main.style.height = prevHeight;
   main.style.maxHeight = prevMaxHeight;
+  for (const entry of modifiedSections) {
+    entry.el.style.maxHeight = entry.prevMaxHeight;
+    entry.el.style.height = entry.prevHeight;
+    entry.el.style.overflow = entry.prevOverflow;
+  }
 
   return Math.ceil(naturalScrollHeight + footerHeight);
 }
@@ -202,27 +223,23 @@ function updateScrollBehavior(): void {
   // Get the current container height
   const containerHeight = main.clientHeight;
 
-  // Calculate the actual content height (visible content only)
-  let contentHeight = 0;
-  const children = Array.from(main.children) as HTMLElement[];
-
-  for (const child of children) {
-    const isCollapsible = child.classList.contains('collapsible-content');
-    const isCollapsed = child.classList.contains('collapsed');
-
-    // Skip collapsed collapsible content
-    if (isCollapsible && isCollapsed) {
-      continue;
-    }
-
-    contentHeight += child.offsetHeight;
-  }
+  // Use the element's actual scrollHeight which accurately reflects
+  // the scrollable content, including padding and layout, while
+  // respecting collapsed sections (which have max-height: 0)
+  const contentHeight = main.scrollHeight;
 
   // Enable/disable scrolling based on whether content exceeds container
   if (contentHeight <= containerHeight) {
     main.classList.add('no-scroll');
   } else {
     main.classList.remove('no-scroll');
+  }
+
+  // Auto-fit height adjustment when enabled
+  if (isAutoFitEnabled) {
+    const newHeight = computeFitHeight();
+    console.log('Auto-fit: adjusting height to', newHeight);
+    sendMessage('resize-ui', { height: newHeight });
   }
 }
 
@@ -360,6 +377,9 @@ function initializePlugin(): void {
   // Initialize toggle state
   updateToggleUI();
 
+  // Initialize auto-fit button state
+  updateAutoFitButtonState();
+
   // Initialize Lottie animations
   initializeAllLottieElements();
 
@@ -377,6 +397,9 @@ function setupEventListeners(): void {
   const saveBtn = document.getElementById('save-bookmark');
   const dateBtn = document.getElementById('date-btn');
   const newPageBtn = document.getElementById('new-page-btn');
+  const indentTitleBtn = document.getElementById('indent-title-btn');
+  const outdentTitleBtn = document.getElementById('outdent-title-btn');
+  const pageActionsGroup = document.getElementById('page-actions-group');
   const settingsBtn = document.getElementById('settings-btn');
   const settingsOverlay = document.getElementById('settings-overlay');
   const settingsCloseBtn = document.getElementById('settings-close');
@@ -417,21 +440,45 @@ function setupEventListeners(): void {
     });
   }
 
-  // Date button (basic handler; functionality wired later)
+  // Date button: request plugin to add/replace today's date
   if (dateBtn) {
     dateBtn.addEventListener('click', () => {
       console.log('Date button clicked');
-      // Future: sendMessage('add-date') or similar
+      sendMessage('add-date');
     });
   }
 
-  // New Page (functionality to be implemented later)
+  // New Page: request plugin to create a new dated page
   if (newPageBtn) {
     newPageBtn.addEventListener('click', () => {
       console.log('New Page clicked');
-      // Intentionally not sending a message yet; functionality to be implemented later
+      sendMessage('create-new-page');
     });
   }
+
+  // Indent page title: insert 4 spaces before title text
+  if (indentTitleBtn) {
+    indentTitleBtn.addEventListener('click', () => {
+      console.log('Indent title clicked');
+      sendMessage('indent-title');
+    });
+  }
+
+  // Outdent page title: remove 4 leading spaces (if present) before arrow/emoji
+  if (outdentTitleBtn) {
+    outdentTitleBtn.addEventListener('click', () => {
+      console.log('Outdent title clicked');
+      sendMessage('outdent-title');
+    });
+  }
+
+  // Visibility of page actions depends on current toggle mode (onPage only)
+  const updatePageActionsVisibility = () => {
+    if (!pageActionsGroup) return;
+    const onPage = currentToggleMode === 'onPage';
+    pageActionsGroup.style.display = onPage ? 'inline-flex' : 'none';
+  };
+  updatePageActionsVisibility();
 
   // Settings overlay open/close
   const openSettings = () => {
@@ -533,12 +580,20 @@ function setupEventListeners(): void {
     });
   }
 
-  // Fit height to content
+  // Fit height to content - toggle auto-fit mode
   if (fitBtn) {
     fitBtn.addEventListener('click', () => {
-      const contentHeight = computeFitHeight();
-      console.log('Fit height to content (natural):', contentHeight);
-      sendMessage('resize-ui', { height: contentHeight });
+      isAutoFitEnabled = !isAutoFitEnabled;
+      updateAutoFitButtonState();
+      
+      if (isAutoFitEnabled) {
+        // Immediately fit to current content when enabling
+        const contentHeight = computeFitHeight();
+        console.log('Auto-fit enabled: adjusting height to', contentHeight);
+        sendMessage('resize-ui', { height: contentHeight });
+      } else {
+        console.log('Auto-fit disabled');
+      }
     });
 
     // Add hover state management to prevent stuck states
@@ -570,7 +625,11 @@ function setupEventListeners(): void {
     const onMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
       const deltaY = e.clientY - startY;
-      const newHeight = Math.max(150, Math.min(800, Math.round(startHeight + deltaY)));
+      const newHeight = Math.max(150, Math.round(startHeight + deltaY));
+      
+      // Disable auto-fit when user manually resizes
+      disableAutoFit('manual drag resize');
+      
       sendMessage('resize-ui', { height: newHeight });
     };
 
@@ -582,6 +641,9 @@ function setupEventListeners(): void {
     };
 
     resizeHandle.addEventListener('mousedown', (e: MouseEvent) => {
+      // Disable auto-fit as soon as user starts manual resize
+      disableAutoFit('manual resize initiated');
+      
       isDragging = true;
       startY = e.clientY;
       startHeight = window.innerHeight;
@@ -593,7 +655,11 @@ function setupEventListeners(): void {
       const step = 16;
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         const direction = e.key === 'ArrowUp' ? -1 : 1;
-        const newHeight = Math.max(150, Math.min(800, window.innerHeight + direction * step));
+        const newHeight = Math.max(150, window.innerHeight + direction * step);
+        
+        // Disable auto-fit when user manually resizes with keyboard
+        disableAutoFit('manual keyboard resize');
+        
         sendMessage('resize-ui', { height: newHeight });
         e.preventDefault();
       }
@@ -622,13 +688,10 @@ function setupEventListeners(): void {
       } else {
         target.classList.remove('collapsed');
       }
-      // After transition, optionally adjust height if needed
+      // After transition, update scroll behavior and auto-fit if enabled
       // Small delay allows CSS transition to compute new height
       window.setTimeout(() => {
         updateScrollBehavior();
-        // Removed automatic height fitting to maintain fixed 393px height
-        // const contentHeight = computeFitHeight();
-        // sendMessage('resize-ui', { height: contentHeight });
       }, 200);
     };
 
@@ -671,14 +734,24 @@ function setupEventListeners(): void {
           handleToggleClick('onPage');
         }
       }
+      // Update visibility after toggle
+      setTimeout(() => updatePageActionsVisibility(), 0);
     });
   }
 
   // Theme switching
   setupThemeSwitching();
 
-  // Lemon Squeezy event listeners
-  setupLemonSqueezyEventListeners();
+  // Ko-fi button
+  const kofiBtnElement = document.getElementById('kofi-btn');
+  if (kofiBtnElement) {
+    kofiBtnElement.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Ko-fi button clicked');
+      // Open Ko-fi page in external browser
+      sendMessage('open-kofi');
+    });
+  }
 
   // Setup footer button state management
   setupFooterButtonStateManagement();
@@ -783,9 +856,65 @@ function updateBookmarksList(
     nullState.setAttribute('aria-hidden', 'true');
     bookmarkList.style.display = 'flex';
     
+    // Drag-and-drop state
+    let dragStartIndex: number | null = null;
+    let isDragging = false;
+    let hoverIndex: number | null = null;
+    let insertAfter = false;
+
+    // Create a single drop indicator overlay per render
+    const dropIndicator = document.createElement('div');
+    dropIndicator.className = 'drop-indicator';
+    bookmarkList.appendChild(dropIndicator);
+
+    const getItems = (): HTMLElement[] => {
+      return Array.from(bookmarkList.querySelectorAll('.bookmark-item')) as HTMLElement[];
+    };
+
+    const getItemIndex = (el: Element): number => {
+      const children = getItems();
+      return children.indexOf(el as HTMLElement);
+    };
+
+    const buildOrderFromDom = (): string[] => {
+      return getItems().map((child) => (child as HTMLElement).dataset.id || '');
+    };
+
+    const handleDropReorder = (targetLi: HTMLElement) => {
+      if (dragStartIndex === null) return;
+      const from = dragStartIndex;
+
+      // Determine target index using hover state; fallback to element index
+      const baseIndex = getItemIndex(targetLi);
+      let to = baseIndex;
+      if (hoverIndex !== null && baseIndex === hoverIndex) {
+        to = insertAfter ? hoverIndex + 1 : hoverIndex;
+      }
+
+      const items = getItems();
+      if (from === -1) return;
+      if (to < 0) to = 0;
+      if (to > items.length) to = items.length;
+
+      const draggedEl = items[from];
+      if (!draggedEl) return;
+
+      // If moving forward, and inserting after, account for removal shifting
+      const refItems = getItems();
+      const refNode = refItems[to] || dropIndicator.nextSibling || null;
+      bookmarkList.insertBefore(draggedEl, refNode);
+
+      const order = buildOrderFromDom().filter(Boolean);
+      if (order.length === bookmarks.length) {
+        sendMessage('reorder-bookmarks', { order });
+      }
+    };
+
     bookmarks.forEach(bookmark => {
       const li = document.createElement('li');
       li.className = 'bookmark-item';
+      li.setAttribute('draggable', 'true');
+      (li as HTMLElement).dataset.id = bookmark.id;
 
       // Apply selection state classes
       if (currentAnchorId && bookmark.id === currentAnchorId) {
@@ -808,6 +937,7 @@ function updateBookmarksList(
 
       // Navigate on item click
       li.addEventListener('click', () => {
+        if (isDragging) return;
         sendMessage('jump-to-bookmark', { id: bookmark.id });
       });
 
@@ -818,9 +948,88 @@ function updateBookmarksList(
           e.stopPropagation();
           sendMessage('remove-bookmark', { id: bookmark.id });
         });
+        // Ensure remove button doesn't initiate drag
+        removeBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+        removeBtn.addEventListener('dragstart', (e) => e.stopPropagation());
       }
 
+      // Drag-and-drop handlers
+      li.addEventListener('dragstart', (e) => {
+        isDragging = true;
+        dragStartIndex = getItemIndex(li);
+        li.classList.add('dragging');
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', bookmark.id);
+        }
+        // Show indicator initially at current position
+        const listRect = bookmarkList.getBoundingClientRect();
+        const liRect = li.getBoundingClientRect();
+        dropIndicator.style.top = `${liRect.top - listRect.top}px`;
+        dropIndicator.classList.add('visible');
+      });
+
+      li.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        li.classList.add('drag-over');
+      });
+
+      li.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const listRect = bookmarkList.getBoundingClientRect();
+        const liRect = li.getBoundingClientRect();
+        const mid = liRect.top + liRect.height / 2;
+        hoverIndex = getItemIndex(li);
+        insertAfter = e.clientY >= mid;
+        const y = insertAfter ? liRect.bottom : liRect.top;
+        dropIndicator.style.top = `${y - listRect.top}px`;
+        dropIndicator.classList.add('visible');
+      });
+
+      li.addEventListener('dragleave', () => {
+        li.classList.remove('drag-over');
+      });
+
+      li.addEventListener('drop', (e) => {
+        e.preventDefault();
+        li.classList.remove('drag-over');
+        handleDropReorder(li);
+        dropIndicator.classList.remove('visible');
+      });
+
+      li.addEventListener('dragend', () => {
+        isDragging = false;
+        dragStartIndex = null;
+        li.classList.remove('dragging');
+        hoverIndex = null;
+        insertAfter = false;
+        dropIndicator.classList.remove('visible');
+        // After drag ends, update scroll behavior as layout might change
+        setTimeout(updateScrollBehavior, 50);
+      });
+
       bookmarkList.appendChild(li);
+    });
+
+    // Handle dragging over empty space to position indicator at the end
+    bookmarkList.addEventListener('dragover', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const items = getItems();
+      if (items.length === 0) return;
+      const last = items[items.length - 1];
+      const listRect = bookmarkList.getBoundingClientRect();
+      const lastRect = last.getBoundingClientRect();
+      if (e.clientY > lastRect.bottom) {
+        hoverIndex = items.length - 1;
+        insertAfter = true;
+        dropIndicator.style.top = `${lastRect.bottom - listRect.top}px`;
+        dropIndicator.classList.add('visible');
+      }
+    });
+
+    bookmarkList.addEventListener('drop', () => {
+      dropIndicator.classList.remove('visible');
     });
   }
 
@@ -846,6 +1055,31 @@ function updateEmojiSetIndicator(setName: string, currentIndex: number, totalSet
   }
 }
 
+// Disable auto-fit and update UI state
+function disableAutoFit(reason?: string): void {
+  if (isAutoFitEnabled) {
+    isAutoFitEnabled = false;
+    updateAutoFitButtonState();
+    console.log(`Auto-fit disabled${reason ? `: ${reason}` : ''}`);
+  }
+}
+
+// Update auto-fit button visual state
+function updateAutoFitButtonState(): void {
+  const fitBtn = document.getElementById('footer-fit');
+  if (!fitBtn) return;
+
+  if (isAutoFitEnabled) {
+    fitBtn.classList.add('active');
+    fitBtn.setAttribute('aria-label', 'Auto-fit enabled - click to disable');
+    fitBtn.setAttribute('title', 'Auto-fit: ON');
+  } else {
+    fitBtn.classList.remove('active');
+    fitBtn.setAttribute('aria-label', 'Auto-fit disabled - click to enable');
+    fitBtn.setAttribute('title', 'Auto-fit: OFF');
+  }
+}
+
 // Utility function to reset all footer button states
 function resetFooterButtonStates(): void {
   const footerButtons = document.querySelectorAll('.footer-icon-btn');
@@ -858,29 +1092,18 @@ function resetFooterButtonStates(): void {
   });
 }
 
-// License state management - now handled by plugin backend
-let currentLicenseState = {
-  isValid: false,
-  expiresAt: null as string | null,
-  hasLicenseKey: false
-};
+// License management removed
 
-// Theme storage using memory (since themes are UI-only preferences)
-const themeStorage: { [key: string]: string } = {};
+// Theme storage helper using backend persistence via clientStorage
+const THEME_STORAGE_KEY = 'figma-plugin-theme';
+let inMemoryTheme: string | null = null;
 
 // Theme switching functionality
 function setupThemeSwitching(): void {
   const themeRadios = document.querySelectorAll('input[name="theme"]');
 
-  // Load saved theme preference (defaults to 'figma' if not available)
-  const savedTheme = themeStorage['figma-plugin-theme'] || 'figma';
-  applyTheme(savedTheme);
-
-  // Set the correct radio button
-  const savedThemeRadio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`) as HTMLInputElement;
-  if (savedThemeRadio) {
-    savedThemeRadio.checked = true;
-  }
+  // Request saved theme from backend
+  sendMessage('get-theme-preference');
 
   // Add event listeners to theme radio buttons
   themeRadios.forEach((radio) => {
@@ -889,7 +1112,9 @@ function setupThemeSwitching(): void {
       if (target.checked) {
         const theme = target.value;
         applyTheme(theme);
-        themeStorage['figma-plugin-theme'] = theme;
+        inMemoryTheme = theme;
+        // Persist to backend storage
+        sendMessage('set-theme-preference', { theme });
         console.log('Theme changed to:', theme);
       }
     });
@@ -907,8 +1132,11 @@ function applyTheme(theme: string): void {
     case 'light':
       htmlElement.setAttribute('data-theme', 'light');
       break;
-    case 'dark':
-      htmlElement.setAttribute('data-theme', 'dark');
+    case 'boilerplate':
+      htmlElement.setAttribute('data-theme', 'boilerplate');
+      break;
+    case 'cybertron':
+      htmlElement.setAttribute('data-theme', 'cybertron');
       break;
     case 'figma':
       htmlElement.setAttribute('data-theme', 'figma');
@@ -941,6 +1169,19 @@ function handleDOMReady(): void {
 
   // Listen for messages from plugin
   window.addEventListener('message', handlePluginMessage);
+
+  // Listen specifically for theme preference from backend
+  window.addEventListener('message', (event: MessageEvent) => {
+    const msg = (event.data && (event.data as any).pluginMessage) || null;
+    if (!msg) return;
+    if (msg.type === 'theme-preference') {
+      const theme = (msg.theme as string) || 'figma';
+      inMemoryTheme = theme;
+      applyTheme(theme);
+      const radio = document.querySelector(`input[name="theme"][value="${theme}"]`) as HTMLInputElement;
+      if (radio) radio.checked = true;
+    }
+  });
 
   // Update scroll behavior on window resize
   window.addEventListener('resize', () => {
@@ -977,200 +1218,4 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', handleDOMReady);
 } else {
   handleDOMReady();
-}
-
-// ===== LEMON SQUEEZY FUNCTIONS =====
-
-function setupLemonSqueezyEventListeners(): void {
-  const testApiBtn = document.getElementById('test-api-btn');
-  const validateLicenseBtn = document.getElementById('validate-license-btn');
-  const upgradeBtn = document.getElementById('upgrade-btn');
-  const licenseKeyInput = document.getElementById('license-key-input') as HTMLInputElement;
-
-  if (testApiBtn) {
-    testApiBtn.addEventListener('click', handleTestApiConnection);
-  }
-
-  if (validateLicenseBtn && licenseKeyInput) {
-    validateLicenseBtn.addEventListener('click', () => {
-      const licenseKey = licenseKeyInput.value.trim();
-      if (licenseKey) {
-        handleValidateLicense(licenseKey);
-      } else {
-        showFeedback('license-feedback', 'Please enter a license key', 'error');
-      }
-    });
-
-    // Validate on Enter key
-    licenseKeyInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const licenseKey = licenseKeyInput.value.trim();
-        if (licenseKey) {
-          handleValidateLicense(licenseKey);
-        }
-      }
-    });
-  }
-
-  if (upgradeBtn) {
-    upgradeBtn.addEventListener('click', handleUpgradeClick);
-  }
-
-  // Initialize subscription status check
-  checkSubscriptionStatus();
-}
-
-async function handleTestApiConnection(): Promise<void> {
-  const testApiBtn = document.getElementById('test-api-btn') as HTMLButtonElement;
-  const originalText = testApiBtn.textContent;
-
-  testApiBtn.disabled = true;
-  testApiBtn.textContent = 'Testing...';
-
-  try {
-    const result = await lemonSqueezyService.testConnection();
-    showFeedback('api-feedback', result.message, result.success ? 'success' : 'error');
-  } catch (error) {
-    showFeedback('api-feedback', 'Connection test failed', 'error');
-  } finally {
-    testApiBtn.disabled = false;
-    testApiBtn.textContent = originalText;
-  }
-}
-
-async function handleValidateLicense(licenseKey: string): Promise<void> {
-  const validateBtn = document.getElementById('validate-license-btn') as HTMLButtonElement;
-  const originalText = validateBtn.textContent;
-
-  validateBtn.disabled = true;
-  validateBtn.textContent = 'Validating...';
-
-  // Send validation request to plugin backend
-  sendMessage('validate-license', { licenseKey });
-  
-  // Show immediate feedback - the plugin will send back the result
-  showFeedback('license-feedback', 'Validating license...', 'info');
-  
-  // Reset button state after a short delay (will be updated when result comes back)
-  setTimeout(() => {
-    validateBtn.disabled = false;
-    validateBtn.textContent = originalText;
-  }, 1000);
-}
-
-function handleUpgradeClick(): void {
-  const checkoutUrl = lemonSqueezyService.generateCheckoutUrl();
-
-  // Send message to plugin to open URL
-  sendMessage('open-url', { url: checkoutUrl });
-
-  showFeedback('api-feedback', 'Opening checkout page...', 'info');
-}
-
-function showFeedback(elementId: string, message: string, type: 'success' | 'error' | 'info'): void {
-  const feedbackElement = document.getElementById(elementId);
-  if (feedbackElement) {
-    feedbackElement.textContent = message;
-    feedbackElement.className = `feedback-message ${type}`;
-
-    // Auto-hide after 5 seconds for success/info messages
-    if (type === 'success' || type === 'info') {
-      setTimeout(() => {
-        feedbackElement.style.display = 'none';
-      }, 5000);
-    }
-  }
-}
-
-function updateSubscriptionStatus(isActive: boolean, expiresAt?: string | null): void {
-  const statusDot = document.getElementById('status-dot');
-  const statusText = document.getElementById('status-text');
-
-  if (statusDot && statusText) {
-    statusDot.className = `status-dot ${isActive ? 'active' : 'inactive'}`;
-
-    if (isActive) {
-      const expiryText = expiresAt ? ` (expires ${new Date(expiresAt).toLocaleDateString()})` : '';
-      statusText.textContent = `Premium Active${expiryText}`;
-    } else {
-      statusText.textContent = 'Free Version';
-    }
-  }
-}
-
-async function checkSubscriptionStatus(): Promise<void> {
-  const statusDot = document.getElementById('status-dot');
-  const statusText = document.getElementById('status-text');
-
-  if (statusDot && statusText) {
-    statusDot.className = 'status-dot checking';
-    statusText.textContent = 'Checking subscription...';
-  }
-
-  // Request license status from plugin backend
-  sendMessage('get-license-status');
-}
-
-
-// ===== LICENSE MESSAGE HANDLERS =====
-function handleLicenseStatusUpdate(message: any): void {
-  currentLicenseState = {
-    isValid: message.isValid || false,
-    expiresAt: message.expiresAt || null,
-    hasLicenseKey: message.hasLicenseKey || false
-  };
-  
-  updateSubscriptionStatus(currentLicenseState.isValid, currentLicenseState.expiresAt);
-}
-
-async function handleLicenseValidationRequest(message: any): void {
-  const { licenseKey, isRevalidation } = message;
-  
-  try {
-    // Perform the API call in the UI (since it needs network access)
-    const result = await lemonSqueezyService.validateLicense(licenseKey);
-    
-    // Send result back to plugin
-    sendMessage('license-validation-result', {
-      success: result && result.valid,
-      licenseKey: licenseKey,
-      expiresAt: result?.license_key?.expires_at || null,
-      isRevalidation: isRevalidation || false
-    });
-    
-  } catch (error) {
-    console.error('License validation failed:', error);
-    
-    // Send error back to plugin
-    sendMessage('license-validation-result', {
-      success: false,
-      licenseKey: licenseKey,
-      error: 'API call failed',
-      isRevalidation: isRevalidation || false
-    });
-  }
-}
-
-function handleLicenseValidationResult(message: any): void {
-  const validateBtn = document.getElementById('validate-license-btn') as HTMLButtonElement;
-  
-  if (message.success) {
-    showFeedback('license-feedback', 'License validated successfully!', 'success');
-    updateSubscriptionStatus(true, message.expiresAt);
-    
-    // Clear the input field on success
-    const licenseInput = document.getElementById('license-key-input') as HTMLInputElement;
-    if (licenseInput) {
-      licenseInput.value = '';
-    }
-  } else {
-    showFeedback('license-feedback', message.error || 'Invalid license key', 'error');
-    updateSubscriptionStatus(false);
-  }
-  
-  // Reset button state
-  if (validateBtn) {
-    validateBtn.disabled = false;
-    validateBtn.textContent = 'Validate';
-  }
 }

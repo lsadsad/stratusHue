@@ -6,6 +6,6 @@
   "ui": "dist/ui.html",
   "capabilities": [],
   "enableProposedApi": false,
-  "editorType": ["figma"],
+  "editorType": ["figma", "figjam"],
   "documentAccess": "dynamic-page"
 }
