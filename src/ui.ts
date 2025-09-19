@@ -169,7 +169,7 @@ function computeFitHeight(): number {
   // Temporarily lift max-height from expanded collapsible sections so we
   // measure their full natural height (CSS sets max-height: 600px)
   const children = Array.from(main.children) as HTMLElement[];
-  const modifiedSections: Array<{ el: HTMLElement; prevMaxHeight: string; prevHeight: string; prevOverflow: string }>= [];
+  const modifiedSections: Array<{ el: HTMLElement; prevMaxHeight: string; prevHeight: string; prevOverflow: string }> = [];
   for (const child of children) {
     const isCollapsible = child.classList.contains('collapsible-content');
     const isCollapsed = child.classList.contains('collapsed');
@@ -370,6 +370,12 @@ function stopLottieAnimation(name: string): void {
 function initializePlugin(): void {
   console.log('🚀 Initializing plugin functionality...');
 
+  // Initialize system theme detection first (before UI setup)
+  initializeSystemThemeDetection();
+
+  // Initialize performance monitoring for theme system
+  initializeThemePerformanceMonitoring();
+
   // Send ui-ready message to plugin sandbox
   console.log('📤 Sending ui-ready message');
   sendMessage('ui-ready');
@@ -385,6 +391,9 @@ function initializePlugin(): void {
 
   // Initialize scroll behavior
   updateScrollBehavior();
+
+  // Setup cleanup on page unload
+  setupCleanupHandlers();
 
   console.log('✅ Plugin initialization complete - waiting for emoji data from plugin');
 }
@@ -585,7 +594,7 @@ function setupEventListeners(): void {
     fitBtn.addEventListener('click', () => {
       isAutoFitEnabled = !isAutoFitEnabled;
       updateAutoFitButtonState();
-      
+
       if (isAutoFitEnabled) {
         // Immediately fit to current content when enabling
         const contentHeight = computeFitHeight();
@@ -626,10 +635,10 @@ function setupEventListeners(): void {
       if (!isDragging) return;
       const deltaY = e.clientY - startY;
       const newHeight = Math.max(150, Math.round(startHeight + deltaY));
-      
+
       // Disable auto-fit when user manually resizes
       disableAutoFit('manual drag resize');
-      
+
       sendMessage('resize-ui', { height: newHeight });
     };
 
@@ -643,7 +652,7 @@ function setupEventListeners(): void {
     resizeHandle.addEventListener('mousedown', (e: MouseEvent) => {
       // Disable auto-fit as soon as user starts manual resize
       disableAutoFit('manual resize initiated');
-      
+
       isDragging = true;
       startY = e.clientY;
       startHeight = window.innerHeight;
@@ -656,10 +665,10 @@ function setupEventListeners(): void {
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         const direction = e.key === 'ArrowUp' ? -1 : 1;
         const newHeight = Math.max(150, window.innerHeight + direction * step);
-        
+
         // Disable auto-fit when user manually resizes with keyboard
         disableAutoFit('manual keyboard resize');
-        
+
         sendMessage('resize-ui', { height: newHeight });
         e.preventDefault();
       }
@@ -845,7 +854,7 @@ function updateBookmarksList(
   if (!bookmarkList || !nullState) return;
 
   bookmarkList.innerHTML = '';
-  
+
   // Show/hide null state based on bookmarks
   if (bookmarks.length === 0) {
     nullState.style.display = 'flex';
@@ -855,7 +864,7 @@ function updateBookmarksList(
     nullState.style.display = 'none';
     nullState.setAttribute('aria-hidden', 'true');
     bookmarkList.style.display = 'flex';
-    
+
     // Drag-and-drop state
     let dragStartIndex: number | null = null;
     let isDragging = false;
@@ -1094,77 +1103,959 @@ function resetFooterButtonStates(): void {
 
 // License management removed
 
-// Theme storage helper using backend persistence via clientStorage
-const THEME_STORAGE_KEY = 'figma-plugin-theme';
-let inMemoryTheme: string | null = null;
+// Enhanced Theme Management System
+import { ThemeManager } from './core/theme-manager';
+import { ThemeMode, EffectiveTheme, ThemePreference } from './core/types';
+
+let themeManager: ThemeManager;
+let isThemeInitialized = false;
+
+// Initialize accessibility media query listeners
+function initializeAccessibilityListeners(): void {
+  // High contrast preference listener
+  const highContrastQuery = window.matchMedia('(prefers-contrast: high)');
+  const handleHighContrastChange = (e: MediaQueryListEvent) => {
+    console.log('🔍 High contrast preference changed:', e.matches);
+    updateThemeAccessibility(themeManager?.getEffectiveTheme() || 'figma-dark', false);
+
+    // Announce change to screen readers
+    const announcer = document.getElementById('theme-announcer');
+    if (announcer) {
+      announcer.textContent = e.matches ?
+        'High contrast mode enabled' :
+        'High contrast mode disabled';
+      setTimeout(() => { announcer.textContent = ''; }, 2000);
+    }
+  };
+
+  highContrastQuery.addEventListener('change', handleHighContrastChange);
+
+  // Reduced motion preference listener
+  const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const handleReducedMotionChange = (e: MediaQueryListEvent) => {
+    console.log('🎬 Reduced motion preference changed:', e.matches);
+    updateThemeAccessibility(themeManager?.getEffectiveTheme() || 'figma-dark', false);
+
+    // Announce change to screen readers
+    const announcer = document.getElementById('theme-announcer');
+    if (announcer) {
+      announcer.textContent = e.matches ?
+        'Reduced motion enabled' :
+        'Reduced motion disabled';
+      setTimeout(() => { announcer.textContent = ''; }, 2000);
+    }
+  };
+
+  reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
+
+  // Forced colors (Windows High Contrast) listener
+  const forcedColorsQuery = window.matchMedia('(forced-colors: active)');
+  const handleForcedColorsChange = (e: MediaQueryListEvent) => {
+    console.log('🎨 Forced colors mode changed:', e.matches);
+    updateThemeAccessibility(themeManager?.getEffectiveTheme() || 'figma-dark', false);
+
+    // Announce change to screen readers
+    const announcer = document.getElementById('theme-announcer');
+    if (announcer) {
+      announcer.textContent = e.matches ?
+        'Windows High Contrast mode enabled' :
+        'Windows High Contrast mode disabled';
+      setTimeout(() => { announcer.textContent = ''; }, 2000);
+    }
+  };
+
+  forcedColorsQuery.addEventListener('change', handleForcedColorsChange);
+
+  // Initial accessibility state update
+  updateThemeAccessibility(themeManager?.getEffectiveTheme() || 'figma-dark', false);
+}
+
+// Initialize system theme detection early in startup sequence
+function initializeSystemThemeDetection(): void {
+  console.log('🎨 Initializing system theme detection...');
+
+  // Initialize theme manager with system detection
+  themeManager = new ThemeManager(sendMessage);
+
+  // Initialize accessibility listeners
+  initializeAccessibilityListeners();
+
+  // Apply system theme immediately as fallback before loading preferences
+  const systemTheme = themeManager.currentSystemTheme;
+  const fallbackEffectiveTheme = systemTheme === 'dark' ? 'figma-dark' : 'figma-light';
+
+  console.log(`🔍 System theme detected: ${systemTheme}, applying fallback: ${fallbackEffectiveTheme}`);
+
+  // Additional debugging for system theme detection
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  console.log(`🔍 Media query '(prefers-color-scheme: dark)' matches: ${mediaQuery.matches}`);
+  console.log(`🔍 Expected system theme: ${mediaQuery.matches ? 'dark' : 'light'}`);
+
+  applyTheme(fallbackEffectiveTheme);
+
+  // Set up theme change listeners for system changes and user preferences
+  themeManager.onThemeChange((effectiveTheme) => {
+    console.log(`🎨 Theme change detected: ${effectiveTheme}`);
+
+    // Show loading state during theme change
+    showThemeLoadingState();
+
+    // Manage focus during theme change
+    manageFocusDuringThemeChange();
+
+    // Apply theme with enhanced feedback
+    applyTheme(effectiveTheme);
+    updateThemeUI();
+
+    // Show theme change notification
+    const currentMode = themeManager.currentTheme;
+    showThemeChangeNotification(currentMode, effectiveTheme);
+
+    // Hide loading state after theme application
+    setTimeout(() => {
+      hideThemeLoadingState();
+    }, 100);
+
+    // Notify other parts of the system about theme changes
+    synchronizeThemeChanges(effectiveTheme);
+  });
+
+  // Mark theme system as initialized
+  isThemeInitialized = true;
+
+  console.log('✅ System theme detection initialized');
+}
+
+// Synchronize theme changes across the UI and with the backend
+function synchronizeThemeChanges(effectiveTheme: EffectiveTheme): void {
+  // Update any theme-dependent UI elements
+  updateThemeUI();
+
+  // Update accessibility attributes for the new theme
+  updateThemeAccessibility(effectiveTheme, themeManager?.currentTheme === 'system');
+
+  // Update scroll behavior after theme change (some themes might affect layout)
+  setTimeout(() => {
+    updateScrollBehavior();
+  }, 50);
+
+  // Dispatch custom event for other components that might need to react to theme changes
+  window.dispatchEvent(new CustomEvent('systemThemeSync', {
+    detail: {
+      effectiveTheme,
+      themeMode: themeManager?.currentTheme,
+      systemTheme: themeManager?.currentSystemTheme,
+      timestamp: Date.now()
+    }
+  }));
+
+  // Dispatch enhanced theme change event with more details
+  window.dispatchEvent(new CustomEvent('themeChangeComplete', {
+    detail: {
+      effectiveTheme,
+      themeMode: themeManager?.currentTheme,
+      systemTheme: themeManager?.currentSystemTheme,
+      timestamp: Date.now(),
+      isSystemTheme: themeManager?.currentTheme === 'system'
+    }
+  }));
+
+  // Log theme synchronization for debugging
+  console.log(`🔄 Theme synchronized: ${effectiveTheme} (mode: ${themeManager?.currentTheme}, system: ${themeManager?.currentSystemTheme})`);
+}
 
 // Theme switching functionality
 function setupThemeSwitching(): void {
-  const themeRadios = document.querySelectorAll('input[name="theme"]');
+  // Ensure theme manager is initialized
+  if (!themeManager) {
+    console.warn('⚠️ Theme manager not initialized, calling initializeSystemThemeDetection');
+    initializeSystemThemeDetection();
+  }
 
-  // Request saved theme from backend
+  // Request saved theme from backend (this will override system fallback)
+  console.log('📤 Requesting saved theme preference from backend...');
   sendMessage('get-theme-preference');
 
-  // Add event listeners to theme radio buttons
+  // Add event listeners to theme radio buttons with enhanced keyboard navigation
+  const themeRadios = document.querySelectorAll('input[name="theme"]');
   themeRadios.forEach((radio) => {
-    radio.addEventListener('change', (e) => {
+    const radioElement = radio as HTMLInputElement;
+    const themeOption = radioElement.closest('.theme-option') as HTMLElement;
+
+    // Enhanced change handler
+    radioElement.addEventListener('change', (e) => {
       const target = e.target as HTMLInputElement;
       if (target.checked) {
-        const theme = target.value;
-        applyTheme(theme);
-        inMemoryTheme = theme;
-        // Persist to backend storage
-        sendMessage('set-theme-preference', { theme });
-        console.log('Theme changed to:', theme);
+        const themeMode = target.value as ThemeMode;
+
+        // Hide any active preview before applying the actual theme
+        hideThemePreview();
+
+        // Apply the selected theme
+        themeManager.setTheme(themeMode);
+        console.log('Theme changed to:', themeMode);
+
+        // Announce theme selection for screen readers
+        announceThemeSelection(themeMode);
+      }
+    });
+
+    // Enhanced keyboard navigation
+    radioElement.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowUp':
+        case 'ArrowLeft':
+          e.preventDefault();
+          navigateToAdjacentTheme(radioElement, 'previous');
+          break;
+        case 'ArrowDown':
+        case 'ArrowRight':
+          e.preventDefault();
+          navigateToAdjacentTheme(radioElement, 'next');
+          break;
+        case 'Home':
+          e.preventDefault();
+          navigateToFirstTheme();
+          break;
+        case 'End':
+          e.preventDefault();
+          navigateToLastTheme();
+          break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          if (!radioElement.checked) {
+            radioElement.checked = true;
+            radioElement.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          break;
+      }
+    });
+
+    // Enhanced focus management
+    radioElement.addEventListener('focus', () => {
+      // Add visual focus indicator to the theme option
+      themeOption?.classList.add('theme-option-focused');
+
+      // Show preview on focus (but not on initial load)
+      if (!radioElement.checked && document.readyState === 'complete') {
+        showThemePreview(radioElement.value as ThemeMode);
+      }
+    });
+
+    radioElement.addEventListener('blur', () => {
+      // Remove visual focus indicator
+      themeOption?.classList.remove('theme-option-focused');
+
+      // Hide preview when losing focus (unless the theme is selected)
+      if (!radioElement.checked) {
+        hideThemePreview();
+      }
+    });
+  });
+
+  // Setup theme preview functionality
+  setupThemePreview();
+}
+
+function applyTheme(effectiveTheme: EffectiveTheme): void {
+  const htmlElement = document.documentElement;
+
+  // Get current theme for transition detection
+  const currentTheme = htmlElement.getAttribute('data-theme');
+
+  // Validate effective theme before applying
+  const validThemes: EffectiveTheme[] = ['figma-light', 'figma-dark', 'light', 'boilerplate', 'cybertron'];
+  const themeToApply = validThemes.includes(effectiveTheme) ? effectiveTheme : 'figma-dark';
+
+  // Skip if already applied (optimization)
+  if (currentTheme === themeToApply) {
+    return;
+  }
+
+  // Add transition class for smooth theme changes (only if not initial load)
+  const isInitialLoad = !currentTheme || currentTheme === '';
+  if (!isInitialLoad) {
+    htmlElement.classList.add('theme-transitioning');
+  }
+
+  // Apply theme resolution logic with proper mapping
+  const resolvedTheme = resolveThemeAttribute(themeToApply);
+
+  // Apply the new theme
+  htmlElement.setAttribute('data-theme', resolvedTheme);
+
+  // Log theme application for debugging
+  console.log(`🎨 Applied theme: ${resolvedTheme} (from effective: ${themeToApply})`);
+
+  // Remove transition class after animation completes (only if transition was added)
+  if (!isInitialLoad) {
+    setTimeout(() => {
+      htmlElement.classList.remove('theme-transitioning');
+    }, 300); // Match CSS transition duration
+  }
+
+  // Persist theme preference if theme manager is available and initialized
+  if (themeManager && isThemeInitialized) {
+    persistThemeChange(themeToApply);
+  }
+}
+
+function resolveThemeAttribute(effectiveTheme: EffectiveTheme): string {
+  // Map effective themes to CSS data-theme attribute values
+  switch (effectiveTheme) {
+    case 'figma-light':
+      return 'figma-light';
+    case 'figma-dark':
+      return 'figma-dark';
+    case 'light':
+      return 'light';
+    case 'boilerplate':
+      return 'boilerplate';
+    case 'cybertron':
+      return 'cybertron';
+    default:
+      return 'figma-dark'; // Safe fallback
+  }
+}
+
+function persistThemeChange(effectiveTheme: EffectiveTheme): void {
+  // Create theme preference object with current state
+  const preference: ThemePreference = {
+    mode: themeManager.currentTheme,
+    lastSystemTheme: themeManager.currentSystemTheme,
+    migrationVersion: 1
+  };
+
+  // Send to backend for persistence
+  sendMessage('set-theme-preference', { theme: preference });
+}
+
+function updateThemeUI(): void {
+  if (!themeManager) return;
+
+  const currentMode = themeManager.currentTheme;
+  const themeRadio = document.querySelector(`input[name="theme"][value="${currentMode}"]`) as HTMLInputElement;
+  if (themeRadio && !themeRadio.checked) {
+    themeRadio.checked = true;
+  }
+
+  // Update system theme status indicator
+  updateSystemThemeStatus();
+
+  // Dispatch a custom event for other parts of the app to listen to
+  const effectiveTheme = themeManager.getEffectiveTheme();
+  window.dispatchEvent(new CustomEvent('themeChanged', {
+    detail: {
+      themeMode: currentMode,
+      effectiveTheme: effectiveTheme,
+      systemTheme: themeManager.currentSystemTheme
+    }
+  }));
+}
+
+function updateSystemThemeStatus(): void {
+  if (!themeManager) return;
+
+  const statusElement = document.getElementById('system-theme-status');
+  if (!statusElement) return;
+
+  const currentMode = themeManager.currentTheme;
+  const systemTheme = themeManager.currentSystemTheme;
+
+  if (currentMode === 'system') {
+    // Show current system theme detection
+    const effectiveTheme = themeManager.getEffectiveTheme();
+    const themeLabel = effectiveTheme === 'figma-light' ? 'Light' : 'Dark';
+    statusElement.textContent = `Currently: ${themeLabel}`;
+    statusElement.style.display = 'block';
+
+    // Add visual indicator for system theme synchronization
+    statusElement.setAttribute('data-system-theme', systemTheme);
+  } else {
+    // Hide status for non-system themes
+    statusElement.style.display = 'none';
+    statusElement.removeAttribute('data-system-theme');
+  }
+}
+
+// Theme change notification system
+function showThemeChangeNotification(themeMode: ThemeMode, effectiveTheme: EffectiveTheme): void {
+  // Create or get existing notification element
+  let notification = document.getElementById('theme-change-notification');
+  if (!notification) {
+    notification = document.createElement('div');
+    notification.id = 'theme-change-notification';
+    notification.className = 'theme-notification';
+    notification.setAttribute('role', 'status');
+    notification.setAttribute('aria-live', 'polite');
+    document.body.appendChild(notification);
+  }
+
+  // Get theme display name
+  const themeConfig = themeManager?.getThemeConfig(themeMode);
+  const displayName = themeConfig?.displayName || themeMode;
+  const icon = themeConfig?.icon || '🎨';
+
+  // Set notification content
+  notification.innerHTML = `
+    <span class="theme-notification-icon">${icon}</span>
+    <span class="theme-notification-text">Theme changed to ${displayName}</span>
+  `;
+
+  // Show notification with animation
+  notification.classList.add('show');
+
+  // Auto-hide after 2 seconds
+  setTimeout(() => {
+    notification.classList.remove('show');
+  }, 2000);
+
+  // Announce to screen readers
+  announceThemeChange(displayName);
+}
+
+// Enhanced keyboard navigation helpers for theme selection
+function navigateToAdjacentTheme(currentRadio: HTMLInputElement, direction: 'previous' | 'next'): void {
+  const allRadios = Array.from(document.querySelectorAll('input[name="theme"]')) as HTMLInputElement[];
+  const currentIndex = allRadios.indexOf(currentRadio);
+
+  if (currentIndex === -1) return;
+
+  let targetIndex: number;
+  if (direction === 'previous') {
+    targetIndex = currentIndex === 0 ? allRadios.length - 1 : currentIndex - 1;
+  } else {
+    targetIndex = currentIndex === allRadios.length - 1 ? 0 : currentIndex + 1;
+  }
+
+  const targetRadio = allRadios[targetIndex];
+  if (targetRadio) {
+    targetRadio.focus();
+    // Optionally select the theme immediately on navigation
+    if (!targetRadio.checked) {
+      targetRadio.checked = true;
+      targetRadio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+}
+
+function navigateToFirstTheme(): void {
+  const firstRadio = document.querySelector('input[name="theme"]') as HTMLInputElement;
+  if (firstRadio) {
+    firstRadio.focus();
+    if (!firstRadio.checked) {
+      firstRadio.checked = true;
+      firstRadio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+}
+
+function navigateToLastTheme(): void {
+  const allRadios = document.querySelectorAll('input[name="theme"]');
+  const lastRadio = allRadios[allRadios.length - 1] as HTMLInputElement;
+  if (lastRadio) {
+    lastRadio.focus();
+    if (!lastRadio.checked) {
+      lastRadio.checked = true;
+      lastRadio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+}
+
+function announceThemeSelection(themeMode: ThemeMode): void {
+  const themeConfig = themeManager?.getThemeConfig(themeMode);
+  if (!themeConfig) return;
+
+  // Create or get existing selection announcer
+  let announcer = document.getElementById('theme-selection-announcer');
+  if (!announcer) {
+    announcer = document.createElement('div');
+    announcer.id = 'theme-selection-announcer';
+    announcer.className = 'sr-only';
+    announcer.setAttribute('aria-live', 'polite');
+    announcer.setAttribute('aria-atomic', 'true');
+    document.body.appendChild(announcer);
+  }
+
+  // Announce the selection
+  announcer.textContent = `${themeConfig.displayName} theme selected. ${themeConfig.description}`;
+
+  // Clear announcement after a delay
+  setTimeout(() => {
+    announcer.textContent = '';
+  }, 3000);
+}
+
+// Enhanced screen reader announcements for theme changes
+function announceThemeChange(themeName: string): void {
+  // Create or get existing announcement element
+  let announcer = document.getElementById('theme-announcer');
+  if (!announcer) {
+    announcer = document.createElement('div');
+    announcer.id = 'theme-announcer';
+    announcer.className = 'sr-only';
+    announcer.setAttribute('aria-live', 'assertive');
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.setAttribute('role', 'status');
+    document.body.appendChild(announcer);
+  }
+
+  // Enhanced announcement with context
+  const systemTheme = themeManager?.currentSystemTheme || 'unknown';
+  const currentMode = themeManager?.currentTheme || 'unknown';
+
+  let announcement = `Theme changed to ${themeName}`;
+
+  // Add system theme context for system mode
+  if (currentMode === 'system') {
+    announcement += `. Following system ${systemTheme} theme`;
+  }
+
+  // Add accessibility status
+  const isHighContrast = window.matchMedia('(prefers-contrast: high)').matches;
+  const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (isHighContrast) {
+    announcement += '. High contrast mode detected';
+  }
+
+  if (isReducedMotion) {
+    announcement += '. Reduced motion preferences respected';
+  }
+
+  // Announce the theme change
+  announcer.textContent = announcement;
+
+  // Clear announcement after a delay
+  setTimeout(() => {
+    announcer.textContent = '';
+  }, 4000);
+}
+
+// Theme preview functionality
+function setupThemePreview(): void {
+  const themeOptions = document.querySelectorAll('.theme-option');
+
+  themeOptions.forEach((option) => {
+    const radio = option.querySelector('input[type="radio"]') as HTMLInputElement;
+    const content = option.querySelector('.theme-option-content') as HTMLElement;
+
+    if (!radio || !content) return;
+
+    // Add preview on hover
+    option.addEventListener('mouseenter', () => {
+      if (!radio.checked) {
+        showThemePreview(radio.value as ThemeMode);
+      }
+    });
+
+    // Remove preview on mouse leave
+    option.addEventListener('mouseleave', () => {
+      if (!radio.checked) {
+        hideThemePreview();
+      }
+    });
+
+    // Add keyboard preview support
+    radio.addEventListener('focus', () => {
+      if (!radio.checked) {
+        showThemePreview(radio.value as ThemeMode);
+      }
+    });
+
+    radio.addEventListener('blur', () => {
+      if (!radio.checked) {
+        hideThemePreview();
       }
     });
   });
 }
 
-function applyTheme(theme: string): void {
+let previewTimeout: number | null = null;
+let originalTheme: EffectiveTheme | null = null;
+
+function showThemePreview(themeMode: ThemeMode): void {
+  if (!themeManager) return;
+
+  // Store original theme if not already stored
+  if (originalTheme === null) {
+    originalTheme = themeManager.getEffectiveTheme();
+  }
+
+  // Clear any existing preview timeout
+  if (previewTimeout) {
+    clearTimeout(previewTimeout);
+  }
+
+  // Apply preview theme after a short delay to avoid flickering
+  previewTimeout = window.setTimeout(() => {
+    const previewEffectiveTheme = resolvePreviewTheme(themeMode);
+    applyThemePreview(previewEffectiveTheme);
+
+    // Add preview indicator
+    showPreviewIndicator(themeMode);
+  }, 200);
+}
+
+function hideThemePreview(): void {
+  if (previewTimeout) {
+    clearTimeout(previewTimeout);
+    previewTimeout = null;
+  }
+
+  if (originalTheme !== null && themeManager) {
+    // Restore original theme
+    applyThemePreview(originalTheme);
+    originalTheme = null;
+
+    // Hide preview indicator
+    hidePreviewIndicator();
+  }
+}
+
+function resolvePreviewTheme(themeMode: ThemeMode): EffectiveTheme {
+  if (!themeManager) return 'figma-dark';
+
+  switch (themeMode) {
+    case 'system':
+      const systemTheme = themeManager.currentSystemTheme;
+      return systemTheme === 'dark' ? 'figma-dark' : 'figma-light';
+    case 'light':
+      return 'light';
+    case 'dark':
+      return 'figma-dark';
+    case 'boilerplate':
+      return 'boilerplate';
+    case 'cybertron':
+      return 'cybertron';
+    default:
+      return 'figma-dark';
+  }
+}
+
+function applyThemePreview(effectiveTheme: EffectiveTheme): void {
   const htmlElement = document.documentElement;
 
-  // Remove existing theme attributes
-  htmlElement.removeAttribute('data-theme');
+  // Add preview class for different transition behavior
+  htmlElement.classList.add('theme-previewing');
 
-  // Apply new theme
-  switch (theme) {
-    case 'light':
-      htmlElement.setAttribute('data-theme', 'light');
-      break;
-    case 'boilerplate':
-      htmlElement.setAttribute('data-theme', 'boilerplate');
-      break;
+  // Apply the preview theme
+  const resolvedTheme = resolveThemeAttribute(effectiveTheme);
+  htmlElement.setAttribute('data-theme', resolvedTheme);
+}
+
+function showPreviewIndicator(themeMode: ThemeMode): void {
+  // Create or get existing preview indicator
+  let indicator = document.getElementById('theme-preview-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.id = 'theme-preview-indicator';
+    indicator.className = 'theme-preview-indicator';
+    document.body.appendChild(indicator);
+  }
+
+  const themeConfig = themeManager?.getThemeConfig(themeMode);
+  const displayName = themeConfig?.displayName || themeMode;
+
+  indicator.innerHTML = `
+    <span class="preview-icon">👁️</span>
+    <span class="preview-text">Previewing ${displayName}</span>
+  `;
+
+  indicator.classList.add('show');
+}
+
+function hidePreviewIndicator(): void {
+  const indicator = document.getElementById('theme-preview-indicator');
+  if (indicator) {
+    indicator.classList.remove('show');
+  }
+
+  // Remove preview class
+  document.documentElement.classList.remove('theme-previewing');
+}
+
+// Enhanced focus management during theme changes
+function manageFocusDuringThemeChange(): void {
+  const activeElement = document.activeElement as HTMLElement;
+
+  if (activeElement && activeElement.tagName === 'INPUT' && activeElement.getAttribute('name') === 'theme') {
+    // Store focus information
+    const focusedThemeOption = activeElement.closest('.theme-option') as HTMLElement;
+
+    if (focusedThemeOption) {
+      // Add temporary focus indicator during theme transition
+      focusedThemeOption.classList.add('theme-changing-focus');
+
+      // Remove indicator after theme transition completes
+      setTimeout(() => {
+        focusedThemeOption.classList.remove('theme-changing-focus');
+
+        // Ensure focus is maintained
+        if (document.activeElement !== activeElement) {
+          activeElement.focus();
+        }
+      }, 300); // Match theme transition duration
+    }
+  }
+}
+
+// Loading state management for theme changes
+function showThemeLoadingState(): void {
+  const settingsPanel = document.querySelector('.settings-panel') as HTMLElement;
+  if (settingsPanel) {
+    settingsPanel.classList.add('theme-loading');
+  }
+}
+
+function hideThemeLoadingState(): void {
+  const settingsPanel = document.querySelector('.settings-panel') as HTMLElement;
+  if (settingsPanel) {
+    settingsPanel.classList.remove('theme-loading');
+  }
+}
+
+// Update theme-related components after theme changes
+function updateThemeRelatedComponents(effectiveTheme: EffectiveTheme, themeMode: ThemeMode, isSystemTheme: boolean): void {
+  // Update logo visibility based on theme
+  updateLogoVisibility(effectiveTheme);
+
+  // Update any theme-dependent animations or effects
+  updateThemeAnimations(effectiveTheme);
+
+  // Update accessibility attributes based on theme
+  updateThemeAccessibility(effectiveTheme, isSystemTheme);
+}
+
+function updateLogoVisibility(effectiveTheme: EffectiveTheme): void {
+  const darkLogos = document.querySelectorAll('.logo-dark');
+  const lightLogos = document.querySelectorAll('.logo-light');
+
+  // Determine if theme is dark or light
+  // Dark themes: figma-dark, boilerplate, cybertron
+  // Light themes: figma-light, light
+  const isDarkTheme = effectiveTheme === 'figma-dark' || effectiveTheme === 'boilerplate' || effectiveTheme === 'cybertron';
+  const isLightTheme = effectiveTheme === 'figma-light' || effectiveTheme === 'light';
+
+  // Show dark logo on light themes, light logo on dark themes (for contrast)
+  darkLogos.forEach((logo) => {
+    (logo as HTMLElement).style.display = isLightTheme ? 'inline' : 'none';
+  });
+
+  lightLogos.forEach((logo) => {
+    (logo as HTMLElement).style.display = isDarkTheme ? 'inline' : 'none';
+  });
+
+
+}
+
+function updateThemeAnimations(effectiveTheme: EffectiveTheme): void {
+  const body = document.body;
+
+  // Add theme-specific animation classes
+  body.classList.remove('theme-cybertron-effects', 'theme-light-effects', 'theme-dark-effects');
+
+  switch (effectiveTheme) {
     case 'cybertron':
-      htmlElement.setAttribute('data-theme', 'cybertron');
+      body.classList.add('theme-cybertron-effects');
       break;
-    case 'figma':
-      htmlElement.setAttribute('data-theme', 'figma');
+    case 'figma-light':
+    case 'light':
+      body.classList.add('theme-light-effects');
       break;
-    default:
-      // Default to figma theme
-      htmlElement.setAttribute('data-theme', 'figma');
+    case 'figma-dark':
+    case 'boilerplate':
+      body.classList.add('theme-dark-effects');
       break;
   }
 }
 
-function updateThemeUI(theme: string): void {
-  // Update any theme-specific UI elements if needed
-  const themeRadio = document.querySelector(`input[name="theme"][value="${theme}"]`) as HTMLInputElement;
-  if (themeRadio && !themeRadio.checked) {
-    themeRadio.checked = true;
+function updateThemeAccessibility(effectiveTheme: EffectiveTheme, isSystemTheme: boolean): void {
+  const htmlElement = document.documentElement;
+
+  // Update high contrast mode support
+  const isHighContrast = window.matchMedia('(prefers-contrast: high)').matches;
+  if (isHighContrast) {
+    htmlElement.classList.add('high-contrast-mode');
+    htmlElement.setAttribute('data-high-contrast', 'true');
+  } else {
+    htmlElement.classList.remove('high-contrast-mode');
+    htmlElement.removeAttribute('data-high-contrast');
   }
 
-  // Dispatch a custom event for other parts of the app to listen to
-  window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }));
+  // Update reduced motion support
+  const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (isReducedMotion) {
+    htmlElement.classList.add('reduced-motion');
+    htmlElement.setAttribute('data-reduced-motion', 'true');
+  } else {
+    htmlElement.classList.remove('reduced-motion');
+    htmlElement.removeAttribute('data-reduced-motion');
+  }
+
+  // Update forced colors support (Windows High Contrast mode)
+  const isForcedColors = window.matchMedia('(forced-colors: active)').matches;
+  if (isForcedColors) {
+    htmlElement.classList.add('forced-colors-mode');
+    htmlElement.setAttribute('data-forced-colors', 'true');
+  } else {
+    htmlElement.classList.remove('forced-colors-mode');
+    htmlElement.removeAttribute('data-forced-colors');
+  }
+
+  // Update prefers-color-scheme support
+  const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+  htmlElement.setAttribute('data-prefers-color-scheme', prefersLight ? 'light' : 'dark');
+
+  // Validate color contrast for current theme
+  validateThemeContrast(effectiveTheme, isHighContrast);
+
+  // Update color scheme meta tag for better browser integration
+  updateColorSchemeMeta(effectiveTheme);
+
+  // Update ARIA attributes for accessibility tools
+  updateAccessibilityAttributes(effectiveTheme, isHighContrast, isReducedMotion);
+}
+
+// Color contrast validation for accessibility compliance
+function validateThemeContrast(effectiveTheme: EffectiveTheme, isHighContrast: boolean): void {
+  // Define minimum contrast ratios (WCAG AA standard)
+  const minContrastRatio = isHighContrast ? 7.0 : 4.5; // AAA for high contrast, AA for normal
+
+  // Get theme-specific contrast validation
+  const contrastIssues: string[] = [];
+
+  // Validate based on effective theme
+  switch (effectiveTheme) {
+    case 'figma-light':
+      // Light theme should have dark text on light backgrounds
+      if (!validateContrastRatio('#1e1e1e', '#ffffff', minContrastRatio)) {
+        contrastIssues.push('Primary text contrast insufficient');
+      }
+      break;
+    case 'figma-dark':
+      // Dark theme should have light text on dark backgrounds  
+      if (!validateContrastRatio('#ffffff', '#2c2c2c', minContrastRatio)) {
+        contrastIssues.push('Primary text contrast insufficient');
+      }
+      break;
+    case 'light':
+      // Standalone light theme validation
+      if (!validateContrastRatio('#1e1e1e', '#ffffff', minContrastRatio)) {
+        contrastIssues.push('Primary text contrast insufficient');
+      }
+      break;
+    case 'boilerplate':
+    case 'cybertron':
+      // Dark themes validation
+      if (!validateContrastRatio('#f5f5f5', '#0f0f0f', minContrastRatio)) {
+        contrastIssues.push('Primary text contrast insufficient');
+      }
+      break;
+  }
+
+  // Log contrast issues for debugging
+  if (contrastIssues.length > 0) {
+    console.warn(`⚠️ Accessibility: Contrast issues detected in ${effectiveTheme} theme:`, contrastIssues);
+  }
+
+  // Update accessibility status
+  const htmlElement = document.documentElement;
+  if (contrastIssues.length > 0) {
+    htmlElement.setAttribute('data-contrast-issues', contrastIssues.join(', '));
+  } else {
+    htmlElement.removeAttribute('data-contrast-issues');
+  }
+}
+
+// Simple contrast ratio calculation (approximation for validation)
+function validateContrastRatio(foreground: string, background: string, minRatio: number): boolean {
+  // This is a simplified validation - in a real implementation, you'd use a proper color contrast library
+  // For now, we'll do basic validation based on known good combinations
+
+  const lightOnDark = (foreground === '#ffffff' || foreground === '#f5f5f5') &&
+    (background === '#2c2c2c' || background === '#0f0f0f' || background === '#0a0a0f');
+  const darkOnLight = (foreground === '#1e1e1e' || foreground === '#000000') &&
+    (background === '#ffffff' || background === '#f7f8f9');
+
+  return lightOnDark || darkOnLight;
+}
+
+// Update accessibility attributes for assistive technologies
+function updateAccessibilityAttributes(effectiveTheme: EffectiveTheme, isHighContrast: boolean, isReducedMotion: boolean): void {
+  const htmlElement = document.documentElement;
+
+  // Set theme information for assistive technologies
+  htmlElement.setAttribute('data-theme-name', effectiveTheme);
+  htmlElement.setAttribute('data-theme-type', effectiveTheme.includes('light') ? 'light' : 'dark');
+
+  // Update main content accessibility
+  const mainElement = document.querySelector('main');
+  if (mainElement) {
+    mainElement.setAttribute('aria-label', `Plugin interface using ${effectiveTheme} theme`);
+  }
+
+  // Update settings panel accessibility
+  const settingsPanel = document.querySelector('.settings-panel');
+  if (settingsPanel) {
+    let settingsLabel = 'Plugin settings';
+    if (isHighContrast) settingsLabel += ' (High contrast mode active)';
+    if (isReducedMotion) settingsLabel += ' (Reduced motion active)';
+
+    settingsPanel.setAttribute('aria-label', settingsLabel);
+  }
+
+  // Update theme selector accessibility
+  const themeSelector = document.querySelector('.theme-selector');
+  if (themeSelector) {
+    themeSelector.setAttribute('role', 'radiogroup');
+    themeSelector.setAttribute('aria-label', 'Theme selection');
+
+    // Update individual theme options
+    const themeOptions = themeSelector.querySelectorAll('.theme-option');
+    themeOptions.forEach((option, index) => {
+      const radio = option.querySelector('input[type="radio"]') as HTMLInputElement;
+      const themeConfig = themeManager?.getThemeConfig(radio?.value as ThemeMode);
+
+      if (radio && themeConfig) {
+        // Enhanced aria-label with description
+        radio.setAttribute('aria-label', `${themeConfig.displayName}: ${themeConfig.description}`);
+
+        // Add position information for screen readers
+        radio.setAttribute('aria-posinset', (index + 1).toString());
+        radio.setAttribute('aria-setsize', themeOptions.length.toString());
+      }
+    });
+  }
+}
+
+function updateColorSchemeMeta(effectiveTheme: EffectiveTheme): void {
+  let metaColorScheme = document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement;
+
+  if (!metaColorScheme) {
+    metaColorScheme = document.createElement('meta');
+    metaColorScheme.name = 'color-scheme';
+    document.head.appendChild(metaColorScheme);
+  }
+
+  // Determine if theme is dark or light for meta color-scheme
+  // Dark themes: figma-dark, boilerplate, cybertron
+  // Light themes: figma-light, light
+  const isDarkTheme = effectiveTheme === 'figma-dark' || effectiveTheme === 'boilerplate' || effectiveTheme === 'cybertron';
+  const isLightTheme = effectiveTheme === 'figma-light' || effectiveTheme === 'light';
+
+  metaColorScheme.content = isDarkTheme ? 'dark' : 'light';
 }
 
 // DOM Ready handling
 function handleDOMReady(): void {
-  // Initialize plugin functionality
+  console.log('📄 DOM ready, starting initialization sequence...');
+
+  // Initialize plugin functionality (includes system theme detection)
   initializePlugin();
 
-  // Setup all event listeners
+  // Setup all event listeners (includes theme switching)
   setupEventListeners();
 
   // Listen for messages from plugin
@@ -1175,17 +2066,93 @@ function handleDOMReady(): void {
     const msg = (event.data && (event.data as any).pluginMessage) || null;
     if (!msg) return;
     if (msg.type === 'theme-preference') {
-      const theme = (msg.theme as string) || 'figma';
-      inMemoryTheme = theme;
-      applyTheme(theme);
-      const radio = document.querySelector(`input[name="theme"][value="${theme}"]`) as HTMLInputElement;
-      if (radio) radio.checked = true;
+      if (themeManager && isThemeInitialized) {
+        // Handle both new ThemePreference objects and legacy string themes
+        const themeData = msg.theme;
+
+        console.log('📥 Received theme preference from backend:', themeData);
+
+        // Debug: Check system theme before loading preference
+        if (themeManager) {
+          const beforeDebug = themeManager.getDebugInfo();
+          console.log('🔍 Theme state BEFORE loading preference:', beforeDebug);
+        }
+
+        // Log storage information for debugging
+        if (msg.storageInfo) {
+          if (!msg.storageInfo.success) {
+            console.warn('Theme storage load failed:', msg.storageInfo.error);
+          }
+          if (msg.storageInfo.usedFallback) {
+            console.info('Theme preference loaded from fallback storage');
+          }
+        }
+
+        // Load and apply the saved preference (this will override system fallback)
+        themeManager.loadThemePreference(themeData);
+
+        // Ensure UI is updated to reflect the loaded preference
+        updateThemeUI();
+
+        // Debug: Check system theme after loading preference
+        if (themeManager) {
+          const afterDebug = themeManager.getDebugInfo();
+          console.log('🔍 Theme state AFTER loading preference:', afterDebug);
+        }
+
+        console.log('✅ Theme preference loaded and applied');
+      } else {
+        console.warn('⚠️ Received theme preference but theme manager not ready');
+      }
     }
   });
 
   // Update scroll behavior on window resize
   window.addEventListener('resize', () => {
     setTimeout(updateScrollBehavior, 100);
+  });
+
+  // Listen for system theme changes (for debugging and additional handling)
+  window.addEventListener('systemThemeSync', (event: CustomEvent) => {
+    const { effectiveTheme, themeMode, systemTheme } = event.detail;
+    console.log(`🔄 System theme sync event: ${effectiveTheme} (mode: ${themeMode}, system: ${systemTheme})`);
+
+    // Additional handling for system theme changes can be added here
+    // For example, updating other UI elements that depend on theme
+  });
+
+  // Listen for theme change completion events
+  window.addEventListener('themeChangeComplete', (event: CustomEvent) => {
+    const { effectiveTheme, themeMode, systemTheme, isSystemTheme } = event.detail;
+    console.log(`✅ Theme change complete: ${effectiveTheme} (mode: ${themeMode}, system: ${systemTheme})`);
+
+    // Update any components that need to know about theme changes
+    updateThemeRelatedComponents(effectiveTheme, themeMode, isSystemTheme);
+  });
+
+  // Listen for settings overlay open/close to manage theme preview cleanup
+  const settingsOverlay = document.getElementById('settings-overlay');
+  if (settingsOverlay) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+          const isHidden = settingsOverlay.getAttribute('aria-hidden') === 'true';
+          if (isHidden) {
+            // Settings closed - cleanup any active preview
+            hideThemePreview();
+          }
+        }
+      });
+    });
+
+    observer.observe(settingsOverlay, { attributes: true });
+  }
+
+  // Cleanup theme manager on window unload
+  window.addEventListener('beforeunload', () => {
+    if (themeManager) {
+      themeManager.destroy();
+    }
   });
 
   // Reset footer button states on various events that might cause stuck states
@@ -1219,3 +2186,326 @@ if (document.readyState === 'loading') {
 } else {
   handleDOMReady();
 }
+
+// ===== PERFORMANCE MONITORING AND OPTIMIZATION =====
+
+// Performance monitoring for theme system
+let themePerformanceMetrics = {
+  themeChanges: 0,
+  totalThemeChangeTime: 0,
+  averageThemeChangeTime: 0,
+  lastThemeChangeTime: 0,
+  slowThemeChanges: 0, // Changes taking > 100ms
+  cacheHits: 0,
+  cacheMisses: 0
+};
+
+function initializeThemePerformanceMonitoring(): void {
+  // Monitor theme change performance
+  if (themeManager) {
+    const originalApplyTheme = applyTheme;
+
+    // Wrap applyTheme with performance monitoring
+    (window as any).applyTheme = function (effectiveTheme: EffectiveTheme, skipTransition = false) {
+      const startTime = performance.now();
+
+      try {
+        const result = originalApplyTheme.call(this, effectiveTheme, skipTransition);
+
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+
+        // Update metrics
+        themePerformanceMetrics.themeChanges++;
+        themePerformanceMetrics.totalThemeChangeTime += duration;
+        themePerformanceMetrics.averageThemeChangeTime =
+          themePerformanceMetrics.totalThemeChangeTime / themePerformanceMetrics.themeChanges;
+        themePerformanceMetrics.lastThemeChangeTime = duration;
+
+        if (duration > 100) {
+          themePerformanceMetrics.slowThemeChanges++;
+          console.warn(`Slow theme change detected: ${duration.toFixed(2)}ms for theme ${effectiveTheme}`);
+        }
+
+        // Log performance metrics periodically
+        if (themePerformanceMetrics.themeChanges % 10 === 0) {
+          console.log('Theme Performance Metrics:', {
+            changes: themePerformanceMetrics.themeChanges,
+            averageTime: `${themePerformanceMetrics.averageThemeChangeTime.toFixed(2)}ms`,
+            slowChanges: themePerformanceMetrics.slowThemeChanges,
+            lastChange: `${themePerformanceMetrics.lastThemeChangeTime.toFixed(2)}ms`
+          });
+        }
+
+        return result;
+      } catch (error) {
+        console.error('Theme application error:', error);
+        throw error;
+      }
+    };
+  }
+
+  // Monitor memory usage periodically
+  if ('memory' in performance) {
+    setInterval(() => {
+      const memInfo = (performance as any).memory;
+      if (memInfo.usedJSHeapSize > 50 * 1024 * 1024) { // 50MB threshold
+        console.warn('High memory usage detected:', {
+          used: `${(memInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
+          total: `${(memInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
+          limit: `${(memInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB`
+        });
+      }
+    }, 30000); // Check every 30 seconds
+  }
+}
+
+// Cleanup handlers for memory management
+function setupCleanupHandlers(): void {
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', () => {
+    console.log('🧹 Cleaning up theme system resources...');
+
+    // Destroy theme manager
+    if (themeManager) {
+      themeManager.destroy();
+    }
+
+    // Destroy all Lottie animations
+    destroyAllLottieAnimations();
+
+    // Clear any remaining timers
+    clearAllTimers();
+
+    // Remove event listeners
+    removeAllEventListeners();
+
+    console.log('✅ Cleanup complete');
+  });
+
+  // Cleanup on visibility change (when tab becomes hidden)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      // Pause non-essential operations when tab is hidden
+      pauseNonEssentialOperations();
+    } else {
+      // Resume operations when tab becomes visible
+      resumeNonEssentialOperations();
+    }
+  });
+}
+
+// Timer management for cleanup
+const activeTimers = new Set<number>();
+const originalSetTimeout = window.setTimeout;
+const originalSetInterval = window.setInterval;
+
+// Override setTimeout to track timers
+window.setTimeout = function (callback: Function, delay?: number, ...args: any[]) {
+  const timerId = originalSetTimeout.call(window, (...callbackArgs: any[]) => {
+    activeTimers.delete(timerId);
+    callback.apply(this, callbackArgs);
+  }, delay, ...args);
+  activeTimers.add(timerId);
+  return timerId;
+};
+
+// Override setInterval to track timers
+window.setInterval = function (callback: Function, delay?: number, ...args: any[]) {
+  const timerId = originalSetInterval.call(window, callback, delay, ...args);
+  activeTimers.add(timerId);
+  return timerId;
+};
+
+function clearAllTimers(): void {
+  activeTimers.forEach(timerId => {
+    clearTimeout(timerId);
+    clearInterval(timerId);
+  });
+  activeTimers.clear();
+}
+
+// Event listener management
+const activeEventListeners = new Map<EventTarget, Array<{
+  type: string;
+  listener: EventListener;
+  options?: boolean | AddEventListenerOptions;
+}>>();
+
+const originalAddEventListener = EventTarget.prototype.addEventListener;
+const originalRemoveEventListener = EventTarget.prototype.removeEventListener;
+
+// Override addEventListener to track listeners
+EventTarget.prototype.addEventListener = function (
+  type: string,
+  listener: EventListener,
+  options?: boolean | AddEventListenerOptions
+) {
+  if (!activeEventListeners.has(this)) {
+    activeEventListeners.set(this, []);
+  }
+  activeEventListeners.get(this)!.push({ type, listener, options });
+  return originalAddEventListener.call(this, type, listener, options);
+};
+
+// Override removeEventListener to untrack listeners
+EventTarget.prototype.removeEventListener = function (
+  type: string,
+  listener: EventListener,
+  options?: boolean | EventListenerOptions
+) {
+  const listeners = activeEventListeners.get(this);
+  if (listeners) {
+    const index = listeners.findIndex(l => l.type === type && l.listener === listener);
+    if (index > -1) {
+      listeners.splice(index, 1);
+    }
+  }
+  return originalRemoveEventListener.call(this, type, listener, options);
+};
+
+function removeAllEventListeners(): void {
+  activeEventListeners.forEach((listeners, target) => {
+    listeners.forEach(({ type, listener, options }) => {
+      try {
+        originalRemoveEventListener.call(target, type, listener, options);
+      } catch (error) {
+        console.warn('Error removing event listener:', error);
+      }
+    });
+  });
+  activeEventListeners.clear();
+}
+
+// Performance optimization: pause/resume operations
+let nonEssentialOperationsPaused = false;
+
+function pauseNonEssentialOperations(): void {
+  if (nonEssentialOperationsPaused) return;
+
+  nonEssentialOperationsPaused = true;
+  console.log('⏸️ Pausing non-essential operations (tab hidden)');
+
+  // Pause Lottie animations
+  activeLottieAnimations.forEach((animation) => {
+    if (animation.isPaused === false) {
+      animation.pause();
+    }
+  });
+
+  // Reduce update frequency for scroll behavior
+  const scrollUpdateInterval = setInterval(updateScrollBehavior, 1000); // Reduce to 1s
+  activeTimers.add(scrollUpdateInterval);
+}
+
+function resumeNonEssentialOperations(): void {
+  if (!nonEssentialOperationsPaused) return;
+
+  nonEssentialOperationsPaused = false;
+  console.log('▶️ Resuming non-essential operations (tab visible)');
+
+  // Resume Lottie animations
+  activeLottieAnimations.forEach((animation) => {
+    if (animation.isPaused === true) {
+      animation.play();
+    }
+  });
+
+  // Restore normal update frequency
+  updateScrollBehavior();
+}
+
+// CSS optimization: efficient theme variable inheritance
+function optimizeThemeVariableInheritance(): void {
+  // Create a style element for dynamic theme optimizations
+  const optimizationStyle = document.createElement('style');
+  optimizationStyle.id = 'theme-optimization-styles';
+
+  // Add CSS that optimizes theme variable inheritance
+  optimizationStyle.textContent = `
+    /* Performance optimization: reduce CSS custom property lookups */
+    .theme-optimized {
+      /* Pre-calculate commonly used theme combinations */
+      --optimized-border: 1px solid var(--theme-border-primary);
+      --optimized-hover-bg: var(--theme-bg-hover);
+      --optimized-text-color: var(--theme-text-primary);
+      --optimized-transition: background-color 150ms ease-out, border-color 150ms ease-out;
+    }
+    
+    /* Optimize frequently used button styles */
+    .theme-optimized .btn-base {
+      background: var(--optimized-hover-bg);
+      border: var(--optimized-border);
+      color: var(--optimized-text-color);
+      transition: var(--optimized-transition);
+    }
+    
+    /* Use contain property to limit style recalculation scope */
+    .theme-container {
+      contain: layout style;
+    }
+    
+    /* Optimize for GPU acceleration on theme changes */
+    .theme-gpu-optimized {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
+  `;
+
+  document.head.appendChild(optimizationStyle);
+
+  // Apply optimization classes to relevant elements
+  document.documentElement.classList.add('theme-optimized');
+  document.body.classList.add('theme-container', 'theme-gpu-optimized');
+}
+
+// Initialize CSS optimizations
+document.addEventListener('DOMContentLoaded', () => {
+  optimizeThemeVariableInheritance();
+});
+
+// Export performance metrics for debugging
+(window as any).getThemePerformanceMetrics = () => themePerformanceMetrics;
+(window as any).resetThemePerformanceMetrics = () => {
+  themePerformanceMetrics = {
+    themeChanges: 0,
+    totalThemeChangeTime: 0,
+    averageThemeChangeTime: 0,
+    lastThemeChangeTime: 0,
+    slowThemeChanges: 0,
+    cacheHits: 0,
+    cacheMisses: 0
+  };
+};
+
+// Export theme debugging functions
+(window as any).debugTheme = () => {
+  if (!themeManager) {
+    console.log('❌ Theme manager not initialized');
+    return;
+  }
+
+  console.log('=== Theme Debug Info ===');
+  const debugInfo = themeManager.getDebugInfo();
+  console.log('Theme Mode:', debugInfo.currentThemeMode);
+  console.log('System Theme:', debugInfo.systemTheme);
+  console.log('Effective Theme:', debugInfo.effectiveTheme);
+  console.log('Media Query Matches (dark):', debugInfo.mediaQueryMatches);
+  console.log('Cache Valid:', debugInfo.cacheValid);
+
+  // Check actual media query
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  console.log('Direct Media Query Check:', mediaQuery.matches);
+
+  // Check HTML attribute
+  const htmlTheme = document.documentElement.getAttribute('data-theme');
+  console.log('HTML data-theme:', htmlTheme);
+
+  console.log('=== End Debug ===');
+
+  return debugInfo;
+};
+
+// Export theme manager for debugging
+(window as any).themeManager = themeManager;

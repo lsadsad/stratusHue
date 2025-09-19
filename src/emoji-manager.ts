@@ -3,8 +3,8 @@
 // Emoji Management for Stratus Hue Plugin
 // Handles emoji operations and set navigation
 
-import { LAYER_EMOJI_SETS, PAGE_EMOJI_SETS } from './constants';
-import { currentLayerEmojiSetIndex, currentPageEmojiSetIndex, setLayerEmojiSetIndex, setPageEmojiSetIndex } from './state';
+import { LAYER_EMOJI_SETS, PAGE_EMOJI_SETS } from './core/constants';
+import { currentLayerEmojiSetIndex, currentPageEmojiSetIndex, setLayerEmojiSetIndex, setPageEmojiSetIndex } from './core/state';
 import { replaceColorEmoji, removeEmojiPrefix, parsePageTitleParts, composePageTitle } from './utils';
 import { updateBookmarkIfExists, updateBookmarksForPage } from './bookmarks';
 

@@ -20,7 +20,7 @@ Grids: --nav-grid-cols, --tags-grid-cols, --tags-actions-cols
 Example: Change --spacing-lg from 8px to 12px to increase all container padding
 */
 
-/* BASE THEME - Core design system variables for consistent theming */
+/* OPTIMIZED BASE THEME - Core design system variables with efficient inheritance */
 :root {
   /* Spacing System */
   --spacing-xs: 2px;
@@ -29,6 +29,11 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --spacing-lg: 8px;
   --spacing-xl: 10px;
   --spacing-xxl: 12px;
+  
+  /* CSS Custom Property Optimization - Pre-calculate common combinations */
+  --spacing-sm-md: calc(var(--spacing-sm) + var(--spacing-md)); /* 10px */
+  --spacing-md-lg: calc(var(--spacing-md) + var(--spacing-lg)); /* 14px */
+  --double-spacing-lg: calc(var(--spacing-lg) * 2); /* 16px */
 
   /* Component Sizes */
   --button-height-sm: 16px;
@@ -48,6 +53,19 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --border-radius-sm: 3px;
   --border-radius-md: 4px;
   --border-radius-lg: 6px;
+
+  /* Theme Transition Settings */
+  --theme-transition-duration: 300ms;
+  --theme-transition-easing: cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  /* Transition Durations */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 200ms ease-out;
+  --transition-slow: 300ms ease-out;
+  --transition-duration-fast: 150ms;
+  --transition-duration-medium: 200ms;
+  --transition-timing-function: ease-out;
+
   --border-radius-xl: 8px;
   --border-radius-xs: 2px;
 
@@ -59,7 +77,18 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 
   /* Typography Sizes */
   --font-size-base: 12px;
+  --font-size-xs: 10px;
+  --font-size-sm: 11px;
+  --font-size-md: 12px;
+  --font-size-lg: 14px;
   --letter-spacing-tight: 0.5px;
+  
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
   /* Border Widths */
   --border-width: 1px;
@@ -116,6 +145,561 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --z-tooltip: 1000;
   --z-footer: 1001;
   --z-modal: 2000;
+}
+
+/* OPTIMIZED THEME TRANSITION SYSTEM - Performance-focused theme transitions */
+.theme-transitioning {
+  /* Use transform3d to enable hardware acceleration */
+  transform: translate3d(0, 0, 0);
+  /* Optimize for theme-related properties only */
+  transition: 
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    border-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing),
+    box-shadow var(--theme-transition-duration) var(--theme-transition-easing);
+  /* Hint browser about upcoming changes */
+  will-change: background-color, border-color, color, box-shadow;
+}
+
+/* Selective child element transitions - avoid universal selector for performance */
+.theme-transitioning .btn-base,
+.theme-transitioning .emoji-button,
+.theme-transitioning .action-btn,
+.theme-transitioning .bookmark-item,
+.theme-transitioning .section-header {
+  transition: 
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    border-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* Fast preview transitions - optimized for responsiveness */
+.theme-previewing {
+  transform: translate3d(0, 0, 0);
+  transition: 
+    background-color 100ms ease-out,
+    border-color 100ms ease-out,
+    color 100ms ease-out;
+  will-change: background-color, border-color, color;
+}
+
+.theme-previewing .btn-base,
+.theme-previewing .emoji-button,
+.theme-previewing .action-btn,
+.theme-previewing .bookmark-item,
+.theme-previewing .section-header {
+  transition: 
+    background-color 100ms ease-out,
+    border-color 100ms ease-out,
+    color 100ms ease-out;
+}
+
+/* Prevent transitions on elements that should change instantly */
+.theme-transitioning .no-theme-transition,
+.theme-previewing .no-theme-transition {
+  transition: none !important;
+  will-change: auto;
+}
+
+/* Performance optimization: contain layout changes during transitions */
+.theme-transitioning,
+.theme-previewing {
+  contain: layout style;
+}
+
+/* Optimize for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .theme-transitioning,
+  .theme-transitioning *,
+  .theme-previewing,
+  .theme-previewing * {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* THEME CHANGE NOTIFICATIONS */
+.theme-notification {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: var(--theme-bg-elevated);
+  border: 1px solid var(--theme-border-primary);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  box-shadow: var(--theme-shadow-heavy);
+  z-index: var(--z-tooltip);
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 200ms ease-out, opacity 200ms ease-out;
+  font-size: var(--font-size-sm);
+  color: var(--theme-text-primary);
+  max-width: 200px;
+}
+
+.theme-notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.theme-notification-icon {
+  font-size: var(--icon-size-lg);
+  flex-shrink: 0;
+}
+
+.theme-notification-text {
+  font-weight: var(--font-weight-medium);
+}
+
+/* THEME PREVIEW INDICATOR */
+.theme-preview-indicator {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  background: var(--theme-bg-elevated);
+  border: 1px solid var(--theme-border-accent);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  box-shadow: var(--theme-shadow-heavy);
+  z-index: var(--z-tooltip);
+  opacity: 0;
+  transition: transform 200ms ease-out, opacity 200ms ease-out;
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-secondary);
+  backdrop-filter: blur(8px);
+}
+
+.theme-preview-indicator.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.preview-icon {
+  font-size: var(--icon-size-md);
+}
+
+.preview-text {
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+/* THEME LOADING STATES */
+.theme-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.theme-loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--theme-bg-primary);
+  opacity: 0.7;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.theme-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--theme-border-primary);
+  border-top-color: var(--theme-text-primary);
+  border-radius: 50%;
+  animation: theme-loading-spin 1s linear infinite;
+  z-index: 2;
+}
+
+@keyframes theme-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* THEME OPTION FOCUS MANAGEMENT */
+.theme-changing-focus {
+  position: relative;
+  outline: 2px solid var(--theme-info);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-md);
+}
+
+.theme-changing-focus::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 2px solid var(--theme-info);
+  border-radius: var(--border-radius-lg);
+  opacity: 0.3;
+  animation: theme-focus-pulse 1s ease-in-out infinite;
+}
+
+@keyframes theme-focus-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.02);
+  }
+}
+
+/* SCREEN READER ONLY CONTENT */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* THEME SYSTEM STATUS INDICATOR */
+#system-theme-status {
+  display: none;
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-muted);
+  font-style: italic;
+  margin-top: var(--spacing-xs);
+}
+
+#system-theme-status[data-system-theme="light"] {
+  color: var(--theme-warning);
+}
+
+#system-theme-status[data-system-theme="dark"] {
+  color: var(--theme-info);
+}
+
+/* ENHANCED THEME OPTION HOVER STATES */
+.theme-option:hover .theme-option-content {
+  background: var(--theme-interactive-hover);
+  border-color: var(--theme-border-hover);
+}
+
+.theme-option:hover .theme-name {
+  color: var(--theme-text-primary);
+}
+
+.theme-option:hover .theme-description {
+  color: var(--theme-text-secondary);
+}
+
+/* THEME OPTION PREVIEW STATES */
+.theme-previewing .theme-option:hover .theme-option-content {
+  background: var(--theme-interactive-active);
+  border-color: var(--theme-info-border);
+  box-shadow: 0 0 0 1px var(--theme-info-border);
+}
+
+.theme-previewing .theme-option:hover .theme-icon {
+  transform: scale(1.1);
+  transition: transform 150ms ease-out;
+}
+
+/* ACCESSIBILITY ENHANCEMENTS */
+.high-contrast-mode {
+  --theme-border-primary: currentColor;
+  --theme-border-secondary: currentColor;
+  --outline-width: var(--outline-width-hc);
+  --outline-offset: var(--outline-offset-hc);
+}
+
+.reduced-motion,
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduced-motion .theme-transitioning,
+.reduced-motion .theme-previewing {
+  transition: none !important;
+}
+
+.reduced-motion .theme-notification,
+.reduced-motion .theme-preview-indicator {
+  transition: none !important;
+}
+
+/* THEME-SPECIFIC ANIMATION EFFECTS */
+.theme-cybertron-effects .emoji-button:hover {
+  animation: cybertron-glow 0.3s ease-in-out;
+}
+
+@keyframes cybertron-glow {
+  0%, 100% {
+    box-shadow: none;
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  }
+}
+
+.theme-light-effects .theme-notification {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-dark-effects .theme-notification {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ENHANCED FOCUS INDICATORS FOR ACCESSIBILITY */
+.theme-option input[type="radio"]:focus-visible + .theme-option-content {
+  outline: 2px solid var(--theme-info);
+  outline-offset: 2px;
+}
+
+.high-contrast-mode .theme-option input[type="radio"]:focus-visible + .theme-option-content {
+  outline: 3px solid currentColor;
+  outline-offset: 1px;
+}
+
+/* ENHANCED THEME OPTION FOCUS STATES */
+.theme-option-focused .theme-option-content {
+  background: var(--theme-interactive-hover);
+  border-color: var(--theme-info-border);
+  box-shadow: 0 0 0 2px var(--theme-info-border);
+}
+
+.high-contrast-mode .theme-option-focused .theme-option-content {
+  border: 3px solid currentColor;
+  box-shadow: 0 0 0 1px currentColor;
+}
+
+/* KEYBOARD NAVIGATION INDICATORS */
+.theme-option input[type="radio"]:focus + .theme-option-content::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid var(--theme-info);
+  border-radius: var(--border-radius-lg);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.high-contrast-mode .theme-option input[type="radio"]:focus + .theme-option-content::before {
+  border: 3px solid currentColor;
+  opacity: 1;
+}
+
+/* THEME NOTIFICATION ACCESSIBILITY */
+.theme-notification[role="status"] {
+  /* Ensure proper announcement timing */
+  transition-delay: 100ms;
+}
+
+/* RESPONSIVE THEME NOTIFICATIONS */
+@media (max-width: 240px) {
+  .theme-notification {
+    right: 8px;
+    left: 8px;
+    max-width: none;
+    font-size: var(--font-size-xs);
+  }
+  
+  .theme-preview-indicator {
+    left: 8px;
+    right: 8px;
+    transform: translateY(100%);
+  }
+  
+  .theme-preview-indicator.show {
+    transform: translateY(0);
+  }
+}
+
+/* FORCED COLORS MODE SUPPORT (Windows High Contrast) */
+@media (forced-colors: active) {
+  .theme-option-content {
+    border: 1px solid ButtonBorder;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+  
+  .theme-option input[type="radio"]:checked + .theme-option-content {
+    border: 2px solid Highlight;
+    background: SelectedItem;
+    color: SelectedItemText;
+  }
+  
+  .theme-option input[type="radio"]:focus + .theme-option-content {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  
+  .theme-notification {
+    border: 1px solid WindowText;
+    background: Window;
+    color: WindowText;
+  }
+  
+  .emoji-button,
+  .action-btn {
+    border: 1px solid ButtonBorder;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+  
+  .emoji-button:hover,
+  .action-btn:hover {
+    border: 1px solid Highlight;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+  
+  .emoji-button:focus,
+  .action-btn:focus {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+/* ENHANCED CONTRAST SUPPORT */
+@media (prefers-contrast: high) {
+  :root {
+    --outline-width: 3px;
+    --outline-offset: 1px;
+    --border-width: 2px;
+  }
+  
+  .theme-option-content {
+    border-width: 2px;
+  }
+  
+  .theme-option input[type="radio"]:checked + .theme-option-content {
+    border-width: 3px;
+  }
+  
+  .theme-notification {
+    border-width: 2px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
+  
+  .emoji-button,
+  .action-btn {
+    border-width: 2px;
+  }
+  
+  .emoji-button:focus,
+  .action-btn:focus,
+  .theme-option input[type="radio"]:focus + .theme-option-content {
+    outline-width: 3px;
+    outline-offset: 1px;
+  }
+}
+
+/* REDUCED MOTION SUPPORT */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .theme-transitioning,
+  .theme-previewing {
+    transition: none !important;
+  }
+  
+  .theme-notification,
+  .theme-preview-indicator {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .theme-loading::after {
+    animation: none !important;
+  }
+  
+  .theme-changing-focus::before {
+    animation: none !important;
+  }
+}
+
+/* ACCESSIBILITY ANNOUNCEMENTS */
+.accessibility-announcer {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* THEME SELECTION ACCESSIBILITY ENHANCEMENTS */
+.theme-selector[role="radiogroup"] {
+  position: relative;
+}
+
+.theme-selector[role="radiogroup"]::before {
+  content: attr(aria-label);
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+/* KEYBOARD NAVIGATION HELPERS */
+.theme-option input[type="radio"] {
+  position: relative;
+}
+
+.theme-option input[type="radio"]:focus {
+  z-index: 1;
+}
+
+/* CONTRAST VALIDATION INDICATORS */
+[data-contrast-issues] .theme-notification::after {
+  content: '⚠️';
+  margin-left: var(--spacing-sm);
+  color: var(--theme-warning);
+}
+
+[data-high-contrast="true"] .theme-option-content {
+  border-width: 2px;
+}
+
+[data-reduced-motion="true"] * {
+  transition: none !important;
+  animation: none !important;
+}
+
+[data-forced-colors="true"] .theme-option-content {
+  border: 1px solid;
+  background: transparent;
 }
 
 /* FIGMA THEME FALLBACKS - Default values when Figma variables aren't available */
@@ -387,7 +971,244 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   box-shadow: inset 0 0 15px rgba(255, 0, 255, 0.1);
 }
 
-/* FIGMA THEME - Uses Figma's native theme variables for seamless integration */
+/* FIGMA LIGHT THEME - Uses Figma's native light theme colors for seamless integration */
+[data-theme="figma-light"] {
+  /* Base Colors - Figma light theme integration */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f7f8f9;
+  --theme-bg-tertiary: #f0f1f3;
+  --theme-bg-elevated: #ffffff;
+  --theme-bg-accent: #e6e7e9;
+  --theme-bg-hover: rgba(0, 0, 0, 0.04);
+  --theme-bg-active: rgba(24, 160, 251, 0.1);
+
+  /* Text Colors - Figma light theme text */
+  --theme-text-primary: #1e1e1e;
+  --theme-text-secondary: #6b7280;
+  --theme-text-muted: rgba(30, 30, 30, 0.6);
+  --theme-text-subtle: rgba(30, 30, 30, 0.8);
+  --theme-text-disabled: rgba(30, 30, 30, 0.4);
+
+  /* Border Colors - Figma light theme borders */
+  --theme-border-primary: #e6e7e9;
+  --theme-border-secondary: #d1d5db;
+  --theme-border-accent: #c7ccd1;
+
+  /* Interactive States - Figma light theme interactions */
+  --theme-interactive-hover: rgba(0, 0, 0, 0.04);
+  --theme-interactive-active: rgba(24, 160, 251, 0.1);
+  --theme-interactive-disabled: #f7f8f9;
+
+  /* Scrollbar Colors - Light theme scrollbars */
+  --theme-scrollbar-track: #f7f8f9;
+  --theme-scrollbar-thumb: #c7ccd1;
+  --theme-scrollbar-thumb-hover: #9ca3af;
+
+  /* Accent Colors - Figma brand colors adapted for light theme */
+  --theme-accent-red: rgba(239, 68, 68, 0.1);
+  --theme-accent-green: rgba(34, 197, 94, 0.1);
+  --theme-accent-yellow: rgba(245, 158, 11, 0.1);
+  --theme-accent-blue: rgba(24, 160, 251, 0.1);
+  --theme-accent-pink: rgba(236, 72, 153, 0.1);
+
+  /* Status Colors - Light theme status indicators with WCAG AA compliance */
+  --theme-success: #047857;
+  --theme-warning: #b45309;
+  --theme-error: #dc2626;
+  --theme-info: #1d4ed8;
+
+  /* Shadow Colors - Light theme shadows */
+  --theme-shadow-light: rgba(0, 0, 0, 0.08);
+  --theme-shadow-heavy: rgba(0, 0, 0, 0.16);
+
+  /* Overlay and Utility - Light theme overlays */
+  --theme-overlay-xxweak: rgba(0, 0, 0, 0.02);
+  --theme-overlay-xweak: rgba(0, 0, 0, 0.04);
+  --theme-text-strong: rgba(30, 30, 30, 0.95);
+  --theme-border-translucent: rgba(0, 0, 0, 0.08);
+  --theme-border-soft: rgba(0, 0, 0, 0.12);
+  --theme-info-border: rgba(24, 160, 251, 0.3);
+  --theme-info-border-strong: rgba(24, 160, 251, 0.4);
+  --theme-info-bg-strong: rgba(24, 160, 251, 0.08);
+  --theme-info-bg-stronger: rgba(24, 160, 251, 0.12);
+  --theme-info-border-stronger: rgba(24, 160, 251, 0.5);
+  --theme-border-hover: rgba(0, 0, 0, 0.12);
+  --theme-border-contrast: rgba(0, 0, 0, 0.24);
+  --theme-shadow-ambient: rgba(0, 0, 0, 0.06);
+  --theme-shadow-inset-hairline: rgba(0, 0, 0, 0.08);
+  --theme-warning-bg-weak: rgba(245, 158, 11, 0.1);
+  --theme-warning-border-weak: rgba(245, 158, 11, 0.2);
+}
+
+/* FIGMA LIGHT THEME ENHANCEMENTS - Specific styling for optimal light theme experience */
+[data-theme="figma-light"] {
+  /* Enhanced contrast for better readability */
+  --figma-light-enhanced-border: rgba(0, 0, 0, 0.15);
+  --figma-light-enhanced-hover: rgba(0, 0, 0, 0.06);
+  --figma-light-enhanced-active: rgba(24, 160, 251, 0.12);
+}
+
+/* Figma light theme button enhancements */
+[data-theme="figma-light"] .emoji-button:hover {
+  background: var(--figma-light-enhanced-hover);
+  border: 1px solid var(--figma-light-enhanced-border);
+}
+
+[data-theme="figma-light"] .action-btn:hover {
+  background: var(--figma-light-enhanced-hover);
+  border: 1px solid rgba(24, 160, 251, 0.2);
+}
+
+[data-theme="figma-light"] .section-header:hover {
+  background: var(--figma-light-enhanced-hover);
+  border-color: var(--figma-light-enhanced-border);
+}
+
+/* Figma light theme bookmark items */
+[data-theme="figma-light"] .bookmark-item {
+  background: var(--theme-bg-primary);
+  border: 1px solid var(--theme-border-primary);
+}
+
+[data-theme="figma-light"] .bookmark-item:hover {
+  background: var(--figma-light-enhanced-hover);
+  border-color: var(--figma-light-enhanced-border);
+}
+
+[data-theme="figma-light"] .bookmark-item.current-anchor {
+  border-left: 3px solid var(--theme-info);
+  background: var(--theme-info-bg-strong);
+}
+
+[data-theme="figma-light"] .bookmark-item.recent-history {
+  border-left: 3px solid var(--theme-accent-pink);
+  background: rgba(236, 72, 153, 0.05);
+}
+
+/* Figma light theme action buttons */
+[data-theme="figma-light"] .clear-action,
+[data-theme="figma-light"] #save-bookmark {
+  background: var(--theme-bg-secondary);
+  border: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-primary);
+}
+
+[data-theme="figma-light"] .clear-action:hover,
+[data-theme="figma-light"] #save-bookmark:hover {
+  background: var(--figma-light-enhanced-hover);
+  border-color: var(--theme-info);
+  color: var(--theme-info);
+}
+
+[data-theme="figma-light"] .clear-action:active,
+[data-theme="figma-light"] #save-bookmark:active {
+  background: var(--figma-light-enhanced-active);
+  transform: scale(0.98);
+}
+
+/* Figma light theme footer enhancements */
+[data-theme="figma-light"] #footer {
+  border-top: 1px solid var(--theme-border-primary);
+  background: var(--theme-bg-secondary);
+}
+
+[data-theme="figma-light"] .footer-icon-btn:hover {
+  background: var(--figma-light-enhanced-hover);
+  color: var(--theme-info);
+}
+
+/* Figma light theme scrollbar styling */
+[data-theme="figma-light"] .scrollable-content::-webkit-scrollbar-thumb {
+  background: var(--theme-scrollbar-thumb);
+}
+
+[data-theme="figma-light"] .scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-scrollbar-thumb-hover);
+}
+
+/* Figma light theme focus states - enhanced for accessibility */
+[data-theme="figma-light"] .btn-base:focus-visible,
+[data-theme="figma-light"] .action-btn:focus-visible,
+[data-theme="figma-light"] .emoji-button:focus-visible,
+[data-theme="figma-light"] .section-header:focus-visible,
+[data-theme="figma-light"] .clear-action:focus-visible,
+[data-theme="figma-light"] #save-bookmark:focus-visible {
+  outline: 2px solid var(--theme-info);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(24, 160, 251, 0.1);
+}
+
+/* FIGMA DARK THEME - Uses Figma's native dark theme colors for seamless integration */
+[data-theme="figma-dark"] {
+  /* Base Colors - Figma dark theme integration */
+  --theme-bg-primary: #2c2c2c;
+  --theme-bg-secondary: #3c3c3c;
+  --theme-bg-tertiary: #4c4c4c;
+  --theme-bg-elevated: #1c1c1c;
+  --theme-bg-accent: #5c5c5c;
+  --theme-bg-hover: rgba(255, 255, 255, 0.08);
+  --theme-bg-active: rgba(24, 160, 251, 0.15);
+
+  /* Text Colors - Figma dark theme text */
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: #cccccc;
+  --theme-text-muted: rgba(255, 255, 255, 0.6);
+  --theme-text-subtle: rgba(255, 255, 255, 0.8);
+  --theme-text-disabled: rgba(255, 255, 255, 0.3);
+
+  /* Border Colors - Figma dark theme borders */
+  --theme-border-primary: #4c4c4c;
+  --theme-border-secondary: #5c5c5c;
+  --theme-border-accent: #6c6c6c;
+
+  /* Interactive States - Figma dark theme interactions */
+  --theme-interactive-hover: rgba(255, 255, 255, 0.08);
+  --theme-interactive-active: rgba(24, 160, 251, 0.15);
+  --theme-interactive-disabled: #2c2c2c;
+
+  /* Scrollbar Colors - Dark theme scrollbars */
+  --theme-scrollbar-track: #2c2c2c;
+  --theme-scrollbar-thumb: #5c5c5c;
+  --theme-scrollbar-thumb-hover: #6c6c6c;
+
+  /* Accent Colors - Figma brand colors adapted for dark theme */
+  --theme-accent-red: rgba(239, 68, 68, 0.2);
+  --theme-accent-green: rgba(34, 197, 94, 0.2);
+  --theme-accent-yellow: rgba(245, 158, 11, 0.2);
+  --theme-accent-blue: rgba(24, 160, 251, 0.15);
+  --theme-accent-pink: rgba(236, 72, 153, 0.2);
+
+  /* Status Colors - Dark theme status indicators */
+  --theme-success: #4ade80;
+  --theme-warning: #fbbf24;
+  --theme-error: #f87171;
+  --theme-info: #60a5fa;
+
+  /* Shadow Colors - Dark theme shadows */
+  --theme-shadow-light: rgba(0, 0, 0, 0.4);
+  --theme-shadow-heavy: rgba(0, 0, 0, 0.6);
+
+  /* Overlay and Utility - Dark theme overlays */
+  --theme-overlay-xxweak: rgba(255, 255, 255, 0.02);
+  --theme-overlay-xweak: rgba(255, 255, 255, 0.04);
+  --theme-text-strong: rgba(255, 255, 255, 0.95);
+  --theme-border-translucent: rgba(255, 255, 255, 0.1);
+  --theme-border-soft: rgba(255, 255, 255, 0.15);
+  --theme-info-border: rgba(24, 160, 251, 0.4);
+  --theme-info-border-strong: rgba(24, 160, 251, 0.5);
+  --theme-info-bg-strong: rgba(24, 160, 251, 0.12);
+  --theme-info-bg-stronger: rgba(24, 160, 251, 0.18);
+  --theme-info-border-stronger: rgba(24, 160, 251, 0.6);
+  --theme-border-hover: rgba(255, 255, 255, 0.15);
+  --theme-border-contrast: rgba(255, 255, 255, 0.3);
+  --theme-shadow-ambient: rgba(0, 0, 0, 0.3);
+  --theme-shadow-inset-hairline: rgba(0, 0, 0, 0.4);
+  --theme-warning-bg-weak: rgba(245, 158, 11, 0.15);
+  --theme-warning-border-weak: rgba(245, 158, 11, 0.25);
+}
+
+/* FIGMA DARK THEME - Uses Figma's native dark theme variables for seamless integration */
+[data-theme="figma-dark"],
 [data-theme="figma"] {
   /* Base Colors - Direct Figma integration */
   --theme-bg-primary: var(--figma-color-bg);
@@ -529,7 +1350,10 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 :root,
 [data-theme="boilerplate"],
 [data-theme="cybertron"],
-[data-theme="light"] {
+[data-theme="light"],
+[data-theme="figma-light"],
+[data-theme="figma-dark"],
+[data-theme="figma"] {
   --color-background-main: var(--theme-bg-primary);
   --color-background-secondary: var(--theme-bg-secondary);
   --color-background-tertiary: var(--theme-bg-tertiary);
@@ -2300,6 +3124,207 @@ i.grip {
 }
 
 /* Additional state management classes */
+
+/* ===== THEME SELECTOR STYLES ===== */
+.setting-item {
+  margin-bottom: var(--spacing-lg);
+}
+
+.setting-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.theme-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.theme-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.theme-group-header {
+  margin-bottom: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: var(--border-width) solid var(--color-border-secondary);
+}
+
+.theme-group-title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.theme-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: var(--border-width) solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: var(--color-background-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-option:hover {
+  border-color: var(--color-border-accent);
+  background: var(--color-background-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px var(--theme-shadow-light);
+}
+
+.theme-option:has(input:checked) {
+  border-color: var(--figma-color-border-brand);
+  background: var(--figma-color-bg-brand-tertiary);
+  box-shadow: 0 0 0 1px var(--figma-color-border-brand);
+}
+
+.theme-option:has(input:checked)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--figma-color-bg-brand);
+}
+
+.theme-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+.theme-option-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.theme-icon {
+  font-size: var(--icon-size-lg);
+  line-height: 1;
+  margin-bottom: var(--spacing-xs);
+}
+
+.theme-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.theme-description {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.3;
+}
+
+.theme-status {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-top: var(--spacing-xs);
+  opacity: 0.8;
+}
+
+/* Theme option states */
+.theme-option:has(input:checked) .theme-name {
+  color: var(--figma-color-text-brand);
+}
+
+.theme-option:has(input:checked) .theme-description {
+  color: var(--color-text-primary);
+}
+
+.theme-option:has(input:checked) .theme-status {
+  color: var(--figma-color-text-brand);
+  opacity: 1;
+}
+
+/* Advanced themes styling */
+.advanced-themes {
+  margin-top: var(--spacing-sm);
+}
+
+.advanced-themes .theme-option {
+  background: var(--color-background-main);
+  border-style: dashed;
+  opacity: 0.9;
+}
+
+.advanced-themes .theme-option:hover {
+  opacity: 1;
+  background: var(--color-background-secondary);
+}
+
+.advanced-themes .theme-option:has(input:checked) {
+  opacity: 1;
+  background: var(--figma-color-bg-brand-tertiary);
+}
+
+/* Responsive theme selector */
+@media (max-width: 400px) {
+  .theme-option {
+    padding: var(--spacing-sm);
+  }
+  
+  .theme-option-content {
+    gap: var(--spacing-xs);
+  }
+  
+  .theme-icon {
+    font-size: var(--icon-size-md);
+  }
+  
+  .theme-name {
+    font-size: var(--font-size-xs);
+  }
+  
+  .theme-description {
+    font-size: 10px;
+  }
+}
+
+/* Focus states for accessibility */
+.theme-option:has(input:focus-visible) {
+  outline: var(--outline-width) solid var(--figma-color-border-brand);
+  outline-offset: var(--outline-offset);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .theme-option {
+    border-width: var(--border-width-lg);
+  }
+  
+  .theme-option:has(input:checked) {
+    box-shadow: 0 0 0 var(--outline-width-hc) var(--figma-color-border-brand);
+  }
+  
+  .theme-option:has(input:focus-visible) {
+    outline-width: var(--outline-width-hc);
+    outline-offset: var(--outline-offset-hc);
+  }
+}
 .footer-icon-btn.hover-active {
   color: var(--theme-text-primary);
   background: var(--theme-overlay-xweak);

@@ -83,3 +83,23 @@ export interface EmojiNavigationStateMessage extends UIMessage {
   totalSets: number;
   setName: string;
 }
+
+// ===== THEME SYSTEM TYPES =====
+export type SystemTheme = 'light' | 'dark';
+export type ThemeMode = 'system' | 'light' | 'dark' | 'boilerplate' | 'cybertron';
+export type EffectiveTheme = 'figma-light' | 'figma-dark' | 'light' | 'boilerplate' | 'cybertron';
+
+export interface ThemePreference {
+  mode: ThemeMode;
+  lastSystemTheme?: SystemTheme;
+  migrationVersion?: number;
+}
+
+export interface ThemeConfig {
+  name: string;
+  displayName: string;
+  description: string;
+  icon: string;
+  cssDataAttribute: string;
+  isSystemDependent: boolean;
+}

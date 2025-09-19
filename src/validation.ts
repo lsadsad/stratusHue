@@ -5,7 +5,7 @@
 
 import { validateAndSyncBookmarks, validateRecentHistory, validateCurrentAnchor } from './bookmarks';
 import { sendBookmarksToUI } from './ui-communication';
-import { shouldValidate, updateValidationTime } from './state';
+import { shouldValidate, updateValidationTime } from './core/state';
 import { debounce } from './utils';
 
 // ===== VALIDATION CONSTANTS =====

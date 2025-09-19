@@ -133,40 +133,67 @@
           
           <!-- Theme Selection -->
           <div class="setting-item">
-            <label class="setting-label">Theme:</label>
-            <div class="theme-selector">
-              <label class="theme-option">
-                <input type="radio" name="theme" value="figma" id="theme-figma" checked>
-                <span class="theme-option-content">
-                  <span class="theme-icon">🎨</span>
-                  <span class="theme-name">Figma</span>
-                  <span class="theme-description">Auto-match Figma's theme</span>
-                </span>
-              </label>
-              <label class="theme-option">
-                <input type="radio" name="theme" value="boilerplate" id="theme-boilerplate">
-                <span class="theme-option-content">
-                  <span class="theme-icon">🌙</span>
-                  <span class="theme-name">Boilerplate</span>
-                  <span class="theme-description">Basic dark theme</span>
-                </span>
-              </label>
-              <label class="theme-option">
-                <input type="radio" name="theme" value="cybertron" id="theme-cybertron">
-                <span class="theme-option-content">
-                  <span class="theme-icon">🤖</span>
-                  <span class="theme-name">Cybertron</span>
-                  <span class="theme-description">Futuristic cyberpunk theme</span>
-                </span>
-              </label>
-              <label class="theme-option">
-                <input type="radio" name="theme" value="light" id="theme-light">
-                <span class="theme-option-content">
-                  <span class="theme-icon">☀️</span>
-                  <span class="theme-name">Light</span>
-                  <span class="theme-description">Light theme</span>
-                </span>
-              </label>
+            <label class="setting-label" id="theme-selector-label">Theme:</label>
+            <div class="theme-selector" role="radiogroup" aria-labelledby="theme-selector-label" aria-describedby="theme-selector-description">
+              <!-- Primary Theme Options -->
+              <div class="theme-group primary-themes">
+                <label class="theme-option">
+                  <input type="radio" name="theme" value="system" id="theme-system" checked 
+                         aria-describedby="system-theme-description">
+                  <span class="theme-option-content">
+                    <span class="theme-icon" aria-hidden="true">🔄</span>
+                    <span class="theme-name">System</span>
+                    <span class="theme-description" id="system-theme-description">Match system preference</span>
+                    <span class="theme-status" id="system-theme-status" aria-live="polite"></span>
+                  </span>
+                </label>
+                <label class="theme-option">
+                  <input type="radio" name="theme" value="light" id="theme-light"
+                         aria-describedby="light-theme-description">
+                  <span class="theme-option-content">
+                    <span class="theme-icon" aria-hidden="true">☀️</span>
+                    <span class="theme-name">Light</span>
+                    <span class="theme-description" id="light-theme-description">Always use light theme</span>
+                  </span>
+                </label>
+                <label class="theme-option">
+                  <input type="radio" name="theme" value="dark" id="theme-dark"
+                         aria-describedby="dark-theme-description">
+                  <span class="theme-option-content">
+                    <span class="theme-icon" aria-hidden="true">🌙</span>
+                    <span class="theme-name">Dark</span>
+                    <span class="theme-description" id="dark-theme-description">Always use dark theme</span>
+                  </span>
+                </label>
+              </div>
+              
+              <!-- Advanced Theme Options -->
+              <div class="theme-group advanced-themes">
+                <div class="theme-group-header">
+                  <span class="theme-group-title">Advanced Themes</span>
+                </div>
+                <label class="theme-option">
+                  <input type="radio" name="theme" value="boilerplate" id="theme-boilerplate"
+                         aria-describedby="boilerplate-theme-description">
+                  <span class="theme-option-content">
+                    <span class="theme-icon" aria-hidden="true">⚫</span>
+                    <span class="theme-name">Boilerplate</span>
+                    <span class="theme-description" id="boilerplate-theme-description">Dark theme without Figma integration</span>
+                  </span>
+                </label>
+                <label class="theme-option">
+                  <input type="radio" name="theme" value="cybertron" id="theme-cybertron"
+                         aria-describedby="cybertron-theme-description">
+                  <span class="theme-option-content">
+                    <span class="theme-icon" aria-hidden="true">🤖</span>
+                    <span class="theme-name">Cybertron</span>
+                    <span class="theme-description" id="cybertron-theme-description">Futuristic theme</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+            <div id="theme-selector-description" class="sr-only">
+              Use arrow keys to navigate between theme options. Press Enter or Space to select a theme.
             </div>
           </div>
           

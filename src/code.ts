@@ -5,6 +5,7 @@
 
 // ===== IMPORTS =====
 import { debounce, addOrReplaceDateInLayerName, addOrReplaceDateInPageTitle } from './utils';
+import { ThemePreference } from './core/types';
 import {
   loadAnchorState,
   setUiWidth,
@@ -14,7 +15,7 @@ import {
   setPreviousSelection,
   getPreviousSelection,
   clearPreviousSelection
-} from './state';
+} from './core/state';
 import {
   addBookmark,
   removeBookmark,
@@ -48,7 +49,7 @@ import {
   withErrorBoundary,
   validateMessage,
   ErrorType
-} from './error-handling';
+} from './core/error-handling';
 
 // ===== PLUGIN INITIALIZATION =====
 figma.showUI(__html__, { width: currentUiWidth, height: lastUiHeight });
@@ -181,21 +182,36 @@ figma.ui.onmessage = async (msg) => {
 
       // === THEME PERSISTENCE ===
       case 'get-theme-preference': {
-        try {
-          const theme = await figma.clientStorage.getAsync('themePreference');
-          figma.ui.postMessage({ type: 'theme-preference', theme: theme || 'figma' });
-        } catch (_e) {
-          figma.ui.postMessage({ type: 'theme-preference', theme: 'figma' });
-        }
+        const { ThemeStorage } = await import('./core/theme-storage');
+        const result = await ThemeStorage.loadThemePreference();
+        
+        figma.ui.postMessage({ 
+          type: 'theme-preference', 
+          theme: result.data,
+          storageInfo: {
+            success: result.success,
+            usedFallback: result.usedFallback,
+            error: result.error
+          }
+        });
         break;
       }
 
       case 'set-theme-preference':
-        if ('theme' in msg && typeof msg.theme === 'string') {
+        if ('theme' in msg) {
+          const { ThemeStorage } = await import('./core/theme-storage');
+          const result = await ThemeStorage.saveThemePreference(msg.theme);
+          
+          // Also maintain backward compatibility with direct storage
           try {
             await figma.clientStorage.setAsync('themePreference', msg.theme);
           } catch (_e) {
             // ignore storage errors; preference is non-critical
+          }
+          
+          // Optionally notify UI of save result
+          if (!result.success) {
+            console.warn('Enhanced theme storage save failed:', result.error);
           }
         }
         break;
