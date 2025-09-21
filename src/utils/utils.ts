@@ -3,8 +3,8 @@
 // Utility Functions for Stratus Hue Plugin
 // Centralized utility functions for better maintainability
 
-import type { PageTitleParts } from './core/types';
-import { LAYER_EMOJI_SETS, PAGE_EMOJI_SETS } from './core/constants';
+import type { PageTitleParts } from '../core/types';
+import { LAYER_EMOJI_SETS, PAGE_EMOJI_SETS } from '../core/constants';
 
 // ===== DEBOUNCE UTILITY =====
 export function debounce<T extends (...args: unknown[]) => unknown>(fn: T, wait = 100) {

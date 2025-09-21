@@ -5,7 +5,7 @@
 
 // ===== IMPORTS =====
 import { debounce, addOrReplaceDateInLayerName, addOrReplaceDateInPageTitle } from './utils';
-import { ThemePreference } from './core/types';
+// import { ThemePreference } from './core/types'; // Unused import
 import {
   loadAnchorState,
   setUiWidth,
@@ -13,8 +13,8 @@ import {
   currentUiWidth,
   lastUiHeight,
   setPreviousSelection,
-  getPreviousSelection,
-  clearPreviousSelection
+  // getPreviousSelection, // Unused
+  // clearPreviousSelection // Unused
 } from './core/state';
 import {
   addBookmark,
@@ -23,13 +23,13 @@ import {
   validateCurrentAnchor,
   validateRecentHistory,
   reorderBookmarks
-} from './bookmarks';
-import { jumpToBookmark, goBackInHistory, goForwardInHistory, addSelectionToHistory, addPageChangeToHistory, findNearestExistingSelectionEntryAnyDirection } from './navigation';
+} from './features/bookmarks';
+import { jumpToBookmark, goBackInHistory, goForwardInHistory, addSelectionToHistory, addPageChangeToHistory, findNearestExistingSelectionEntryAnyDirection } from './features/navigation';
 import {
   addEmojiToSelection,
   clearEmojiFromSelection,
   navigateEmojiSet
-} from './emoji-manager';
+} from './features/emoji-manager';
 import {
   sendInitialUIState,
   sendSelectionStateToUI,
@@ -39,11 +39,11 @@ import {
   resizeUI,
   toggleUIWidth,
   sendNavigationStateToUI
-} from './ui-communication';
+} from './ui/ui-communication';
 import {
   triggerValidationOnSelectionChange,
   triggerValidationOnPageChange
-} from './validation';
+} from './utils/validation';
 import {
   handleError,
   withErrorBoundary,
@@ -200,7 +200,7 @@ figma.ui.onmessage = async (msg) => {
       case 'set-theme-preference':
         if ('theme' in msg) {
           const { ThemeStorage } = await import('./core/theme-storage');
-          const result = await ThemeStorage.saveThemePreference(msg.theme);
+          const result = await ThemeStorage.saveThemePreference(msg.theme as import('./core/types').ThemePreference);
           
           // Also maintain backward compatibility with direct storage
           try {
@@ -334,10 +334,10 @@ async function handleGoForward(): Promise<void> {
 }
 
 const handleRefreshAnchors = withErrorBoundary(async () => {
-  const { updated, removed } = await (await import('./bookmarks')).validateAndSyncBookmarks();
+  const { updated, removed } = await (await import('./features/bookmarks')).validateAndSyncBookmarks();
   figma.notify(`Anchors resynced: ${updated} updated, ${removed} removed`);
   // Force fresh bookmark list so other windows see deletes/reorders after manual refresh
-  await (await import('./ui-communication')).sendBookmarksToUI({ forceReload: true });
+  await (await import('./ui/ui-communication')).sendBookmarksToUI({ forceReload: true });
   sendNavigationStateToUI();
   sendSelectionStateToUI();
 }, ErrorType.UNKNOWN);

@@ -3,10 +3,10 @@
 // UI Communication for Stratus Hue Plugin
 // Handles all communication between plugin and UI
 
-import type { Bookmark } from './core/types';
-import { getBookmarks, currentAnchorState, recentHistoryState, canGoBack, canGoForward, navigationHistory, historyIndex } from './core/state';
-import { getNavigationState, hasAnySelectionEntry } from './navigation';
-import { getCurrentEmojiSet, getEmojiNavigationState } from './emoji-manager';
+import type { Bookmark } from '../core/types';
+import { getBookmarks, currentAnchorState, recentHistoryState, canGoBack, canGoForward, navigationHistory, historyIndex } from '../core/state';
+import { getNavigationState, hasAnySelectionEntry } from '../features/navigation';
+import { getCurrentEmojiSet, getEmojiNavigationState } from '../features/emoji-manager';
 
 // ===== UI MESSAGE SENDERS =====
 export async function sendBookmarksToUI(options?: { forceReload?: boolean }): Promise<void> {

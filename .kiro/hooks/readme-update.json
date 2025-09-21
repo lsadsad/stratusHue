@@ -1,0 +1,18 @@
+{
+  "name": "README Update",
+  "description": "Update README when package.json or core features change",
+  "trigger": {
+    "type": "file_save",
+    "patterns": ["package.json", "src/constants.ts"]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "Package information or core constants have changed. Please:\n1. Check if version number in README matches package.json\n2. Update feature list if constants changed\n3. Verify installation instructions are current\n4. Update any version-specific information\n5. Ensure all links and references are working\n\nKeep changes minimal and focused on accuracy.",
+      "description": "Keep README synchronized with project changes"
+    }
+  ],
+  "enabled": true,
+  "runInBackground": true,
+  "debounceMs": 1500
+}

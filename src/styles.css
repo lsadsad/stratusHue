@@ -20,6 +20,56 @@ Grids: --nav-grid-cols, --tags-grid-cols, --tags-actions-cols
 Example: Change --spacing-lg from 8px to 12px to increase all container padding
 */
 
+/* ===== BASE LAYOUT STYLES ===== */
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  background: var(--color-background-main);
+  color: var(--color-text-primary);
+  position: relative;
+}
+
+/* Main scrollable content area */
+.scrollable-content {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  /* Account for footer height */
+  padding-bottom: calc(var(--footer-height) + var(--spacing-md));
+}
+
+/* Scrollbar styling */
+.scrollable-content::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+  background: var(--theme-scrollbar-track);
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+  background: var(--theme-scrollbar-thumb);
+  border-radius: var(--border-radius-sm);
+}
+
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-scrollbar-thumb-hover);
+}
+
 /* OPTIMIZED BASE THEME - Core design system variables with efficient inheritance */
 :root {
   /* Spacing System */
@@ -29,11 +79,14 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --spacing-lg: 8px;
   --spacing-xl: 10px;
   --spacing-xxl: 12px;
-  
+
   /* CSS Custom Property Optimization - Pre-calculate common combinations */
-  --spacing-sm-md: calc(var(--spacing-sm) + var(--spacing-md)); /* 10px */
-  --spacing-md-lg: calc(var(--spacing-md) + var(--spacing-lg)); /* 14px */
-  --double-spacing-lg: calc(var(--spacing-lg) * 2); /* 16px */
+  --spacing-sm-md: calc(var(--spacing-sm) + var(--spacing-md));
+  /* 10px */
+  --spacing-md-lg: calc(var(--spacing-md) + var(--spacing-lg));
+  /* 14px */
+  --double-spacing-lg: calc(var(--spacing-lg) * 2);
+  /* 16px */
 
   /* Component Sizes */
   --button-height-sm: 16px;
@@ -57,7 +110,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   /* Theme Transition Settings */
   --theme-transition-duration: 300ms;
   --theme-transition-easing: cubic-bezier(0.4, 0.0, 0.2, 1);
-  
+
   /* Transition Durations */
   --transition-fast: 150ms ease-out;
   --transition-normal: 200ms ease-out;
@@ -82,7 +135,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --font-size-md: 12px;
   --font-size-lg: 14px;
   --letter-spacing-tight: 0.5px;
-  
+
   /* Font Weights */
   --font-weight-light: 300;
   --font-weight-normal: 400;
@@ -152,7 +205,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   /* Use transform3d to enable hardware acceleration */
   transform: translate3d(0, 0, 0);
   /* Optimize for theme-related properties only */
-  transition: 
+  transition:
     background-color var(--theme-transition-duration) var(--theme-transition-easing),
     border-color var(--theme-transition-duration) var(--theme-transition-easing),
     color var(--theme-transition-duration) var(--theme-transition-easing),
@@ -167,7 +220,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 .theme-transitioning .action-btn,
 .theme-transitioning .bookmark-item,
 .theme-transitioning .section-header {
-  transition: 
+  transition:
     background-color var(--theme-transition-duration) var(--theme-transition-easing),
     border-color var(--theme-transition-duration) var(--theme-transition-easing),
     color var(--theme-transition-duration) var(--theme-transition-easing);
@@ -176,7 +229,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 /* Fast preview transitions - optimized for responsiveness */
 .theme-previewing {
   transform: translate3d(0, 0, 0);
-  transition: 
+  transition:
     background-color 100ms ease-out,
     border-color 100ms ease-out,
     color 100ms ease-out;
@@ -188,7 +241,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 .theme-previewing .action-btn,
 .theme-previewing .bookmark-item,
 .theme-previewing .section-header {
-  transition: 
+  transition:
     background-color 100ms ease-out,
     border-color 100ms ease-out,
     color 100ms ease-out;
@@ -209,6 +262,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 
 /* Optimize for reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+
   .theme-transitioning,
   .theme-transitioning *,
   .theme-previewing,
@@ -351,10 +405,13 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 }
 
 @keyframes theme-focus-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.6;
     transform: scale(1.02);
@@ -449,9 +506,12 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 }
 
 @keyframes cybertron-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: none;
   }
+
   50% {
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
   }
@@ -466,12 +526,12 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 }
 
 /* ENHANCED FOCUS INDICATORS FOR ACCESSIBILITY */
-.theme-option input[type="radio"]:focus-visible + .theme-option-content {
+.theme-option input[type="radio"]:focus-visible+.theme-option-content {
   outline: 2px solid var(--theme-info);
   outline-offset: 2px;
 }
 
-.high-contrast-mode .theme-option input[type="radio"]:focus-visible + .theme-option-content {
+.high-contrast-mode .theme-option input[type="radio"]:focus-visible+.theme-option-content {
   outline: 3px solid currentColor;
   outline-offset: 1px;
 }
@@ -489,7 +549,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 }
 
 /* KEYBOARD NAVIGATION INDICATORS */
-.theme-option input[type="radio"]:focus + .theme-option-content::before {
+.theme-option input[type="radio"]:focus+.theme-option-content::before {
   content: '';
   position: absolute;
   top: -2px;
@@ -502,7 +562,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   pointer-events: none;
 }
 
-.high-contrast-mode .theme-option input[type="radio"]:focus + .theme-option-content::before {
+.high-contrast-mode .theme-option input[type="radio"]:focus+.theme-option-content::before {
   border: 3px solid currentColor;
   opacity: 1;
 }
@@ -521,13 +581,13 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
     max-width: none;
     font-size: var(--font-size-xs);
   }
-  
+
   .theme-preview-indicator {
     left: 8px;
     right: 8px;
     transform: translateY(100%);
   }
-  
+
   .theme-preview-indicator.show {
     transform: translateY(0);
   }
@@ -540,38 +600,38 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
     background: ButtonFace;
     color: ButtonText;
   }
-  
-  .theme-option input[type="radio"]:checked + .theme-option-content {
+
+  .theme-option input[type="radio"]:checked+.theme-option-content {
     border: 2px solid Highlight;
     background: SelectedItem;
     color: SelectedItemText;
   }
-  
-  .theme-option input[type="radio"]:focus + .theme-option-content {
+
+  .theme-option input[type="radio"]:focus+.theme-option-content {
     outline: 2px solid Highlight;
     outline-offset: 2px;
   }
-  
+
   .theme-notification {
     border: 1px solid WindowText;
     background: Window;
     color: WindowText;
   }
-  
+
   .emoji-button,
   .action-btn {
     border: 1px solid ButtonBorder;
     background: ButtonFace;
     color: ButtonText;
   }
-  
+
   .emoji-button:hover,
   .action-btn:hover {
     border: 1px solid Highlight;
     background: ButtonFace;
     color: ButtonText;
   }
-  
+
   .emoji-button:focus,
   .action-btn:focus {
     outline: 2px solid Highlight;
@@ -586,28 +646,28 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
     --outline-offset: 1px;
     --border-width: 2px;
   }
-  
+
   .theme-option-content {
     border-width: 2px;
   }
-  
-  .theme-option input[type="radio"]:checked + .theme-option-content {
+
+  .theme-option input[type="radio"]:checked+.theme-option-content {
     border-width: 3px;
   }
-  
+
   .theme-notification {
     border-width: 2px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   }
-  
+
   .emoji-button,
   .action-btn {
     border-width: 2px;
   }
-  
+
   .emoji-button:focus,
   .action-btn:focus,
-  .theme-option input[type="radio"]:focus + .theme-option-content {
+  .theme-option input[type="radio"]:focus+.theme-option-content {
     outline-width: 3px;
     outline-offset: 1px;
   }
@@ -615,6 +675,7 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
 
 /* REDUCED MOTION SUPPORT */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -623,22 +684,22 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   .theme-transitioning,
   .theme-previewing {
     transition: none !important;
   }
-  
+
   .theme-notification,
   .theme-preview-indicator {
     transition: none !important;
     animation: none !important;
   }
-  
+
   .theme-loading::after {
     animation: none !important;
   }
-  
+
   .theme-changing-focus::before {
     animation: none !important;
   }
@@ -721,6 +782,22 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   --figma-color-icon-disabled: rgba(255, 255, 255, 0.3);
   --figma-color-bg-inverse: #ffffff;
   --figma-color-text-inverse: #000000;
+
+  /* Color System Variables - Unified color tokens */
+  --color-background-main: var(--figma-color-bg);
+  --color-background-secondary: var(--figma-color-bg-secondary);
+  --color-background-elevated: var(--figma-color-bg);
+  --color-background-accent: var(--figma-color-bg-hover);
+  --color-text-primary: var(--figma-color-text);
+  --color-text-secondary: var(--figma-color-text-secondary);
+  --color-text-muted: var(--figma-color-text-disabled);
+  --color-text-subtle: var(--figma-color-text-secondary);
+  --color-text-disabled: var(--figma-color-text-disabled);
+  --color-border-primary: var(--figma-color-border);
+  --color-border-secondary: var(--figma-color-border);
+  --color-border-accent: var(--figma-color-border);
+  --color-interactive-hover: var(--figma-color-bg-hover);
+  --color-interactive-active: var(--figma-color-bg-selected);
 }
 
 /* BOILERPLATE THEME - Pure dark theme without Figma integration */
@@ -1409,7 +1486,6 @@ body {
 body {
   width: 100%;
   height: 100%;
-  min-height: var(--min-plugin-height);
   overflow: hidden;
   background: var(--color-background-main);
   display: flex;
@@ -2884,19 +2960,7 @@ i.grip {
   }
 }
 
-/* ===== FOOTER ===== */
-#footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: var(--footer-height);
-  background: var(--color-background-secondary);
-  display: block;
-  padding: 0;
-  z-index: var(--z-footer);
-  outline: none;
-}
+
 
 /* ===== SETTINGS OVERLAY ===== */
 .settings-overlay {
@@ -3042,86 +3106,7 @@ i.grip {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-#footer-resize {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  height: 100%;
-  padding: 0 var(--spacing-lg);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  color: var(--color-text-muted);
-  cursor: ns-resize;
-  user-select: none;
-  outline: none;
-  border-radius: var(--border-radius-md);
-}
 
-#footer-resize .grip {
-  letter-spacing: var(--spacing-xs);
-  font-size: var(--spacing-xl);
-  opacity: 0.7;
-}
-
-#footer-resize:hover,
-#footer-resize:focus {
-  color: var(--theme-text-primary);
-  background: var(--theme-overlay-xweak);
-}
-
-.footer-icon-btn {
-  position: absolute;
-  top: 0;
-  width: calc(var(--footer-height) + var(--spacing-sm));
-  height: 100%;
-  background: transparent;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--icon-size-sm);
-  line-height: 1;
-  transition: all var(--transition-fast);
-  border-radius: var(--border-radius-sm);
-}
-
-#footer-fit.footer-icon-btn {
-  right: 0;
-}
-
-#footer-width-toggle.footer-icon-btn {
-  left: 0;
-}
-
-/* Hover states with proper reset mechanisms */
-.footer-icon-btn:hover {
-  color: var(--theme-text-primary);
-  background: var(--theme-overlay-xweak);
-}
-
-.footer-icon-btn:focus {
-  color: var(--theme-text-primary);
-  background: var(--theme-overlay-xweak);
-  outline: none;
-}
-
-.footer-icon-btn:active {
-  color: var(--theme-text-primary);
-  background: var(--theme-overlay-xxweak);
-  transform: scale(0.95);
-}
-
-/* Ensure proper state reset when not hovered/focused */
-.footer-icon-btn:not(:hover):not(:focus):not(:active) {
-  color: var(--color-text-muted);
-  background: transparent;
-  transform: none;
-}
 
 /* Additional state management classes */
 
@@ -3286,19 +3271,19 @@ i.grip {
   .theme-option {
     padding: var(--spacing-sm);
   }
-  
+
   .theme-option-content {
     gap: var(--spacing-xs);
   }
-  
+
   .theme-icon {
     font-size: var(--icon-size-md);
   }
-  
+
   .theme-name {
     font-size: var(--font-size-xs);
   }
-  
+
   .theme-description {
     font-size: 10px;
   }
@@ -3315,16 +3300,17 @@ i.grip {
   .theme-option {
     border-width: var(--border-width-lg);
   }
-  
+
   .theme-option:has(input:checked) {
     box-shadow: 0 0 0 var(--outline-width-hc) var(--figma-color-border-brand);
   }
-  
+
   .theme-option:has(input:focus-visible) {
     outline-width: var(--outline-width-hc);
     outline-offset: var(--outline-offset-hc);
   }
 }
+
 .footer-icon-btn.hover-active {
   color: var(--theme-text-primary);
   background: var(--theme-overlay-xweak);
@@ -3929,6 +3915,171 @@ i.grip {
   :root:not([data-theme]) .logo-light {
     display: inline;
   }
+}
+
+/* ===== FOOTER STYLES ===== */
+
+/* Main footer container */
+#footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--footer-height);
+  background: var(--color-background-elevated);
+  border-top: var(--border-width) solid var(--color-border-accent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  z-index: var(--z-footer);
+  box-sizing: border-box;
+}
+
+/* Footer controls list */
+.footer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.footer-controls li {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Footer resize handle */
+#footer-resize {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  height: 100%;
+  padding: 0 var(--spacing-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  color: var(--color-text-muted);
+  cursor: ns-resize;
+  user-select: none;
+  outline: none;
+  border-radius: var(--border-radius-md);
+}
+
+#footer-resize .grip {
+  letter-spacing: var(--spacing-xs);
+  font-size: var(--spacing-xl);
+  opacity: 0.7;
+}
+
+#footer-resize:hover,
+#footer-resize:focus {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+}
+
+/* Footer icon buttons */
+.footer-icon-btn {
+  position: absolute;
+  top: 0;
+  width: calc(var(--footer-height) + var(--spacing-sm));
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--icon-size-sm);
+  line-height: 1;
+  transition: all var(--transition-fast);
+  border-radius: var(--border-radius-sm);
+}
+
+#footer-fit.footer-icon-btn {
+  right: 0;
+}
+
+#footer-width-toggle.footer-icon-btn {
+  left: 0;
+}
+
+/* Footer button hover states */
+.footer-icon-btn:hover {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+}
+
+.footer-icon-btn:focus {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+  outline: none;
+}
+
+.footer-icon-btn:active {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xxweak);
+  transform: scale(0.95);
+}
+
+/* Reset states when not interacting */
+.footer-icon-btn:not(:hover):not(:focus):not(:active) {
+  color: var(--color-text-muted);
+  background: transparent;
+  transform: none;
+}
+
+/* Active state for toggle buttons */
+.footer-icon-btn.active {
+  color: var(--figma-color-border-brand, #18a0fb);
+  background: var(--figma-color-bg-brand, rgba(24, 160, 251, 0.1));
+}
+
+.footer-icon-btn.active:hover {
+  color: var(--figma-color-border-brand, #18a0fb);
+  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.2));
+}
+
+/* Footer branding */
+.footer-branding {
+  position: absolute;
+  bottom: calc(var(--footer-height) + var(--spacing-md));
+  right: var(--spacing-lg);
+  pointer-events: none;
+  z-index: var(--z-tooltip);
+}
+
+.footer-branding .made-with {
+  font-size: var(--icon-size-sm);
+  color: var(--color-text-subtle);
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: var(--font-weight-normal);
+  line-height: 1;
+}
+
+.footer-branding .logo-svg {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  vertical-align: middle;
+  opacity: 0.7;
+}
+
+/* Adjust main content to account for footer */
+.scrollable-content {
+  padding-bottom: calc(var(--footer-height) + var(--spacing-md));
 }
 
 /* ===== 

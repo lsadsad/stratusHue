@@ -3,9 +3,9 @@
 // Validation and Cleanup for Stratus Hue Plugin
 // Handles bookmark validation and automatic cleanup
 
-import { validateAndSyncBookmarks, validateRecentHistory, validateCurrentAnchor } from './bookmarks';
-import { sendBookmarksToUI } from './ui-communication';
-import { shouldValidate, updateValidationTime } from './core/state';
+import { validateAndSyncBookmarks, validateRecentHistory, validateCurrentAnchor } from '../features/bookmarks';
+import { sendBookmarksToUI } from '../ui/ui-communication';
+import { shouldValidate, updateValidationTime } from '../core/state';
 import { debounce } from './utils';
 
 // ===== VALIDATION CONSTANTS =====

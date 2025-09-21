@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Auto-rebuild Plugin",
+  "description": "Automatically rebuild the Figma plugin when source files change",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts",
+      "src/**/*.css",
+      "src/**/*.html"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The source files for the Figma plugin have been modified. Please run `npm run build` to rebuild the plugin for development. This will compile the TypeScript files and update the dist directory with the latest changes."
+  }
+}

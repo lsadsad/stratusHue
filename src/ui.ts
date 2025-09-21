@@ -6,9 +6,9 @@ import lottie from 'lottie-web';
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
 // Type definitions for better development experience
-interface PluginMessage {
+interface _PluginMessage {
   type: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface LottieAnimationConfig {
@@ -152,9 +152,13 @@ function computeFitHeight(): number {
   const footerHeight = footer ? footer.offsetHeight : 0;
 
   if (!main) {
-    const fallback = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) + footerHeight;
+    const fallback = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
     return Math.ceil(fallback);
   }
+
+  // Get the body's computed padding-bottom which accounts for footer space
+  const bodyStyle = window.getComputedStyle(document.body);
+  const bodyPaddingBottom = parseInt(bodyStyle.paddingBottom, 10) || 0;
 
   // Preserve existing inline styles to restore later
   const prevFlex = main.style.flex;
@@ -186,21 +190,9 @@ function computeFitHeight(): number {
     }
   }
 
-  // Measure only visible (non-collapsed) children
-  const mainRect = main.getBoundingClientRect();
-  let visibleBottom = mainRect.top;
-  for (const child of children) {
-    const isCollapsible = child.classList.contains('collapsible-content');
-    const isCollapsed = child.classList.contains('collapsed');
-    if (isCollapsible && isCollapsed) {
-      continue;
-    }
-    const rect = child.getBoundingClientRect();
-    // Skip elements with zero height (not rendered)
-    if (rect.height <= 0) continue;
-    visibleBottom = Math.max(visibleBottom, rect.bottom);
-  }
-  const naturalScrollHeight = Math.max(0, Math.ceil(visibleBottom - mainRect.top));
+  // Use scrollHeight directly as it's more reliable than manual measurement
+  // This accounts for all content including padding and margins
+  const naturalScrollHeight = main.scrollHeight;
 
   // Restore previous styles
   main.style.flex = prevFlex;
@@ -212,7 +204,9 @@ function computeFitHeight(): number {
     entry.el.style.overflow = entry.prevOverflow;
   }
 
-  return Math.ceil(naturalScrollHeight + footerHeight);
+  // Return total plugin height needed: content + body padding (which includes footer space)
+  // Don't double-count footer height since body padding already accounts for it
+  return Math.ceil(naturalScrollHeight + bodyPaddingBottom);
 }
 
 // Check if scrolling should be enabled based on content height
@@ -1124,7 +1118,7 @@ function initializeAccessibilityListeners(): void {
       announcer.textContent = e.matches ?
         'High contrast mode enabled' :
         'High contrast mode disabled';
-      setTimeout(() => { announcer.textContent = ''; }, 2000);
+      setTimeout(() => { if (announcer) announcer.textContent = ''; }, 2000);
     }
   };
 
@@ -1142,7 +1136,7 @@ function initializeAccessibilityListeners(): void {
       announcer.textContent = e.matches ?
         'Reduced motion enabled' :
         'Reduced motion disabled';
-      setTimeout(() => { announcer.textContent = ''; }, 2000);
+      setTimeout(() => { if (announcer) announcer.textContent = ''; }, 2000);
     }
   };
 
@@ -1160,7 +1154,7 @@ function initializeAccessibilityListeners(): void {
       announcer.textContent = e.matches ?
         'Windows High Contrast mode enabled' :
         'Windows High Contrast mode disabled';
-      setTimeout(() => { announcer.textContent = ''; }, 2000);
+      setTimeout(() => { if (announcer) announcer.textContent = ''; }, 2000);
     }
   };
 
@@ -1207,9 +1201,7 @@ function initializeSystemThemeDetection(): void {
     applyTheme(effectiveTheme);
     updateThemeUI();
 
-    // Show theme change notification
-    const currentMode = themeManager.currentTheme;
-    showThemeChangeNotification(currentMode, effectiveTheme);
+    // Theme change notification removed for now (function preserved for future use)
 
     // Hide loading state after theme application
     setTimeout(() => {
@@ -1479,8 +1471,8 @@ function updateSystemThemeStatus(): void {
   }
 }
 
-// Theme change notification system
-function showThemeChangeNotification(themeMode: ThemeMode, effectiveTheme: EffectiveTheme): void {
+// Theme change notification system (preserved for future use)
+function _showThemeChangeNotification(_themeMode: ThemeMode, _effectiveTheme: EffectiveTheme): void {
   // Create or get existing notification element
   let notification = document.getElementById('theme-change-notification');
   if (!notification) {
@@ -1493,8 +1485,8 @@ function showThemeChangeNotification(themeMode: ThemeMode, effectiveTheme: Effec
   }
 
   // Get theme display name
-  const themeConfig = themeManager?.getThemeConfig(themeMode);
-  const displayName = themeConfig?.displayName || themeMode;
+  const themeConfig = themeManager?.getThemeConfig(_themeMode);
+  const displayName = themeConfig?.displayName || _themeMode;
   const icon = themeConfig?.icon || '🎨';
 
   // Set notification content
@@ -1508,7 +1500,7 @@ function showThemeChangeNotification(themeMode: ThemeMode, effectiveTheme: Effec
 
   // Auto-hide after 2 seconds
   setTimeout(() => {
-    notification.classList.remove('show');
+    notification?.classList.remove('show');
   }, 2000);
 
   // Announce to screen readers
@@ -1583,7 +1575,7 @@ function announceThemeSelection(themeMode: ThemeMode): void {
 
   // Clear announcement after a delay
   setTimeout(() => {
-    announcer.textContent = '';
+    if (announcer) announcer.textContent = '';
   }, 3000);
 }
 
@@ -1629,7 +1621,7 @@ function announceThemeChange(themeName: string): void {
 
   // Clear announcement after a delay
   setTimeout(() => {
-    announcer.textContent = '';
+    if (announcer) announcer.textContent = '';
   }, 4000);
 }
 
@@ -2113,8 +2105,9 @@ function handleDOMReady(): void {
   });
 
   // Listen for system theme changes (for debugging and additional handling)
-  window.addEventListener('systemThemeSync', (event: CustomEvent) => {
-    const { effectiveTheme, themeMode, systemTheme } = event.detail;
+  window.addEventListener('systemThemeSync', (event: Event) => {
+    const customEvent = event as CustomEvent;
+    const { effectiveTheme, themeMode, systemTheme } = customEvent.detail;
     console.log(`🔄 System theme sync event: ${effectiveTheme} (mode: ${themeMode}, system: ${systemTheme})`);
 
     // Additional handling for system theme changes can be added here
@@ -2122,8 +2115,9 @@ function handleDOMReady(): void {
   });
 
   // Listen for theme change completion events
-  window.addEventListener('themeChangeComplete', (event: CustomEvent) => {
-    const { effectiveTheme, themeMode, systemTheme, isSystemTheme } = event.detail;
+  window.addEventListener('themeChangeComplete', (event: Event) => {
+    const customEvent = event as CustomEvent;
+    const { effectiveTheme, themeMode, systemTheme, isSystemTheme } = customEvent.detail;
     console.log(`✅ Theme change complete: ${effectiveTheme} (mode: ${themeMode}, system: ${systemTheme})`);
 
     // Update any components that need to know about theme changes
@@ -2210,7 +2204,7 @@ function initializeThemePerformanceMonitoring(): void {
       const startTime = performance.now();
 
       try {
-        const result = originalApplyTheme.call(this, effectiveTheme, skipTransition);
+        const result = originalApplyTheme.call(this, effectiveTheme);
 
         const endTime = performance.now();
         const duration = endTime - startTime;
@@ -2296,23 +2290,29 @@ function setupCleanupHandlers(): void {
 }
 
 // Timer management for cleanup
-const activeTimers = new Set<number>();
+const activeTimers = new Set<ReturnType<typeof setTimeout>>();
 const originalSetTimeout = window.setTimeout;
 const originalSetInterval = window.setInterval;
 
 // Override setTimeout to track timers
-window.setTimeout = function (callback: Function, delay?: number, ...args: any[]) {
+(window as any).setTimeout = function (callback: TimerHandler, delay?: number, ...args: any[]): ReturnType<typeof setTimeout> {
   const timerId = originalSetTimeout.call(window, (...callbackArgs: any[]) => {
     activeTimers.delete(timerId);
-    callback.apply(this, callbackArgs);
-  }, delay, ...args);
+    if (typeof callback === 'function') {
+      callback.apply(this, callbackArgs);
+    }
+  }, delay || 0);
   activeTimers.add(timerId);
   return timerId;
 };
 
 // Override setInterval to track timers
-window.setInterval = function (callback: Function, delay?: number, ...args: any[]) {
-  const timerId = originalSetInterval.call(window, callback, delay, ...args);
+(window as any).setInterval = function (callback: TimerHandler, delay?: number, ...args: any[]): ReturnType<typeof setInterval> {
+  const timerId = originalSetInterval.call(window, (...callbackArgs: any[]) => {
+    if (typeof callback === 'function') {
+      callback.apply(this, callbackArgs);
+    }
+  }, delay || 0);
   activeTimers.add(timerId);
   return timerId;
 };
@@ -2507,5 +2507,7 @@ document.addEventListener('DOMContentLoaded', () => {
   return debugInfo;
 };
 
-// Export theme manager for debugging
-(window as any).themeManager = themeManager;
+// Export theme manager for debugging (will be set after initialization)
+if (typeof window !== 'undefined') {
+  (window as any).getThemeManager = () => themeManager;
+}

@@ -1,0 +1,32 @@
+{
+  "name": "Plugin Packaging",
+  "description": "Create production-ready plugin build and package",
+  "trigger": {
+    "type": "manual",
+    "buttonText": "📦 Package Plugin"
+  },
+  "actions": [
+    {
+      "type": "shell_command",
+      "command": "npm run clean:all",
+      "description": "Clean previous builds"
+    },
+    {
+      "type": "shell_command",
+      "command": "npm run build:plugin-ready",
+      "description": "Create production build"
+    },
+    {
+      "type": "shell_command",
+      "command": "npm run package",
+      "description": "Package for distribution"
+    },
+    {
+      "type": "shell_command",
+      "command": "npm run info",
+      "description": "Show build output sizes"
+    }
+  ],
+  "enabled": true,
+  "runInBackground": false
+}

@@ -2,7 +2,14 @@
 // Handles system theme detection, user preferences, and theme application
 
 import { ThemeMode, EffectiveTheme, SystemTheme, ThemePreference, ThemeConfig } from './types';
-import { ThemeStorage, ThemeStorageResult } from './theme-storage';
+
+// Simple storage result interface (simplified from theme-storage)
+interface _ThemeStorageResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  usedFallback?: boolean;
+}
 
 export class SystemThemeDetector {
   public mediaQuery: MediaQueryList; // Made public for debugging
@@ -208,13 +215,11 @@ export class ThemeManager {
     };
     
     // Don't await storage to avoid blocking UI updates
-    ThemeStorage.saveThemePreference(preference).then(saveResult => {
-      if (!saveResult.success) {
-        console.warn('Theme preference save failed:', saveResult.error);
-      }
-    }).catch(error => {
-      console.warn('Theme preference save error:', error);
-    });
+    try {
+      localStorage.setItem('themePreference', JSON.stringify(preference));
+    } catch (error) {
+      console.warn('Theme preference save failed:', error);
+    }
     
     // Also send to code.ts for backward compatibility (non-blocking)
     try {
@@ -304,15 +309,16 @@ export class ThemeManager {
       }
     } else {
       // Load from enhanced storage system
-      const loadResult = await ThemeStorage.loadThemePreference();
-      themePreference = loadResult.data!;
-      
-      // Log any storage issues
-      if (!loadResult.success) {
-        console.warn('Theme preference load failed:', loadResult.error);
-      }
-      if (loadResult.usedFallback) {
-        console.info('Theme preference loaded from fallback storage');
+      try {
+        const stored = localStorage.getItem('themePreference');
+        if (stored) {
+          themePreference = JSON.parse(stored);
+        } else {
+          themePreference = { mode: 'system' as ThemeMode };
+        }
+      } catch (error) {
+        console.warn('Theme preference load failed:', error);
+        themePreference = { mode: 'system' as ThemeMode };
       }
     }
     
@@ -387,11 +393,20 @@ export class ThemeManager {
     lastSuccessfulWrite: number;
     timeSinceLastWrite: number;
   } {
-    return ThemeStorage.getStorageHealth();
+    return {
+      hasInMemoryBackup: false,
+      lastSuccessfulWrite: Date.now(),
+      timeSinceLastWrite: 0
+    };
   }
 
-  async clearThemeStorage(): Promise<ThemeStorageResult<void>> {
-    return ThemeStorage.clearThemeStorage();
+  async clearThemeStorage(): Promise<{success: boolean; error?: string}> {
+    try {
+      localStorage.removeItem('themePreference');
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: String(error) };
+    }
   }
 
   // Debug method to check theme state

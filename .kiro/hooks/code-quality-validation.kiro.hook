@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Code Quality Validation",
+  "description": "Run linting, type checking, and validation on TypeScript files",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A TypeScript file has been modified. Please run code quality checks including ESLint linting with 'npm run lint' and TypeScript type checking with 'npm run type-check'. Provide a summary of any issues found and suggest fixes if needed."
+  }
+}

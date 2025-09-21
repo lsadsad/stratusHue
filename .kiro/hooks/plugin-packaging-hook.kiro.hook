@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Plugin Packaging",
+  "description": "Create production-ready plugin build and package by running clean, build, package, and info commands in sequence",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "package.json",
+      "manifest.json",
+      "src/**/*",
+      "scripts/**/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The plugin source files or build configuration have been modified. Please run the complete packaging workflow: 1) Clean previous builds with 'npm run clean:all', 2) Create production build with 'npm run build:plugin-ready', 3) Package for distribution with 'npm run package', and 4) Show build output sizes with 'npm run info'. This will ensure a fresh, production-ready plugin package is created."
+  }
+}

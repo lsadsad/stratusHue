@@ -3,7 +3,7 @@
 // Error Handling and Recovery for Stratus Hue Plugin
 // Centralized error handling with recovery strategies
 
-import { sendErrorToUI } from '../ui-communication';
+import { sendErrorToUI } from '../ui/ui-communication';
 import { clearBookmarksCache } from './state';
 
 // ===== ERROR TYPES =====
@@ -14,6 +14,7 @@ export enum ErrorType {
   UI_COMMUNICATION = 'UI_COMMUNICATION',
   VALIDATION_FAILED = 'VALIDATION_FAILED',
   STORAGE_ERROR = 'STORAGE_ERROR',
+  EXTERNAL_API = 'EXTERNAL_API',
   UNKNOWN = 'UNKNOWN'
 }
 

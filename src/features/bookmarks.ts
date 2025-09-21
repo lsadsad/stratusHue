@@ -3,9 +3,9 @@
 // Bookmark Management for Stratus Hue Plugin
 // Handles bookmark CRUD operations and validation
 
-import type { Bookmark } from './core/types';
-import { getBookmarks, setBookmarks, currentAnchorState, recentHistoryState, setCurrentAnchor, setPreviousBookmark, saveAnchorState } from './core/state';
-import { getPageName, getContainingPage } from './utils';
+import type { Bookmark } from '../core/types';
+import { getBookmarks, setBookmarks, currentAnchorState, recentHistoryState, setCurrentAnchor, setPreviousBookmark, saveAnchorState } from '../core/state';
+import { getPageName, getContainingPage } from '../utils';
 
 // ===== BOOKMARK OPERATIONS =====
 export async function updateAndSaveBookmarks(bookmarks: Bookmark[]): Promise<void> {

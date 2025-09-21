@@ -3,9 +3,9 @@
 // Navigation Management for Stratus Hue Plugin
 // Handles bookmark navigation and history
 
-import type { Bookmark } from './core/types';
-import { getBookmarks, currentAnchorState, recentHistoryState, setCurrentAnchor, setPreviousBookmark, saveAnchorState, navigationHistory, historyIndex, addToHistory, canGoBack, canGoForward, setHistoryIndex, isNavigatingThroughHistory, setNavigatingThroughHistory } from './core/state';
-import { getContainingPage } from './utils';
+import type { Bookmark } from '../core/types';
+import { getBookmarks, currentAnchorState, recentHistoryState, setCurrentAnchor, setPreviousBookmark, saveAnchorState, navigationHistory, historyIndex, addToHistory, canGoBack, canGoForward, setHistoryIndex, isNavigatingThroughHistory, setNavigatingThroughHistory } from '../core/state';
+import { getContainingPage } from '../utils';
 import { removeBookmark } from './bookmarks';
 
 // ===== NAVIGATION FUNCTIONS =====
@@ -28,7 +28,7 @@ export async function jumpToBookmark(bookmarkId: string): Promise<{ success: boo
         figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
 
         // Add bookmark navigation to history
-        const entry: import('./types').HistoryEntry = {
+        const entry: import('../types').HistoryEntry = {
           id: bookmarkId,
           timestamp: Date.now(),
           type: 'bookmark',
@@ -157,7 +157,7 @@ export function addSelectionToHistory(): void {
   const primaryNode = selection[0];
   if (!('name' in primaryNode)) return;
 
-  const entry: import('./types').HistoryEntry = {
+  const entry: import('../types').HistoryEntry = {
     id: primaryNode.id,
     timestamp: Date.now(),
     type: 'selection',
@@ -182,7 +182,7 @@ export function addPageChangeToHistory(): void {
 
   const currentPage = figma.currentPage;
 
-  const entry: import('./types').HistoryEntry = {
+  const entry: import('../types').HistoryEntry = {
     id: currentPage.id,
     timestamp: Date.now(),
     type: 'page',
@@ -313,7 +313,7 @@ export async function goForwardSelectionOnly(): Promise<{ success: boolean; mess
 }
 
 // ===== HISTORY QUERIES =====
-export function getLatestSelectionEntry(): import('./types').HistoryEntry | null {
+export function getLatestSelectionEntry(): import('../types').HistoryEntry | null {
   for (let i = historyIndex; i >= 0; i--) {
     const entry = navigationHistory[i];
     if (entry && entry.type === 'selection') return entry;
@@ -321,7 +321,7 @@ export function getLatestSelectionEntry(): import('./types').HistoryEntry | null
   return null;
 }
 
-export function getLatestExistingSelectionEntry(): import('./types').HistoryEntry | null {
+export function getLatestExistingSelectionEntry(): import('../types').HistoryEntry | null {
   for (let i = historyIndex; i >= 0; i--) {
     const entry = navigationHistory[i];
     if (entry && entry.type === 'selection' && entry.nodeId) {
@@ -336,7 +336,7 @@ export function getLatestExistingSelectionEntry(): import('./types').HistoryEntr
   return null;
 }
 
-export function findNearestExistingSelectionEntry(startIndex?: number): import('./types').HistoryEntry | null {
+export function findNearestExistingSelectionEntry(startIndex?: number): import('../types').HistoryEntry | null {
   const from = typeof startIndex === 'number' ? startIndex : historyIndex;
   for (let i = from; i >= 0; i--) {
     const entry = navigationHistory[i];
@@ -352,7 +352,7 @@ export function findNearestExistingSelectionEntry(startIndex?: number): import('
   return null;
 }
 
-export function findNearestExistingSelectionEntryAnyDirection(): import('./types').HistoryEntry | null {
+export function findNearestExistingSelectionEntryAnyDirection(): import('../types').HistoryEntry | null {
   // Prefer going backward from current index; if none, try forward
   const backward = findNearestExistingSelectionEntry(historyIndex);
   if (backward) return backward;
@@ -374,7 +374,7 @@ export function hasAnySelectionEntry(): boolean {
   return navigationHistory.some(e => e && e.type === 'selection');
 }
 
-async function navigateToHistoryEntry(entry: import('./types').HistoryEntry): Promise<{ success: boolean; message: string }> {
+async function navigateToHistoryEntry(entry: import('../types').HistoryEntry): Promise<{ success: boolean; message: string }> {
   try {
     // Check if we need to switch pages
     if (figma.currentPage.id !== entry.pageId) {

@@ -1,0 +1,18 @@
+{
+  "name": "Documentation Sync",
+  "description": "Update documentation when feature modules change",
+  "trigger": {
+    "type": "file_save",
+    "patterns": ["src/bookmarks.ts", "src/navigation.ts", "src/emoji-manager.ts", "src/lemon-squeezy.ts"]
+  },
+  "actions": [
+    {
+      "type": "agent_execution",
+      "prompt": "A feature module has been updated. Please:\n1. Review the changes in the saved file\n2. Update relevant documentation in the docs/ directory\n3. Ensure feature descriptions match current implementation\n4. Update any API documentation if interfaces changed\n5. Check if README.md needs updates\n\nFocus on keeping documentation accurate and up-to-date.",
+      "description": "Sync documentation with code changes"
+    }
+  ],
+  "enabled": true,
+  "runInBackground": true,
+  "debounceMs": 2000
+}

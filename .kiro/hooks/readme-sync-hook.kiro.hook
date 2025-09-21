@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "README Update",
+  "description": "Update README when package.json or core features change",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "package.json",
+      "src/constants.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Package information or core constants have changed. Please:\n1. Check if version number in README matches package.json\n2. Update feature list if constants changed\n3. Verify installation instructions are current\n4. Update any version-specific information\n5. Ensure all links and references are working\n\nKeep changes minimal and focused on accuracy."
+  }
+}
