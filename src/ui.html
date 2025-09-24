@@ -98,7 +98,7 @@
         <h2 class="header-title">ANCHORS</h2>
       </div>
       <nav class="header-right">
-        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors"><span class="icon">⟳</span></button>
+        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors" data-tooltip-placement="below"><span class="icon">⟳</span></button>
         <!-- <p id="bookmark-count" class="top-badge" aria-live="polite">0</p> -->
       </nav>
     </header>
@@ -143,7 +143,7 @@
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">🔄</span>
                     <span class="theme-name">System</span>
-                    <span class="theme-description" id="system-theme-description">Match system preference</span>
+                    <span class="theme-description" id="system-theme-description"></span>
                     <span class="theme-status" id="system-theme-status" aria-live="polite"></span>
                   </span>
                 </label>
@@ -153,7 +153,7 @@
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">☀️</span>
                     <span class="theme-name">Light</span>
-                    <span class="theme-description" id="light-theme-description">Always use light theme</span>
+                    <span class="theme-description" id="light-theme-description"></span>
                   </span>
                 </label>
                 <label class="theme-option">
@@ -162,7 +162,7 @@
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">🌙</span>
                     <span class="theme-name">Dark</span>
-                    <span class="theme-description" id="dark-theme-description">Always use dark theme</span>
+                    <span class="theme-description" id="dark-theme-description"></span>
                   </span>
                 </label>
               </div>
@@ -178,7 +178,7 @@
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">⚫</span>
                     <span class="theme-name">Boilerplate</span>
-                    <span class="theme-description" id="boilerplate-theme-description">Dark theme without Figma integration</span>
+                    <span class="theme-description" id="boilerplate-theme-description"></span>
                   </span>
                 </label>
                 <label class="theme-option">
@@ -187,7 +187,7 @@
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">🤖</span>
                     <span class="theme-name">Cybertron</span>
-                    <span class="theme-description" id="cybertron-theme-description">Futuristic theme</span>
+                    <span class="theme-description" id="cybertron-theme-description"></span>
                   </span>
                 </label>
               </div>
@@ -200,13 +200,9 @@
           
         </div>
 
-        <!-- About Section -->
+        <!-- Support Section -->
         <div class="settings-section">
-          <h3 class="settings-section-title">ℹ️ About</h3>
-          <p class="about-text">Stratus Hue Plugin v1.0.0</p>
-          <p class="about-text">Enhance your Figma workflow with emoji tags and navigation.</p>
-          
-          <!-- Support Section -->
+          <h3 class="settings-section-title">💝 Support</h3>
           <div class="support-section">
             <p class="support-text">Enjoying this plugin? Support its development!</p>
             <button id="kofi-btn" class="kofi-button" aria-label="Support on Ko-fi">
@@ -215,6 +211,7 @@
             </button>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -232,7 +229,7 @@
         </div>
       </li>
       <li>
-        <button id="footer-fit" class="footer-icon-btn" aria-label="Auto-fit disabled - click to enable" title="Auto-fit: OFF">↕</button>
+        <button id="footer-fit" class="footer-icon-btn" aria-label="Auto-fit disabled - click to enable" title="Auto-fit: OFF" data-tooltip="Toggle Auto-height">↕</button>
       </li>
     </ul>
     <div class="footer-branding">

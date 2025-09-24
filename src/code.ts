@@ -234,6 +234,8 @@ figma.ui.onmessage = async (msg) => {
         await handleOpenKofi();
         break;
 
+
+
       // Removed license management message handlers
 
       default:
@@ -434,21 +436,7 @@ const handleCreateNewPage = withErrorBoundary(async () => {
   await updateUIAfterNavigation();
 }, ErrorType.UNKNOWN);
 
-const handleOpenKofi = withErrorBoundary(async () => {
-  // Open Ko-fi page in external browser
-  // TODO: Replace 'YOUR_KOFI_USERNAME' with your actual Ko-fi username
-  // Example: 'https://ko-fi.com/johndoe' if your Ko-fi page is ko-fi.com/johndoe
-  const kofiUrl = 'https://ko-fi.com/l3vi_dsgn';
-  
-  try {
-    // Use Figma's openExternal API to open the Ko-fi page
-    figma.openExternal(kofiUrl);
-    figma.notify('Opening Ko-fi page... Thank you for your support! 🍦');
-  } catch (error) {
-    console.error('Failed to open Ko-fi page:', error);
-    figma.notify('Unable to open Ko-fi page. Please check your Ko-fi URL configuration.');
-  }
-}, ErrorType.EXTERNAL_API);
+
 
 const handleToggleToLayerMode = withErrorBoundary(async () => {
   const latestSelection = findNearestExistingSelectionEntryAnyDirection();
@@ -492,5 +480,19 @@ const handleToggleToLayerMode = withErrorBoundary(async () => {
     sendSelectionStateToUI();
   }
 }, ErrorType.UNKNOWN);
+
+const handleOpenKofi = withErrorBoundary(async () => {
+  // Open Ko-fi page in external browser
+  const kofiUrl = 'https://ko-fi.com/l3vi_dsgn';
+  
+  try {
+    // Use Figma's openExternal API to open the Ko-fi page
+    figma.openExternal(kofiUrl);
+    figma.notify('Opening Ko-fi page... Thank you for your support! 🍦');
+  } catch (error) {
+    console.error('Failed to open Ko-fi page:', error);
+    figma.notify('Unable to open Ko-fi page. Please check your Ko-fi URL configuration.');
+  }
+}, ErrorType.EXTERNAL_API);
 
 // License management removed

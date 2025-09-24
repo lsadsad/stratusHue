@@ -3,6 +3,7 @@
 ## Core Technologies
 
 - **TypeScript**: Primary language for both plugin code and UI
+- **CSS Design Tokens**: Comprehensive token system for consistent theming and styling
 - **esbuild**: Fast bundler for development and production builds
 - **Node.js**: Build tooling and scripts
 - **Figma Plugin API**: `@figma/plugin-typings` for type safety
@@ -49,6 +50,15 @@ npm run info             # Show build output sizes
 ## Development Workflow
 
 1. Use `npm run dev` for active development with file watching
-2. Test changes by reloading the plugin in Figma
-3. Run `npm run validate` before committing
-4. Use `npm run build:plugin-ready` for distribution builds
+2. **Always use design tokens** from `styles.css` instead of hardcoded values
+3. Test changes by reloading the plugin in Figma
+4. **Verify theme compatibility** across all supported themes (boilerplate, cybertron, figma-light)
+5. Run `npm run validate` before committing
+6. Use `npm run build:plugin-ready` for distribution builds
+
+## Design Token Integration
+
+- **CSS Variables**: All styling uses semantic design tokens for consistency
+- **Theme Support**: Multi-theme architecture with automatic token overrides
+- **Responsive Design**: Token-based responsive breakpoints and sizing
+- **Accessibility**: Built-in high contrast and reduced motion support

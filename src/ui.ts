@@ -237,6 +237,140 @@ function updateScrollBehavior(): void {
   }
 }
 
+// ===== Tooltip Manager (Figma-like) =====
+type TooltipState = {
+  element: HTMLDivElement | null;
+  showTimer: number | null;
+  hideTimer: number | null;
+  currentTarget: HTMLElement | null;
+};
+
+const tooltipState: TooltipState = {
+  element: null,
+  showTimer: null,
+  hideTimer: null,
+  currentTarget: null
+};
+
+function getTooltipElement(): HTMLDivElement {
+  if (tooltipState.element) return tooltipState.element;
+  let el = document.getElementById('tooltip') as HTMLDivElement | null;
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'tooltip';
+    el.className = 'tooltip';
+    document.body.appendChild(el);
+  }
+  tooltipState.element = el;
+  return el;
+}
+
+function positionTooltip(target: HTMLElement): void {
+  const tip = getTooltipElement();
+  const rect = target.getBoundingClientRect();
+  const margin = 8; // px offset from target
+
+  // Measure tooltip after ensuring content is set and visible for layout
+  tip.style.visibility = 'hidden';
+  tip.classList.add('visible');
+  const tipWidth = tip.offsetWidth;
+  const tipHeight = tip.offsetHeight;
+  tip.classList.remove('visible');
+  tip.style.visibility = '';
+
+  // Placement preference: data-tooltip-placement="above|below"
+  const placementPref = (target.getAttribute('data-tooltip-placement') || '').toLowerCase();
+  let placeAbove: boolean;
+  if (placementPref === 'below') {
+    placeAbove = false;
+  } else if (placementPref === 'above') {
+    placeAbove = true;
+  } else {
+    // Default: prefer above when there is room
+    placeAbove = rect.top >= tipHeight + margin;
+  }
+  const top = placeAbove ? rect.top - tipHeight - margin : rect.bottom + margin;
+
+  // Center horizontally over target; clamp to viewport
+  let left = rect.left + rect.width / 2 - tipWidth / 2;
+  const minLeft = 8;
+  const maxLeft = Math.max(minLeft, window.innerWidth - tipWidth - 8);
+  left = Math.min(Math.max(left, minLeft), maxLeft);
+
+  tip.style.top = `${Math.round(top)}px`;
+  tip.style.left = `${Math.round(left)}px`;
+}
+
+function showTooltip(target: HTMLElement, immediate = false): void {
+  const preferred = target.getAttribute('data-tooltip');
+  const label = preferred || target.getAttribute('aria-label') || target.getAttribute('title');
+  if (!label) return;
+
+  const tip = getTooltipElement();
+  tip.textContent = label;
+
+  if (tooltipState.hideTimer) {
+    clearTimeout(tooltipState.hideTimer);
+    tooltipState.hideTimer = null;
+  }
+
+  const doShow = () => {
+    tooltipState.currentTarget = target;
+    positionTooltip(target);
+    tip.classList.add('visible');
+  };
+
+  if (immediate) {
+    doShow();
+  } else {
+    tooltipState.showTimer = window.setTimeout(doShow, 200);
+  }
+}
+
+function hideTooltip(immediate = false): void {
+  const tip = getTooltipElement();
+  const doHide = () => {
+    tip.classList.remove('visible');
+    tooltipState.currentTarget = null;
+  };
+
+  if (tooltipState.showTimer) {
+    clearTimeout(tooltipState.showTimer);
+    tooltipState.showTimer = null;
+  }
+
+  if (immediate) {
+    doHide();
+  } else {
+    tooltipState.hideTimer = window.setTimeout(doHide, 100);
+  }
+}
+
+function attachTooltip(target: HTMLElement): void {
+  target.addEventListener('mouseenter', () => showTooltip(target));
+  target.addEventListener('mouseleave', () => hideTooltip());
+  target.addEventListener('focus', () => showTooltip(target, true));
+  target.addEventListener('blur', () => hideTooltip());
+  target.addEventListener('mousedown', () => hideTooltip(true));
+}
+
+function initializeQuickActionTooltips(): void {
+  // Attach to all action buttons across the UI, including refresh button
+  const targets = document.querySelectorAll('.action-btn');
+  targets.forEach((el) => attachTooltip(el as HTMLElement));
+
+  // Also attach to footer icon buttons for consistency
+  const footerTargets = document.querySelectorAll('.footer-icon-btn');
+  footerTargets.forEach((el) => attachTooltip(el as HTMLElement));
+
+  // Global dismissal handlers
+  window.addEventListener('scroll', () => hideTooltip(true));
+  window.addEventListener('resize', () => hideTooltip(true));
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideTooltip(true);
+  });
+}
+
 // Simple emoji button updater
 function updateEmojiButtons(emojis: string[]): void {
   const container = document.getElementById('color-emoji-buttons');
@@ -691,11 +825,19 @@ function setupEventListeners(): void {
       } else {
         target.classList.remove('collapsed');
       }
-      // After transition, update scroll behavior and auto-fit if enabled
-      // Small delay allows CSS transition to compute new height
+      // After transition, update scroll behavior and auto-fit if enabled.
+      // Prefer transitionend for accuracy; add a timeout fallback.
+      const onEnd = (e: Event) => {
+        // Ensure we react once for the target element
+        target.removeEventListener('transitionend', onEnd as EventListener);
+        updateScrollBehavior();
+      };
+      target.addEventListener('transitionend', onEnd as EventListener, { once: true });
+
+      // Fallback in case transitionend doesn't fire
       window.setTimeout(() => {
         updateScrollBehavior();
-      }, 200);
+      }, 350);
     };
 
     collapsibleHeaders.forEach((header) => {
@@ -756,8 +898,13 @@ function setupEventListeners(): void {
     });
   }
 
+
+
   // Setup footer button state management
   setupFooterButtonStateManagement();
+
+  // Initialize Figma-like tooltips for quick action buttons
+  initializeQuickActionTooltips();
 }
 
 // Footer button state management to prevent stuck hover states
@@ -1459,8 +1606,8 @@ function updateSystemThemeStatus(): void {
     // Show current system theme detection
     const effectiveTheme = themeManager.getEffectiveTheme();
     const themeLabel = effectiveTheme === 'figma-light' ? 'Light' : 'Dark';
-    statusElement.textContent = `Currently: ${themeLabel}`;
-    statusElement.style.display = 'block';
+    statusElement.textContent = '';
+    statusElement.style.display = 'none';
 
     // Add visual indicator for system theme synchronization
     statusElement.setAttribute('data-system-theme', systemTheme);

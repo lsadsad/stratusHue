@@ -17,6 +17,8 @@ Figma designers who need to organize complex design files with visual indicators
 ## Plugin Architecture
 
 - Dual-context architecture: sandbox code (`code.ts`) + UI iframe (`ui.ts`)
+- **Design token system**: Comprehensive CSS custom properties for consistent theming
+- **Multi-theme support**: Boilerplate (dark), Cybertron (neon), and Figma Light themes
 - Premium features integration via Lemon Squeezy
 - Lottie animation support for enhanced UI
 - State persistence across plugin sessions

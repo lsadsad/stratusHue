@@ -131,7 +131,7 @@ export class ThemeManager {
     system: {
       name: 'system',
       displayName: 'System',
-      description: 'Match system preference',
+      description: '',
       icon: '🔄',
       cssDataAttribute: 'system',
       isSystemDependent: true
@@ -139,7 +139,7 @@ export class ThemeManager {
     light: {
       name: 'light',
       displayName: 'Light',
-      description: 'Always use light theme',
+      description: '',
       icon: '☀️',
       cssDataAttribute: 'light',
       isSystemDependent: false
@@ -147,7 +147,7 @@ export class ThemeManager {
     dark: {
       name: 'dark',
       displayName: 'Dark',
-      description: 'Always use dark theme',
+      description: '',
       icon: '🌙',
       cssDataAttribute: 'figma-dark',
       isSystemDependent: false
@@ -155,7 +155,7 @@ export class ThemeManager {
     boilerplate: {
       name: 'boilerplate',
       displayName: 'Boilerplate',
-      description: 'Dark theme without Figma integration',
+      description: '',
       icon: '⚫',
       cssDataAttribute: 'boilerplate',
       isSystemDependent: false
@@ -163,7 +163,7 @@ export class ThemeManager {
     cybertron: {
       name: 'cybertron',
       displayName: 'Cybertron',
-      description: 'Futuristic theme',
+      description: '',
       icon: '🤖',
       cssDataAttribute: 'cybertron',
       isSystemDependent: false

@@ -19,7 +19,7 @@
 - **`code.ts`**: Main plugin logic running in Figma sandbox
 - **`ui.ts`**: UI logic running in browser iframe
 - **`ui.html`**: Plugin interface markup
-- **`styles.css`**: Consolidated stylesheet
+- **`styles.css`**: Consolidated stylesheet with comprehensive design token system
 
 ### Modular Components
 - **`types.ts`**: Centralized TypeScript type definitions
@@ -74,3 +74,9 @@
 - Static assets automatically inlined during build
 - Lottie animations embedded as data URIs
 - SVG icons and images bundled into single HTML file
+
+### Design System Architecture
+- **Token-Based Styling**: All CSS uses semantic design tokens for consistency
+- **Multi-Theme Support**: Theme-specific token overrides for different visual styles
+- **Responsive Design**: Token-driven responsive breakpoints and component sizing
+- **Accessibility Integration**: Built-in support for high contrast and reduced motion preferences
