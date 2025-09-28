@@ -57,6 +57,72 @@ export function sendNavigationStateToUI(): void {
   });
 }
 
+// Cache for navigation context to avoid unnecessary updates
+let lastNavigationContext: import('../core/types').NavigationContext | null = null;
+
+export async function sendNavigationContextToUI(force = false): Promise<void> {
+  try {
+    const { LayerNavigationHandler } = await import('../features/navigation');
+    const selection = figma.currentPage.selection;
+    const context = LayerNavigationHandler.validateNavigationContext(selection);
+    
+    // Only send update if context has changed (performance optimization)
+    if (!force && lastNavigationContext && areNavigationContextsEqual(lastNavigationContext, context)) {
+      return;
+    }
+    
+    lastNavigationContext = { ...context };
+    
+    figma.ui.postMessage({
+      type: 'navigation-context-update',
+      context
+    });
+  } catch (error) {
+    console.error('Failed to send navigation context to UI:', error);
+    // Send error state to UI
+    figma.ui.postMessage({
+      type: 'navigation-context-update',
+      context: {
+        hasSelection: false,
+        canEnter: false,
+        canExit: false,
+        canNavigateSiblings: false,
+        containerCount: 0
+      }
+    });
+  }
+}
+
+/**
+ * Compare two navigation contexts for equality to avoid unnecessary updates
+ */
+function areNavigationContextsEqual(
+  a: import('../core/types').NavigationContext, 
+  b: import('../core/types').NavigationContext
+): boolean {
+  return (
+    a.hasSelection === b.hasSelection &&
+    a.canEnter === b.canEnter &&
+    a.canExit === b.canExit &&
+    a.canNavigateSiblings === b.canNavigateSiblings &&
+    a.containerCount === b.containerCount
+  );
+}
+
+/**
+ * Force refresh of navigation context (useful after navigation actions)
+ */
+export async function refreshNavigationContext(): Promise<void> {
+  await sendNavigationContextToUI(true);
+}
+
+/**
+ * Clear navigation context cache (useful when switching pages)
+ */
+export function clearNavigationContextCache(): void {
+  lastNavigationContext = null;
+}
+
 export function sendErrorToUI(message: string): void {
   figma.ui.postMessage({
     type: 'error',
@@ -77,10 +143,12 @@ export async function updateUIAfterBookmarkChange(): Promise<void> {
   sendSelectionStateToUI();
 }
 
-export async function updateUIAfterNavigation(): Promise<void> {
+export function updateUIAfterNavigation(): void {
   sendSelectionStateToUI();
-  await sendBookmarksToUI();
+  sendBookmarksToUI().catch(console.error); // Non-blocking for better performance
   sendNavigationStateToUI();
+  // Use existing debounced context update for better performance
+  // The debounced update will be triggered by the selection change event
 }
 
 export function updateUIAfterEmojiChange(): void {
@@ -93,6 +161,7 @@ export async function sendInitialUIState(): Promise<void> {
     sendSelectionStateToUI();
     await sendBookmarksToUI();
     sendNavigationStateToUI();
+    await refreshNavigationContext(); // Force refresh on initial load
   } catch (error) {
     console.error('Failed to send initial UI state:', error);
     sendErrorToUI('Failed to initialize plugin state');

@@ -1,3 +1,5 @@
+/// <reference types="@figma/plugin-typings" />
+
 // Type Definitions for Stratus Hue Plugin
 // Centralized type definitions for better maintainability
 
@@ -102,4 +104,45 @@ export interface ThemeConfig {
   icon: string;
   cssDataAttribute: string;
   isSystemDependent: boolean;
+}
+
+// ===== NAVIGATION TYPES =====
+export interface NavigationResult {
+  success: boolean;
+  message: string;
+  newSelection?: readonly SceneNode[];
+  viewportUpdate?: boolean;
+}
+
+export interface NavigationContext {
+  hasSelection: boolean;
+  canEnter: boolean;        // Has container selected
+  canExit: boolean;         // Has parent container
+  canNavigateSiblings: boolean;
+  containerCount: number;   // For collapse toggle state (legacy - kept for compatibility)
+  siblingContainerCount: number;   // Number of sibling containers for targeted collapse
+  hasCollapsibleSiblings: boolean; // Whether sibling containers exist to collapse
+}
+
+export type NavigationAction = 'enter' | 'exit' | 'next-sibling' | 'prev-sibling' | 'toggle-collapse';
+
+// Navigation message types
+export interface NavigationActionMessage extends UIMessage {
+  type: 'navigation-action';
+  action: NavigationAction;
+}
+
+export interface ToggleNavigationControlsMessage extends UIMessage {
+  type: 'toggle-navigation-controls';
+  enabled: boolean;
+}
+
+export interface NavigationContextUpdateMessage extends UIMessage {
+  type: 'navigation-context-update';
+  context: NavigationContext;
+}
+
+export interface NavigationControlsSettingMessage extends UIMessage {
+  type: 'navigation-controls-setting';
+  enabled: boolean;
 }

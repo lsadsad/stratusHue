@@ -8,6 +8,7 @@ import { debounce, addOrReplaceDateInLayerName, addOrReplaceDateInPageTitle } fr
 // import { ThemePreference } from './core/types'; // Unused import
 import {
   loadAnchorState,
+  loadUISectionStates,
   setUiWidth,
   setUiHeight,
   currentUiWidth,
@@ -56,12 +57,19 @@ figma.showUI(__html__, { width: currentUiWidth, height: lastUiHeight });
 
 const initializePlugin = withErrorBoundary(async () => {
   await loadAnchorState();
+  await loadUISectionStates();
   await validateRecentHistory();
   await validateCurrentAnchor();
   await sendInitialUIState();
 }, ErrorType.STORAGE_ERROR);
 
 // ===== DEBOUNCED FUNCTIONS =====
+const debouncedNavigationContextUpdate = debounce(() => {
+  import('./ui/ui-communication').then(({ sendNavigationContextToUI }) => {
+    sendNavigationContextToUI(); // Uses caching to avoid unnecessary updates
+  }).catch(console.error);
+}, 50); // Faster debounce for navigation context as it's lightweight with caching
+
 const debouncedSelectionUpdate = debounce(() => {
   // Store current selection as previous before updating
   const currentSelection = figma.currentPage.selection;
@@ -76,10 +84,18 @@ const debouncedSelectionUpdate = debounce(() => {
   detectCurrentAnchorFromSelection();
   addSelectionToHistory();
   sendNavigationStateToUI();
+  
+  // Send optimized navigation context updates with dedicated debounce
+  debouncedNavigationContextUpdate();
+  
   triggerValidationOnSelectionChange();
 }, 100);
 
 const debouncedPageChange = debounce(async () => {
+  // Clear navigation context cache when page changes
+  const { clearNavigationContextCache } = await import('./ui/ui-communication');
+  clearNavigationContextCache();
+  
   await validateCurrentAnchor();
   await updateUIAfterNavigation();
   addPageChangeToHistory();
@@ -99,6 +115,37 @@ figma.ui.onmessage = async (msg) => {
 
   try {
     switch (msg.type) {
+      case 'get-ui-section-states': {
+        try {
+          // Ensure latest states are loaded
+          await loadUISectionStates();
+          figma.ui.postMessage({
+            type: 'ui-section-states',
+            states: (await import('./core/state')).uiSectionStates
+          });
+        } catch (error) {
+          console.error('Failed to send UI section states:', error);
+          figma.ui.postMessage({ type: 'ui-section-states', states: {} });
+        }
+        break;
+      }
+
+      case 'save-ui-section-state': {
+        if ('sectionId' in msg && typeof msg.sectionId === 'string' && 'expanded' in msg && typeof msg.expanded === 'boolean') {
+          try {
+            const { saveUISectionState } = await import('./core/state');
+            await saveUISectionState(msg.sectionId, msg.expanded);
+            // Optionally re-send updated states
+            figma.ui.postMessage({
+              type: 'ui-section-states',
+              states: (await import('./core/state')).uiSectionStates
+            });
+          } catch (error) {
+            console.error('Failed to save UI section state:', error);
+          }
+        }
+        break;
+      }
       case 'ui-ready':
         await initializePlugin();
         break;
@@ -234,7 +281,21 @@ figma.ui.onmessage = async (msg) => {
         await handleOpenKofi();
         break;
 
+      case 'navigation-action':
+        if ('action' in msg && typeof msg.action === 'string') {
+          await handleNavigationAction(msg.action as import('./core/types').NavigationAction);
+        }
+        break;
 
+      case 'toggle-navigation-controls':
+        if ('enabled' in msg && typeof msg.enabled === 'boolean') {
+          await handleToggleNavigationControls(msg.enabled);
+        }
+        break;
+
+      case 'get-navigation-controls-setting':
+        await handleGetNavigationControlsSetting();
+        break;
 
       // Removed license management message handlers
 
@@ -439,7 +500,7 @@ const handleCreateNewPage = withErrorBoundary(async () => {
 
 
 const handleToggleToLayerMode = withErrorBoundary(async () => {
-  const latestSelection = findNearestExistingSelectionEntryAnyDirection();
+  const latestSelection = await findNearestExistingSelectionEntryAnyDirection();
 
   if (!latestSelection || !latestSelection.nodeId) {
     figma.notify('No recent selection available');
@@ -494,5 +555,121 @@ const handleOpenKofi = withErrorBoundary(async () => {
     figma.notify('Unable to open Ko-fi page. Please check your Ko-fi URL configuration.');
   }
 }, ErrorType.EXTERNAL_API);
+
+// ===== NAVIGATION ACTION HANDLERS =====
+const handleNavigationAction = withErrorBoundary(async (action: import('./core/types').NavigationAction) => {
+  const { LayerNavigationHandler } = await import('./features/navigation');
+  const selection = figma.currentPage.selection;
+  
+  let result: import('./core/types').NavigationResult;
+  
+  switch (action) {
+    case 'enter':
+      if (selection.length !== 1) {
+        figma.notify('Please select exactly one container to enter');
+        return;
+      }
+      result = LayerNavigationHandler.enterContainer(selection[0]);
+      break;
+      
+    case 'exit':
+      if (selection.length === 0) {
+        figma.notify('Please select a layer to exit from');
+        return;
+      }
+      result = LayerNavigationHandler.exitContainer(selection);
+      break;
+      
+    case 'next-sibling':
+      if (selection.length !== 1) {
+        figma.notify('Please select exactly one layer to navigate siblings');
+        return;
+      }
+      result = LayerNavigationHandler.navigateToSibling(selection[0], 'next');
+      break;
+      
+    case 'prev-sibling':
+      if (selection.length !== 1) {
+        figma.notify('Please select exactly one layer to navigate siblings');
+        return;
+      }
+      result = LayerNavigationHandler.navigateToSibling(selection[0], 'prev');
+      break;
+      
+    case 'toggle-collapse':
+      result = LayerNavigationHandler.toggleCollapse();
+      break;
+      
+    default:
+      figma.notify('Unknown navigation action');
+      return;
+  }
+  
+  // Apply the navigation result
+  if (result.success) {
+    if (result.newSelection) {
+      figma.currentPage.selection = result.newSelection as SceneNode[];
+    }
+
+    if (result.viewportUpdate && result.newSelection && result.newSelection.length > 0) {
+      // For enter container actions, only scroll to the first child to prevent auto-expansion
+      // For sibling navigation, disable viewport updates to prevent auto-expansion of containers
+      const isEnterAction = action === 'enter';
+      const isSiblingAction = action === 'next-sibling' || action === 'prev-sibling';
+
+      if (!isSiblingAction) {
+        const viewportTargets = isEnterAction ? [result.newSelection[0]] : result.newSelection;
+        figma.viewport.scrollAndZoomIntoView(viewportTargets as SceneNode[]);
+      }
+    }
+
+    // Ensure bookmark system detects new selection from navigation
+    detectCurrentAnchorFromSelection();
+
+    // Update UI state and navigation history (non-blocking for better performance)
+    updateUIAfterNavigation();
+
+    // Navigation context will be updated by the debounced selection change handler
+  }
+  
+  figma.notify(result.message);
+}, ErrorType.NAVIGATION_FAILED);
+
+const handleToggleNavigationControls = withErrorBoundary(async (enabled: boolean) => {
+  // Store navigation controls setting in plugin storage
+  try {
+    await figma.clientStorage.setAsync('navigationControlsEnabled', enabled);
+    
+    // Send updated setting to UI
+    figma.ui.postMessage({
+      type: 'navigation-controls-setting',
+      enabled: enabled
+    });
+    
+    figma.notify(enabled ? 'Navigation controls enabled' : 'Navigation controls disabled');
+  } catch (error) {
+    console.error('Failed to save navigation controls setting:', error);
+    figma.notify('Failed to save navigation controls setting');
+  }
+}, ErrorType.STORAGE_ERROR);
+
+const handleGetNavigationControlsSetting = withErrorBoundary(async () => {
+  try {
+    const enabled = await figma.clientStorage.getAsync('navigationControlsEnabled') ?? true;
+    
+    // Send current setting to UI
+    figma.ui.postMessage({
+      type: 'navigation-controls-setting',
+      enabled: enabled
+    });
+  } catch (error) {
+    console.error('Failed to load navigation controls setting:', error);
+    // Default to enabled
+    figma.ui.postMessage({
+      type: 'navigation-controls-setting',
+      enabled: true
+    });
+  }
+}, ErrorType.STORAGE_ERROR);
 
 // License management removed

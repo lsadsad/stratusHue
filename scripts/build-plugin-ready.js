@@ -113,3 +113,16 @@ console.log(`  icon.svg: ${getFileSize('plugin-ready/icon.svg')}`);
 
 console.log('\n🎉 Plugin-ready build completed successfully!');
 console.log('📁 Files are ready in the plugin-ready/ folder');
+
+// Auto-package if requested
+if (process.env.AUTO_PACKAGE === 'true' || process.argv.includes('--package')) {
+    console.log('\n📦 Auto-packaging plugin...');
+    try {
+        const { execSync } = await import('child_process');
+        const outputDir = process.env.PLUGIN_OUTPUT_DIR || process.argv.find(arg => arg.startsWith('--output='))?.split('=')[1];
+        const packageCmd = outputDir ? `node scripts/package-plugin.js "${outputDir}"` : 'node scripts/package-plugin.js';
+        execSync(packageCmd, { stdio: 'inherit' });
+    } catch (error) {
+        console.error('❌ Auto-packaging failed:', error.message);
+    }
+}

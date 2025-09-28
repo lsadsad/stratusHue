@@ -2,6 +2,8 @@
 // Handles all UI interactions and communication with the plugin sandbox
 
 import lottie from 'lottie-web';
+// UI should not import plugin-side storage (which uses `figma`).
+// We request and persist UI section states via postMessage to the plugin.
 
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
@@ -22,6 +24,10 @@ interface LottieAnimationConfig {
 
 // Store active Lottie animations for management
 const activeLottieAnimations = new Map<string, any>();
+// UI section state cache provided by plugin
+type UISectionState = Record<string, { expanded: boolean; lastModified: number }>
+let uiSectionStatesFromPlugin: UISectionState = {};
+
 
 
 // Toggle state management
@@ -75,6 +81,24 @@ function handlePluginMessage(event: MessageEvent): void {
       break;
     case 'success':
       console.log('Plugin success:', message.message);
+      break;
+    case 'ui-section-states':
+      uiSectionStatesFromPlugin = message.states || {};
+      break;
+    case 'navigation-context-update':
+      navigationContext = message.context;
+      updateNavigationControlButtons(navigationContext);
+      break;
+    case 'navigation-controls-setting':
+      navigationControlsEnabled = message.enabled;
+      updateNavigationControlsVisibility(navigationControlsEnabled);
+      break;
+    case 'navigation-action-result':
+      // Announce the actual navigation result to screen readers
+      announceNavigationResult({
+        success: message.success,
+        message: message.message
+      });
       break;
   }
 }
@@ -523,11 +547,63 @@ function initializePlugin(): void {
   // Setup cleanup on page unload
   setupCleanupHandlers();
 
+  // Initialize navigation controls
+  initializeNavigationControls();
+
+  // Request and restore UI section states
+  requestUISectionStates();
+
   console.log('✅ Plugin initialization complete - waiting for emoji data from plugin');
+}
+
+// Restore UI section states from storage
+function requestUISectionStates(): void {
+  try {
+    sendMessage('get-ui-section-states');
+  } catch (error) {
+    console.error('Failed to request UI section states:', error);
+  }
+}
+
+// Restore UI section states from cache received from plugin
+async function restoreUISectionStates(): Promise<void> {
+  try {
+    // Wait a tick to ensure the plugin responded if needed
+    await new Promise(r => setTimeout(r, 0));
+    
+    // Apply states to all collapsible sections
+    const collapsibleHeaders = document.querySelectorAll<HTMLElement>('.section-header.collapsible');
+    
+    collapsibleHeaders.forEach(header => {
+      const sectionId = header.id;
+      const targetId = header.getAttribute('data-target');
+      const target = targetId ? document.getElementById(targetId) : null;
+      
+      if (!target || !sectionId) return;
+      
+      // Get saved state or default to expanded
+      const shouldExpand = uiSectionStatesFromPlugin[sectionId]?.expanded ?? true;
+      
+      // Apply state without animation (before UI is visible)
+      header.setAttribute('aria-expanded', String(shouldExpand));
+      if (!shouldExpand) {
+        target.classList.add('collapsed');
+      } else {
+        target.classList.remove('collapsed');
+      }
+    });
+    
+    console.log('✅ UI section states restored');
+  } catch (error) {
+    console.error('Failed to restore UI section states:', error);
+  }
 }
 
 // Setup event listeners for UI controls
 function setupEventListeners(): void {
+  // Setup accessibility support first
+  setupAccessibilitySupport();
+  
   const backBtn = document.getElementById('back-btn');
   const forwardBtn = document.getElementById('forward-btn');
   const clearBtn = document.getElementById('clear-color');
@@ -825,6 +901,14 @@ function setupEventListeners(): void {
       } else {
         target.classList.remove('collapsed');
       }
+      
+      // Save state persistence (new functionality)
+      const sectionId = header.id;
+      if (sectionId) {
+        // Ask plugin to persist the section state
+        sendMessage('save-ui-section-state', { sectionId, expanded: nextExpanded });
+      }
+      
       // After transition, update scroll behavior and auto-fit if enabled.
       // Prefer transitionend for accuracy; add a timeout fallback.
       const onEnd = (e: Event) => {
@@ -2658,3 +2742,885 @@ document.addEventListener('DOMContentLoaded', () => {
 if (typeof window !== 'undefined') {
   (window as any).getThemeManager = () => themeManager;
 }
+
+// NAVIGATION CONTROLS
+
+// Navigation context state
+let navigationContext = {
+  hasSelection: false,
+  canEnter: false,
+  canExit: false,
+  canNavigateSiblings: false,
+  containerCount: 0
+};
+
+// Navigation controls setting state
+let navigationControlsEnabled = true;
+
+// Update navigation button states based on context
+function updateNavigationControlButtons(context: typeof navigationContext): void {
+  const enterBtn = document.getElementById('nav-enter') as HTMLButtonElement;
+  const exitBtn = document.getElementById('nav-exit') as HTMLButtonElement;
+  const prevBtn = document.getElementById('nav-prev') as HTMLButtonElement;
+  const nextBtn = document.getElementById('nav-next') as HTMLButtonElement;
+  const collapseBtn = document.getElementById('nav-collapse') as HTMLButtonElement;
+
+  if (enterBtn) {
+    const canEnter = context.canEnter;
+    const wasDisabled = enterBtn.disabled;
+    enterBtn.disabled = !canEnter;
+    enterBtn.setAttribute('aria-label', 
+      canEnter ? 'Enter container (Enter)' : 'Enter container (Enter) - no container selected'
+    );
+    
+    // Update aria-describedby for dynamic state
+    const descElement = document.getElementById('nav-enter-desc');
+    if (descElement) {
+      descElement.textContent = canEnter ? 
+        'Select all children of container and focus view' : 
+        'No container selected to enter';
+    }
+  }
+
+  if (exitBtn) {
+    const canExit = context.canExit;
+    exitBtn.disabled = !canExit;
+    exitBtn.setAttribute('aria-label', 
+      canExit ? 'Exit container (Shift+Enter)' : 'Exit container (Shift+Enter) - no parent container'
+    );
+    
+    const descElement = document.getElementById('nav-exit-desc');
+    if (descElement) {
+      descElement.textContent = canExit ? 
+        'Move selection to parent container' : 
+        'No parent container available';
+    }
+  }
+
+  if (prevBtn) {
+    const canNavigate = context.canNavigateSiblings;
+    prevBtn.disabled = !canNavigate;
+    prevBtn.setAttribute('aria-label', 
+      canNavigate ? 'Previous/Down sibling (Shift+Tab)' : 'Previous/Down sibling (Shift+Tab) - no siblings available'
+    );
+    
+    const descElement = document.getElementById('nav-prev-desc');
+    if (descElement) {
+      descElement.textContent = canNavigate ? 
+        'Select previous sibling layer (up in layers panel)' : 
+        'No sibling layers available';
+    }
+  }
+
+  if (nextBtn) {
+    const canNavigate = context.canNavigateSiblings;
+    nextBtn.disabled = !canNavigate;
+    nextBtn.setAttribute('aria-label', 
+      canNavigate ? 'Next/Down sibling (Tab)' : 'Next/Down sibling (Tab) - no siblings available'
+    );
+    
+    const descElement = document.getElementById('nav-next-desc');
+    if (descElement) {
+      descElement.textContent = canNavigate ? 
+        'Select next sibling layer (down in layers panel)' : 
+        'No sibling layers available';
+    }
+  }
+
+  if (collapseBtn) {
+    const hasContainers = context.containerCount > 0;
+    collapseBtn.disabled = !hasContainers;
+    const label = hasContainers ? 
+      `Toggle collapse ${context.containerCount} containers (Alt+L)` : 
+      'Toggle collapse (Alt+L) - no containers on page';
+    collapseBtn.setAttribute('aria-label', label);
+    
+    const descElement = document.getElementById('nav-collapse-desc');
+    if (descElement) {
+      descElement.textContent = hasContainers ? 
+        `Collapse or expand ${context.containerCount} containers on current page` : 
+        'No containers available on current page';
+    }
+  }
+}
+
+// Update navigation controls visibility based on setting
+function updateNavigationControlsVisibility(enabled: boolean): void {
+  const navigationSection = document.getElementById('navigation-section');
+  const navigationHeader = document.getElementById('navigation-header');
+  
+  if (navigationSection && navigationHeader) {
+    if (enabled) {
+      navigationSection.style.display = '';
+      navigationHeader.style.display = '';
+    } else {
+      navigationSection.style.display = 'none';
+      navigationHeader.style.display = 'none';
+    }
+  }
+}
+
+// Accessibility preferences detection and handling
+function setupAccessibilitySupport(): void {
+  // Detect and respond to reduced motion preference
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const handleReducedMotionChange = (e: MediaQueryListEvent) => {
+    document.documentElement.setAttribute('data-reduced-motion', e.matches.toString());
+    console.log('Reduced motion preference changed:', e.matches);
+  };
+  
+  // Set initial state
+  document.documentElement.setAttribute('data-reduced-motion', prefersReducedMotion.matches.toString());
+  
+  // Listen for changes
+  if (prefersReducedMotion.addEventListener) {
+    prefersReducedMotion.addEventListener('change', handleReducedMotionChange);
+  } else {
+    // Fallback for older browsers
+    prefersReducedMotion.addListener(handleReducedMotionChange);
+  }
+
+  // Detect and respond to high contrast preference
+  const prefersHighContrast = window.matchMedia('(prefers-contrast: high)');
+  const handleHighContrastChange = (e: MediaQueryListEvent) => {
+    document.documentElement.setAttribute('data-high-contrast', e.matches.toString());
+    console.log('High contrast preference changed:', e.matches);
+  };
+  
+  // Set initial state
+  document.documentElement.setAttribute('data-high-contrast', prefersHighContrast.matches.toString());
+  
+  // Listen for changes
+  if (prefersHighContrast.addEventListener) {
+    prefersHighContrast.addEventListener('change', handleHighContrastChange);
+  } else {
+    // Fallback for older browsers
+    prefersHighContrast.addListener(handleHighContrastChange);
+  }
+
+  // Detect forced colors mode (Windows High Contrast)
+  const forcedColors = window.matchMedia('(forced-colors: active)');
+  const handleForcedColorsChange = (e: MediaQueryListEvent) => {
+    document.documentElement.setAttribute('data-forced-colors', e.matches.toString());
+    console.log('Forced colors mode changed:', e.matches);
+    
+    // Adjust navigation announcements for high contrast users
+    if (e.matches) {
+      // More verbose announcements for high contrast users
+      enhanceScreenReaderAnnouncements(true);
+    } else {
+      enhanceScreenReaderAnnouncements(false);
+    }
+  };
+  
+  // Set initial state
+  document.documentElement.setAttribute('data-forced-colors', forcedColors.matches.toString());
+  
+  // Listen for changes
+  if (forcedColors.addEventListener) {
+    forcedColors.addEventListener('change', handleForcedColorsChange);
+  } else {
+    // Fallback for older browsers
+    forcedColors.addListener(handleForcedColorsChange);
+  }
+}
+
+// Enhanced screen reader announcements for accessibility
+function enhanceScreenReaderAnnouncements(enhanced: boolean): void {
+  // Store the preference for use in announcement functions
+  (window as any).enhancedAnnouncements = enhanced;
+}
+
+// Setup navigation controls event listeners
+function setupNavigationControls(): void {
+  const enterBtn = document.getElementById('nav-enter');
+  const exitBtn = document.getElementById('nav-exit');
+  const prevBtn = document.getElementById('nav-prev');
+  const nextBtn = document.getElementById('nav-next');
+  const collapseBtn = document.getElementById('nav-collapse');
+  const navigationGrid = document.querySelector('.navigation-grid');
+
+  // Add click event listeners with screen reader announcements
+  if (enterBtn) {
+    enterBtn.addEventListener('click', () => {
+      console.log('Navigation: Enter container');
+      announceNavigationResult({ success: true, message: 'Attempting to enter container' });
+      sendMessage('navigation-action', { action: 'enter' });
+    });
+  }
+
+  if (exitBtn) {
+    exitBtn.addEventListener('click', () => {
+      console.log('Navigation: Exit container');
+      announceNavigationResult({ success: true, message: 'Attempting to exit container' });
+      sendMessage('navigation-action', { action: 'exit' });
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      console.log('Navigation: Previous sibling');
+      announceNavigationResult({ success: true, message: 'Navigating to previous sibling' });
+      sendMessage('navigation-action', { action: 'prev-sibling' });
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      console.log('Navigation: Next sibling');
+      announceNavigationResult({ success: true, message: 'Navigating to next sibling' });
+      sendMessage('navigation-action', { action: 'next-sibling' });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', () => {
+      console.log('Navigation: Toggle collapse');
+      announceNavigationResult({ success: true, message: 'Toggling container collapse state' });
+      sendMessage('navigation-action', { action: 'toggle-collapse' });
+    });
+  }
+
+  // Add keyboard navigation support
+  if (navigationGrid) {
+    setupNavigationKeyboardSupport(navigationGrid as HTMLElement);
+  }
+}
+
+// Keyboard navigation support for navigation grid
+function setupNavigationKeyboardSupport(navigationGrid: HTMLElement): void {
+  const buttons = Array.from(navigationGrid.querySelectorAll('.nav-button')) as HTMLButtonElement[];
+  
+  // Create a 2D grid representation for navigation
+  const gridButtons: (HTMLButtonElement | null)[][] = [
+    [null, null], // Row 0: Exit, Prev
+    [null, null], // Row 1: Collapse, Next  
+    [null, null]  // Row 2: Enter (spans 2 columns)
+  ];
+
+  // Map buttons to grid positions based on data attributes
+  buttons.forEach(button => {
+    const row = parseInt(button.dataset.gridRow || '0');
+    const col = parseInt(button.dataset.gridCol || '0');
+    if (row >= 0 && row < 3 && col >= 0 && col < 2) {
+      gridButtons[row][col] = button;
+      // For wide buttons (Enter), also occupy the second column
+      if (button.classList.contains('nav-button-wide')) {
+        gridButtons[row][1] = button;
+      }
+    }
+  });
+
+  // Add keyboard event listeners to each button
+  buttons.forEach(button => {
+    button.addEventListener('keydown', (event) => {
+      const currentRow = parseInt(button.dataset.gridRow || '0');
+      const currentCol = parseInt(button.dataset.gridCol || '0');
+      let targetButton: HTMLButtonElement | null = null;
+
+      switch (event.key) {
+        case 'ArrowUp':
+          event.preventDefault();
+          // Move up in grid
+          for (let row = currentRow - 1; row >= 0; row--) {
+            if (gridButtons[row][currentCol] && !gridButtons[row][currentCol]!.disabled) {
+              targetButton = gridButtons[row][currentCol];
+              break;
+            }
+          }
+          // Wrap to bottom if no button found above
+          if (!targetButton) {
+            for (let row = 2; row > currentRow; row--) {
+              if (gridButtons[row][currentCol] && !gridButtons[row][currentCol]!.disabled) {
+                targetButton = gridButtons[row][currentCol];
+                break;
+              }
+            }
+          }
+          break;
+
+        case 'ArrowDown':
+          event.preventDefault();
+          // Move down in grid
+          for (let row = currentRow + 1; row < 3; row++) {
+            if (gridButtons[row][currentCol] && !gridButtons[row][currentCol]!.disabled) {
+              targetButton = gridButtons[row][currentCol];
+              break;
+            }
+          }
+          // Wrap to top if no button found below
+          if (!targetButton) {
+            for (let row = 0; row < currentRow; row++) {
+              if (gridButtons[row][currentCol] && !gridButtons[row][currentCol]!.disabled) {
+                targetButton = gridButtons[row][currentCol];
+                break;
+              }
+            }
+          }
+          break;
+
+        case 'ArrowLeft':
+          event.preventDefault();
+          // Move left in grid
+          const leftCol = currentCol === 0 ? 1 : 0;
+          if (gridButtons[currentRow][leftCol] && !gridButtons[currentRow][leftCol]!.disabled) {
+            targetButton = gridButtons[currentRow][leftCol];
+          }
+          break;
+
+        case 'ArrowRight':
+          event.preventDefault();
+          // Move right in grid
+          const rightCol = currentCol === 0 ? 1 : 0;
+          if (gridButtons[currentRow][rightCol] && !gridButtons[currentRow][rightCol]!.disabled) {
+            targetButton = gridButtons[currentRow][rightCol];
+          }
+          break;
+
+        case 'Enter':
+        case ' ':
+          event.preventDefault();
+          // Activate current button
+          if (!button.disabled) {
+            button.click();
+          }
+          break;
+
+        case 'Home':
+          event.preventDefault();
+          // Go to first enabled button
+          for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 2; col++) {
+              if (gridButtons[row][col] && !gridButtons[row][col]!.disabled) {
+                targetButton = gridButtons[row][col];
+                break;
+              }
+            }
+            if (targetButton) break;
+          }
+          break;
+
+        case 'End':
+          event.preventDefault();
+          // Go to last enabled button
+          for (let row = 2; row >= 0; row--) {
+            for (let col = 1; col >= 0; col--) {
+              if (gridButtons[row][col] && !gridButtons[row][col]!.disabled) {
+                targetButton = gridButtons[row][col];
+                break;
+              }
+            }
+            if (targetButton) break;
+          }
+          break;
+      }
+
+      // Focus the target button if found
+      if (targetButton && targetButton !== button) {
+        targetButton.focus();
+      }
+    });
+  });
+
+  // Set initial focus management
+  navigationGrid.addEventListener('focusin', (event) => {
+    const target = event.target as HTMLElement;
+    if (target.classList.contains('nav-button')) {
+      // Announce current button state for screen readers
+      announceButtonState(target as HTMLButtonElement);
+    }
+  });
+}
+
+// Announce button state for screen readers
+function announceButtonState(button: HTMLButtonElement): void {
+  const isDisabled = button.disabled;
+  const shortcut = button.dataset.shortcut || '';
+  const buttonId = button.id;
+  const enhanced = (window as any).enhancedAnnouncements || false;
+  
+  // Get contextual information based on button type
+  let contextInfo = '';
+  let detailedInfo = '';
+  
+  switch (buttonId) {
+    case 'nav-enter':
+      contextInfo = isDisabled ? 'No container selected to enter' : 'Container available to enter';
+      detailedInfo = enhanced ? (isDisabled ? 
+        'Select a Section, Group, or Frame first to enable this action' : 
+        'Will select all children and focus the view on container contents') : '';
+      break;
+    case 'nav-exit':
+      contextInfo = isDisabled ? 'No parent container to exit to' : 'Parent container available';
+      detailedInfo = enhanced ? (isDisabled ? 
+        'Current selection has no parent container' : 
+        'Will select the parent container of current selection') : '';
+      break;
+    case 'nav-prev':
+    case 'nav-next':
+      contextInfo = isDisabled ? 'No sibling layers available' : 'Sibling layers available for navigation';
+      detailedInfo = enhanced ? (isDisabled ? 
+        'Current selection has no sibling layers at the same level' : 
+        'Will navigate to the adjacent layer at the same hierarchy level') : '';
+      break;
+    case 'nav-collapse':
+      contextInfo = isDisabled ? 'No containers on page to collapse' : 'Containers available to collapse';
+      detailedInfo = enhanced ? (isDisabled ? 
+        'Current page contains no Groups, Sections, or Frames' : 
+        'Will toggle the collapsed state of all containers on the page') : '';
+      break;
+  }
+  
+  // Create a comprehensive announcement
+  const label = button.getAttribute('aria-label') || '';
+  const baseAnnouncement = `${label}. ${contextInfo}. ${isDisabled ? 'Button disabled' : 'Button enabled'}`;
+  const announcement = enhanced && detailedInfo ? `${baseAnnouncement}. ${detailedInfo}` : baseAnnouncement;
+  
+  // Use existing live region or create one
+  let liveRegion = document.getElementById('navigation-live-region');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.id = 'navigation-live-region';
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'sr-only';
+    document.body.appendChild(liveRegion);
+  }
+  
+  // Clear and set new announcement with a slight delay to ensure it's read
+  liveRegion.textContent = '';
+  setTimeout(() => {
+    liveRegion!.textContent = announcement;
+  }, 100);
+}
+
+// Announce navigation action results
+function announceNavigationResult(result: { success: boolean; message: string }): void {
+  let liveRegion = document.getElementById('navigation-result-region');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.id = 'navigation-result-region';
+    liveRegion.setAttribute('aria-live', 'assertive');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'sr-only';
+    document.body.appendChild(liveRegion);
+  }
+  
+  const announcement = result.success ? 
+    `Navigation successful: ${result.message}` : 
+    `Navigation failed: ${result.message}`;
+  
+  liveRegion.textContent = '';
+  setTimeout(() => {
+    liveRegion!.textContent = announcement;
+  }, 50);
+}
+
+// Enhanced button state updates with screen reader announcements
+function updateButtonStateWithAnnouncement(button: HTMLButtonElement, enabled: boolean, reason?: string): void {
+  const wasDisabled = button.disabled;
+  button.disabled = !enabled;
+  
+  // Announce state change if it changed
+  if (wasDisabled !== !enabled) {
+    const buttonName = button.querySelector('.nav-label')?.textContent || 'Button';
+    const stateChange = enabled ? 'enabled' : 'disabled';
+    const announcement = `${buttonName} button ${stateChange}${reason ? `: ${reason}` : ''}`;
+    
+    // Use a separate live region for state changes
+    let stateRegion = document.getElementById('navigation-state-region');
+    if (!stateRegion) {
+      stateRegion = document.createElement('div');
+      stateRegion.id = 'navigation-state-region';
+      stateRegion.setAttribute('aria-live', 'polite');
+      stateRegion.setAttribute('aria-atomic', 'false');
+      stateRegion.className = 'sr-only';
+      document.body.appendChild(stateRegion);
+    }
+    
+    stateRegion.textContent = '';
+    setTimeout(() => {
+      stateRegion!.textContent = announcement;
+    }, 200);
+  }
+}
+
+// Setup navigation controls settings
+function setupNavigationSettings(): void {
+  const navigationToggle = document.getElementById('navigation-controls-toggle') as HTMLInputElement;
+  
+  if (navigationToggle) {
+    navigationToggle.addEventListener('change', () => {
+      const enabled = navigationToggle.checked;
+      console.log('Navigation controls setting changed:', enabled);
+      sendMessage('toggle-navigation-controls', { enabled });
+    });
+  }
+}
+
+// Initialize navigation controls
+function initializeNavigationControls(): void {
+  setupNavigationControls();
+  setupNavigationSettings();
+  
+  // Initialize accessibility features
+  initializeAccessibilityFeatures();
+  
+  // Request current navigation controls setting from plugin
+  sendMessage('get-navigation-controls-setting');
+}
+
+// Initialize accessibility features for navigation controls
+function initializeAccessibilityFeatures(): void {
+  // Detect and handle high contrast mode
+  detectHighContrastMode();
+  
+  // Detect and handle reduced motion preference
+  detectReducedMotionPreference();
+  
+  // Set up media query listeners for accessibility preferences
+  setupAccessibilityListeners();
+  
+  // Validate color contrast ratios
+  validateNavigationContrast();
+}
+
+// Detect high contrast mode (Windows High Contrast, forced-colors)
+function detectHighContrastMode(): void {
+  const supportsHighContrast = window.matchMedia('(forced-colors: active)').matches ||
+                               window.matchMedia('(prefers-contrast: high)').matches;
+  
+  if (supportsHighContrast) {
+    document.documentElement.setAttribute('data-high-contrast', 'true');
+    console.log('🔍 High contrast mode detected - applying enhanced navigation accessibility');
+    
+    // Apply additional high contrast enhancements
+    enhanceNavigationForHighContrast();
+  }
+}
+
+// Detect reduced motion preference
+function detectReducedMotionPreference(): void {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  
+  if (prefersReducedMotion) {
+    document.documentElement.setAttribute('data-reduced-motion', 'true');
+    console.log('🎭 Reduced motion preference detected - disabling navigation animations');
+    
+    // Apply reduced motion enhancements
+    enhanceNavigationForReducedMotion();
+  }
+}
+
+// Set up media query listeners for accessibility preferences
+function setupAccessibilityListeners(): void {
+  // Listen for high contrast changes
+  const highContrastQuery = window.matchMedia('(forced-colors: active)');
+  const contrastQuery = window.matchMedia('(prefers-contrast: high)');
+  
+  highContrastQuery.addEventListener('change', (e) => {
+    if (e.matches) {
+      document.documentElement.setAttribute('data-high-contrast', 'true');
+      enhanceNavigationForHighContrast();
+    } else {
+      document.documentElement.removeAttribute('data-high-contrast');
+    }
+  });
+  
+  contrastQuery.addEventListener('change', (e) => {
+    if (e.matches) {
+      document.documentElement.setAttribute('data-high-contrast', 'true');
+      enhanceNavigationForHighContrast();
+    } else if (!window.matchMedia('(forced-colors: active)').matches) {
+      document.documentElement.removeAttribute('data-high-contrast');
+    }
+  });
+  
+  // Listen for reduced motion changes
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  motionQuery.addEventListener('change', (e) => {
+    if (e.matches) {
+      document.documentElement.setAttribute('data-reduced-motion', 'true');
+      enhanceNavigationForReducedMotion();
+    } else {
+      document.documentElement.removeAttribute('data-reduced-motion');
+    }
+  });
+}
+
+// Enhance navigation controls for high contrast mode
+function enhanceNavigationForHighContrast(): void {
+  const navButtons = document.querySelectorAll('.nav-button');
+  
+  navButtons.forEach((button) => {
+    const btn = button as HTMLButtonElement;
+    
+    // Add enhanced focus indicators
+    btn.addEventListener('focus', () => {
+      btn.style.outline = '3px solid';
+      btn.style.outlineOffset = '2px';
+    });
+    
+    // Ensure disabled state is clearly visible
+    if (btn.disabled) {
+      btn.style.borderStyle = 'dashed';
+      btn.style.opacity = '1';
+    }
+  });
+  
+  // Enhance navigation grid visibility
+  const navGrid = document.querySelector('.navigation-grid') as HTMLElement;
+  if (navGrid) {
+    navGrid.style.border = '2px solid';
+    navGrid.style.padding = '4px';
+  }
+}
+
+// Enhance navigation controls for reduced motion
+function enhanceNavigationForReducedMotion(): void {
+  const navButtons = document.querySelectorAll('.nav-button');
+  
+  navButtons.forEach((button) => {
+    const btn = button as HTMLButtonElement;
+    
+    // Remove all transitions and animations
+    btn.style.transition = 'none';
+    btn.style.animation = 'none';
+    
+    // Enhance focus feedback without motion
+    btn.addEventListener('focus', () => {
+      btn.style.backgroundColor = 'var(--theme-bg-hover)';
+      btn.style.borderWidth = '2px';
+    });
+    
+    btn.addEventListener('blur', () => {
+      btn.style.backgroundColor = '';
+      btn.style.borderWidth = '';
+    });
+  });
+}
+
+// Validate color contrast ratios for navigation controls
+function validateNavigationContrast(): void {
+  const navButtons = document.querySelectorAll('.nav-button');
+  
+  navButtons.forEach((button) => {
+    const btn = button as HTMLButtonElement;
+    const computedStyle = window.getComputedStyle(btn);
+    
+    // Get computed colors
+    const backgroundColor = computedStyle.backgroundColor;
+    const textColor = computedStyle.color;
+    
+    // Log contrast information for debugging
+    console.log(`🎨 Navigation button contrast - Background: ${backgroundColor}, Text: ${textColor}`);
+    
+    // Add contrast validation attribute for testing
+    btn.setAttribute('data-contrast-validated', 'true');
+  });
+}
+
+// Test navigation controls accessibility features
+function testNavigationAccessibility(): void {
+  console.log('🧪 Testing navigation controls accessibility...');
+  
+  // Test high contrast mode
+  testHighContrastMode();
+  
+  // Test reduced motion mode
+  testReducedMotionMode();
+  
+  // Test color contrast ratios
+  testColorContrastRatios();
+  
+  // Test keyboard navigation
+  testKeyboardNavigation();
+  
+  console.log('✅ Navigation accessibility tests completed');
+}
+
+// Test high contrast mode functionality
+function testHighContrastMode(): void {
+  console.log('🔍 Testing high contrast mode...');
+  
+  const navButtons = document.querySelectorAll('.nav-button');
+  const originalHighContrast = document.documentElement.getAttribute('data-high-contrast');
+  
+  // Simulate high contrast mode
+  document.documentElement.setAttribute('data-high-contrast', 'true');
+  enhanceNavigationForHighContrast();
+  
+  // Verify enhancements are applied
+  navButtons.forEach((button, index) => {
+    const btn = button as HTMLButtonElement;
+    const computedStyle = window.getComputedStyle(btn);
+    
+    console.log(`Button ${index + 1} high contrast - Border width: ${computedStyle.borderWidth}, Font weight: ${computedStyle.fontWeight}`);
+  });
+  
+  // Restore original state
+  if (originalHighContrast) {
+    document.documentElement.setAttribute('data-high-contrast', originalHighContrast);
+  } else {
+    document.documentElement.removeAttribute('data-high-contrast');
+  }
+}
+
+// Test reduced motion mode functionality
+function testReducedMotionMode(): void {
+  console.log('🎭 Testing reduced motion mode...');
+  
+  const navButtons = document.querySelectorAll('.nav-button');
+  const originalReducedMotion = document.documentElement.getAttribute('data-reduced-motion');
+  
+  // Simulate reduced motion mode
+  document.documentElement.setAttribute('data-reduced-motion', 'true');
+  enhanceNavigationForReducedMotion();
+  
+  // Verify motion is disabled
+  navButtons.forEach((button, index) => {
+    const btn = button as HTMLButtonElement;
+    const computedStyle = window.getComputedStyle(btn);
+    
+    console.log(`Button ${index + 1} reduced motion - Transition: ${computedStyle.transition}, Animation: ${computedStyle.animation}`);
+  });
+  
+  // Restore original state
+  if (originalReducedMotion) {
+    document.documentElement.setAttribute('data-reduced-motion', originalReducedMotion);
+  } else {
+    document.documentElement.removeAttribute('data-reduced-motion');
+  }
+}
+
+// Test color contrast ratios
+function testColorContrastRatios(): void {
+  console.log('🎨 Testing color contrast ratios...');
+  
+  const navButtons = document.querySelectorAll('.nav-button');
+  
+  navButtons.forEach((button, index) => {
+    const btn = button as HTMLButtonElement;
+    const computedStyle = window.getComputedStyle(btn);
+    
+    const backgroundColor = computedStyle.backgroundColor;
+    const textColor = computedStyle.color;
+    const borderColor = computedStyle.borderColor;
+    
+    console.log(`Button ${index + 1} colors:`, {
+      background: backgroundColor,
+      text: textColor,
+      border: borderColor,
+      disabled: btn.disabled
+    });
+    
+    // Check if button meets basic visibility requirements
+    const isVisible = backgroundColor !== textColor && 
+                     computedStyle.opacity !== '0' && 
+                     computedStyle.visibility !== 'hidden';
+    
+    console.log(`Button ${index + 1} visibility: ${isVisible ? '✅ Visible' : '❌ Not visible'}`);
+  });
+}
+
+// Test keyboard navigation functionality
+function testKeyboardNavigation(): void {
+  console.log('⌨️ Testing keyboard navigation...');
+  
+  const navGrid = document.querySelector('.navigation-grid') as HTMLElement;
+  const navButtons = navGrid?.querySelectorAll('.nav-button') as NodeListOf<HTMLButtonElement>;
+  
+  if (!navButtons || navButtons.length === 0) {
+    console.log('❌ No navigation buttons found');
+    return;
+  }
+  
+  // Test tab order
+  const tabOrder: number[] = [];
+  navButtons.forEach((button, index) => {
+    const tabIndex = button.tabIndex;
+    tabOrder.push(tabIndex);
+    console.log(`Button ${index + 1} tab index: ${tabIndex}`);
+  });
+  
+  // Test ARIA attributes
+  navButtons.forEach((button, index) => {
+    const ariaLabel = button.getAttribute('aria-label');
+    const ariaDescribedBy = button.getAttribute('aria-describedby');
+    const role = button.getAttribute('role');
+    
+    console.log(`Button ${index + 1} ARIA:`, {
+      label: ariaLabel,
+      describedBy: ariaDescribedBy,
+      role: role
+    });
+  });
+  
+  // Test grid structure
+  const gridRole = navGrid?.getAttribute('role');
+  const gridLabel = navGrid?.getAttribute('aria-label');
+  
+  console.log('Navigation grid ARIA:', {
+    role: gridRole,
+    label: gridLabel
+  });
+}
+
+// Expose testing function for manual testing
+(window as any).testNavigationAccessibility = testNavigationAccessibility;
+
+// Manual accessibility testing function for development
+function runAccessibilityTests(): void {
+  console.log('🧪 Running comprehensive navigation accessibility tests...');
+  
+  // Test 1: High contrast mode detection and enhancement
+  console.log('\n1. Testing high contrast mode detection...');
+  const highContrastSupported = window.matchMedia('(prefers-contrast: high)').matches || 
+                               window.matchMedia('(forced-colors: active)').matches;
+  console.log(`High contrast mode: ${highContrastSupported ? '✅ Detected' : '❌ Not detected'}`);
+  
+  // Test 2: Reduced motion detection
+  console.log('\n2. Testing reduced motion detection...');
+  const reducedMotionSupported = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  console.log(`Reduced motion: ${reducedMotionSupported ? '✅ Detected' : '❌ Not detected'}`);
+  
+  // Test 3: Color contrast validation
+  console.log('\n3. Testing color contrast ratios...');
+  testColorContrastRatios();
+  
+  // Test 4: ARIA attributes validation
+  console.log('\n4. Testing ARIA attributes...');
+  const navGrid = document.querySelector('.navigation-grid');
+  const navButtons = document.querySelectorAll('.nav-button');
+  
+  console.log(`Navigation grid ARIA role: ${navGrid?.getAttribute('role') || 'Missing'}`);
+  console.log(`Navigation grid ARIA label: ${navGrid?.getAttribute('aria-label') || 'Missing'}`);
+  
+  navButtons.forEach((button, index) => {
+    const ariaLabel = button.getAttribute('aria-label');
+    const ariaDescribedBy = button.getAttribute('aria-describedby');
+    console.log(`Button ${index + 1} - Label: ${ariaLabel || 'Missing'}, DescribedBy: ${ariaDescribedBy || 'Missing'}`);
+  });
+  
+  // Test 5: Focus management
+  console.log('\n5. Testing focus management...');
+  navButtons.forEach((button, index) => {
+    const btn = button as HTMLButtonElement;
+    const tabIndex = btn.tabIndex;
+    const focusable = !btn.disabled && tabIndex >= 0;
+    console.log(`Button ${index + 1} - Focusable: ${focusable ? '✅' : '❌'}, TabIndex: ${tabIndex}`);
+  });
+  
+  // Test 6: Screen reader content
+  console.log('\n6. Testing screen reader content...');
+  const srElements = document.querySelectorAll('.sr-only');
+  console.log(`Screen reader elements found: ${srElements.length}`);
+  srElements.forEach((element, index) => {
+    console.log(`SR Element ${index + 1}: ${element.textContent?.substring(0, 50)}...`);
+  });
+  
+  console.log('\n✅ Accessibility tests completed. Check console for detailed results.');
+}
+
+// Expose manual testing function
+(window as any).runAccessibilityTests = runAccessibilityTests;

@@ -6,6 +6,14 @@
 import type { Bookmark, CurrentAnchorState, RecentHistoryState, HistoryEntry } from './types';
 import { DEFAULT_UI_WIDTH, DEFAULT_UI_HEIGHT } from './constants';
 
+// ===== UI SECTION STATE INTERFACE =====
+interface UISectionState {
+  [sectionId: string]: {
+    expanded: boolean;
+    lastModified: number;
+  };
+}
+
 // ===== LICENSE STATE INTERFACE =====
 interface LicenseState {
   licenseKey: string | null;
@@ -34,7 +42,7 @@ export async function getBookmarks(forceReload: boolean = false): Promise<Bookma
   if (!forceReload && bookmarksCache) {
     return bookmarksCache;
   }
-  
+
   try {
     const data = figma.root.getPluginData('bookmarks');
     const bookmarks = data ? JSON.parse(data) : [];
@@ -60,14 +68,14 @@ export function clearBookmarksCache(): void {
 }
 
 // ===== ANCHOR STATE =====
-export let currentAnchorState: CurrentAnchorState = { 
-  bookmarkId: null, 
-  timestamp: 0 
+export let currentAnchorState: CurrentAnchorState = {
+  bookmarkId: null,
+  timestamp: 0
 };
 
-export let recentHistoryState: RecentHistoryState = { 
-  previousBookmarkId: null, 
-  lastUpdated: 0 
+export let recentHistoryState: RecentHistoryState = {
+  previousBookmarkId: null,
+  lastUpdated: 0
 };
 
 // ===== PREVIOUS SELECTION STATE =====
@@ -109,7 +117,7 @@ export async function loadAnchorState(): Promise<void> {
     if (anchorData) {
       currentAnchorState = anchorData;
     }
-    
+
     const historyData = await figma.clientStorage.getAsync('recentHistory');
     if (historyData) {
       recentHistoryState = historyData;
@@ -140,7 +148,7 @@ export function addToHistory(entry: HistoryEntry): void {
   navigationHistory.splice(historyIndex + 1);
   navigationHistory.push(entry);
   historyIndex = navigationHistory.length - 1;
-  
+
   // Keep history size manageable
   if (navigationHistory.length > 50) {
     navigationHistory.shift();
@@ -205,7 +213,7 @@ export function setLicenseValid(isValid: boolean, expiresAt: string | null = nul
   licenseState.isValid = isValid;
   licenseState.expiresAt = expiresAt;
   licenseState.lastValidated = Date.now();
-  
+
   if (!isValid) {
     licenseState.validationAttempts++;
   } else {
@@ -248,5 +256,62 @@ export function clearLicenseState(): void {
     expiresAt: null,
     lastValidated: 0,
     validationAttempts: 0
+  };
+}
+
+// ===== UI SECTION STATE =====
+export let uiSectionStates: UISectionState = {};
+
+// Debounce utility for state saving
+let saveStateTimeout: ReturnType<typeof setTimeout> | null = null;
+
+export async function loadUISectionStates(): Promise<void> {
+  try {
+    const data = await figma.clientStorage.getAsync('uiSectionStates');
+    if (data && typeof data === 'object') {
+      uiSectionStates = data;
+    }
+  } catch (error) {
+    console.error('Failed to load UI section states:', error);
+    uiSectionStates = {};
+  }
+}
+
+export async function saveUISectionState(sectionId: string, expanded: boolean): Promise<void> {
+  uiSectionStates[sectionId] = {
+    expanded,
+    lastModified: Date.now()
+  };
+
+  try {
+    await figma.clientStorage.setAsync('uiSectionStates', uiSectionStates);
+  } catch (error) {
+    console.error('Failed to save UI section state:', error);
+  }
+}
+
+export function debouncedSaveUISectionState(sectionId: string, expanded: boolean): void {
+  // Clear existing timeout
+  if (saveStateTimeout !== null) {
+    clearTimeout(saveStateTimeout);
+  }
+
+  // Set new timeout for debounced save
+  saveStateTimeout = setTimeout(async () => {
+    await saveUISectionState(sectionId, expanded);
+    saveStateTimeout = null;
+  }, 300);
+}
+
+export function getSectionState(sectionId: string): boolean {
+  const savedState = uiSectionStates[sectionId];
+  return savedState ? savedState.expanded : true; // Default to expanded
+}
+
+export function initializeDefaultStates(): UISectionState {
+  return {
+    'tags-header': { expanded: true, lastModified: Date.now() },
+    'anchors-header': { expanded: true, lastModified: Date.now() },
+    'navigation-header': { expanded: true, lastModified: Date.now() }
   };
 }

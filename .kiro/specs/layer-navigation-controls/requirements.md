@@ -12,9 +12,10 @@ This feature adds a new button section to the Stratus Hue plugin that provides l
 
 #### Acceptance Criteria
 
-1. WHEN a Section, Group, or Frame is selected AND the user clicks the Enter button THEN the system SHALL select all direct children of that container and focus the view on the container's contents
+1. WHEN a Section, Group, or Frame is selected AND the user clicks the Enter button THEN the system SHALL select all direct children of that container and focus the view on the container's contents WITHOUT automatically expanding/opening the container in the layers panel
 2. WHEN no container is selected AND the user clicks the Enter button THEN the system SHALL provide feedback that no valid container is selected
 3. WHEN a container has no children AND the user clicks the Enter button THEN the system SHALL provide feedback that the container is empty
+4. WHEN entering a container THEN the system SHALL NOT modify the expanded/collapsed state of containers or folders in the layers panel
 
 ### Requirement 2
 
@@ -32,21 +33,24 @@ This feature adds a new button section to the Stratus Hue plugin that provides l
 
 #### Acceptance Criteria
 
-1. WHEN a layer is selected AND the user clicks the Tab button THEN the system SHALL select the next sibling layer in the hierarchy
-2. WHEN a layer is selected AND the user clicks the Shift+Tab button THEN the system SHALL select the previous sibling layer in the hierarchy
-3. WHEN the last sibling is selected AND the user clicks the Tab button THEN the system SHALL wrap to the first sibling
-4. WHEN the first sibling is selected AND the user clicks the Shift+Tab button THEN the system SHALL wrap to the last sibling
+1. WHEN a layer is selected AND the user clicks the Tab button THEN the system SHALL select the next sibling layer down in the hierarchy (toward the bottom of the layers panel) WITHOUT automatically expanding/opening any containers in the layers panel
+2. WHEN a layer is selected AND the user clicks the Shift+Tab button THEN the system SHALL select the previous sibling layer up in the hierarchy (toward the top of the layers panel) WITHOUT automatically expanding/opening any containers in the layers panel
+3. WHEN the last sibling (bottom-most) is selected AND the user clicks the Tab button THEN the system SHALL wrap to the first sibling (top-most)
+4. WHEN the first sibling (top-most) is selected AND the user clicks the Shift+Tab button THEN the system SHALL wrap to the last sibling (bottom-most)
 5. WHEN no layer is selected AND the user clicks Tab or Shift+Tab THEN the system SHALL select the first top-level layer
+6. WHEN navigating between siblings THEN the system SHALL NOT modify the expanded/collapsed state of containers or folders in the layers panel
 
 ### Requirement 4
 
-**User Story:** As a Figma designer, I want to collapse container elements using a button control, so that I can clean up the layer panel view and focus on higher-level structure.
+**User Story:** As a Figma designer, I want to collapse container elements using a button control, so that I can clean up the layer panel view and focus on higher-level structure at the current hierarchy level.
 
 #### Acceptance Criteria
 
-1. WHEN any layer is selected AND the user clicks the Collapse button (Alt+L equivalent) THEN the system SHALL collapse all Groups, Sections, and Frames on the current page
-2. WHEN containers are already collapsed AND the user clicks the Collapse button THEN the system SHALL expand all Groups, Sections, and Frames on the current page
-3. WHEN the collapse action is performed THEN the system SHALL maintain the current selection if possible
+1. WHEN any layer is selected AND the user clicks the Collapse button THEN the system SHALL collapse only the selected layers and their siblings that are containers (Groups, Sections, and Frames)
+2. WHEN containers at the sibling level are already collapsed AND the user clicks the Collapse button THEN the system SHALL expand only those sibling containers
+3. WHEN the collapse action is performed THEN the system SHALL NOT affect parent containers or nested child containers outside the sibling group
+4. WHEN the collapse action is performed THEN the system SHALL maintain the current selection if possible
+5. WHEN no layer is selected AND the user clicks the Collapse button THEN the system SHALL collapse/expand all top-level containers on the current page
 
 ### Requirement 5
 
@@ -54,7 +58,7 @@ This feature adds a new button section to the Stratus Hue plugin that provides l
 
 #### Acceptance Criteria
 
-1. WHEN the navigation controls are displayed THEN the system SHALL arrange buttons in a 2x3 grid layout with Exit (top-left), Shift+Tab (top-right), Collapse (middle-left), Tab (middle-right), and Enter (bottom-right)
+1. WHEN the navigation controls are displayed THEN the system SHALL arrange buttons in a 2x3 grid layout with Exit (top-left), Previous/Up (Shift+Tab, top-right), Collapse (middle-left), Next/Down (Tab, middle-right), and Enter (bottom-right)
 2. WHEN buttons are displayed THEN each button SHALL show appropriate visual indicators (icons or text) that clearly represent their function
 3. WHEN buttons are displayed THEN they SHALL follow the plugin's design token system for consistent theming
 4. WHEN a button action is not available THEN the button SHALL be visually disabled but remain visible
@@ -76,7 +80,7 @@ This feature adds a new button section to the Stratus Hue plugin that provides l
 
 #### Acceptance Criteria
 
-1. WHEN the navigation controls are added THEN they SHALL be positioned as a distinct section within the existing plugin layout
+1. WHEN the navigation controls are added THEN they SHALL be positioned as a distinct section below the ANCHORS section within the existing plugin layout
 2. WHEN the navigation controls are displayed THEN they SHALL use the same design tokens and styling patterns as existing plugin elements
 3. WHEN the navigation controls are used THEN they SHALL work alongside existing bookmark and color tagging functionality without conflicts
 4. WHEN the plugin loads THEN the navigation controls SHALL be immediately available without requiring additional setup

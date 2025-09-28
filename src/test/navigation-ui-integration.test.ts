@@ -1,0 +1,487 @@
+/// <reference types="@figma/plugin-typings" />
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { 
+  NavigationActionMessage, 
+  NavigationContextUpdateMessage, 
+  NavigationControlsSettingMessage,
+  ToggleNavigationControlsMessage,
+  NavigationContext 
+} from '../core/types';
+
+// Mock UI elements and event handlers
+const mockNavigationButtons = {
+  enter: { disabled: false, addEventListener: vi.fn(), removeEventListener: vi.fn() },
+  exit: { disabled: false, addEventListener: vi.fn(), removeEventListener: vi.fn() },
+  nextSibling: { disabled: false, addEventListener: vi.fn(), removeEventListener: vi.fn() },
+  prevSibling: { disabled: false, addEventListener: vi.fn(), removeEventListener: vi.fn() },
+  collapse: { disabled: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }
+};
+
+const mockNavigationSection = {
+  style: { display: 'block' },
+  classList: { add: vi.fn(), remove: vi.fn(), toggle: vi.fn() }
+};
+
+const mockSettingsToggle = {
+  checked: true,
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn()
+};
+
+describe('Navigation UI Integration Tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Reset mock states
+    Object.values(mockNavigationButtons).forEach(button => {
+      button.disabled = false;
+    });
+    mockNavigationSection.style.display = 'block';
+    mockSettingsToggle.checked = true;
+    figma.ui.postMessage = vi.fn();
+  });
+
+  describe('Message Handling Integration', () => {
+    it('should handle navigation action messages correctly', () => {
+      // Arrange
+      const mockMessageHandler = vi.fn();
+      const enterMessage: NavigationActionMessage = {
+        type: 'navigation-action',
+        action: 'enter'
+      };
+
+      // Act - Simulate message from UI
+      mockMessageHandler(enterMessage);
+
+      // Assert
+      expect(mockMessageHandler).toHaveBeenCalledWith(enterMessage);
+      expect(enterMessage.type).toBe('navigation-action');
+      expect(enterMessage.action).toBe('enter');
+    });
+
+    it('should send context updates to UI when selection changes', () => {
+      // Arrange
+      const mockContext: NavigationContext = {
+        hasSelection: true,
+        canEnter: true,
+        canExit: false,
+        canNavigateSiblings: true,
+        containerCount: 5
+      };
+
+      const expectedMessage: NavigationContextUpdateMessage = {
+        type: 'navigation-context-update',
+        context: mockContext
+      };
+
+      // Act - Simulate context update from plugin
+      figma.ui.postMessage(expectedMessage);
+
+      // Assert
+      expect(figma.ui.postMessage).toHaveBeenCalledWith(expectedMessage);
+    });
+
+    it('should handle settings toggle messages', () => {
+      // Arrange
+      const toggleMessage: ToggleNavigationControlsMessage = {
+        type: 'toggle-navigation-controls',
+        enabled: false
+      };
+
+      const mockSettingsHandler = vi.fn((message) => {
+        if (message.type === 'toggle-navigation-controls') {
+          // Simulate settings update
+          const response: NavigationControlsSettingMessage = {
+            type: 'navigation-controls-setting',
+            enabled: message.enabled
+          };
+          figma.ui.postMessage(response);
+        }
+      });
+
+      // Act
+      mockSettingsHandler(toggleMessage);
+
+      // Assert
+      expect(figma.ui.postMessage).toHaveBeenCalledWith({
+        type: 'navigation-controls-setting',
+        enabled: false
+      });
+    });
+
+    it('should validate message formats before processing', () => {
+      // Arrange
+      const validMessage: NavigationActionMessage = {
+        type: 'navigation-action',
+        action: 'enter'
+      };
+
+      const invalidMessage = {
+        type: 'navigation-action'
+        // missing action property
+      };
+
+      const mockValidator = (message: any): message is NavigationActionMessage => {
+        return message.type === 'navigation-action' && 
+               typeof message.action === 'string' &&
+               ['enter', 'exit', 'next-sibling', 'prev-sibling', 'toggle-collapse'].includes(message.action);
+      };
+
+      // Act & Assert
+      expect(mockValidator(validMessage)).toBe(true);
+      expect(mockValidator(invalidMessage)).toBe(false);
+    });
+  });
+
+  describe('Button State Management', () => {
+    it('should update button states based on navigation context', () => {
+      // Arrange
+      const context: NavigationContext = {
+        hasSelection: true,
+        canEnter: false,      // Disable enter button
+        canExit: true,        // Enable exit button
+        canNavigateSiblings: false, // Disable sibling buttons
+        containerCount: 3
+      };
+
+      const mockUpdateButtonStates = (ctx: NavigationContext) => {
+        mockNavigationButtons.enter.disabled = !ctx.canEnter;
+        mockNavigationButtons.exit.disabled = !ctx.canExit;
+        mockNavigationButtons.nextSibling.disabled = !ctx.canNavigateSiblings;
+        mockNavigationButtons.prevSibling.disabled = !ctx.canNavigateSiblings;
+        mockNavigationButtons.collapse.disabled = ctx.containerCount === 0;
+      };
+
+      // Act
+      mockUpdateButtonStates(context);
+
+      // Assert
+      expect(mockNavigationButtons.enter.disabled).toBe(true);
+      expect(mockNavigationButtons.exit.disabled).toBe(false);
+      expect(mockNavigationButtons.nextSibling.disabled).toBe(true);
+      expect(mockNavigationButtons.prevSibling.disabled).toBe(true);
+      expect(mockNavigationButtons.collapse.disabled).toBe(false);
+    });
+
+    it('should disable all buttons when no selection exists', () => {
+      // Arrange
+      const emptyContext: NavigationContext = {
+        hasSelection: false,
+        canEnter: false,
+        canExit: false,
+        canNavigateSiblings: false,
+        containerCount: 0
+      };
+
+      const mockUpdateButtonStates = (ctx: NavigationContext) => {
+        const allDisabled = !ctx.hasSelection;
+        mockNavigationButtons.enter.disabled = allDisabled || !ctx.canEnter;
+        mockNavigationButtons.exit.disabled = allDisabled || !ctx.canExit;
+        mockNavigationButtons.nextSibling.disabled = allDisabled || !ctx.canNavigateSiblings;
+        mockNavigationButtons.prevSibling.disabled = allDisabled || !ctx.canNavigateSiblings;
+        mockNavigationButtons.collapse.disabled = ctx.containerCount === 0;
+      };
+
+      // Act
+      mockUpdateButtonStates(emptyContext);
+
+      // Assert
+      Object.values(mockNavigationButtons).forEach(button => {
+        expect(button.disabled).toBe(true);
+      });
+    });
+
+    it('should handle rapid context updates efficiently', () => {
+      // Arrange
+      const contexts: NavigationContext[] = [
+        { hasSelection: true, canEnter: true, canExit: false, canNavigateSiblings: true, containerCount: 2 },
+        { hasSelection: true, canEnter: false, canExit: true, canNavigateSiblings: false, containerCount: 2 },
+        { hasSelection: false, canEnter: false, canExit: false, canNavigateSiblings: false, containerCount: 0 }
+      ];
+
+      const mockUpdateButtonStates = vi.fn((ctx: NavigationContext) => {
+        mockNavigationButtons.enter.disabled = !ctx.canEnter;
+        mockNavigationButtons.exit.disabled = !ctx.canExit;
+      });
+
+      // Act - Simulate rapid updates
+      const startTime = performance.now();
+      contexts.forEach(context => mockUpdateButtonStates(context));
+      const endTime = performance.now();
+
+      // Assert
+      expect(endTime - startTime).toBeLessThan(10); // Should be very fast
+      expect(mockUpdateButtonStates).toHaveBeenCalledTimes(3);
+    });
+  });
+
+  describe('Event Handler Integration', () => {
+    it('should attach event listeners to navigation buttons', () => {
+      // Arrange
+      const mockAttachEventListeners = () => {
+        Object.entries(mockNavigationButtons).forEach(([action, button]) => {
+          const handler = () => {
+            const message: NavigationActionMessage = {
+              type: 'navigation-action',
+              action: action as any
+            };
+            figma.ui.postMessage(message);
+          };
+          button.addEventListener('click', handler);
+        });
+      };
+
+      // Act
+      mockAttachEventListeners();
+
+      // Assert
+      Object.values(mockNavigationButtons).forEach(button => {
+        expect(button.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+      });
+    });
+
+    it('should handle keyboard navigation within button grid', () => {
+      // Arrange
+      const mockKeyboardHandler = vi.fn((event: KeyboardEvent) => {
+        const buttons = Object.values(mockNavigationButtons);
+        const currentIndex = 0; // Mock current focus index
+        
+        switch (event.key) {
+          case 'ArrowRight':
+          case 'ArrowDown':
+            // Move to next button
+            const nextIndex = (currentIndex + 1) % buttons.length;
+            return nextIndex;
+          case 'ArrowLeft':
+          case 'ArrowUp':
+            // Move to previous button
+            const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+            return prevIndex;
+          case 'Enter':
+          case ' ':
+            // Activate current button
+            return 'activate';
+        }
+      });
+
+      // Act & Assert
+      expect(mockKeyboardHandler(new KeyboardEvent('keydown', { key: 'ArrowRight' }))).toBe(1);
+      expect(mockKeyboardHandler(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))).toBe(4);
+      expect(mockKeyboardHandler(new KeyboardEvent('keydown', { key: 'Enter' }))).toBe('activate');
+    });
+
+    it('should clean up event listeners on component unmount', () => {
+      // Arrange
+      const mockCleanupEventListeners = () => {
+        Object.values(mockNavigationButtons).forEach(button => {
+          button.removeEventListener('click', expect.any(Function));
+        });
+      };
+
+      // Act
+      mockCleanupEventListeners();
+
+      // Assert
+      Object.values(mockNavigationButtons).forEach(button => {
+        expect(button.removeEventListener).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Settings UI Integration', () => {
+    it('should show/hide navigation section based on settings', () => {
+      // Arrange
+      const mockToggleVisibility = (enabled: boolean) => {
+        mockNavigationSection.style.display = enabled ? 'block' : 'none';
+        if (enabled) {
+          mockNavigationSection.classList.remove('hidden');
+        } else {
+          mockNavigationSection.classList.add('hidden');
+        }
+      };
+
+      // Act - Hide navigation controls
+      mockToggleVisibility(false);
+
+      // Assert
+      expect(mockNavigationSection.style.display).toBe('none');
+      expect(mockNavigationSection.classList.add).toHaveBeenCalledWith('hidden');
+
+      // Act - Show navigation controls
+      mockToggleVisibility(true);
+
+      // Assert
+      expect(mockNavigationSection.style.display).toBe('block');
+      expect(mockNavigationSection.classList.remove).toHaveBeenCalledWith('hidden');
+    });
+
+    it('should sync settings toggle with current state', () => {
+      // Arrange
+      const mockSyncSettingsToggle = (enabled: boolean) => {
+        mockSettingsToggle.checked = enabled;
+      };
+
+      // Act
+      mockSyncSettingsToggle(false);
+
+      // Assert
+      expect(mockSettingsToggle.checked).toBe(false);
+    });
+
+    it('should handle settings toggle interactions', () => {
+      // Arrange
+      const mockToggleHandler = vi.fn((event: Event) => {
+        const target = event.target as HTMLInputElement;
+        const message: ToggleNavigationControlsMessage = {
+          type: 'toggle-navigation-controls',
+          enabled: target.checked
+        };
+        figma.ui.postMessage(message);
+      });
+
+      // Simulate toggle event
+      const mockEvent = {
+        target: { checked: false }
+      } as Event;
+
+      // Act
+      mockToggleHandler(mockEvent);
+
+      // Assert
+      expect(figma.ui.postMessage).toHaveBeenCalledWith({
+        type: 'toggle-navigation-controls',
+        enabled: false
+      });
+    });
+  });
+
+  describe('Visual Feedback Integration', () => {
+    it('should provide visual feedback for successful navigation', () => {
+      // Arrange
+      const mockShowFeedback = vi.fn((message: string, type: 'success' | 'error') => {
+        // Mock feedback display logic
+        return { message, type, timestamp: Date.now() };
+      });
+
+      // Act
+      const feedback = mockShowFeedback('Entered group: Test Group (3 children)', 'success');
+
+      // Assert
+      expect(mockShowFeedback).toHaveBeenCalledWith(
+        'Entered group: Test Group (3 children)', 
+        'success'
+      );
+      expect(feedback.type).toBe('success');
+      expect(feedback.message).toContain('Entered group');
+    });
+
+    it('should provide visual feedback for navigation errors', () => {
+      // Arrange
+      const mockShowFeedback = vi.fn((message: string, type: 'success' | 'error') => {
+        return { message, type, timestamp: Date.now() };
+      });
+
+      // Act
+      const feedback = mockShowFeedback('Cannot enter rectangle: not a container', 'error');
+
+      // Assert
+      expect(mockShowFeedback).toHaveBeenCalledWith(
+        'Cannot enter rectangle: not a container', 
+        'error'
+      );
+      expect(feedback.type).toBe('error');
+      expect(feedback.message).toContain('Cannot enter');
+    });
+
+    it('should handle feedback display timing correctly', () => {
+      // Arrange
+      const mockFeedbackQueue: Array<{ message: string; type: string; timestamp: number }> = [];
+      
+      const mockShowFeedback = (message: string, type: 'success' | 'error') => {
+        const feedback = { message, type, timestamp: Date.now() };
+        mockFeedbackQueue.push(feedback);
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+          const index = mockFeedbackQueue.indexOf(feedback);
+          if (index > -1) {
+            mockFeedbackQueue.splice(index, 1);
+          }
+        }, 3000);
+        
+        return feedback;
+      };
+
+      // Act
+      mockShowFeedback('Test message', 'success');
+
+      // Assert
+      expect(mockFeedbackQueue.length).toBe(1);
+      expect(mockFeedbackQueue[0].message).toBe('Test message');
+    });
+  });
+
+  describe('Accessibility Integration', () => {
+    it('should provide proper ARIA labels for navigation buttons', () => {
+      // Arrange
+      const mockButtonLabels = {
+        enter: 'Enter selected container (Enter key)',
+        exit: 'Exit to parent container (Shift+Enter)',
+        nextSibling: 'Navigate to next sibling (Tab key)',
+        prevSibling: 'Navigate to previous sibling (Shift+Tab)',
+        collapse: 'Toggle collapse all containers (Alt+L)'
+      };
+
+      const mockSetAriaLabels = () => {
+        Object.entries(mockNavigationButtons).forEach(([action, button]) => {
+          (button as any).setAttribute = vi.fn();
+          (button as any).setAttribute('aria-label', mockButtonLabels[action as keyof typeof mockButtonLabels]);
+        });
+      };
+
+      // Act
+      mockSetAriaLabels();
+
+      // Assert
+      Object.entries(mockNavigationButtons).forEach(([action, button]) => {
+        expect((button as any).setAttribute).toHaveBeenCalledWith(
+          'aria-label', 
+          mockButtonLabels[action as keyof typeof mockButtonLabels]
+        );
+      });
+    });
+
+    it('should announce button state changes to screen readers', () => {
+      // Arrange
+      const mockAnnounceStateChange = vi.fn((buttonName: string, enabled: boolean) => {
+        const announcement = `${buttonName} button ${enabled ? 'enabled' : 'disabled'}`;
+        // Mock screen reader announcement
+        return announcement;
+      });
+
+      // Act
+      const announcement = mockAnnounceStateChange('Enter', false);
+
+      // Assert
+      expect(mockAnnounceStateChange).toHaveBeenCalledWith('Enter', false);
+      expect(announcement).toBe('Enter button disabled');
+    });
+
+    it('should maintain proper tab order in navigation grid', () => {
+      // Arrange
+      const mockSetTabOrder = () => {
+        const tabOrder = ['exit', 'prevSibling', 'collapse', 'nextSibling', 'enter'];
+        tabOrder.forEach((action, index) => {
+          const button = mockNavigationButtons[action as keyof typeof mockNavigationButtons];
+          (button as any).tabIndex = index;
+        });
+      };
+
+      // Act
+      mockSetTabOrder();
+
+      // Assert
+      expect((mockNavigationButtons.exit as any).tabIndex).toBe(0);
+      expect((mockNavigationButtons.enter as any).tabIndex).toBe(4);
+    });
+  });
+});

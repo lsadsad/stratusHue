@@ -10,7 +10,7 @@ The design leverages the existing plugin's dual-context architecture (sandbox + 
 
 ### Component Integration
 
-The layer navigation controls will be implemented as a new collapsible section in the main plugin interface, positioned between the existing TAGS and ANCHORS sections. This placement provides logical grouping of navigation-related functionality.
+The layer navigation controls will be implemented as a new collapsible section in the main plugin interface, positioned below the existing ANCHORS section. This placement provides logical grouping of navigation-related functionality at the bottom of the main interface sections.
 
 ### Message Flow Architecture
 
@@ -58,11 +58,11 @@ A responsive grid layout containing the navigation buttons:
 ```typescript
 interface NavigationButtonGrid {
   buttons: {
-    exit: NavigationButton;      // Top-left (Shift+Enter)
-    prevSibling: NavigationButton; // Top-right (Shift+Tab)
-    collapse: NavigationButton;   // Middle-left (Alt+L)
-    nextSibling: NavigationButton; // Middle-right (Tab)
-    enter: NavigationButton;     // Bottom-right (Enter)
+    exit: NavigationButton;        // Top-left (Shift+Enter)
+    prevSibling: NavigationButton; // Top-right (Shift+Tab) - Navigate UP in layers
+    collapse: NavigationButton;    // Middle-left (Alt+L)
+    nextSibling: NavigationButton; // Middle-right (Tab) - Navigate DOWN in layers
+    enter: NavigationButton;       // Bottom-right (Enter)
   };
 }
 ```
@@ -91,10 +91,12 @@ interface LayerNavigationHandler {
   enterContainer(node: SceneNode): NavigationResult;
   exitContainer(node: SceneNode): NavigationResult;
   navigateToSibling(node: SceneNode, direction: 'next' | 'prev'): NavigationResult;
-  toggleCollapse(): NavigationResult;
+  toggleCollapseSiblings(selection: readonly SceneNode[]): NavigationResult;
   validateNavigationContext(selection: readonly SceneNode[]): NavigationContext;
 }
 ```
+
+**Note:** The `enterContainer` and `navigateToSibling` functions focus on selection and viewport changes only, without modifying the expanded/collapsed state of containers in the layers panel. The `toggleCollapseSiblings` function operates only on containers at the same hierarchy level as the selected layers, avoiding unintended changes to parent or deeply nested containers.
 
 #### NavigationResult
 Standardized result interface for navigation operations:
@@ -117,7 +119,8 @@ interface NavigationContext {
   canEnter: boolean;        // Has container selected
   canExit: boolean;         // Has parent container
   canNavigateSiblings: boolean;
-  containerCount: number;   // For collapse toggle state
+  siblingContainerCount: number;   // For targeted collapse toggle state
+  hasCollapsibleSiblings: boolean; // Whether sibling containers exist to collapse
 }
 ```
 
@@ -251,6 +254,7 @@ enum NavigationErrorType {
 - Implement navigation handler in plugin context
 - Add message types and error handling
 - Create basic navigation functions
+- **Important:** Ensure Enter navigation only changes selection and viewport, not layer panel expansion state
 
 ### Phase 2: UI Components
 - Design and implement button grid layout
