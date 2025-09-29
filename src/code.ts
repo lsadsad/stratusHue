@@ -581,19 +581,29 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
       break;
       
     case 'next-sibling':
-      if (selection.length !== 1) {
-        figma.notify('Please select exactly one layer to navigate siblings');
-        return;
+      if (selection.length === 0) {
+        // Handle page navigation when no layers are selected
+        result = await LayerNavigationHandler.handleEmptySelection('next-sibling');
+      } else if (selection.length === 1) {
+        // Handle layer navigation when one layer is selected
+        result = LayerNavigationHandler.navigateToSibling(selection[0], 'next');
+      } else {
+        // Handle multiple selection navigation - focus on last item
+        result = LayerNavigationHandler.navigateToSiblingMultiple(selection, 'next');
       }
-      result = LayerNavigationHandler.navigateToSibling(selection[0], 'next');
       break;
       
     case 'prev-sibling':
-      if (selection.length !== 1) {
-        figma.notify('Please select exactly one layer to navigate siblings');
-        return;
+      if (selection.length === 0) {
+        // Handle page navigation when no layers are selected
+        result = await LayerNavigationHandler.handleEmptySelection('prev-sibling');
+      } else if (selection.length === 1) {
+        // Handle layer navigation when one layer is selected
+        result = LayerNavigationHandler.navigateToSibling(selection[0], 'prev');
+      } else {
+        // Handle multiple selection navigation - focus on first item
+        result = LayerNavigationHandler.navigateToSiblingMultiple(selection, 'prev');
       }
-      result = LayerNavigationHandler.navigateToSibling(selection[0], 'prev');
       break;
       
     case 'toggle-collapse':
@@ -607,19 +617,61 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
   
   // Apply the navigation result
   if (result.success) {
+    const isSiblingAction = action === 'next-sibling' || action === 'prev-sibling';
+    
     if (result.newSelection) {
+      // For sibling navigation, capture expansion states BEFORE selection change
+      let nodesToRestore: Array<{node: any, wasExpanded: boolean}> = [];
+      
+      if (isSiblingAction && result.newSelection.length > 0) {
+        const selectedNode = result.newSelection[0];
+        
+        // Store expansion state of the node we're about to select (if it's a container)
+        if ('expanded' in selectedNode) {
+          nodesToRestore.push({
+            node: selectedNode,
+            wasExpanded: (selectedNode as any).expanded
+          });
+        }
+        
+        // Also store parent chain expansion states
+        let currentParent = selectedNode.parent;
+        while (currentParent && currentParent.type !== 'PAGE') {
+          if ('expanded' in currentParent) {
+            nodesToRestore.push({
+              node: currentParent,
+              wasExpanded: (currentParent as any).expanded
+            });
+          }
+          currentParent = currentParent.parent;
+        }
+      }
+      
+      // Change selection (this may trigger auto-expansion)
       figma.currentPage.selection = result.newSelection as SceneNode[];
+      
+      // Restore expansion states after selection change
+      if (isSiblingAction && nodesToRestore.length > 0) {
+        setTimeout(() => {
+          nodesToRestore.forEach(({node, wasExpanded}) => {
+            if (node && 'expanded' in node) {
+              node.expanded = wasExpanded;
+            }
+          });
+        }, 0);
+      }
     }
 
     if (result.viewportUpdate && result.newSelection && result.newSelection.length > 0) {
-      // For enter container actions, only scroll to the first child to prevent auto-expansion
-      // For sibling navigation, disable viewport updates to prevent auto-expansion of containers
+      // Always scroll to show selected layer for better UX
       const isEnterAction = action === 'enter';
-      const isSiblingAction = action === 'next-sibling' || action === 'prev-sibling';
-
-      if (!isSiblingAction) {
-        const viewportTargets = isEnterAction ? [result.newSelection[0]] : result.newSelection;
-        figma.viewport.scrollAndZoomIntoView(viewportTargets as SceneNode[]);
+      
+      if (isEnterAction) {
+        // Enter action: only scroll to first child
+        figma.viewport.scrollAndZoomIntoView([result.newSelection[0]] as SceneNode[]);
+      } else {
+        // All other actions: scroll to show selected layer(s)
+        figma.viewport.scrollAndZoomIntoView(result.newSelection as SceneNode[]);
       }
     }
 

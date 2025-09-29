@@ -1040,33 +1040,21 @@ export class LayerNavigationHandler {
         };
       }
 
-      // Determine target index based on direction
+      // Focus within the current selection instead of navigating outside it
       let targetIndex: number;
       if (direction === 'next') {
-        // Next: Select the first sibling after the selection group (toward bottom of layers)
-        const lastSelectedIndex = selectedIndices[selectedIndices.length - 1];
-        targetIndex = lastSelectedIndex - 1; // Move DOWN in layers (lower index)
-        
-        // Handle wrapping
-        if (targetIndex < 0) {
-          targetIndex = allSiblings.length - 1; // Wrap to last (top-most)
-        }
+        // Next: Focus on the last item in the selection (bottom-most selected)
+        targetIndex = selectedIndices[selectedIndices.length - 1];
       } else {
-        // Prev: Select the first sibling before the selection group (toward top of layers)
-        const firstSelectedIndex = selectedIndices[0];
-        targetIndex = firstSelectedIndex + 1; // Move UP in layers (higher index)
-        
-        // Handle wrapping
-        if (targetIndex >= allSiblings.length) {
-          targetIndex = 0; // Wrap to first (bottom-most)
-        }
+        // Prev: Focus on the first item in the selection (top-most selected)
+        targetIndex = selectedIndices[0];
       }
 
       const targetSibling = allSiblings[targetIndex];
       if (!targetSibling) {
         return {
           success: false,
-          message: `No ${direction} sibling found for selection group`,
+          message: `Cannot focus on ${direction === 'next' ? 'last' : 'first'} item in selection`,
           viewportUpdate: false
         };
       }
@@ -1090,7 +1078,7 @@ export class LayerNavigationHandler {
 
       return {
         success: true,
-        message: `Selected ${direction} sibling: ${targetSibling.name}`,
+        message: `Focused on ${direction === 'next' ? 'last' : 'first'} selected item: ${targetSibling.name}`,
         newSelection: [targetSibling],
         viewportUpdate: true
       };
@@ -1288,11 +1276,16 @@ export class LayerNavigationHandler {
       }
       
       if (!hasSelection) {
+        // When no layers are selected, enable page navigation and page entry
+        const pages = figma.root.children.filter(child => child.type === 'PAGE');
+        const canNavigatePages = pages.length > 1;
+        const hasLayersOnPage = figma.currentPage.children.some(child => 'visible' in child && child.visible);
+        
         return {
           hasSelection: false,
-          canEnter: false,
+          canEnter: hasLayersOnPage, // Enable entering page if it has layers
           canExit: false,
-          canNavigateSiblings: false,
+          canNavigateSiblings: canNavigatePages, // Enable for page navigation
           containerCount,
           siblingContainerCount: 0,
           hasCollapsibleSiblings: false
@@ -1819,27 +1812,27 @@ export class LayerNavigationHandler {
   }
 
   /**
-   * Handle empty selection scenario
+   * Handle empty selection scenario (page-level navigation)
    * Provides fallback behavior when no layers are selected
    */
-  static handleEmptySelection(action: NavigationAction): NavigationResult {
+  static async handleEmptySelection(action: NavigationAction): Promise<NavigationResult> {
     switch (action) {
       case 'next-sibling':
+        // Navigate to next page when no layers are selected
+        return await LayerNavigationHandler.navigateToNextPage();
+      
       case 'prev-sibling':
-        // For sibling navigation with no selection, select first top-level layer
-        return LayerNavigationHandler.selectFirstTopLevelLayer();
+        // Navigate to previous page when no layers are selected
+        return await LayerNavigationHandler.navigateToPrevPage();
       
       case 'enter':
-        return {
-          success: false,
-          message: 'Select a container (Section, Group, or Frame) to enter',
-          viewportUpdate: false
-        };
+        // Enter page by selecting first top-level layer
+        return LayerNavigationHandler.selectFirstTopLevelLayer();
       
       case 'exit':
         return {
           success: false,
-          message: 'Select a layer inside a container to exit',
+          message: 'Already at page level - no parent to exit to',
           viewportUpdate: false
         };
       
@@ -1929,6 +1922,148 @@ export class LayerNavigationHandler {
       message: 'Failed to select first layer',
       viewportUpdate: false
     };
+  }
+
+  /**
+   * Navigate to the next page in the document
+   * Maintains page-level navigation when no layers are selected
+   */
+  private static async navigateToNextPage(): Promise<NavigationResult> {
+    try {
+      const pages = figma.root.children.filter(child => child.type === 'PAGE') as PageNode[];
+      
+      if (pages.length <= 1) {
+        return {
+          success: false,
+          message: 'Only one page in document - no next page available',
+          viewportUpdate: false
+        };
+      }
+
+      const currentPageIndex = pages.findIndex(page => page.id === figma.currentPage.id);
+      if (currentPageIndex === -1) {
+        return {
+          success: false,
+          message: 'Current page not found in document',
+          viewportUpdate: false
+        };
+      }
+
+      // Navigate to next page with wrapping
+      const nextPageIndex = (currentPageIndex + 1) % pages.length;
+      const nextPage = pages[nextPageIndex];
+      
+      // Switch to the next page and wait for completion
+      await figma.setCurrentPageAsync(nextPage);
+      
+      // Clear selection to maintain page-level context
+      figma.currentPage.selection = [];
+
+      // Record page navigation in history
+      try {
+        const entry: import('../types').HistoryEntry = {
+          id: nextPage.id,
+          timestamp: Date.now(),
+          type: 'page',
+          pageId: nextPage.id,
+          pageName: nextPage.name
+        };
+        
+        addToHistory(entry);
+      } catch (historyError) {
+        console.warn('Failed to record page navigation in history:', historyError);
+      }
+
+      const wrappedMessage = nextPageIndex === 0 ? ' (wrapped to first page)' : '';
+      return {
+        success: true,
+        message: `Navigated to next page: ${nextPage.name}${wrappedMessage}`,
+        viewportUpdate: false // Page navigation doesn't need viewport update
+      };
+    } catch (error) {
+      const navError = createError(
+        ErrorType.NAVIGATION_FAILED,
+        'Failed to navigate to next page',
+        { error }
+      );
+      handleError(navError);
+      return {
+        success: false,
+        message: 'Cannot navigate to next page',
+        viewportUpdate: false
+      };
+    }
+  }
+
+  /**
+   * Navigate to the previous page in the document
+   * Maintains page-level navigation when no layers are selected
+   */
+  private static async navigateToPrevPage(): Promise<NavigationResult> {
+    try {
+      const pages = figma.root.children.filter(child => child.type === 'PAGE') as PageNode[];
+      
+      if (pages.length <= 1) {
+        return {
+          success: false,
+          message: 'Only one page in document - no previous page available',
+          viewportUpdate: false
+        };
+      }
+
+      const currentPageIndex = pages.findIndex(page => page.id === figma.currentPage.id);
+      if (currentPageIndex === -1) {
+        return {
+          success: false,
+          message: 'Current page not found in document',
+          viewportUpdate: false
+        };
+      }
+
+      // Navigate to previous page with wrapping
+      const prevPageIndex = currentPageIndex === 0 ? pages.length - 1 : currentPageIndex - 1;
+      const prevPage = pages[prevPageIndex];
+      
+      // Switch to the previous page and wait for completion
+      await figma.setCurrentPageAsync(prevPage);
+      
+      // Clear selection to maintain page-level context
+      figma.currentPage.selection = [];
+
+      // Record page navigation in history
+      try {
+        const entry: import('../types').HistoryEntry = {
+          id: prevPage.id,
+          timestamp: Date.now(),
+          type: 'page',
+          pageId: prevPage.id,
+          pageName: prevPage.name
+        };
+        
+        addToHistory(entry);
+      } catch (historyError) {
+        console.warn('Failed to record page navigation in history:', historyError);
+      }
+
+      const wrappedMessage = prevPageIndex === pages.length - 1 ? ' (wrapped to last page)' : '';
+      return {
+        success: true,
+        message: `Navigated to previous page: ${prevPage.name}${wrappedMessage}`,
+        viewportUpdate: false // Page navigation doesn't need viewport update
+      };
+    } catch (error) {
+      const navError = createError(
+        ErrorType.NAVIGATION_FAILED,
+        'Failed to navigate to previous page',
+        { error }
+      );
+      handleError(navError);
+      return {
+        success: false,
+        message: 'Cannot navigate to previous page',
+        viewportUpdate: false
+      };
+    }
   }
 
   /**
@@ -2473,18 +2608,18 @@ export class LayerNavigationHandler {
 
     let targetIndex: number;
     
-    // Reversed direction: 'next' moves UP (toward top of panel), 'prev' moves DOWN (toward bottom)
+    // Intuitive direction: 'next' moves DOWN (toward bottom of panel), 'prev' moves UP (toward top)
     if (direction === 'next') {
-      // Next/Tab moves UP in layers (toward top of panel = lower index in Figma)
-      targetIndex = currentIndex - 1;
-      if (wrap && targetIndex < 0) {
-        targetIndex = siblings.length - 1;
-      }
-    } else {
-      // Prev/Shift+Tab moves DOWN in layers (toward bottom of panel = higher index in Figma)  
+      // Next/Tab moves DOWN in layers (toward bottom of panel = higher index in Figma)
       targetIndex = currentIndex + 1;
       if (wrap && targetIndex >= siblings.length) {
-        targetIndex = 0;
+        targetIndex = 0; // Wrap to first (top-most)
+      }
+    } else {
+      // Prev/Shift+Tab moves UP in layers (toward top of panel = lower index in Figma)  
+      targetIndex = currentIndex - 1;
+      if (wrap && targetIndex < 0) {
+        targetIndex = siblings.length - 1; // Wrap to last (bottom-most)
       }
     }
 

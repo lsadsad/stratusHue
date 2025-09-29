@@ -32,11 +32,11 @@ describe('Navigation Integration Tests', () => {
         .mockImplementation((node, direction) => {
           const children = [child1, child2, child3];
           const currentIndex = children.findIndex(c => c.id === node.id);
-          // Updated direction: 'next' moves DOWN (lower index), 'prev' moves UP (higher index)
+          // Updated direction: 'next' moves DOWN (higher index), 'prev' moves UP (lower index)
           if (direction === 'next') {
-            return children[currentIndex - 1] || null; // Move DOWN in layers (lower index)
+            return children[currentIndex + 1] || null; // Move DOWN in layers (higher index)
           } else {
-            return children[currentIndex + 1] || null; // Move UP in layers (higher index)
+            return children[currentIndex - 1] || null; // Move UP in layers (lower index)
           }
         });
 
@@ -50,9 +50,9 @@ describe('Navigation Integration Tests', () => {
       // Simulate selection update
       figma.currentPage.selection = enterResult.newSelection || [];
 
-      // Act & Assert - Step 2: Navigate to next sibling (from child3 to child2) - Updated for new direction
-      figma.currentPage.selection = [child3];
-      const nextResult = LayerNavigationHandler.navigateToSibling(child3, 'next');
+      // Act & Assert - Step 2: Navigate to next sibling (from child1 to child2) - Updated for new direction
+      figma.currentPage.selection = [child1];
+      const nextResult = LayerNavigationHandler.navigateToSibling(child1, 'next');
       
       expect(nextResult.success).toBe(true);
       expect(nextResult.newSelection).toEqual([child2]);
@@ -60,11 +60,11 @@ describe('Navigation Integration Tests', () => {
       // Simulate selection update
       figma.currentPage.selection = nextResult.newSelection || [];
 
-      // Act & Assert - Step 3: Navigate to next sibling (from child2 to child1) - Updated for new direction
+      // Act & Assert - Step 3: Navigate to next sibling (from child2 to child3) - Updated for new direction
       const nextResult2 = LayerNavigationHandler.navigateToSibling(child2, 'next');
       
       expect(nextResult2.success).toBe(true);
-      expect(nextResult2.newSelection).toEqual([child1]);
+      expect(nextResult2.newSelection).toEqual([child3]);
       
       // Simulate selection update
       figma.currentPage.selection = nextResult2.newSelection || [];
@@ -146,33 +146,33 @@ describe('Navigation Integration Tests', () => {
           const siblings = [sibling1, sibling2, sibling3];
           const currentIndex = siblings.findIndex(s => s.id === node.id);
           
-          // Updated direction: 'next' moves DOWN (lower index), 'prev' moves UP (higher index)
+          // Updated direction: 'next' moves DOWN (higher index), 'prev' moves UP (lower index)
           if (direction === 'next') {
-            const nextIndex = currentIndex - 1; // Move DOWN in layers (lower index)
-            if (nextIndex < 0) {
-              return wrap ? siblings[siblings.length - 1] : null; // Wrap to last (sibling3)
+            const nextIndex = currentIndex + 1; // Move DOWN in layers (higher index)
+            if (nextIndex >= siblings.length) {
+              return wrap ? siblings[0] : null; // Wrap to first (sibling1)
             }
             return siblings[nextIndex];
           } else {
-            const prevIndex = currentIndex + 1; // Move UP in layers (higher index)
-            if (prevIndex >= siblings.length) {
-              return wrap ? siblings[0] : null; // Wrap to first (sibling1)
+            const prevIndex = currentIndex - 1; // Move UP in layers (lower index)
+            if (prevIndex < 0) {
+              return wrap ? siblings[siblings.length - 1] : null; // Wrap to last (sibling3)
             }
             return siblings[prevIndex];
           }
         });
 
-      // Act & Assert - Test forward wrapping (next from bottom wraps to top)
-      const nextFromBottom = LayerNavigationHandler.navigateToSibling(sibling1, 'next');
-      expect(nextFromBottom.success).toBe(true);
-      expect(nextFromBottom.newSelection).toEqual([sibling3]); // Wrapped to last (top-most)
-      expect(nextFromBottom.message).toContain('Wrapped to first sibling'); // 'next' direction says "first"
+      // Act & Assert - Test forward wrapping (next from top wraps to bottom)
+      const nextFromTop = LayerNavigationHandler.navigateToSibling(sibling3, 'next');
+      expect(nextFromTop.success).toBe(true);
+      expect(nextFromTop.newSelection).toEqual([sibling1]); // Wrapped to first (bottom-most)
+      expect(nextFromTop.message).toContain('Wrapped to first sibling'); // 'next' direction says "first"
 
-      // Act & Assert - Test backward wrapping (prev from top wraps to bottom)
-      const prevFromTop = LayerNavigationHandler.navigateToSibling(sibling3, 'prev');
-      expect(prevFromTop.success).toBe(true);
-      expect(prevFromTop.newSelection).toEqual([sibling1]); // Wrapped to first (bottom-most)
-      expect(prevFromTop.message).toContain('Wrapped to last sibling'); // 'prev' direction says "last"
+      // Act & Assert - Test backward wrapping (prev from bottom wraps to top)
+      const prevFromBottom = LayerNavigationHandler.navigateToSibling(sibling1, 'prev');
+      expect(prevFromBottom.success).toBe(true);
+      expect(prevFromBottom.newSelection).toEqual([sibling3]); // Wrapped to last (top-most)
+      expect(prevFromBottom.message).toContain('Wrapped to last sibling'); // 'prev' direction says "last"
     });
   });
 
