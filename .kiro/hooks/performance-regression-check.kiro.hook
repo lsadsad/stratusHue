@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "Performance Regression Check",
+  "description": "Monitors performance-related files and triggers regression analysis when changes are detected to ensure performance standards are maintained",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/test/performance.test.ts",
+      "src/test/performance-utils.ts",
+      "src/test/baselines/performance-baselines.example.json",
+      "src/core/state.ts",
+      "src/features/navigation.ts",
+      "src/ui/ui-communication.ts",
+      "esbuild.config.js"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the changed files for potential performance regressions. Run performance tests, compare against baselines, and identify any performance degradation in navigation, state management, or UI communication. Check build configuration changes that might impact bundle size or load times. Provide specific recommendations to maintain or improve performance."
+  }
+}

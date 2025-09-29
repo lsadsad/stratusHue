@@ -22,6 +22,7 @@
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
+    "test:performance": "vitest --run src/test/performance.test.ts",
     "test:navigation": "tsx src/test/run-tests.ts",
     "test:navigation:unit": "vitest --run src/test/navigation.test.ts src/test/navigation-context.test.ts",
     "test:navigation:integration": "vitest --run src/test/navigation-integration.test.ts src/test/navigation-ui-integration.test.ts",

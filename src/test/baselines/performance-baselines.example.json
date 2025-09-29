@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-15T10:30:00Z",
+  "baselines": {
+    "navigation_container_entry": {
+      "operation": "navigation_container_entry",
+      "averageTime": 45.2,
+      "maxTime": 120.5,
+      "timestamp": "2024-01-15T10:30:00Z",
+      "version": "1.0.0",
+      "samples": 50
+    },
+    "navigation_sibling_next": {
+      "operation": "navigation_sibling_next",
+      "averageTime": 25.8,
+      "maxTime": 80.3,
+      "timestamp": "2024-01-15T10:30:00Z",
+      "version": "1.0.0",
+      "samples": 50
+    },
+    "navigation_container_exit": {
+      "operation": "navigation_container_exit",
+      "averageTime": 30.1,
+      "maxTime": 95.7,
+      "timestamp": "2024-01-15T10:30:00Z",
+      "version": "1.0.0",
+      "samples": 30
+    }
+  }
+}
