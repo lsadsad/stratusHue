@@ -2649,7 +2649,7 @@ h3 {
   display: flex;
   flex-direction: column;
   overflow: visible;
-  background: var(--theme-bg-secondary);
+  background: var(--color-background-elevated);
   padding: 0;
   border-radius: var(--border-radius-md);
 }
@@ -2663,7 +2663,7 @@ h3 {
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-lg);
-  background: var(--theme-bg-secondary);
+  background: var(--color-background-elevated);
   padding: calc(var(--spacing-xxl) * 2 - var(--spacing-lg)) var(--container-padding) calc(var(--spacing-xxl) * 2) var(--container-padding);
   border-radius: var(--border-radius-md);
 }
@@ -2829,8 +2829,8 @@ h3 {
 /* Navigation Header - match other section headers */
 #navigation-header {
   background: transparent;
-  border-top: var(--border-width) solid var(--theme-border-primary);
-  border-bottom: var(--border-width) solid var(--theme-border-primary);
+  border-top: var(--border-width) solid var(--color-border-accent);
+  border-bottom: var(--border-width) solid var(--color-border-accent);
 }
 
 /* Remove bottom border when navigation header is collapsed */
@@ -5204,4 +5204,18 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     animation: none !important;
   }
   }
+}/*
+ Navigation button permanently unavailable (API limitations) */
+.nav-button-unavailable {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+.nav-button-unavailable .nav-icon {
+  opacity: 0.5;
+}
+
+.nav-button-unavailable .nav-label {
+  font-style: italic;
+  opacity: 0.6;
 }

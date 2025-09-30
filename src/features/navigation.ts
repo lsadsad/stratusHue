@@ -587,6 +587,120 @@ export class LayerNavigationHandler {
   }
 
   /**
+   * Expand multiple containers in the layer panel
+   * Opens all selected containers to show their children
+   * Keeps the containers selected (does not change selection to children)
+   */
+  static enterMultipleContainers(nodes: readonly SceneNode[]): NavigationResult {
+    return withSyncErrorBoundary(() => {
+      if (nodes.length === 0) {
+        return {
+          success: false,
+          message: 'No containers provided to expand',
+          viewportUpdate: false
+        };
+      }
+
+      // Validate nodes and filter for expandable containers
+      const expandedContainers: SceneNode[] = [];
+      const childContainersToCollapse: Array<{node: any, wasExpanded: boolean}> = [];
+      let expandedCount = 0;
+
+      for (const node of nodes) {
+        if (!validateSceneNode(node)) {
+          continue;
+        }
+
+        try {
+          // Check if node is an expandable container
+          if (LayerNavigationHandler.isContainer(node) && 'expanded' in node) {
+            // Before expanding, capture state of nested containers (children)
+            if ('children' in node) {
+              for (const child of node.children) {
+                if ('expanded' in child && typeof (child as any).expanded === 'boolean') {
+                  childContainersToCollapse.push({
+                    node: child,
+                    wasExpanded: (child as any).expanded
+                  });
+                }
+              }
+            }
+
+            // Expand the container
+            (node as any).expanded = true;
+            expandedContainers.push(node);
+            expandedCount++;
+          }
+        } catch (nodeError) {
+          console.warn('Skipping inaccessible node:', nodeError);
+        }
+      }
+
+      if (expandedCount === 0) {
+        return {
+          success: false,
+          message: 'No expandable containers selected',
+          viewportUpdate: false
+        };
+      }
+
+      // Ensure nested containers stay collapsed (first level expansion only)
+      if (childContainersToCollapse.length > 0) {
+        setTimeout(() => {
+          childContainersToCollapse.forEach(({node, wasExpanded}) => {
+            if (node && 'expanded' in node) {
+              // Keep child containers collapsed unless they were already expanded
+              node.expanded = wasExpanded;
+            }
+          });
+        }, 0);
+      }
+
+      // Keep the original selection (the containers themselves)
+      return {
+        success: true,
+        message: `Expanded ${expandedCount} container${expandedCount > 1 ? 's' : ''} (first level only)`,
+        newSelection: expandedContainers, // Keep containers selected
+        viewportUpdate: false // No viewport change needed for expansion
+      };
+
+    }, ErrorType.INVALID_CONTAINER)() || {
+      success: false,
+      message: 'Failed to expand containers due to unexpected error',
+      viewportUpdate: false
+    };
+  }
+
+  /**
+   * Check if multiple containers can be entered (expanded)
+   * Returns true if at least one node is an expandable container
+   */
+  static canEnterMultipleContainers(nodes: readonly SceneNode[]): boolean {
+    if (nodes.length === 0) {
+      return false;
+    }
+
+    // Check if any node is an expandable container
+    for (const node of nodes) {
+      if (!validateSceneNode(node)) {
+        continue;
+      }
+
+      try {
+        // Check if node is an expandable container
+        if (LayerNavigationHandler.isContainer(node) && 'expanded' in node) {
+          return true; // At least one expandable container found
+        }
+      } catch (nodeError) {
+        // Skip inaccessible nodes
+        continue;
+      }
+    }
+
+    return false; // No expandable containers found
+  }
+
+  /**
    * Exit container by selecting parent from current selection
    * Handles both single and multiple selections
    * Records navigation action in selection history
@@ -661,11 +775,22 @@ export class LayerNavigationHandler {
         }
         
         if (!parent) {
-          return {
-            success: false,
-            message: `"${node.name}" has no parent container to exit to`,
-            viewportUpdate: false
-          };
+          // Check if this is a top-level layer (direct child of page)
+          if (node.parent && node.parent.type === 'PAGE') {
+            // Deselect the layer to return to page level
+            return {
+              success: true,
+              message: `Exited to page level`,
+              newSelection: [], // Deselect everything
+              viewportUpdate: false
+            };
+          } else {
+            return {
+              success: false,
+              message: `"${node.name}" has no parent container to exit to`,
+              viewportUpdate: false
+            };
+          }
         }
 
         // Validate parent is still accessible
@@ -732,11 +857,26 @@ export class LayerNavigationHandler {
       }
       
       if (!commonParent) {
-        return {
-          success: false,
-          message: 'Selected items have no common parent container',
-          viewportUpdate: false
-        };
+        // Check if all selected items are top-level (direct children of page)
+        const allTopLevel = validNodes.every(node => 
+          node.parent && node.parent.type === 'PAGE'
+        );
+        
+        if (allTopLevel) {
+          // Deselect all to return to page level
+          return {
+            success: true,
+            message: 'Exited to page level',
+            newSelection: [], // Deselect everything
+            viewportUpdate: false
+          };
+        } else {
+          return {
+            success: false,
+            message: 'Selected items have no common parent container',
+            viewportUpdate: false
+          };
+        }
       }
 
       // Validate common parent is still accessible
@@ -1013,9 +1153,9 @@ export class LayerNavigationHandler {
         };
       }
 
-      // Get all visible siblings in the parent
+      // Get all siblings in the parent (including hidden layers to match Tab behavior)
       const allSiblings = commonParent.children.filter(child => 
-        'visible' in child && child.visible && validateSceneNode(child)
+        validateSceneNode(child)
       ) as SceneNode[];
 
       if (allSiblings.length <= 1) {
@@ -1043,18 +1183,18 @@ export class LayerNavigationHandler {
       // Focus within the current selection instead of navigating outside it
       let targetIndex: number;
       if (direction === 'next') {
-        // Next: Focus on the last item in the selection (bottom-most selected)
-        targetIndex = selectedIndices[selectedIndices.length - 1];
-      } else {
-        // Prev: Focus on the first item in the selection (top-most selected)
+        // Next: Focus on the first item in the selection (top-most selected)
         targetIndex = selectedIndices[0];
+      } else {
+        // Prev: Focus on the last item in the selection (bottom-most selected)
+        targetIndex = selectedIndices[selectedIndices.length - 1];
       }
 
       const targetSibling = allSiblings[targetIndex];
       if (!targetSibling) {
         return {
           success: false,
-          message: `Cannot focus on ${direction === 'next' ? 'last' : 'first'} item in selection`,
+          message: `Cannot focus on ${direction === 'next' ? 'first' : 'last'} item in selection`,
           viewportUpdate: false
         };
       }
@@ -1078,7 +1218,7 @@ export class LayerNavigationHandler {
 
       return {
         success: true,
-        message: `Focused on ${direction === 'next' ? 'last' : 'first'} selected item: ${targetSibling.name}`,
+        message: `Focused on ${direction === 'next' ? 'first' : 'last'} selected item: ${targetSibling.name}`,
         newSelection: [targetSibling],
         viewportUpdate: true
       };
@@ -1143,78 +1283,55 @@ export class LayerNavigationHandler {
         return LayerNavigationHandler.toggleTopLevelContainers(page);
       }
 
-      // Find sibling containers for the selection
-      let siblingContainers: SceneNode[] = [];
-      try {
-        siblingContainers = LayerNavigationHandler.findSiblingContainers(validNodes);
-      } catch (siblingError) {
-        const error = createError(
-          ErrorType.NAVIGATION_FAILED,
-          'Failed to find sibling containers',
-          { selectionLength: validNodes.length, error: siblingError }
-        );
-        handleError(error);
-        return {
-          success: false,
-          message: 'Cannot find sibling containers',
-          viewportUpdate: false
-        };
-      }
-
-      if (siblingContainers.length === 0) {
-        return {
-          success: false,
-          message: 'No sibling containers found to collapse/expand',
-          viewportUpdate: false
-        };
-      }
-
-      // Always collapse sibling containers (user expectation for "Collapse" button)
-      let accessibleContainers = 0;
+      // Find containers to collapse - prioritize selected containers over siblings
+      let containersToCollapse: SceneNode[] = [];
       
-      for (const container of siblingContainers) {
+      // First, check if any selected nodes are containers themselves
+      const selectedContainers = validNodes.filter(node => 
+        LayerNavigationHandler.isExpandableContainer(node)
+      );
+      
+
+      
+      if (selectedContainers.length > 0) {
+        // If containers are selected, collapse those specific containers
+        containersToCollapse = selectedContainers;
+      } else {
+        // If no containers are selected, fall back to sibling container logic
         try {
-          if (LayerNavigationHandler.isExpandableContainer(container)) {
-            accessibleContainers++;
-          }
-        } catch (containerAccessError) {
-          // Skip inaccessible containers but continue processing
-          console.warn('Skipping inaccessible sibling container:', containerAccessError);
+          containersToCollapse = LayerNavigationHandler.findSiblingContainers(validNodes);
+        } catch (siblingError) {
+          const error = createError(
+            ErrorType.NAVIGATION_FAILED,
+            'Failed to find containers to collapse',
+            { selectionLength: validNodes.length, error: siblingError }
+          );
+          handleError(error);
+          return {
+            success: false,
+            message: 'Cannot find containers to collapse',
+            viewportUpdate: false
+          };
         }
       }
-      
-      if (accessibleContainers === 0) {
+
+      if (containersToCollapse.length === 0) {
         return {
           success: false,
-          message: 'No accessible sibling containers found',
+          message: 'No containers found to collapse',
           viewportUpdate: false
         };
       }
-      
-      const shouldCollapse = true; // Always collapse when button is pressed
-      
-      // Apply collapse to sibling containers AND selected containers with error handling
+
+      // Collapse the identified containers
       let successCount = 0;
       let failureCount = 0;
       
-      // Get sibling containers to collapse (much more efficient)
-      let containersToCollapse: SceneNode[] = [];
-      try {
-        containersToCollapse = LayerNavigationHandler.findSiblingContainers(validNodes);
-      } catch (siblingError) {
-        console.warn('Failed to find sibling containers for collapse:', siblingError);
-        return {
-          success: false,
-          message: 'Cannot find containers to collapse',
-          viewportUpdate: false
-        };
-      }
-      
-      // Collapse all sibling containers
       for (const container of containersToCollapse) {
         try {
           if (LayerNavigationHandler.isExpandableContainer(container)) {
-            (container as FrameNode | GroupNode | ComponentNode | ComponentSetNode | InstanceNode).expanded = false; // Always collapse
+            // All supported containers use expanded property (false = collapsed)
+            (container as FrameNode | GroupNode | ComponentNode | ComponentSetNode | InstanceNode).expanded = false;
             successCount++;
           }
         } catch (containerError) {
@@ -1237,11 +1354,17 @@ export class LayerNavigationHandler {
         };
       }
 
-      const action = 'Collapsed'; // Always collapse
-      let message = `${action} ${successCount} containers`;
+      let message = `Collapsed ${successCount} container${successCount === 1 ? '' : 's'}`;
       
       if (failureCount > 0) {
         message += ` (${failureCount} failed)`;
+      }
+      
+      // Add context about what was collapsed
+      if (selectedContainers.length > 0) {
+        message += ' from selection';
+      } else {
+        message += ' from siblings';
       }
 
       return {
@@ -1321,11 +1444,18 @@ export class LayerNavigationHandler {
 
       // For multiple selections, use more conservative logic
       if (validNodes.length > 1) {
-        // Can exit if all selected nodes have a common parent container
+        // Can exit if all selected nodes have a common parent container OR all are top-level
         let canExit = false;
         try {
           const commonParent = LayerNavigationHandler.findCommonParentContainer(validNodes);
-          canExit = commonParent !== null;
+          if (commonParent !== null) {
+            canExit = true;
+          } else {
+            // Check if all nodes are top-level (can exit to page level)
+            canExit = validNodes.every(node => 
+              node.parent && node.parent.type === 'PAGE'
+            );
+          }
         } catch (parentError) {
           console.warn('Failed to find common parent for multiple selection:', parentError);
           canExit = false;
@@ -1357,10 +1487,18 @@ export class LayerNavigationHandler {
           canNavigateSiblings = false;
         }
 
-        // Cannot enter when multiple items selected
+        // Check if any selected items can be entered (are expandable containers)
+        let canEnter = false;
+        try {
+          canEnter = LayerNavigationHandler.canEnterMultipleContainers(validNodes);
+        } catch (enterError) {
+          console.warn('Failed to validate multiple container entry capability:', enterError);
+          canEnter = false;
+        }
+
         return {
           hasSelection: true,
-          canEnter: false,
+          canEnter,
           canExit,
           canNavigateSiblings,
           containerCount,
@@ -1643,7 +1781,14 @@ export class LayerNavigationHandler {
         const nodesToCheck = validNodes.slice(0, 5);
         try {
           const commonParent = LayerNavigationHandler.findCommonParentContainer(nodesToCheck);
-          canExit = commonParent !== null;
+          if (commonParent !== null) {
+            canExit = true;
+          } else {
+            // Check if all checked nodes are top-level (can exit to page level)
+            canExit = nodesToCheck.every(node => 
+              node.parent && node.parent.type === 'PAGE'
+            );
+          }
         } catch (parentError) {
           canExit = false;
         }
@@ -2164,13 +2309,17 @@ export class LayerNavigationHandler {
       
       case 'next-sibling':
       case 'prev-sibling':
-        return LayerNavigationHandler.navigateToSiblingMultiple(visibleNodes, action === 'next-sibling' ? 'next' : 'prev');
+        // Use validNodes (including hidden) for sibling navigation to match Tab behavior
+        return LayerNavigationHandler.navigateToSiblingMultiple(validNodes, action === 'next-sibling' ? 'next' : 'prev');
       
       case 'toggle-collapse':
         return LayerNavigationHandler.toggleCollapse(visibleNodes);
       
+      case 'enter':
+        return LayerNavigationHandler.enterMultipleContainers(visibleNodes);
+      
       default:
-        // Enter action is not supported for multiple selection
+        // Unknown action for multiple selection
         let message = `Cannot ${action.replace('-', ' ')} with multiple layers selected`;
         if (hasLockedNodes || hasHiddenNodes) {
           message += ` (${visibleNodes.length} of ${selection.length} layers are valid)`;
@@ -2355,10 +2504,11 @@ export class LayerNavigationHandler {
   }
 
   /**
-   * Check if a container can be collapsed/expanded (has expanded property)
-   * Note: Sections don't have expanded property in Figma's API
+   * Check if a container can be collapsed/expanded
+   * Sections are not supported in Figma Design (only FigJam)
    */
   private static isCollapsibleContainer(node: SceneNode): boolean {
+    // Sections don't support programmatic collapse in Figma Design (only in FigJam)
     return node.type === 'GROUP' || 
            node.type === 'FRAME' ||
            node.type === 'COMPONENT' ||
@@ -2370,13 +2520,13 @@ export class LayerNavigationHandler {
    * Check if a container node has the expanded property and can be collapsed/expanded
    */
   private static isExpandableContainer(node: SceneNode): boolean {
-    // Use the specific collapsible container check (excludes Sections)
+    // Use the specific collapsible container check
     if (!LayerNavigationHandler.isCollapsibleContainer(node)) {
       return false;
     }
 
-    // Check if the node actually has the expanded property
     try {
+      // Only check expanded property for supported container types
       return 'expanded' in node && typeof (node as any).expanded === 'boolean';
     } catch (error) {
       console.warn(`Failed to check expanded property for ${node.type}:`, error);
@@ -2439,7 +2589,8 @@ export class LayerNavigationHandler {
 
       const parent = LayerNavigationHandler.findParentContainer(node);
       if (!parent) {
-        return false;
+        // Allow exit for top-level layers (direct children of page) to deselect them
+        return node.parent && node.parent.type === 'PAGE';
       }
 
       // Check if parent is accessible and not locked
@@ -2480,11 +2631,10 @@ export class LayerNavigationHandler {
         return false;
       }
 
-      // Count visible, unlocked siblings (excluding current node)
+      // Count all valid siblings (excluding current node) - includes hidden layers to match Tab behavior
       const validSiblings = parent.children.filter(child => {
         try {
           return child !== node && 
-                 'visible' in child && child.visible &&
                  (!('locked' in child) || !child.locked) &&
                  validateSceneNode(child);
         } catch (childError) {
@@ -2600,7 +2750,7 @@ export class LayerNavigationHandler {
     if (!parent || !('children' in parent)) return null;
 
     const siblings = parent.children.filter(child => 
-      'visible' in child && child.visible
+      validateSceneNode(child)
     ) as SceneNode[];
     
     const currentIndex = siblings.indexOf(node);

@@ -35,7 +35,8 @@ let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
 let hasPreviousSelection = false;
 
 // Auto-fit state management
-let isAutoFitEnabled = false;
+let isAutoFitEnabled = true; // Default to enabled
+let lastAutoFitHeight = 0;
 
 // Helper function to send messages to plugin sandbox
 function sendMessage(type: string, data: Record<string, any> = {}): void {
@@ -169,72 +170,76 @@ function handleToggleClick(mode: 'onPage' | 'onLayer'): void {
   }
 }
 
-// Compute natural content height (ignoring current flex-driven viewport size)
+// Compute natural content height respecting collapsed sections
 function computeFitHeight(): number {
   const main = document.querySelector('main.scrollable-content') as HTMLElement | null;
   const footer = document.getElementById('footer');
-  const footerHeight = footer ? footer.offsetHeight : 0;
 
-  if (!main) {
-    const fallback = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-    return Math.ceil(fallback);
+  if (!main || !footer) {
+    return 400; // Safe fallback
   }
 
-  // Get the body's computed padding-bottom which accounts for footer space
-  const bodyStyle = window.getComputedStyle(document.body);
-  const bodyPaddingBottom = parseInt(bodyStyle.paddingBottom, 10) || 0;
-
-  // Preserve existing inline styles to restore later
-  const prevFlex = main.style.flex;
-  const prevHeight = main.style.height;
-  const prevMaxHeight = main.style.maxHeight;
-
-  // Temporarily remove flex constraints to measure natural content height
-  main.style.flex = '0 0 auto';
-  main.style.height = 'auto';
-  main.style.maxHeight = 'none';
-
-  // Temporarily lift max-height from expanded collapsible sections so we
-  // measure their full natural height (CSS sets max-height: 600px)
+  // Calculate height by measuring visible content only
+  let totalContentHeight = 0;
+  
+  // Get all direct children of main and measure only non-collapsed sections
   const children = Array.from(main.children) as HTMLElement[];
-  const modifiedSections: Array<{ el: HTMLElement; prevMaxHeight: string; prevHeight: string; prevOverflow: string }> = [];
+  
   for (const child of children) {
-    const isCollapsible = child.classList.contains('collapsible-content');
-    const isCollapsed = child.classList.contains('collapsed');
-    if (isCollapsible && !isCollapsed) {
-      modifiedSections.push({
-        el: child,
-        prevMaxHeight: child.style.maxHeight,
-        prevHeight: child.style.height,
-        prevOverflow: child.style.overflow
-      });
-      child.style.maxHeight = 'none';
-      child.style.height = 'auto';
-      child.style.overflow = 'visible';
+    if (child.classList.contains('collapsible-content') && child.classList.contains('collapsed')) {
+      // Collapsed sections contribute 0 height (they have max-height: 0)
+      continue;
+    } else {
+      // For visible content, use offsetHeight which respects CSS layout
+      totalContentHeight += child.offsetHeight;
     }
   }
+  
+  // Add main's padding (top and bottom)
+  const mainStyle = window.getComputedStyle(main);
+  const mainPaddingTop = parseInt(mainStyle.paddingTop, 10) || 0;
+  const mainPaddingBottom = parseInt(mainStyle.paddingBottom, 10) || 0;
+  
+  const footerHeight = footer.offsetHeight || 20;
+  
+  // Total: visible content + padding + footer + small buffer
+  const totalHeight = totalContentHeight + mainPaddingTop + mainPaddingBottom + footerHeight + 2;
 
-  // Use scrollHeight directly as it's more reliable than manual measurement
-  // This accounts for all content including padding and margins
-  const naturalScrollHeight = main.scrollHeight;
-
-  // Restore previous styles
-  main.style.flex = prevFlex;
-  main.style.height = prevHeight;
-  main.style.maxHeight = prevMaxHeight;
-  for (const entry of modifiedSections) {
-    entry.el.style.maxHeight = entry.prevMaxHeight;
-    entry.el.style.height = entry.prevHeight;
-    entry.el.style.overflow = entry.prevOverflow;
+  // Only log detailed breakdown when height actually changes
+  const collapsedCount = children.filter(c => c.classList.contains('collapsed')).length;
+  if (Math.abs(totalHeight - lastAutoFitHeight) > 3) {
+    console.log('Auto-fit height (collapsed-aware):', {
+      totalContentHeight,
+      mainPaddingTop,
+      mainPaddingBottom,
+      footerHeight,
+      totalHeight,
+      collapsedSections: collapsedCount
+    });
   }
 
-  // Return total plugin height needed: content + body padding (which includes footer space)
-  // Don't double-count footer height since body padding already accounts for it
-  return Math.ceil(naturalScrollHeight + bodyPaddingBottom);
+  return Math.ceil(totalHeight);
 }
+
+// Debounce timer for auto-fit to prevent feedback loops
+let autoFitDebounceTimer: number | null = null;
+let scrollBehaviorDebounceTimer: number | null = null;
 
 // Check if scrolling should be enabled based on content height
 function updateScrollBehavior(): void {
+  // Debounce the entire function to prevent excessive calls
+  if (scrollBehaviorDebounceTimer) {
+    clearTimeout(scrollBehaviorDebounceTimer);
+  }
+  
+  scrollBehaviorDebounceTimer = window.setTimeout(() => {
+    updateScrollBehaviorImmediate();
+    scrollBehaviorDebounceTimer = null;
+  }, 50);
+}
+
+// Internal function that does the actual work
+function updateScrollBehaviorImmediate(): void {
   const main = document.querySelector('main.scrollable-content') as HTMLElement | null;
   if (!main) return;
 
@@ -256,8 +261,13 @@ function updateScrollBehavior(): void {
   // Auto-fit height adjustment when enabled
   if (isAutoFitEnabled) {
     const newHeight = computeFitHeight();
-    console.log('Auto-fit: adjusting height to', newHeight);
-    sendMessage('resize-ui', { height: newHeight });
+    
+    // Only resize if height changed significantly (more than 3px difference)
+    if (Math.abs(newHeight - lastAutoFitHeight) > 3) {
+      console.log('Auto-fit: adjusting height from', lastAutoFitHeight, 'to', newHeight);
+      sendMessage('resize-ui', { height: newHeight });
+      lastAutoFitHeight = newHeight;
+    }
   }
 }
 
@@ -544,6 +554,16 @@ function initializePlugin(): void {
   // Initialize scroll behavior
   updateScrollBehavior();
 
+  // Trigger initial auto-fit if enabled
+  if (isAutoFitEnabled) {
+    setTimeout(() => {
+      const initialHeight = computeFitHeight();
+      console.log('Initial auto-fit: setting height to', initialHeight);
+      sendMessage('resize-ui', { height: initialHeight });
+      lastAutoFitHeight = initialHeight;
+    }, 100); // Small delay to ensure DOM is fully rendered
+  }
+
   // Setup cleanup on page unload
   setupCleanupHandlers();
 
@@ -804,6 +824,7 @@ function setupEventListeners(): void {
         const contentHeight = computeFitHeight();
         console.log('Auto-fit enabled: adjusting height to', contentHeight);
         sendMessage('resize-ui', { height: contentHeight });
+        lastAutoFitHeight = contentHeight;
       } else {
         console.log('Auto-fit disabled');
       }
@@ -2775,24 +2796,36 @@ function updateNavigationControlButtons(context: typeof navigationContext): void
     if (isPageMode && canEnter) {
       // Page mode - entering page means selecting first layer
       enterBtn.setAttribute('aria-label', 'Enter page (Enter)');
+      const labelElement = enterBtn.querySelector('.nav-label');
+      if (labelElement) {
+        labelElement.textContent = 'Enter';
+      }
       const descElement = document.getElementById('nav-enter-desc');
       if (descElement) {
         descElement.textContent = 'Select first layer on page';
       }
     } else if (!isPageMode && canEnter) {
       // Layer mode - entering container
-      enterBtn.setAttribute('aria-label', 'Enter container (Enter)');
+      enterBtn.setAttribute('aria-label', 'Expand container (Enter)');
+      const labelElement = enterBtn.querySelector('.nav-label');
+      if (labelElement) {
+        labelElement.textContent = 'Expand';
+      }
       const descElement = document.getElementById('nav-enter-desc');
       if (descElement) {
         descElement.textContent = 'Select all children of container and focus view';
       }
     } else {
       // Disabled state
-      const disabledLabel = isPageMode ? 'Enter page (Enter) - no layers on page' : 'Enter container (Enter) - no container selected';
+      const disabledLabel = isPageMode ? 'Enter page (Enter) - no layers on page' : 'Expand container (Enter) - no container selected';
       enterBtn.setAttribute('aria-label', disabledLabel);
+      const labelElement = enterBtn.querySelector('.nav-label');
+      if (labelElement) {
+        labelElement.textContent = isPageMode ? 'Enter' : 'Expand';
+      }
       const descElement = document.getElementById('nav-enter-desc');
       if (descElement) {
-        descElement.textContent = isPageMode ? 'No layers available on current page' : 'No container selected to enter';
+        descElement.textContent = isPageMode ? 'No layers available on current page' : 'No container selected to expand';
       }
     }
   }
@@ -2800,9 +2833,21 @@ function updateNavigationControlButtons(context: typeof navigationContext): void
   if (exitBtn) {
     const canExit = context.canExit;
     exitBtn.disabled = !canExit;
-    exitBtn.setAttribute('aria-label',
-      canExit ? 'Exit container (Shift+Enter)' : 'Exit container (Shift+Enter) - no parent container'
-    );
+    // Determine if we're at root level by checking if we can exit but have no sibling containers
+    // This heuristic works because root level items typically don't have sibling containers in the same way
+    const isLikelyRootLevel = context.hasSelection && context.canExit && context.siblingContainerCount === 0;
+    
+    const exitLabel = canExit ? 
+      (isLikelyRootLevel ? 'Exit ↑ (Shift+Enter)' : 'Exit (Shift+Enter)') : 
+      'Exit (Shift+Enter) - no parent available';
+    
+    exitBtn.setAttribute('aria-label', exitLabel);
+    
+    // Also update the visible button label
+    const labelElement = exitBtn.querySelector('.nav-label');
+    if (labelElement) {
+      labelElement.textContent = isLikelyRootLevel ? 'Exit ↑' : 'Exit';
+    }
 
     const descElement = document.getElementById('nav-exit-desc');
     if (descElement) {
@@ -2887,6 +2932,8 @@ function updateNavigationControlButtons(context: typeof navigationContext): void
   }
 
   if (collapseBtn) {
+    // Use existing logic but also consider if selection has collapsible items
+    // For now, keep the existing behavior - we'll improve this by modifying containerCount calculation
     const hasContainers = context.containerCount > 0;
     collapseBtn.disabled = !hasContainers;
     const label = hasContainers ?
@@ -2897,7 +2944,7 @@ function updateNavigationControlButtons(context: typeof navigationContext): void
     const descElement = document.getElementById('nav-collapse-desc');
     if (descElement) {
       descElement.textContent = hasContainers ?
-        `Collapse or expand ${context.containerCount} containers on current page` :
+        `Collapse selected containers, or ${context.containerCount} containers if none selected` :
         'No containers available on current page';
     }
   }
@@ -3002,8 +3049,8 @@ function setupNavigationControls(): void {
   // Add click event listeners with screen reader announcements
   if (enterBtn) {
     enterBtn.addEventListener('click', () => {
-      console.log('Navigation: Enter container');
-      announceNavigationResult({ success: true, message: 'Attempting to enter container' });
+      console.log('Navigation: Expand container');
+      announceNavigationResult({ success: true, message: 'Attempting to expand container' });
       sendMessage('navigation-action', { action: 'enter' });
     });
   }
@@ -3204,16 +3251,16 @@ function announceButtonState(button: HTMLButtonElement): void {
 
   switch (buttonId) {
     case 'nav-enter':
-      contextInfo = isDisabled ? 'No container selected to enter' : 'Container available to enter';
+      contextInfo = isDisabled ? 'No container selected to expand' : 'Container available to expand';
       detailedInfo = enhanced ? (isDisabled ?
         'Select a Section, Group, or Frame first to enable this action' :
         'Will select all children and focus the view on container contents') : '';
       break;
     case 'nav-exit':
-      contextInfo = isDisabled ? 'No parent container to exit to' : 'Parent container available';
+      contextInfo = isDisabled ? 'No parent to exit to' : 'Can exit up one level';
       detailedInfo = enhanced ? (isDisabled ?
-        'Current selection has no parent container' :
-        'Will select the parent container of current selection') : '';
+        'Current selection has no parent to exit to' :
+        'Will move selection up one level in hierarchy') : '';
       break;
     case 'nav-prev':
     case 'nav-next':
@@ -3226,7 +3273,7 @@ function announceButtonState(button: HTMLButtonElement): void {
       contextInfo = isDisabled ? 'No containers on page to collapse' : 'Containers available to collapse';
       detailedInfo = enhanced ? (isDisabled ?
         'Current page contains no Groups, Sections, or Frames' :
-        'Will toggle the collapsed state of all containers on the page') : '';
+        'Will collapse selected containers, or sibling containers if none selected') : '';
       break;
   }
 

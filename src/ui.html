@@ -40,7 +40,7 @@
         </li>
         <li class="align-right">
           <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
-<span class="icon">≡</span>
+            <span class="icon">≡</span>
           </button>
         </li>
       </ul>
@@ -98,7 +98,8 @@
         <h2 class="header-title">ANCHORS</h2>
       </div>
       <nav class="header-right">
-        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors" data-tooltip-placement="below"><span class="icon">⟳</span></button>
+        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors"
+          data-tooltip-placement="below"><span class="icon">⟳</span></button>
         <!-- <p id="bookmark-count" class="top-badge" aria-live="polite">0</p> -->
       </nav>
     </header>
@@ -129,65 +130,66 @@
       </div>
     </header>
 
-    <section id="navigation-section" class="collapsible-content" role="region" aria-labelledby="navigation-header" 
-             aria-describedby="navigation-description">
+    <section id="navigation-section" class="collapsible-content" role="region" aria-labelledby="navigation-header"
+      aria-describedby="navigation-description">
       <div class="navigation-controls">
         <!-- Screen reader description -->
         <div id="navigation-description" class="sr-only">
-          Navigate through layer hierarchy using these controls. Use arrow keys to move between buttons, Enter or Space to activate.
+          Navigate through layer hierarchy using these controls. Use arrow keys to move between buttons, Enter or Space
+          to activate.
         </div>
-        
-        <div class="navigation-grid" role="grid" aria-label="Layer navigation controls" 
-             aria-describedby="navigation-instructions" data-keyboard-nav="grid">
-          
+
+        <div class="navigation-grid" role="grid" aria-label="Layer navigation controls"
+          aria-describedby="navigation-instructions" data-keyboard-nav="grid">
+
           <!-- Screen reader instructions -->
           <div id="navigation-instructions" class="sr-only">
-            Grid of navigation buttons arranged in 3 rows and 2 columns. Use arrow keys to navigate, Enter or Space to activate buttons.
+            Grid of navigation buttons arranged in 3 rows and 2 columns. Use arrow keys to navigate, Enter or Space to
+            activate buttons.
           </div>
-          
+
           <!-- Row 1 -->
           <div role="row" aria-rowindex="1" class="nav-row">
             <button id="nav-exit" class="nav-button" role="gridcell" aria-colindex="1"
-                    aria-label="Exit container (Shift+Enter)" aria-describedby="nav-exit-desc" disabled 
-                    data-grid-row="0" data-grid-col="0" data-shortcut="Shift+Enter">
+              aria-label="Exit container (Shift+Enter)" aria-describedby="nav-exit-desc" disabled data-grid-row="0"
+              data-grid-col="0" data-shortcut="Shift+Enter">
               <span class="nav-icon" aria-hidden="true">↑</span>
               <span class="nav-label">Exit</span>
-              <span id="nav-exit-desc" class="sr-only">Move selection to parent container</span>
+              <span id="nav-exit-desc" class="sr-only">Move selection up one level in hierarchy</span>
             </button>
-            <button id="nav-next" class="nav-button" role="gridcell" aria-colindex="2"
-                    aria-label="Next sibling (Tab)" aria-describedby="nav-next-desc" disabled 
-                    data-grid-row="0" data-grid-col="1" data-shortcut="Tab">
+            <button id="nav-next" class="nav-button" role="gridcell" aria-colindex="2" aria-label="Next sibling (Tab)"
+              aria-describedby="nav-next-desc" disabled data-grid-row="0" data-grid-col="1" data-shortcut="Tab">
               <span class="nav-icon" aria-hidden="true">↑</span>
               <span class="nav-label">Up</span>
               <span id="nav-next-desc" class="sr-only">Select next sibling layer (down in layers panel)</span>
             </button>
           </div>
-          
+
           <!-- Row 2 -->
           <div role="row" aria-rowindex="2" class="nav-row">
             <button id="nav-collapse" class="nav-button" role="gridcell" aria-colindex="1"
-                    aria-label="Collapse selected and sibling containers (Alt+L)" aria-describedby="nav-collapse-desc" disabled 
-                    data-grid-row="1" data-grid-col="0" data-shortcut="Alt+L">
+              aria-label="Collapse selected and sibling containers (Alt+L)" aria-describedby="nav-collapse-desc"
+              disabled data-grid-row="1" data-grid-col="0" data-shortcut="Alt+L">
               <span class="nav-icon" aria-hidden="true">⌄</span>
               <span class="nav-label">Collapse</span>
               <span id="nav-collapse-desc" class="sr-only">Collapse selected container and sibling containers</span>
             </button>
             <button id="nav-prev" class="nav-button" role="gridcell" aria-colindex="2"
-                    aria-label="Previous sibling (Shift+Tab)" aria-describedby="nav-prev-desc" disabled 
-                    data-grid-row="1" data-grid-col="1" data-shortcut="Shift+Tab">
+              aria-label="Previous sibling (Shift+Tab)" aria-describedby="nav-prev-desc" disabled data-grid-row="1"
+              data-grid-col="1" data-shortcut="Shift+Tab">
               <span class="nav-icon" aria-hidden="true">↓</span>
               <span class="nav-label">Down</span>
               <span id="nav-prev-desc" class="sr-only">Select previous sibling layer (up in layers panel)</span>
             </button>
           </div>
-          
+
           <!-- Row 3 -->
           <div role="row" aria-rowindex="3" class="nav-row">
             <button id="nav-enter" class="nav-button nav-button-wide" role="gridcell" aria-colindex="1" aria-colspan="2"
-                    aria-label="Enter container (Enter)" aria-describedby="nav-enter-desc" disabled 
-                    data-grid-row="2" data-grid-col="0" data-shortcut="Enter">
+              aria-label="Expand container (Enter)" aria-describedby="nav-enter-desc" disabled data-grid-row="2"
+              data-grid-col="0" data-shortcut="Enter">
               <span class="nav-icon" aria-hidden="true">↓</span>
-              <span class="nav-label">Enter</span>
+              <span class="nav-label">Expand</span>
               <span id="nav-enter-desc" class="sr-only">Select all children of container and focus view</span>
             </button>
           </div>
@@ -207,7 +209,7 @@
         <!-- Plugin Settings Section -->
         <div class="settings-section">
           <h3 class="settings-section-title">⚙️ Plugin Settings</h3>
-          
+
           <!-- Navigation Controls Toggle -->
           <div class="setting-item">
             <label class="setting-label">
@@ -220,12 +222,13 @@
           <!-- Theme Selection -->
           <div class="setting-item">
             <label class="setting-label" id="theme-selector-label">Theme:</label>
-            <div class="theme-selector" role="radiogroup" aria-labelledby="theme-selector-label" aria-describedby="theme-selector-description">
+            <div class="theme-selector" role="radiogroup" aria-labelledby="theme-selector-label"
+              aria-describedby="theme-selector-description">
               <!-- Primary Theme Options -->
               <div class="theme-group primary-themes">
                 <label class="theme-option">
-                  <input type="radio" name="theme" value="system" id="theme-system" checked 
-                         aria-describedby="system-theme-description">
+                  <input type="radio" name="theme" value="system" id="theme-system" checked
+                    aria-describedby="system-theme-description">
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">🔄</span>
                     <span class="theme-name">System</span>
@@ -235,7 +238,7 @@
                 </label>
                 <label class="theme-option">
                   <input type="radio" name="theme" value="light" id="theme-light"
-                         aria-describedby="light-theme-description">
+                    aria-describedby="light-theme-description">
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">☀️</span>
                     <span class="theme-name">Light</span>
@@ -244,7 +247,7 @@
                 </label>
                 <label class="theme-option">
                   <input type="radio" name="theme" value="dark" id="theme-dark"
-                         aria-describedby="dark-theme-description">
+                    aria-describedby="dark-theme-description">
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">🌙</span>
                     <span class="theme-name">Dark</span>
@@ -252,7 +255,7 @@
                   </span>
                 </label>
               </div>
-              
+
               <!-- Advanced Theme Options -->
               <div class="theme-group advanced-themes">
                 <div class="theme-group-header">
@@ -260,7 +263,7 @@
                 </div>
                 <label class="theme-option">
                   <input type="radio" name="theme" value="boilerplate" id="theme-boilerplate"
-                         aria-describedby="boilerplate-theme-description">
+                    aria-describedby="boilerplate-theme-description">
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">⚫</span>
                     <span class="theme-name">Boilerplate</span>
@@ -269,7 +272,7 @@
                 </label>
                 <label class="theme-option">
                   <input type="radio" name="theme" value="cybertron" id="theme-cybertron"
-                         aria-describedby="cybertron-theme-description">
+                    aria-describedby="cybertron-theme-description">
                   <span class="theme-option-content">
                     <span class="theme-icon" aria-hidden="true">🤖</span>
                     <span class="theme-name">Cybertron</span>
@@ -282,8 +285,8 @@
               Use arrow keys to navigate between theme options. Press Enter or Space to select a theme.
             </div>
           </div>
-          
-          
+
+
         </div>
 
         <!-- Support Section -->
@@ -315,7 +318,8 @@
         </div>
       </li>
       <li>
-        <button id="footer-fit" class="footer-icon-btn" aria-label="Auto-fit disabled - click to enable" title="Auto-fit: OFF" data-tooltip="Toggle Auto-height">↕</button>
+        <button id="footer-fit" class="footer-icon-btn active" aria-label="Auto-fit enabled - click to disable"
+          title="Auto-fit: ON" data-tooltip="Toggle Auto-height">↕</button>
       </li>
     </ul>
     <div class="footer-branding">

@@ -74,20 +74,20 @@ const debouncedSelectionUpdate = debounce(() => {
   // Store current selection as previous before updating
   const currentSelection = figma.currentPage.selection;
   const currentPageId = figma.currentPage.id;
-  
+
   if (currentSelection.length > 0) {
     const nodeIds = currentSelection.map(node => node.id);
     setPreviousSelection(nodeIds, currentPageId);
   }
-  
+
   sendSelectionStateToUI();
   detectCurrentAnchorFromSelection();
   addSelectionToHistory();
   sendNavigationStateToUI();
-  
+
   // Send optimized navigation context updates with dedicated debounce
   debouncedNavigationContextUpdate();
-  
+
   triggerValidationOnSelectionChange();
 }, 100);
 
@@ -95,7 +95,7 @@ const debouncedPageChange = debounce(async () => {
   // Clear navigation context cache when page changes
   const { clearNavigationContextCache } = await import('./ui/ui-communication');
   clearNavigationContextCache();
-  
+
   await validateCurrentAnchor();
   await updateUIAfterNavigation();
   addPageChangeToHistory();
@@ -231,9 +231,9 @@ figma.ui.onmessage = async (msg) => {
       case 'get-theme-preference': {
         const { ThemeStorage } = await import('./core/theme-storage');
         const result = await ThemeStorage.loadThemePreference();
-        
-        figma.ui.postMessage({ 
-          type: 'theme-preference', 
+
+        figma.ui.postMessage({
+          type: 'theme-preference',
           theme: result.data,
           storageInfo: {
             success: result.success,
@@ -248,14 +248,14 @@ figma.ui.onmessage = async (msg) => {
         if ('theme' in msg) {
           const { ThemeStorage } = await import('./core/theme-storage');
           const result = await ThemeStorage.saveThemePreference(msg.theme as import('./core/types').ThemePreference);
-          
+
           // Also maintain backward compatibility with direct storage
           try {
             await figma.clientStorage.setAsync('themePreference', msg.theme);
           } catch (_e) {
             // ignore storage errors; preference is non-critical
           }
-          
+
           // Optionally notify UI of save result
           if (!result.success) {
             console.warn('Enhanced theme storage save failed:', result.error);
@@ -545,7 +545,7 @@ const handleToggleToLayerMode = withErrorBoundary(async () => {
 const handleOpenKofi = withErrorBoundary(async () => {
   // Open Ko-fi page in external browser
   const kofiUrl = 'https://ko-fi.com/l3vi_dsgn';
-  
+
   try {
     // Use Figma's openExternal API to open the Ko-fi page
     figma.openExternal(kofiUrl);
@@ -560,18 +560,23 @@ const handleOpenKofi = withErrorBoundary(async () => {
 const handleNavigationAction = withErrorBoundary(async (action: import('./core/types').NavigationAction) => {
   const { LayerNavigationHandler } = await import('./features/navigation');
   const selection = figma.currentPage.selection;
-  
+
   let result: import('./core/types').NavigationResult;
-  
+
   switch (action) {
     case 'enter':
-      if (selection.length !== 1) {
-        figma.notify('Please select exactly one container to enter');
-        return;
+      if (selection.length === 0) {
+        // Handle page entry when no layers are selected
+        result = await LayerNavigationHandler.handleEmptySelection('enter');
+      } else if (selection.length === 1) {
+        // Handle single container entry
+        result = LayerNavigationHandler.enterContainer(selection[0]);
+      } else {
+        // Handle multiple container entry
+        result = LayerNavigationHandler.enterMultipleContainers(selection);
       }
-      result = LayerNavigationHandler.enterContainer(selection[0]);
       break;
-      
+
     case 'exit':
       if (selection.length === 0) {
         figma.notify('Please select a layer to exit from');
@@ -579,7 +584,7 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
       }
       result = LayerNavigationHandler.exitContainer(selection);
       break;
-      
+
     case 'next-sibling':
       if (selection.length === 0) {
         // Handle page navigation when no layers are selected
@@ -588,11 +593,11 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
         // Handle layer navigation when one layer is selected
         result = LayerNavigationHandler.navigateToSibling(selection[0], 'next');
       } else {
-        // Handle multiple selection navigation - focus on last item
+        // Handle multiple selection navigation - focus on first item
         result = LayerNavigationHandler.navigateToSiblingMultiple(selection, 'next');
       }
       break;
-      
+
     case 'prev-sibling':
       if (selection.length === 0) {
         // Handle page navigation when no layers are selected
@@ -605,55 +610,73 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
         result = LayerNavigationHandler.navigateToSiblingMultiple(selection, 'prev');
       }
       break;
-      
+
     case 'toggle-collapse':
       result = LayerNavigationHandler.toggleCollapse();
       break;
-      
+
     default:
       figma.notify('Unknown navigation action');
       return;
   }
-  
+
   // Apply the navigation result
   if (result.success) {
     const isSiblingAction = action === 'next-sibling' || action === 'prev-sibling';
+    const isEnterAction = action === 'enter';
+    const isSingleEnter = isEnterAction && figma.currentPage.selection.length === 1;
+    const isMultipleEnter = isEnterAction && figma.currentPage.selection.length > 1;
     
+    // Sibling actions and single selection Enter need expansion prevention
+    // Multiple selection Enter should NOT have expansion prevention (containers should expand)
+    const needsExpansionControl = isSiblingAction || isSingleEnter;
+
     if (result.newSelection) {
-      // For sibling navigation, capture expansion states BEFORE selection change
-      let nodesToRestore: Array<{node: any, wasExpanded: boolean}> = [];
-      
-      if (isSiblingAction && result.newSelection.length > 0) {
-        const selectedNode = result.newSelection[0];
-        
-        // Store expansion state of the node we're about to select (if it's a container)
-        if ('expanded' in selectedNode) {
-          nodesToRestore.push({
-            node: selectedNode,
-            wasExpanded: (selectedNode as any).expanded
+      // For navigation actions that should preserve expansion states
+      let nodesToRestore: Array<{ node: any, wasExpanded: boolean }> = [];
+
+      if (needsExpansionControl && result.newSelection.length > 0) {
+        if (isSingleEnter) {
+          // Single Enter: prevent expansion of selected children (container children)
+          result.newSelection.forEach(child => {
+            if ('expanded' in child) {
+              nodesToRestore.push({
+                node: child,
+                wasExpanded: (child as any).expanded
+              });
+            }
           });
-        }
-        
-        // Also store parent chain expansion states
-        let currentParent = selectedNode.parent;
-        while (currentParent && currentParent.type !== 'PAGE') {
-          if ('expanded' in currentParent) {
+        } else if (isSiblingAction) {
+          // Sibling action: prevent expansion of the selected node and its parents
+          const selectedNode = result.newSelection[0];
+
+          if ('expanded' in selectedNode) {
             nodesToRestore.push({
-              node: currentParent,
-              wasExpanded: (currentParent as any).expanded
+              node: selectedNode,
+              wasExpanded: (selectedNode as any).expanded
             });
           }
-          currentParent = currentParent.parent;
+
+          let currentParent = selectedNode.parent;
+          while (currentParent && currentParent.type !== 'PAGE') {
+            if ('expanded' in currentParent) {
+              nodesToRestore.push({
+                node: currentParent,
+                wasExpanded: (currentParent as any).expanded
+              });
+            }
+            currentParent = currentParent.parent;
+          }
         }
       }
-      
+
       // Change selection (this may trigger auto-expansion)
       figma.currentPage.selection = result.newSelection as SceneNode[];
-      
+
       // Restore expansion states after selection change
-      if (isSiblingAction && nodesToRestore.length > 0) {
+      if (needsExpansionControl && nodesToRestore.length > 0) {
         setTimeout(() => {
-          nodesToRestore.forEach(({node, wasExpanded}) => {
+          nodesToRestore.forEach(({ node, wasExpanded }) => {
             if (node && 'expanded' in node) {
               node.expanded = wasExpanded;
             }
@@ -665,7 +688,7 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
     if (result.viewportUpdate && result.newSelection && result.newSelection.length > 0) {
       // Always scroll to show selected layer for better UX
       const isEnterAction = action === 'enter';
-      
+
       if (isEnterAction) {
         // Enter action: only scroll to first child
         figma.viewport.scrollAndZoomIntoView([result.newSelection[0]] as SceneNode[]);
@@ -683,7 +706,7 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
 
     // Navigation context will be updated by the debounced selection change handler
   }
-  
+
   figma.notify(result.message);
 }, ErrorType.NAVIGATION_FAILED);
 
@@ -691,13 +714,13 @@ const handleToggleNavigationControls = withErrorBoundary(async (enabled: boolean
   // Store navigation controls setting in plugin storage
   try {
     await figma.clientStorage.setAsync('navigationControlsEnabled', enabled);
-    
+
     // Send updated setting to UI
     figma.ui.postMessage({
       type: 'navigation-controls-setting',
       enabled: enabled
     });
-    
+
     figma.notify(enabled ? 'Navigation controls enabled' : 'Navigation controls disabled');
   } catch (error) {
     console.error('Failed to save navigation controls setting:', error);
@@ -708,7 +731,7 @@ const handleToggleNavigationControls = withErrorBoundary(async (enabled: boolean
 const handleGetNavigationControlsSetting = withErrorBoundary(async () => {
   try {
     const enabled = await figma.clientStorage.getAsync('navigationControlsEnabled') ?? true;
-    
+
     // Send current setting to UI
     figma.ui.postMessage({
       type: 'navigation-controls-setting',

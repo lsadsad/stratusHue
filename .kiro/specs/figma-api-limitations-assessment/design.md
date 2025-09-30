@@ -11,18 +11,18 @@ This document provides a comprehensive analysis of the Figma Plugin API limitati
 The Layer Navigation Controls feature currently attempts to use the following unsupported Figma Plugin API operations:
 
 ```typescript
-// ❌ This does NOT exist in the Figma Plugin API
+// ✅ CORRECTION: This DOES work in the Figma Plugin API (tested December 2024)
 (container as FrameNode | GroupNode).expanded = false;
 
-// ❌ This property is not available to plugins
+// ✅ CORRECTION: This property IS available to plugins
 if ('expanded' in node && typeof (node as any).expanded === 'boolean') {
-  // This check will always fail
+  // This check works correctly for Frame, Group, Instance, Component nodes
 }
 ```
 
-### Figma Plugin API Reality
+### Figma Plugin API Reality - CORRECTED
 
-Based on the official Figma Plugin API documentation, plugins have access to:
+**IMPORTANT UPDATE (December 2024):** Previous documentation was incorrect about the `expanded` property. Real-world testing confirms:
 
 **✅ Supported Operations:**
 - `figma.currentPage.selection` - Read and modify current selection
@@ -30,50 +30,53 @@ Based on the official Figma Plugin API documentation, plugins have access to:
 - Node traversal through `parent`, `children` properties
 - Node properties like `name`, `type`, `visible`, etc.
 - Page navigation with `figma.setCurrentPageAsync()`
+- **Layer panel expanded/collapsed state control** - ✅ WORKS via `node.expanded` property
 
 **❌ Unsupported Operations:**
-- Layer panel expanded/collapsed state control
-- Layer panel visibility or organization
+- Layer panel visibility or organization (beyond expand/collapse)
 - UI panel state outside of the plugin's own interface
-- Native Figma interface manipulation
+- Native Figma interface manipulation (beyond layer expansion)
 
-### Root Cause Analysis
+### CORRECTION: Expanded Property Analysis
 
-The problematic code exists in these specific locations:
+**TESTING RESULTS (December 2024):** The following code locations were previously flagged as problematic but are actually WORKING CORRECTLY:
 
-1. **`src/features/navigation.ts` line ~1229:**
+1. **`src/features/navigation.ts` - toggleCollapse():**
    ```typescript
    (container as FrameNode | GroupNode | ComponentNode | ComponentSetNode | InstanceNode).expanded = false;
    ```
+   ✅ **Status:** WORKS - Successfully collapses containers in layer panel
 
-2. **`src/features/navigation.ts` line ~2245:**
+2. **`src/features/navigation.ts` - isExpandableContainer():**
    ```typescript
    return 'expanded' in node && typeof (node as any).expanded === 'boolean';
    ```
+   ✅ **Status:** WORKS - Correctly detects expandable containers
 
-3. **`src/features/navigation.ts` line ~2684:**
-   ```typescript
-   (container as FrameNode | GroupNode | SectionNode | ComponentNode | ComponentSetNode | InstanceNode).expanded = false;
-   ```
+3. **Real-world test results:**
+   - Frame nodes: `hasExpanded=true, value=true/false, isBoolean=true`
+   - Instance nodes: `hasExpanded=true, value=true/false, isBoolean=true`
+   - Section nodes: `sectionContentsHidden` property only available in FigJam, not Figma Design
+   - Collapse operation: `true → false` (successful state change)
 
-## Components and Interfaces
+## Components and Interfaces - CORRECTED
 
-### Affected Components
+### Working Navigation Components
 
-#### LayerNavigationHandler.toggleCollapse()
-**Status:** Must be completely redesigned or removed
-**Issue:** Attempts to set `expanded` property on nodes
-**Impact:** This function will fail silently or throw errors
+#### LayerNavigationHandler.toggleCollapse() ✅
+**Status:** FUNCTIONAL - No changes needed
+**Capability:** Successfully controls layer panel expansion state
+**Impact:** Provides working collapse/expand functionality for containers
 
-#### LayerNavigationHandler.isExpandableContainer()
-**Status:** Must be redesigned
-**Issue:** Checks for non-existent `expanded` property
-**Impact:** Always returns false, making collapse detection impossible
+#### LayerNavigationHandler.isExpandableContainer() ✅
+**Status:** FUNCTIONAL - No changes needed
+**Capability:** Correctly identifies containers with `expanded` property
+**Impact:** Enables proper collapse button state management
 
-#### NavigationContext.hasCollapsibleSiblings
-**Status:** Must be removed or redefined
-**Issue:** Based on non-existent expanded state detection
-**Impact:** Context analysis provides incorrect information
+#### NavigationContext.hasCollapsibleSiblings ✅
+**Status:** FUNCTIONAL - No changes needed
+**Capability:** Accurately detects collapsible sibling containers
+**Impact:** Provides correct context for UI button states
 
 ### Supported Navigation Components
 
