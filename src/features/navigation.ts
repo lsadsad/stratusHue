@@ -2320,7 +2320,7 @@ export class LayerNavigationHandler {
       
       default:
         // Unknown action for multiple selection
-        let message = `Cannot ${action.replace('-', ' ')} with multiple layers selected`;
+        let message = `Cannot ${(action as string).replace('-', ' ')} with multiple layers selected`;
         if (hasLockedNodes || hasHiddenNodes) {
           message += ` (${visibleNodes.length} of ${selection.length} layers are valid)`;
         }
@@ -2337,13 +2337,13 @@ export class LayerNavigationHandler {
    * Main navigation dispatcher with comprehensive edge case handling and performance monitoring
    * Handles empty selections, multiple selections, locked/hidden layers, and fallbacks
    */
-  static performNavigation(action: NavigationAction, selection?: readonly SceneNode[]): NavigationResult {
-    return LayerNavigationHandler.measureNavigationPerformance(`${action} navigation`, () => {
+  static async performNavigation(action: NavigationAction, selection?: readonly SceneNode[]): Promise<NavigationResult> {
+    return LayerNavigationHandler.measureNavigationPerformance(`${action} navigation`, async () => {
       const currentSelection = selection || figma.currentPage.selection;
 
       // Handle empty selection
       if (currentSelection.length === 0) {
-        return LayerNavigationHandler.handleEmptySelection(action);
+        return await LayerNavigationHandler.handleEmptySelection(action);
       }
 
       // Handle multiple selection
@@ -2590,7 +2590,7 @@ export class LayerNavigationHandler {
       const parent = LayerNavigationHandler.findParentContainer(node);
       if (!parent) {
         // Allow exit for top-level layers (direct children of page) to deselect them
-        return node.parent && node.parent.type === 'PAGE';
+        return Boolean(node.parent && node.parent.type === 'PAGE');
       }
 
       // Check if parent is accessible and not locked
@@ -2939,7 +2939,7 @@ export class LayerNavigationHandler {
       try {
         if (LayerNavigationHandler.isExpandableContainer(container)) {
           accessibleContainers++;
-          if (container.expanded) {
+          if ('expanded' in container && container.expanded) {
             expandedCount++;
           }
         }
@@ -2966,7 +2966,9 @@ export class LayerNavigationHandler {
     for (const container of containers) {
       try {
         if (LayerNavigationHandler.isExpandableContainer(container)) {
-          (container as FrameNode | GroupNode | SectionNode | ComponentNode | ComponentSetNode | InstanceNode).expanded = false; // Always collapse
+          if ('expanded' in container) {
+            (container as any).expanded = false; // Always collapse
+          }
           successCount++;
         }
       } catch (containerError) {

@@ -1,9 +1,11 @@
 /// <reference types="@figma/plugin-typings" />
 import { vi, beforeEach } from 'vitest';
 
-// Extend global interface to include figma
+// Extend global interface to include figma (avoid conflict with @figma/plugin-typings)
 declare global {
-  var figma: any;
+  namespace globalThis {
+    var mockFigma: any;
+  }
 }
 
 // Mock Figma API for testing
@@ -100,7 +102,9 @@ export function createMockContainer(
 }
 
 // Setup global figma mock
-global.figma = mockFigma as any;
+globalThis.mockFigma = mockFigma as any;
+// Also set it as figma for tests that expect it
+(globalThis as any).figma = mockFigma;
 
 // Reset mocks before each test
 beforeEach(() => {

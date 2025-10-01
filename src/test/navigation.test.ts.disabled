@@ -84,8 +84,8 @@ describe('LayerNavigationHandler', () => {
       const child = createMockSceneNode('child-1', 'Child');
       const parent = createMockContainer('parent-1', 'Parent Group', 'GROUP', [child]);
       
-      // Mock the findParentContainer method
-      vi.spyOn(LayerNavigationHandler, 'findParentContainer').mockReturnValue(parent);
+      // Set up parent-child relationship for the test
+      (child as any).parent = parent;
 
       // Act
       const result = LayerNavigationHandler.exitContainer(child);
@@ -101,8 +101,8 @@ describe('LayerNavigationHandler', () => {
       // Arrange
       const topLevelNode = createMockSceneNode('top-1', 'Top Level');
       
-      // Mock the findParentContainer method to return null
-      vi.spyOn(LayerNavigationHandler, 'findParentContainer').mockReturnValue(null);
+      // Set up child with no parent (orphaned node)
+      (child as any).parent = null;
 
       // Act
       const result = LayerNavigationHandler.exitContainer(topLevelNode);
@@ -119,8 +119,9 @@ describe('LayerNavigationHandler', () => {
       const child2 = createMockSceneNode('child-2', 'Child 2');
       const commonParent = createMockContainer('parent-1', 'Common Parent', 'GROUP', [child1, child2]);
       
-      // Mock the findCommonParentContainer method
-      vi.spyOn(LayerNavigationHandler, 'findCommonParentContainer').mockReturnValue(commonParent);
+      // Set up parent-child relationships
+      (child1 as any).parent = commonParent;
+      (child2 as any).parent = commonParent;
 
       // Act
       const result = LayerNavigationHandler.exitContainer([child1, child2]);
@@ -137,8 +138,11 @@ describe('LayerNavigationHandler', () => {
       const child1 = createMockSceneNode('child-1', 'Child 1');
       const child2 = createMockSceneNode('child-2', 'Child 2');
       
-      // Mock the findCommonParentContainer method to return null
-      vi.spyOn(LayerNavigationHandler, 'findCommonParentContainer').mockReturnValue(null);
+      // Set up children with different parents (no common parent)
+      const parent1 = createMockContainer('parent-1', 'Parent 1', 'GROUP', [child1]);
+      const parent2 = createMockContainer('parent-2', 'Parent 2', 'GROUP', [child2]);
+      (child1 as any).parent = parent1;
+      (child2 as any).parent = parent2;
 
       // Act
       const result = LayerNavigationHandler.exitContainer([child1, child2]);
@@ -166,8 +170,10 @@ describe('LayerNavigationHandler', () => {
       const currentNode = createMockSceneNode('node-1', 'Current Node');
       const nextSibling = createMockSceneNode('node-2', 'Next Sibling');
       
-      // Mock the findSibling method
-      vi.spyOn(LayerNavigationHandler, 'findSibling').mockReturnValue(nextSibling);
+      // Set up sibling relationship
+      const parent = createMockContainer('parent-1', 'Parent', 'GROUP', [currentNode, nextSibling]);
+      (currentNode as any).parent = parent;
+      (nextSibling as any).parent = parent;
 
       // Act
       const result = LayerNavigationHandler.navigateToSibling(currentNode, 'next');
@@ -184,8 +190,10 @@ describe('LayerNavigationHandler', () => {
       const currentNode = createMockSceneNode('node-2', 'Current Node');
       const prevSibling = createMockSceneNode('node-1', 'Previous Sibling');
       
-      // Mock the findSibling method
-      vi.spyOn(LayerNavigationHandler, 'findSibling').mockReturnValue(prevSibling);
+      // Set up sibling relationship
+      const parent = createMockContainer('parent-1', 'Parent', 'GROUP', [prevSibling, currentNode]);
+      (currentNode as any).parent = parent;
+      (prevSibling as any).parent = parent;
 
       // Act
       const result = LayerNavigationHandler.navigateToSibling(currentNode, 'prev');
@@ -202,10 +210,10 @@ describe('LayerNavigationHandler', () => {
       const lastNode = createMockSceneNode('node-3', 'Last Node');
       const firstSibling = createMockSceneNode('node-1', 'First Sibling');
       
-      // Mock findSibling to return null first (no next sibling), then return first sibling on wrap
-      vi.spyOn(LayerNavigationHandler, 'findSibling')
-        .mockReturnValueOnce(null) // First call (no next sibling)
-        .mockReturnValueOnce(firstSibling); // Second call (wrap to first)
+      // Set up sibling relationship where lastNode is the last child
+      const parent = createMockContainer('parent-1', 'Parent', 'GROUP', [firstSibling, lastNode]);
+      (lastNode as any).parent = parent;
+      (firstSibling as any).parent = parent;
 
       // Act
       const result = LayerNavigationHandler.navigateToSibling(lastNode, 'next');
@@ -222,10 +230,10 @@ describe('LayerNavigationHandler', () => {
       const firstNode = createMockSceneNode('node-1', 'First Node');
       const lastSibling = createMockSceneNode('node-3', 'Last Sibling');
       
-      // Mock findSibling to return null first (no prev sibling), then return last sibling on wrap
-      vi.spyOn(LayerNavigationHandler, 'findSibling')
-        .mockReturnValueOnce(null) // First call (no prev sibling)
-        .mockReturnValueOnce(lastSibling); // Second call (wrap to last)
+      // Set up sibling relationship where firstNode is the first child
+      const parent = createMockContainer('parent-1', 'Parent', 'GROUP', [firstNode, lastSibling]);
+      (firstNode as any).parent = parent;
+      (lastSibling as any).parent = parent;
 
       // Act
       const result = LayerNavigationHandler.navigateToSibling(firstNode, 'prev');
@@ -241,8 +249,9 @@ describe('LayerNavigationHandler', () => {
       // Arrange
       const onlyChild = createMockSceneNode('only-1', 'Only Child');
       
-      // Mock findSibling to return null for both calls (no siblings and no wrap)
-      vi.spyOn(LayerNavigationHandler, 'findSibling').mockReturnValue(null);
+      // Set up only child (no siblings)
+      const parent = createMockContainer('parent-1', 'Parent', 'GROUP', [onlyChild]);
+      (onlyChild as any).parent = parent;
 
       // Act
       const result = LayerNavigationHandler.navigateToSibling(onlyChild, 'next');
@@ -261,7 +270,12 @@ describe('LayerNavigationHandler', () => {
       const frame1 = createMockContainer('frame-1', 'Frame 1', 'FRAME');
       const section1 = createMockContainer('section-1', 'Section 1', 'SECTION');
       
-      figma.currentPage.children = [group1, frame1, section1] as any;
+      // Set up page children using Object.defineProperty to make it writable
+      Object.defineProperty(figma.currentPage, 'children', {
+        value: [group1, frame1, section1],
+        writable: true,
+        configurable: true
+      });
     });
 
     it('should collapse all containers when they are expanded', () => {
@@ -271,7 +285,12 @@ describe('LayerNavigationHandler', () => {
       const mockGroup = createMockSceneNode('group-1', 'Group', 'GROUP');
       Object.defineProperty(mockGroup, 'expanded', { value: true, writable: true });
       
-      figma.currentPage.children = [mockFrame, mockGroup];
+      // Set up page children
+      Object.defineProperty(figma.currentPage, 'children', {
+        value: [mockFrame, mockGroup],
+        writable: true,
+        configurable: true
+      });
 
       // Act
       const result = LayerNavigationHandler.toggleCollapse();
@@ -292,7 +311,12 @@ describe('LayerNavigationHandler', () => {
       const mockGroup2 = createMockSceneNode('group-2', 'Group2', 'GROUP');
       Object.defineProperty(mockGroup2, 'expanded', { value: false, writable: true });
       
-      figma.currentPage.children = [mockFrame, mockGroup, mockGroup2];
+      // Set up page children
+      Object.defineProperty(figma.currentPage, 'children', {
+        value: [mockFrame, mockGroup, mockGroup2],
+        writable: true,
+        configurable: true
+      });
 
       // Act
       const result = LayerNavigationHandler.toggleCollapse();
@@ -305,7 +329,12 @@ describe('LayerNavigationHandler', () => {
 
     it('should handle pages with no containers', () => {
       // Setup empty page
-      figma.currentPage.children = [];
+      // Set up empty page children
+      Object.defineProperty(figma.currentPage, 'children', {
+        value: [],
+        writable: true,
+        configurable: true
+      });
 
       // Act
       const result = LayerNavigationHandler.toggleCollapse();
@@ -356,10 +385,9 @@ describe('LayerNavigationHandler', () => {
       const child = createMockSceneNode('child-1', 'Child');
       const parent = createMockContainer('parent-1', 'Parent', 'GROUP');
 
-      // Mock helper methods
-      vi.spyOn(LayerNavigationHandler, 'isContainer').mockReturnValue(false);
-      vi.spyOn(LayerNavigationHandler, 'findParentContainer').mockReturnValue(parent);
-      vi.spyOn(LayerNavigationHandler, 'findSibling').mockReturnValue(null);
+      // Set up node with parent but no siblings and not a container
+      (node as any).parent = parent;
+      (node as any).type = 'RECTANGLE'; // Not a container type
 
       // Act
       const context = LayerNavigationHandler.validateNavigationContext([child]);
@@ -376,11 +404,12 @@ describe('LayerNavigationHandler', () => {
       const node1 = createMockSceneNode('node-1', 'Node 1');
       const node2 = createMockSceneNode('node-2', 'Node 2');
 
-      // Mock helper methods
-      vi.spyOn(LayerNavigationHandler, 'isContainer').mockReturnValue(false);
-      vi.spyOn(LayerNavigationHandler, 'findCommonParentContainer').mockReturnValue(
-        createMockContainer('parent-1', 'Common Parent', 'GROUP')
-      );
+      // Set up nodes with common parent but not containers themselves
+      const commonParent = createMockContainer('parent-1', 'Common Parent', 'GROUP', [node1, node2]);
+      (node1 as any).parent = commonParent;
+      (node1 as any).type = 'RECTANGLE'; // Not a container type
+      (node2 as any).parent = commonParent;
+      (node2 as any).type = 'RECTANGLE'; // Not a container type
 
       // Act
       const context = LayerNavigationHandler.validateNavigationContext([node1, node2]);

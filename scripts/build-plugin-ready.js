@@ -2,10 +2,11 @@ import fs from 'fs';
 import path from 'path';
 
 // Clean plugin-ready directory
-if (fs.existsSync('plugin-ready')) {
-    fs.rmSync('plugin-ready', { recursive: true });
+const outputDir = 'plugin-ready'; // Change this to 'Stratus_Hue' if desired
+if (fs.existsSync(outputDir)) {
+    fs.rmSync(outputDir, { recursive: true });
 }
-fs.mkdirSync('plugin-ready', { recursive: true });
+fs.mkdirSync(outputDir, { recursive: true });
 
 // Recursively copy a directory
 function copyDirectory(srcDir, destDir) {
@@ -55,7 +56,7 @@ const manifest = {
     "ui": "ui.html",
     "capabilities": [],
     "enableProposedApi": false,
-    "editorType": ["figma"],
+    "editorType": ["figma", "figjam"],
     "documentAccess": "dynamic-page"
 };
 

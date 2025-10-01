@@ -1,7 +1,7 @@
 // UI State Persistence Tests
 // Tests for saving and restoring UI section states across plugin sessions
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   uiSectionStates,
   loadUISectionStates,

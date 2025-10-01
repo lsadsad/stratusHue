@@ -65,7 +65,9 @@ describe('Navigation UI Integration Tests', () => {
         canEnter: true,
         canExit: false,
         canNavigateSiblings: true,
-        containerCount: 5
+        containerCount: 5,
+        siblingContainerCount: 3,
+        hasCollapsibleSiblings: true
       };
 
       const expectedMessage: NavigationContextUpdateMessage = {
@@ -140,7 +142,9 @@ describe('Navigation UI Integration Tests', () => {
         canEnter: false,      // Disable enter button
         canExit: true,        // Enable exit button
         canNavigateSiblings: false, // Disable sibling buttons
-        containerCount: 3
+        containerCount: 3,
+        siblingContainerCount: 1,
+        hasCollapsibleSiblings: false
       };
 
       const mockUpdateButtonStates = (ctx: NavigationContext) => {
@@ -169,7 +173,9 @@ describe('Navigation UI Integration Tests', () => {
         canEnter: false,
         canExit: false,
         canNavigateSiblings: false,
-        containerCount: 0
+        containerCount: 0,
+        siblingContainerCount: 0,
+        hasCollapsibleSiblings: false
       };
 
       const mockUpdateButtonStates = (ctx: NavigationContext) => {
@@ -193,9 +199,9 @@ describe('Navigation UI Integration Tests', () => {
     it('should handle rapid context updates efficiently', () => {
       // Arrange
       const contexts: NavigationContext[] = [
-        { hasSelection: true, canEnter: true, canExit: false, canNavigateSiblings: true, containerCount: 2 },
-        { hasSelection: true, canEnter: false, canExit: true, canNavigateSiblings: false, containerCount: 2 },
-        { hasSelection: false, canEnter: false, canExit: false, canNavigateSiblings: false, containerCount: 0 }
+        { hasSelection: true, canEnter: true, canExit: false, canNavigateSiblings: true, containerCount: 2, siblingContainerCount: 1, hasCollapsibleSiblings: true },
+        { hasSelection: true, canEnter: false, canExit: true, canNavigateSiblings: false, containerCount: 2, siblingContainerCount: 0, hasCollapsibleSiblings: false },
+        { hasSelection: false, canEnter: false, canExit: false, canNavigateSiblings: false, containerCount: 0, siblingContainerCount: 0, hasCollapsibleSiblings: false }
       ];
 
       const mockUpdateButtonStates = vi.fn((ctx: NavigationContext) => {
@@ -340,7 +346,19 @@ describe('Navigation UI Integration Tests', () => {
 
       // Simulate toggle event
       const mockEvent = {
-        target: { checked: false }
+        target: { checked: false },
+        type: 'change',
+        bubbles: false,
+        cancelable: false,
+        composed: false,
+        currentTarget: null,
+        defaultPrevented: false,
+        eventPhase: 0,
+        isTrusted: false,
+        timeStamp: 0,
+        preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
+        stopImmediatePropagation: vi.fn()
       } as Event;
 
       // Act

@@ -71,7 +71,12 @@ describe('Navigation Settings Integration', () => {
 
     it('should use default setting when no saved setting exists', async () => {
       // Arrange
-      mockLoadSettings.mockResolvedValue({});
+      mockLoadSettings.mockResolvedValue({
+        navigationControls: {
+          enabled: true,
+          lastToggleTime: Date.now()
+        }
+      });
 
       // Act
       const loadedSettings = await mockLoadSettings();

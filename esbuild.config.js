@@ -93,10 +93,10 @@ async function build() {
       entryPoints: ['src/code.ts'],
       bundle: true,
       outfile: 'dist/code.js',
-      platform: 'node',
+      platform: 'neutral',
       target: 'es2017',
       format: 'cjs',
-      external: [], // Include all dependencies
+      external: [],
       minify: process.env.NODE_ENV === 'production',
       sourcemap: process.env.NODE_ENV !== 'production'
     });
@@ -162,7 +162,7 @@ if (process.argv.includes('--watch')) {
     entryPoints: ['src/code.ts'],
     bundle: true,
     outfile: 'dist/code.js',
-    platform: 'node',
+    platform: 'neutral',
     target: 'es2017',
     format: 'cjs',
     sourcemap: true

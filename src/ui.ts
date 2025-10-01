@@ -1,7 +1,9 @@
 // Figma Plugin UI - TypeScript Implementation
 // Handles all UI interactions and communication with the plugin sandbox
 
-import lottie from 'lottie-web';
+// Temporarily disable lottie to debug
+// import lottie from 'lottie-web';
+import type { NavigationContext } from './types';
 // UI should not import plugin-side storage (which uses `figma`).
 // We request and persist UI section states via postMessage to the plugin.
 
@@ -431,6 +433,10 @@ function updateEmojiButtons(emojis: string[]): void {
 // Lottie Animation Utilities
 function initializeLottieAnimation(config: LottieAnimationConfig): any {
   try {
+    // Temporarily disable lottie to debug
+    console.log('Lottie animation disabled for debugging');
+    const animation = null;
+    /*
     const animation = lottie.loadAnimation({
       container: config.container,
       renderer: config.renderer || 'svg',
@@ -439,6 +445,7 @@ function initializeLottieAnimation(config: LottieAnimationConfig): any {
       animationData: config.animationData,
       name: config.name || `lottie-${Date.now()}`
     });
+    */
 
     // Store animation for management
     if (config.name) {
@@ -2772,14 +2779,16 @@ let navigationContext = {
   canEnter: false,
   canExit: false,
   canNavigateSiblings: false,
-  containerCount: 0
+  containerCount: 0,
+  siblingContainerCount: 0,
+  hasCollapsibleSiblings: false
 };
 
 // Navigation controls setting state
 let navigationControlsEnabled = true;
 
 // Update navigation button states based on context
-function updateNavigationControlButtons(context: typeof navigationContext): void {
+function updateNavigationControlButtons(context: NavigationContext): void {
   const enterBtn = document.getElementById('nav-enter') as HTMLButtonElement;
   const exitBtn = document.getElementById('nav-exit') as HTMLButtonElement;
   const prevBtn = document.getElementById('nav-prev') as HTMLButtonElement;

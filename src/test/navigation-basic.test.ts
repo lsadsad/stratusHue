@@ -8,7 +8,11 @@ describe('LayerNavigationHandler - Basic Functionality', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     figma.currentPage.selection = [];
-    figma.currentPage.children = [];
+    Object.defineProperty(figma.currentPage, 'children', {
+      value: [],
+      writable: true,
+      configurable: true
+    });
   });
 
   describe('enterContainer', () => {
@@ -94,34 +98,34 @@ describe('LayerNavigationHandler - Basic Functionality', () => {
   });
 
   describe('performNavigation', () => {
-    it('should handle enter action correctly', () => {
+    it('should handle enter action correctly', async () => {
       // Arrange
       const child = createMockSceneNode('child-1', 'Child 1');
       const container = createMockContainer('container-1', 'Test Group', 'GROUP', [child]);
 
       // Act
-      const result = LayerNavigationHandler.performNavigation('enter', [container]);
+      const result = await LayerNavigationHandler.performNavigation('enter', [container]);
 
       // Assert
       expect(result.success).toBe(true);
       expect(result.message).toContain('Entered');
     });
 
-    it('should handle empty selection gracefully', () => {
+    it('should handle empty selection gracefully', async () => {
       // Act
-      const result = LayerNavigationHandler.performNavigation('enter', []);
+      const result = await LayerNavigationHandler.performNavigation('enter', []);
 
       // Assert
       expect(result.success).toBe(false);
       expect(result.message).toContain('Select a container');
     });
 
-    it('should handle invalid actions gracefully', () => {
+    it('should handle invalid actions gracefully', async () => {
       // Arrange
       const rectangle = createMockSceneNode('rect-1', 'Rectangle', 'RECTANGLE');
 
       // Act
-      const result = LayerNavigationHandler.performNavigation('enter', [rectangle]);
+      const result = await LayerNavigationHandler.performNavigation('enter', [rectangle]);
 
       // Assert
       expect(result.success).toBe(false);

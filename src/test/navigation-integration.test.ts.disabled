@@ -9,7 +9,11 @@ describe('Navigation Integration Tests', () => {
     vi.clearAllMocks();
     // Reset figma state
     figma.currentPage.selection = [];
-    figma.currentPage.children = [];
+    Object.defineProperty(figma.currentPage, 'children', {
+      value: [],
+      writable: true,
+      configurable: true
+    });
   });
 
   describe('Complete Navigation Workflows', () => {
@@ -25,20 +29,10 @@ describe('Navigation Integration Tests', () => {
         (child as any).parent = container;
       });
 
-      // Mock helper methods for the workflow
-      vi.spyOn(LayerNavigationHandler, 'isContainer').mockReturnValue(true);
-      vi.spyOn(LayerNavigationHandler, 'findParentContainer').mockReturnValue(container);
-      vi.spyOn(LayerNavigationHandler, 'findSibling')
-        .mockImplementation((node, direction) => {
-          const children = [child1, child2, child3];
-          const currentIndex = children.findIndex(c => c.id === node.id);
-          // Updated direction: 'next' moves DOWN (higher index), 'prev' moves UP (lower index)
-          if (direction === 'next') {
-            return children[currentIndex + 1] || null; // Move DOWN in layers (higher index)
-          } else {
-            return children[currentIndex - 1] || null; // Move UP in layers (lower index)
-          }
-        });
+      // Set up proper node types to make them containers
+      (child1 as any).type = 'GROUP';
+      (child2 as any).type = 'GROUP';
+      (child3 as any).type = 'GROUP';
 
       // Act & Assert - Step 1: Enter container
       figma.currentPage.selection = [container];
@@ -251,7 +245,11 @@ describe('Navigation Integration Tests', () => {
         largeHierarchy.push(container);
       }
 
-      figma.currentPage.children = largeHierarchy as any;
+      Object.defineProperty(figma.currentPage, 'children', {
+        value: largeHierarchy,
+        writable: true,
+        configurable: true
+      });
 
       // Mock helper methods for performance
       vi.spyOn(LayerNavigationHandler, 'isContainer').mockReturnValue(true);

@@ -27,9 +27,19 @@ if (!fs.existsSync(outputDir)) {
 try {
   const zipPath = path.join(outputDir, zipName);
   
-  // Use PowerShell to create zip on Windows
-  const command = `Compress-Archive -Path "plugin-ready\\*" -DestinationPath "${zipPath}" -Force`;
-  execSync(`powershell -Command "${command}"`, { stdio: 'inherit' });
+  // Cross-platform zip creation
+  const isWindows = process.platform === 'win32';
+  let command;
+  
+  if (isWindows) {
+    // Use PowerShell on Windows
+    command = `powershell -Command "Compress-Archive -Path 'plugin-ready\\*' -DestinationPath '${zipPath}' -Force"`;
+  } else {
+    // Use zip command on macOS/Linux
+    command = `cd plugin-ready && zip -r "../${zipPath}" . && cd ..`;
+  }
+  
+  execSync(command, { stdio: 'inherit' });
   
   console.log(`✅ Plugin packaged successfully!`);
   console.log(`📁 Package location: ${zipPath}`);
