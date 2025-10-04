@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System Assessment - Stratus Hue</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.4;
+            transition: background-color 200ms ease-out, color 200ms ease-out;
+        }
+
+        /* Design Tokens - Stratus Hue System */
+        :root {
+            /* Spacing System */
+            --spacing-xs: 2px;
+            --spacing-sm: 4px;
+            --spacing-md: 6px;
+            --spacing-lg: 8px;
+            --spacing-xl: 10px;
+            --spacing-xxl: 12px;
+
+            /* Typography */
+            --font-size-xs: 10px;
+            --font-size-sm: 11px;
+            --font-size-md: 12px;
+            --font-size-lg: 14px;
+            --font-size-xl: 16px;
+            --font-size-xxl: 18px;
+
+            --font-weight-light: 300;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+
+            /* Component Sizes */
+            --button-height-sm: 16px;
+            --button-height-md: 24px;
+            --button-height-lg: 32px;
+            --icon-size-xs: 6px;
+            --icon-size-sm: 8px;
+            --icon-size-md: 10px;
+            --icon-size-lg: 16px;
+            --icon-size-xl: 18px;
+
+            /* Border Radius */
+            --border-radius-xs: 2px;
+            --border-radius-sm: 3px;
+            --border-radius-md: 4px;
+            --border-radius-lg: 6px;
+            --border-radius-xl: 8px;
+
+            /* Base Theme Colors */
+            --theme-bg-primary: #ffffff;
+            --theme-bg-secondary: #f8f9fa;
+            --theme-bg-elevated: #ffffff;
+            --theme-bg-hover: #f0f0f0;
+            --theme-bg-active: #e9ecef;
+
+            --theme-text-primary: #333333;
+            --theme-text-secondary: #666666;
+            --theme-text-muted: #999999;
+            --theme-text-disabled: #cccccc;
+
+            --theme-border-primary: #e1e5e9;
+            --theme-border-secondary: #f0f0f0;
+
+            --theme-interactive-hover: #f8f9fa;
+            --theme-interactive-active: #e9ecef;
+            --theme-interactive-disabled: #f8f9fa;
+
+            --theme-info: #007acc;
+            --theme-success: #4ade80;
+            --theme-warning: rgba(255, 193, 7, 0.9);
+            --theme-error: #ff6b6b;
+
+            /* Status Colors */
+            --theme-success-bg: #d4edda;
+            --theme-success-bg-light: #f8fff9;
+            --theme-warning-bg: #fff3cd;
+            --theme-error-bg: #f8d7da;
+            --theme-error-bg-light: #fff8f8;
+            --theme-error-border: #f5c6cb;
+            --theme-error-border-light: #fdeaea;
+
+            /* Transitions */
+            --transition-fast: 150ms ease-out;
+            --transition-normal: 200ms ease-out;
+            --transition-slow: 300ms ease-out;
+
+            /* Elevation */
+            --elevation-nudge: 1px;
+        }
+
+        /* Cybertron Theme */
+        [data-theme="cybertron"] {
+            --theme-bg-primary: #1a1a1a;
+            --theme-bg-secondary: #2a2a2a;
+            --theme-bg-elevated: #2a2a2a;
+            --theme-bg-hover: #3a3a3a;
+            --theme-bg-active: #4a4a4a;
+
+            --theme-text-primary: #00ff88;
+            --theme-text-secondary: #88ffaa;
+            --theme-text-muted: #66cc77;
+            --theme-text-disabled: #444444;
+
+            --theme-border-primary: #00ff88;
+            --theme-border-secondary: #333333;
+
+            --theme-interactive-hover: #3a3a3a;
+            --theme-interactive-active: #4a4a4a;
+            --theme-interactive-disabled: #2a2a2a;
+        }
+
+        /* Figma Light Theme */
+        [data-theme="figma-light"] {
+            --theme-bg-primary: #ffffff;
+            --theme-bg-secondary: #f0f0f0;
+            --theme-bg-elevated: #ffffff;
+            --theme-bg-hover: #e5e5e5;
+            --theme-bg-active: #d9d9d9;
+
+            --theme-text-primary: #1e1e1e;
+            --theme-text-secondary: #757575;
+            --theme-text-muted: #a8a8a8;
+            --theme-text-disabled: #cccccc;
+
+            --theme-border-primary: #e5e5e5;
+            --theme-border-secondary: #f0f0f0;
+
+            --theme-interactive-hover: #e5e5e5;
+            --theme-interactive-active: #d9d9d9;
+            --theme-interactive-disabled: #f0f0f0;
+        }
+
+        /* Figma Dark Theme */
+        [data-theme="figma-dark"] {
+            --theme-bg-primary: #2c2c2c;
+            --theme-bg-secondary: #3c3c3c;
+            --theme-bg-elevated: #1c1c1c;
+            --theme-bg-hover: rgba(255, 255, 255, 0.08);
+            --theme-bg-active: rgba(24, 160, 251, 0.15);
+
+            --theme-text-primary: #ffffff;
+            --theme-text-secondary: #cccccc;
+            --theme-text-muted: rgba(255, 255, 255, 0.6);
+            --theme-text-disabled: rgba(255, 255, 255, 0.3);
+
+            --theme-border-primary: #4c4c4c;
+            --theme-border-secondary: #5c5c5c;
+
+            --theme-interactive-hover: rgba(255, 255, 255, 0.08);
+            --theme-interactive-active: rgba(24, 160, 251, 0.15);
+            --theme-interactive-disabled: #2c2c2c;
+        }
+
+        /* Layout Styles */
+        .assessment-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+            background: var(--theme-bg-primary);
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .assessment-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xxl);
+            padding-bottom: var(--spacing-xl);
+            border-bottom: 2px solid var(--theme-border-primary);
+        }
+
+        .assessment-title {
+            font-size: var(--font-size-xxl);
+            font-weight: var(--font-weight-bold);
+            color: var(--theme-text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .assessment-subtitle {
+            font-size: var(--font-size-md);
+            color: var(--theme-text-secondary);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .theme-switcher {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .theme-btn {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-md);
+            background: var(--theme-bg-secondary);
+            color: var(--theme-text-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .theme-btn:hover {
+            background: var(--theme-interactive-hover);
+            border-color: var(--theme-info);
+        }
+
+        .theme-btn.active {
+            background: var(--theme-info);
+            color: white;
+            border-color: var(--theme-info);
+        }
+
+        .assessment-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xl);
+            border-bottom: 1px solid var(--theme-border-secondary);
+        }
+
+        .tab-btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            background: transparent;
+            color: var(--theme-text-secondary);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            border-bottom: 2px solid transparent;
+            transition: all var(--transition-fast);
+        }
+
+        .tab-btn:hover {
+            color: var(--theme-text-primary);
+            background: var(--theme-bg-hover);
+        }
+
+        .tab-btn.active {
+            color: var(--theme-info);
+            border-bottom-color: var(--theme-info);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 200ms ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .assessment-section {
+            background: var(--theme-bg-elevated);
+            border: 1px solid var(--theme-border-secondary);
+            border-radius: var(--border-radius-md);
+            margin-bottom: var(--spacing-lg);
+            overflow: hidden;
+        }
+
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-xxl);
+            color: var(--theme-text-muted);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--theme-border-secondary);
+            border-top: 2px solid var(--theme-info);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: var(--spacing-md);
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .assessment-container {
+                margin: var(--spacing-md);
+                padding: var(--spacing-lg);
+            }
+
+            .theme-switcher {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .assessment-tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+
+        /* Theme-specific body styles */
+        [data-theme="cybertron"] body {
+            background: #0a0a0a;
+        }
+
+        [data-theme="figma-light"] body {
+            background: #f5f5f5;
+        }
+
+        [data-theme="figma-dark"] body {
+            background: #1c1c1c;
+        }
+
+        [data-theme="figma-dark"] .demo-container {
+            background: var(--theme-bg-primary);
+            border: 1px solid var(--theme-border-primary);
+        }
+
+        /* Error state styles */
+        .error-state {
+            padding: var(--spacing-lg);
+            text-align: center;
+            color: var(--theme-error);
+            background: var(--theme-error-bg-light);
+            border: 1px solid var(--theme-error-border);
+            border-radius: var(--border-radius-md);
+            margin: var(--spacing-lg);
+        }
+
+        .error-title {
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .error-message {
+            font-size: var(--font-size-sm);
+            color: var(--theme-text-secondary);
+        }
+
+        /* Component Table Styles */
+        .component-table-container {
+            padding: var(--spacing-lg);
+        }
+
+        .component-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--theme-bg-primary);
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .component-table th {
+            background: var(--theme-bg-secondary);
+            color: var(--theme-text-primary);
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-sm);
+            padding: var(--spacing-lg);
+            text-align: left;
+            border-bottom: 2px solid var(--theme-border-primary);
+        }
+
+        .component-table td {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--theme-border-secondary);
+            color: var(--theme-text-primary);
+            font-size: var(--font-size-sm);
+            vertical-align: top;
+        }
+
+        .component-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .component-table tr:hover {
+            background: var(--theme-bg-hover);
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .category-buttons {
+            background: rgba(0, 122, 204, 0.1);
+            color: var(--theme-info);
+            border: 1px solid rgba(0, 122, 204, 0.2);
+        }
+
+        .category-inputs {
+            background: rgba(74, 222, 128, 0.1);
+            color: var(--theme-success);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+
+        .category-containers {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--theme-warning);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+
+        .category-typography {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--theme-error);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        .state-list,
+        .feature-list {
+            margin: 0;
+            padding-left: var(--spacing-lg);
+            list-style-type: disc;
+        }
+
+        .state-list li,
+        .feature-list li {
+            margin-bottom: var(--spacing-xs);
+            font-size: var(--font-size-xs);
+            color: var(--theme-text-secondary);
+        }
+
+        .component-table code {
+            background: var(--theme-bg-secondary);
+            color: var(--theme-text-primary);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-xs);
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: var(--font-size-xs);
+            border: 1px solid var(--theme-border-secondary);
+        }
+
+        /* Responsive table */
+        @media (max-width: 1024px) {
+            .component-table-container {
+                overflow-x: auto;
+            }
+
+            .component-table {
+                min-width: 800px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .component-table th,
+            .component-table td {
+                padding: var(--spacing-md);
+            }
+
+            .state-list,
+            .feature-list {
+                padding-left: var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="assessment-container">
+        <header class="assessment-header">
+            <h1 class="assessment-title">Design System Assessment</h1>
+            <p class="assessment-subtitle">
+                Comprehensive analysis and testing of the Stratus Hue design token system
+            </p>
+
+            <div class="theme-switcher">
+                <button class="theme-btn active" data-theme="boilerplate">Base Theme</button>
+                <button class="theme-btn" data-theme="cybertron">Cybertron</button>
+                <button class="theme-btn" data-theme="figma-light">Figma Light</button>
+                <button class="theme-btn" data-theme="figma-dark">Figma Dark</button>
+            </div>
+        </header>
+
+        <nav class="assessment-tabs">
+            <button class="tab-btn active" data-tab="comparison">Token Comparison</button>
+            <button class="tab-btn" data-tab="components">Component Preview</button>
+            <button class="tab-btn" data-tab="analysis">System Analysis</button>
+            <button class="tab-btn" data-tab="testing">Theme Testing</button>
+        </nav>
+
+        <main class="assessment-content">
+            <!-- Token Comparison Tab -->
+            <div id="comparison-tab" class="tab-content active">
+                <div class="assessment-section">
+                    <div id="comparison-table-container">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            Loading token comparison table...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Component Preview Tab -->
+            <div id="components-tab" class="tab-content">
+                <div class="assessment-section">
+                    <div id="component-preview-container">
+                        <div class="component-table-container">
+                            <h3
+                                style="margin-bottom: var(--spacing-lg); color: var(--theme-text-primary); font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold);">
+                                Component Preview System Demo</h3>
+
+                            <table class="component-table">
+                                <thead>
+                                    <tr>
+                                        <th>Component</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Base Class</th>
+                                        <th>States</th>
+                                        <th>Key Features</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Base Button</strong></td>
+                                        <td><span class="category-badge category-buttons">Buttons</span></td>
+                                        <td>Base button component with standard styling</td>
+                                        <td><code>btn-base</code></td>
+                                        <td>
+                                            <ul class="state-list">
+                                                <li>Default</li>
+                                                <li>Hover</li>
+                                                <li>Active</li>
+                                                <li>Disabled</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="feature-list">
+                                                <li>Standard button styling</li>
+                                                <li>Hover elevation effect</li>
+                                                <li>Disabled state handling</li>
+                                                <li>Transition animations</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Action Button</strong></td>
+                                        <td><span class="category-badge category-buttons">Buttons</span></td>
+                                        <td>Action button for primary interactions</td>
+                                        <td><code>action-btn</code></td>
+                                        <td>
+                                            <ul class="state-list">
+                                                <li>Default</li>
+                                                <li>Hover</li>
+                                                <li>Loading</li>
+                                                <li>Disabled</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="feature-list">
+                                                <li>Icon-based content (⚡)</li>
+                                                <li>Loading spinner animation</li>
+                                                <li>Square aspect ratio</li>
+                                                <li>Primary interaction styling</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Emoji Button</strong></td>
+                                        <td><span class="category-badge category-buttons">Buttons</span></td>
+                                        <td>Emoji button for color coding</td>
+                                        <td><code>emoji-button</code></td>
+                                        <td>
+                                            <ul class="state-list">
+                                                <li>Default (🟥)</li>
+                                                <li>Hover (🟧)</li>
+                                                <li>Selected (🟩)</li>
+                                                <li>Disabled (⬜)</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="feature-list">
+                                                <li>Color emoji content</li>
+                                                <li>Scale transform on hover</li>
+                                                <li>Pressed state (aria-pressed)</li>
+                                                <li>Visual feedback for selection</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Navigation Button</strong></td>
+                                        <td><span class="category-badge category-buttons">Buttons</span></td>
+                                        <td>Navigation button for layer traversal</td>
+                                        <td><code>nav-button</code></td>
+                                        <td>
+                                            <ul class="state-list">
+                                                <li>Default (↑ Up)</li>
+                                                <li>Hover (↓ Down)</li>
+                                                <li>Disabled (← Exit)</li>
+                                                <li>Wide (⏎ Enter Selection)</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="feature-list">
+                                                <li>Icon + label layout</li>
+                                                <li>Vertical flex direction</li>
+                                                <li>Wide variant (grid span 2)</li>
+                                                <li>Directional navigation icons</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Theme Option</strong></td>
+                                        <td><span class="category-badge category-inputs">Inputs</span></td>
+                                        <td>Radio button theme selection option</td>
+                                        <td><code>theme-option</code></td>
+                                        <td>
+                                            <ul class="state-list">
+                                                <li>Default (Boilerplate)</li>
+                                                <li>Selected (Cybertron)</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="feature-list">
+                                                <li>Radio input integration</li>
+                                                <li>Theme name + description</li>
+                                                <li>Visual selection feedback</li>
+                                                <li>Label-based interaction</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Section Header</strong></td>
+                                        <td><span class="category-badge category-containers">Containers</span></td>
+                                        <td>Collapsible section header with icon</td>
+                                        <td><code>section-header</code></td>
+                                        <td>
+                                            <ul class="state-list">
+                                                <li>Collapsed (aria-expanded="false")</li>
+                                                <li>Expanded (aria-expanded="true")</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="feature-list">
+                                                <li>Icon container with hover effects</li>
+                                                <li>Tag icon (🏷️) to arrow transition</li>
+                                                <li>Expand/collapse indicators (+ / −)</li>
+                                                <li>Accessibility attributes</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Text Sizes</strong></td>
+                                        <td><span class="category-badge category-typography">Typography</span></td>
+                                        <td>Typography scale demonstration</td>
+                                        <td><code>text-demo</code></td>
+                                        <td>
+                                            <ul class="state-list">
+                                                <li>Font Sizes (XS-LG)</li>
+                                                <li>Font Weights (300-700)</li>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <ul class="feature-list">
+                                                <li>Design token integration</li>
+                                                <li>Size scale: 10px-14px</li>
+                                                <li>Weight scale: Light-Bold</li>
+                                                <li>Semantic token usage</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Analysis Tab -->
+            <div id="analysis-tab" class="tab-content">
+                <div class="assessment-section">
+                    <div id="analysis-container">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            Analyzing design system...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Testing Tab -->
+            <div id="testing-tab" class="tab-content">
+                <div class="assessment-section">
+                    <div id="theme-testing-container">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            Loading theme testing interface...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // Mock CSS content for demonstration
+        const mockCSSContent = `
+:root {
+  /* Spacing System */
+  --spacing-xs: 2px;
+  --spacing-sm: 4px;
+  --spacing-md: 6px;
+  --spacing-lg: 8px;
+  --spacing-xl: 10px;
+  --spacing-xxl: 12px;
+
+  /* Typography */
+  --font-size-xs: 10px;
+  --font-size-sm: 11px;
+  --font-size-md: 12px;
+  --font-size-lg: 14px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Colors */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f8f9fa;
+  --theme-text-primary: #333333;
+  --theme-text-secondary: #666666;
+  --theme-border-primary: #e1e5e9;
+  --theme-info: #007acc;
+  --theme-success: #4ade80;
+  --theme-warning: rgba(255, 193, 7, 0.9);
+  --theme-error: #ff6b6b;
+
+  /* Component Sizes */
+  --button-height-md: 24px;
+  --icon-size-md: 10px;
+  --border-radius-md: 4px;
+}
+
+[data-theme="cybertron"] {
+  --theme-bg-primary: #1a1a1a;
+  --theme-bg-secondary: #2a2a2a;
+  --theme-text-primary: #00ff88;
+  --theme-text-secondary: #88ffaa;
+  --theme-border-primary: #00ff88;
+}
+
+[data-theme="figma-light"] {
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f0f0f0;
+  --theme-text-primary: #1e1e1e;
+  --theme-text-secondary: #757575;
+  --theme-border-primary: #e5e5e5;
+}
+`;
+
+        // Application state
+        let currentTheme = 'boilerplate';
+        let currentTab = 'comparison';
+        let parsedTokens = null;
+        let components = [];
+        let analysisResults = null;
+
+        // Initialize the application
+        async function initializeAssessment() {
+            try {
+                console.log('Starting initialization...');
+                console.log('mockCSSContent length:', mockCSSContent.length);
+
+                // Parse tokens from mock CSS
+                parsedTokens = parseDesignTokens(mockCSSContent);
+
+                if (!parsedTokens || !parsedTokens.tokens) {
+                    throw new Error('Failed to parse design tokens from CSS content');
+                }
+
+                console.log('Tokens parsed successfully:', parsedTokens.tokens.length, 'tokens found');
+
+                // Create mock components
+                console.log('Creating mock components...');
+                components = createMockComponents();
+                console.log('Mock components created:', components.length, 'components');
+
+                // Initialize tab switching
+                initializeTabSwitching();
+
+                // Initialize theme switching
+                initializeThemeSwitching();
+
+                // Load initial tab content
+                await loadTabContent(currentTab);
+
+                console.log('Initialization completed successfully');
+
+            } catch (error) {
+                console.error('Failed to initialize assessment:', error);
+                showError('Failed to initialize design system assessment', error.message);
+            }
+        }
+
+        // Tab switching functionality
+        function initializeTabSwitching() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    const tabId = button.dataset.tab;
+
+                    // Update active states
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    button.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+
+                    // Load tab content
+                    currentTab = tabId;
+                    await loadTabContent(tabId);
+                });
+            });
+        }
+
+        // Theme switching functionality
+        function initializeThemeSwitching() {
+            const themeButtons = document.querySelectorAll('.theme-btn');
+
+            themeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const theme = button.dataset.theme;
+
+                    // Update active states
+                    themeButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Apply theme
+                    document.body.setAttribute('data-theme', theme);
+                    currentTheme = theme;
+
+                    // Refresh current tab content if needed
+                    if (currentTab === 'testing') {
+                        // Theme testing interface handles its own theme switching
+                        return;
+                    }
+
+                    // For other tabs, we might want to refresh content
+                    // This is a placeholder for theme-aware content updates
+                });
+            });
+        }
+
+        // Load content for specific tab
+        async function loadTabContent(tabId) {
+            try {
+                switch (tabId) {
+                    case 'comparison':
+                        await loadComparisonTable();
+                        break;
+                    case 'components':
+                        await loadComponentPreview();
+                        break;
+                    case 'analysis':
+                        await loadSystemAnalysis();
+                        break;
+                    case 'testing':
+                        await loadThemeTesting();
+                        break;
+                }
+            } catch (error) {
+                console.error(`Failed to load ${tabId} tab:`, error);
+                showError(`Failed to load ${tabId} content`, error.message);
+            }
+        }
+
+        // Load comparison table
+        async function loadComparisonTable() {
+            const container = document.getElementById('comparison-table-container');
+            if (!parsedTokens) return;
+
+            // Create comparison table
+            const table = createComparisonTable(container, parsedTokens.tokens, parsedTokens.themes);
+        }
+
+        // Load component preview
+        async function loadComponentPreview() {
+            const container = document.getElementById('component-preview-container');
+
+            // Check if parsedTokens is available
+            if (!parsedTokens) {
+                showError('Failed to load component preview', 'parsedTokens is not defined');
+                return;
+            }
+
+            // Create component preview
+            const preview = createComponentPreview(container, components, parsedTokens.themes);
+        }
+
+        // Load system analysis
+        async function loadSystemAnalysis() {
+            const container = document.getElementById('analysis-container');
+
+            // Check if parsedTokens is available
+            if (!parsedTokens) {
+                showError('Failed to load analysis content', 'parsedTokens is not defined');
+                return;
+            }
+
+            if (!analysisResults) {
+                // Perform analysis
+                analysisResults = await performSystemAnalysis();
+            }
+
+            // Create analysis display
+            createAnalysisDisplay(container, analysisResults);
+        }
+
+        // Load theme testing
+        async function loadThemeTesting() {
+            const container = document.getElementById('theme-testing-container');
+
+            try {
+                console.log('Loading theme testing interface...');
+                console.log('Container:', container);
+                console.log('parsedTokens:', parsedTokens);
+                console.log('components:', components);
+
+                // Check if parsedTokens is available
+                if (!parsedTokens) {
+                    showError('Failed to load theme testing', 'parsedTokens is not defined');
+                    return;
+                }
+
+                // Check if container exists
+                if (!container) {
+                    showError('Failed to load theme testing', 'Container element not found');
+                    return;
+                }
+
+                // Check if components is available
+                if (!components) {
+                    console.warn('Components not available, creating empty array');
+                    components = [];
+                }
+
+                console.log('Creating theme testing interface...');
+
+                // Create theme testing interface
+                const testing = createThemeTestingInterface(
+                    container,
+                    parsedTokens.themes,
+                    parsedTokens.tokens,
+                    components
+                );
+
+                console.log('Theme testing interface created successfully:', testing);
+
+            } catch (error) {
+                console.error('Error loading theme testing interface:', error);
+                showError('Failed to load theme testing interface', error.message);
+            }
+        }
+
+        // Show error state
+        function showError(title, message) {
+            const containers = [
+                'comparison-table-container',
+                'component-preview-container',
+                'analysis-container',
+                'theme-testing-container'
+            ];
+
+            containers.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = `
+                        <div class="error-state">
+                            <div class="error-title">${title}</div>
+                            <div class="error-message">${message}</div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeAssessment);
+    </script>
+</body>
+
+</html>
+<script>
+    // Token Parser Implementation
+    function parseDesignTokens(cssContent) {
+        console.log('parseDesignTokens called with content length:', cssContent.length);
+
+        const tokens = [];
+        const themes = [
+            { name: 'boilerplate', selector: ':root', displayName: 'Base/Boilerplate' },
+            { name: 'cybertron', selector: '[data-theme="cybertron"]', displayName: 'Cybertron' },
+            { name: 'figma-light', selector: '[data-theme="figma-light"]', displayName: 'Figma Light' },
+            { name: 'figma-dark', selector: '[data-theme="figma-dark"]', displayName: 'Figma Dark' }
+        ];
+
+        // Parse CSS custom properties with improved regex patterns to handle multiple blocks
+        const rootMatches = [...cssContent.matchAll(/:root\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/gs)];
+        const cybertronMatches = [...cssContent.matchAll(/\[data-theme="cybertron"\]\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/gs)];
+        const figmaLightMatches = [...cssContent.matchAll(/\[data-theme="figma-light"\]\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/gs)];
+
+        console.log('Regex matches:', {
+            rootMatches: rootMatches.length,
+            cybertronMatches: cybertronMatches.length,
+            figmaLightMatches: figmaLightMatches.length
+        });
+
+        const tokenMap = new Map();
+
+        // Parse root tokens from all :root blocks
+        rootMatches.forEach(match => {
+            const properties = match[1].match(/--[\w-]+\s*:\s*[^;]+/g) || [];
+            properties.forEach(prop => {
+                const [name, value] = prop.split(':').map(s => s.trim());
+                const tokenName = name.replace('--', '');
+                if (!tokenMap.has(tokenName)) {
+                    tokenMap.set(tokenName, {
+                        name: tokenName,
+                        category: categorizeToken(tokenName),
+                        values: {},
+                        usage: []
+                    });
+                }
+                tokenMap.get(tokenName).values.boilerplate = value.replace(/;$/, '');
+            });
+        });
+
+        // Parse cybertron tokens from all cybertron blocks
+        cybertronMatches.forEach(match => {
+            const properties = match[1].match(/--[\w-]+\s*:\s*[^;]+/g) || [];
+            properties.forEach(prop => {
+                const [name, value] = prop.split(':').map(s => s.trim());
+                const tokenName = name.replace('--', '');
+                if (!tokenMap.has(tokenName)) {
+                    tokenMap.set(tokenName, {
+                        name: tokenName,
+                        category: categorizeToken(tokenName),
+                        values: {},
+                        usage: []
+                    });
+                }
+                tokenMap.get(tokenName).values.cybertron = value.replace(/;$/, '');
+            });
+        });
+
+        // Parse figma-light tokens from all figma-light blocks
+        figmaLightMatches.forEach(match => {
+            const properties = match[1].match(/--[\w-]+\s*:\s*[^;]+/g) || [];
+            properties.forEach(prop => {
+                const [name, value] = prop.split(':').map(s => s.trim());
+                const tokenName = name.replace('--', '');
+                if (!tokenMap.has(tokenName)) {
+                    tokenMap.set(tokenName, {
+                        name: tokenName,
+                        category: categorizeToken(tokenName),
+                        values: {},
+                        usage: []
+                    });
+                }
+                tokenMap.get(tokenName).values['figma-light'] = value.replace(/;$/, '');
+            });
+        });
+
+        const tokenArray = Array.from(tokenMap.values());
+
+        console.log('Parsed tokens count:', tokenArray.length);
+        console.log('Sample tokens:', tokenArray.slice(0, 3));
+
+        // If no tokens were parsed, create some fallback tokens for demonstration
+        if (tokenArray.length === 0) {
+            console.warn('No tokens parsed, creating fallback tokens');
+            const fallbackTokens = [
+                { name: 'spacing-md', category: 'spacing', values: { boilerplate: '6px' }, usage: [] },
+                { name: 'font-size-md', category: 'typography', values: { boilerplate: '12px' }, usage: [] },
+                { name: 'theme-bg-primary', category: 'color', values: { boilerplate: '#ffffff' }, usage: [] }
+            ];
+            tokenArray.push(...fallbackTokens);
+        }
+
+        // Group by category
+        const categories = {};
+        tokenArray.forEach(token => {
+            if (!categories[token.category]) {
+                categories[token.category] = [];
+            }
+            categories[token.category].push(token);
+        });
+
+        const result = {
+            tokens: tokenArray,
+            themes: themes,
+            categories: categories
+        };
+
+        console.log('parseDesignTokens returning:', result);
+        return result;
+    }
+
+    function categorizeToken(tokenName) {
+        if (tokenName.includes('spacing')) return 'spacing';
+        if (tokenName.includes('font-size') || tokenName.includes('font-weight')) return 'typography';
+        if (tokenName.includes('color') || tokenName.includes('bg') || tokenName.includes('text') || tokenName.includes('border')) return 'color';
+        if (tokenName.includes('button-height') || tokenName.includes('icon-size')) return 'sizing';
+        if (tokenName.includes('border-radius')) return 'border';
+        if (tokenName.includes('shadow')) return 'shadow';
+        if (tokenName.includes('transition')) return 'transition';
+        return 'other';
+    }
+
+    // Comparison Table Implementation
+    function createComparisonTable(container, tokens, themes) {
+        const table = {
+            expandedCategories: new Set(['spacing', 'typography', 'color']),
+            showDifferencesOnly: false,
+
+            render() {
+                container.innerHTML = '';
+
+                const controls = document.createElement('div');
+                controls.style.padding = '8px';
+                controls.style.background = 'var(--theme-bg-secondary)';
+                controls.style.borderBottom = '1px solid var(--theme-border-primary)';
+                controls.style.display = 'flex';
+                controls.style.gap = '8px';
+
+                const expandBtn = document.createElement('button');
+                expandBtn.textContent = 'Expand All';
+                expandBtn.className = 'theme-btn';
+                expandBtn.style.fontSize = '10px';
+                expandBtn.style.padding = '4px 8px';
+                expandBtn.addEventListener('click', () => this.expandAll());
+
+                const collapseBtn = document.createElement('button');
+                collapseBtn.textContent = 'Collapse All';
+                collapseBtn.className = 'theme-btn';
+                collapseBtn.style.fontSize = '10px';
+                collapseBtn.style.padding = '4px 8px';
+                collapseBtn.addEventListener('click', () => this.collapseAll());
+
+                const diffBtn = document.createElement('button');
+                diffBtn.textContent = this.showDifferencesOnly ? 'Show All' : 'Differences Only';
+                diffBtn.className = 'theme-btn';
+                diffBtn.style.fontSize = '10px';
+                diffBtn.style.padding = '4px 8px';
+                diffBtn.addEventListener('click', () => this.toggleDifferences());
+
+                controls.appendChild(expandBtn);
+                controls.appendChild(collapseBtn);
+                controls.appendChild(diffBtn);
+
+                const tableElement = document.createElement('div');
+                tableElement.style.border = '1px solid var(--theme-border-primary)';
+
+                // Header
+                const header = document.createElement('div');
+                header.style.display = 'grid';
+                header.style.gridTemplateColumns = '2fr repeat(3, 1fr)';
+                header.style.background = 'var(--theme-bg-secondary)';
+                header.style.borderBottom = '1px solid var(--theme-border-primary)';
+                header.style.fontWeight = '600';
+                header.style.fontSize = '11px';
+
+                const tokenHeader = document.createElement('div');
+                tokenHeader.style.padding = '8px';
+                tokenHeader.style.borderRight = '1px solid var(--theme-border-primary)';
+                tokenHeader.textContent = 'Design Token';
+                header.appendChild(tokenHeader);
+
+                themes.forEach((theme, index) => {
+                    const themeHeader = document.createElement('div');
+                    themeHeader.style.padding = '8px';
+                    if (index < themes.length - 1) {
+                        themeHeader.style.borderRight = '1px solid var(--theme-border-primary)';
+                    }
+                    themeHeader.textContent = theme.displayName;
+                    header.appendChild(themeHeader);
+                });
+
+                const body = document.createElement('div');
+                body.style.maxHeight = '600px';
+                body.style.overflowY = 'auto';
+
+                // Group tokens by category
+                const categories = this.groupTokensByCategory(tokens);
+
+                Object.entries(categories).forEach(([categoryName, categoryTokens]) => {
+                    if (categoryTokens.length === 0) return;
+                    const categorySection = this.createCategorySection(categoryName, categoryTokens, themes);
+                    body.appendChild(categorySection);
+                });
+
+                tableElement.appendChild(header);
+                tableElement.appendChild(body);
+
+                container.appendChild(controls);
+                container.appendChild(tableElement);
+            },
+
+            groupTokensByCategory(tokens) {
+                const categories = {
+                    spacing: [],
+                    typography: [],
+                    color: [],
+                    sizing: [],
+                    border: [],
+                    other: []
+                };
+
+                const tokensToShow = this.showDifferencesOnly
+                    ? tokens.filter(token => this.hasDifferentValues(token))
+                    : tokens;
+
+                tokensToShow.forEach(token => {
+                    if (categories[token.category]) {
+                        categories[token.category].push(token);
+                    } else {
+                        categories.other.push(token);
+                    }
+                });
+
+                return categories;
+            },
+
+            createCategorySection(categoryName, tokens, themes) {
+                const section = document.createElement('div');
+
+                const header = document.createElement('div');
+                header.style.padding = '8px';
+                header.style.background = 'var(--theme-bg-secondary)';
+                header.style.fontWeight = '500';
+                header.style.fontSize = '11px';
+                header.style.cursor = 'pointer';
+                header.style.borderBottom = '1px solid var(--theme-border-secondary)';
+                header.style.display = 'flex';
+                header.style.alignItems = 'center';
+                header.style.gap = '4px';
+
+                const isExpanded = this.expandedCategories.has(categoryName);
+
+                const icon = document.createElement('div');
+                icon.textContent = isExpanded ? '▼' : '▶';
+                icon.style.fontSize = '8px';
+                icon.style.color = 'var(--theme-text-secondary)';
+
+                const title = document.createElement('span');
+                title.textContent = `${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} (${tokens.length})`;
+
+                header.appendChild(icon);
+                header.appendChild(title);
+
+                const content = document.createElement('div');
+                content.style.display = isExpanded ? 'block' : 'none';
+
+                header.addEventListener('click', () => {
+                    const wasExpanded = this.expandedCategories.has(categoryName);
+                    if (wasExpanded) {
+                        this.expandedCategories.delete(categoryName);
+                        content.style.display = 'none';
+                        icon.textContent = '▶';
+                    } else {
+                        this.expandedCategories.add(categoryName);
+                        content.style.display = 'block';
+                        icon.textContent = '▼';
+                    }
+                });
+
+                tokens.forEach(token => {
+                    const row = this.createTokenRow(token, themes);
+                    content.appendChild(row);
+                });
+
+                section.appendChild(header);
+                section.appendChild(content);
+
+                return section;
+            },
+
+            createTokenRow(token, themes) {
+                const row = document.createElement('div');
+                row.style.display = 'grid';
+                row.style.gridTemplateColumns = '2fr repeat(3, 1fr)';
+                row.style.borderBottom = '1px solid var(--theme-border-secondary)';
+                row.style.minHeight = '32px';
+
+                const nameCell = document.createElement('div');
+                nameCell.style.padding = '8px';
+                nameCell.style.borderRight = '1px solid var(--theme-border-secondary)';
+                nameCell.style.fontFamily = 'monospace';
+                nameCell.style.fontSize = '10px';
+                nameCell.style.display = 'flex';
+                nameCell.style.alignItems = 'center';
+                nameCell.textContent = `--${token.name}`;
+
+                row.appendChild(nameCell);
+
+                const hasDifferentValues = this.hasDifferentValues(token);
+
+                themes.forEach((theme, index) => {
+                    const valueCell = document.createElement('div');
+                    valueCell.style.padding = '8px';
+                    valueCell.style.fontFamily = 'monospace';
+                    valueCell.style.fontSize = '10px';
+                    valueCell.style.display = 'flex';
+                    valueCell.style.alignItems = 'center';
+                    valueCell.style.gap = '4px';
+                    if (index < themes.length - 1) {
+                        valueCell.style.borderRight = '1px solid var(--theme-border-secondary)';
+                    }
+
+                    const value = token.values[theme.name];
+                    if (value === undefined) {
+                        valueCell.textContent = '—';
+                        valueCell.style.color = 'var(--theme-text-muted)';
+                        valueCell.style.fontStyle = 'italic';
+                    } else {
+                        if (token.category === 'color' && (value.startsWith('#') || value.startsWith('rgb'))) {
+                            const colorPreview = document.createElement('span');
+                            colorPreview.style.width = '12px';
+                            colorPreview.style.height = '12px';
+                            colorPreview.style.backgroundColor = value;
+                            colorPreview.style.border = '1px solid var(--theme-border-primary)';
+                            colorPreview.style.borderRadius = '2px';
+                            colorPreview.style.flexShrink = '0';
+                            valueCell.appendChild(colorPreview);
+                        }
+
+                        const valueText = document.createElement('span');
+                        valueText.textContent = value;
+                        valueCell.appendChild(valueText);
+
+                        if (hasDifferentValues) {
+                            valueCell.style.background = 'rgba(255, 193, 7, 0.1)';
+                            valueCell.style.borderLeft = '3px solid var(--theme-warning)';
+                            valueCell.style.marginLeft = '-8px';
+                            valueCell.style.paddingLeft = '5px';
+                        }
+                    }
+
+                    row.appendChild(valueCell);
+                });
+
+                return row;
+            },
+
+            hasDifferentValues(token) {
+                const values = Object.values(token.values).filter(v => v !== undefined);
+                return values.length > 1 && new Set(values).size > 1;
+            },
+
+            expandAll() {
+                const categories = this.groupTokensByCategory(tokens);
+                Object.keys(categories).forEach(category => {
+                    this.expandedCategories.add(category);
+                });
+                this.render();
+            },
+
+            collapseAll() {
+                this.expandedCategories.clear();
+                this.render();
+            },
+
+            toggleDifferences() {
+                this.showDifferencesOnly = !this.showDifferencesOnly;
+                this.render();
+            }
+        };
+
+        table.render();
+        return table;
+    }
+
+    // Mock Components
+    function createMockComponents() {
+        return [
+            {
+                name: 'Base Button',
+                category: 'buttons',
+                description: 'Standard button component',
+                states: [
+                    { name: 'default', label: 'Default', content: 'Button' },
+                    { name: 'hover', label: 'Hover', content: 'Button' },
+                    { name: 'disabled', label: 'Disabled', content: 'Button' }
+                ],
+                template: (state) => `<button class="theme-btn" ${state.name === 'disabled' ? 'disabled' : ''}>${state.content}</button>`
+            },
+            {
+                name: 'Text Sizes',
+                category: 'typography',
+                description: 'Typography scale',
+                states: [
+                    { name: 'sizes', label: 'Font Sizes', content: 'Typography Demo' }
+                ],
+                template: (state) => `
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <div style="font-size: var(--font-size-xs);">Extra Small (10px)</div>
+                            <div style="font-size: var(--font-size-sm);">Small (11px)</div>
+                            <div style="font-size: var(--font-size-md);">Medium (12px)</div>
+                            <div style="font-size: var(--font-size-lg);">Large (14px)</div>
+                        </div>
+                    `
+            }
+        ];
+    }
+
+    // Component Preview Implementation
+    function createComponentPreview(container, components, themes) {
+        const preview = {
+            currentTheme: themes[0]?.name || 'boilerplate',
+
+            render() {
+                container.innerHTML = '';
+
+                const header = document.createElement('div');
+                header.style.padding = '8px';
+                header.style.background = 'var(--theme-bg-secondary)';
+                header.style.borderBottom = '1px solid var(--theme-border-primary)';
+                header.style.display = 'flex';
+                header.style.alignItems = 'center';
+                header.style.gap = '8px';
+
+                const label = document.createElement('label');
+                label.textContent = 'Theme:';
+                label.style.fontSize = '11px';
+                label.style.fontWeight = '500';
+
+                const select = document.createElement('select');
+                select.style.padding = '4px 8px';
+                select.style.border = '1px solid var(--theme-border-primary)';
+                select.style.borderRadius = '3px';
+                select.style.background = 'var(--theme-bg-primary)';
+                select.style.fontSize = '11px';
+
+                themes.forEach(theme => {
+                    const option = document.createElement('option');
+                    option.value = theme.name;
+                    option.textContent = theme.displayName;
+                    option.selected = theme.name === this.currentTheme;
+                    select.appendChild(option);
+                });
+
+                select.addEventListener('change', (e) => {
+                    this.currentTheme = e.target.value;
+                    document.body.setAttribute('data-theme', this.currentTheme);
+                    this.renderComponents();
+                });
+
+                header.appendChild(label);
+                header.appendChild(select);
+
+                const grid = document.createElement('div');
+                grid.id = 'component-grid';
+                grid.style.display = 'grid';
+                grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(250px, 1fr))';
+                grid.style.gap = '16px';
+                grid.style.padding = '16px';
+
+                container.appendChild(header);
+                container.appendChild(grid);
+
+                this.renderComponents();
+            },
+
+            renderComponents() {
+                const grid = document.getElementById('component-grid');
+                if (!grid) return;
+
+                grid.innerHTML = '';
+
+                components.forEach(component => {
+                    const card = document.createElement('div');
+                    card.style.border = '1px solid var(--theme-border-secondary)';
+                    card.style.borderRadius = 'var(--border-radius-md)';
+                    card.style.background = 'var(--theme-bg-elevated)';
+                    card.style.overflow = 'hidden';
+
+                    const cardHeader = document.createElement('div');
+                    cardHeader.style.padding = '8px';
+                    cardHeader.style.background = 'var(--theme-bg-secondary)';
+                    cardHeader.style.borderBottom = '1px solid var(--theme-border-secondary)';
+
+                    const title = document.createElement('h4');
+                    title.style.fontSize = '11px';
+                    title.style.fontWeight = '600';
+                    title.style.margin = '0 0 2px 0';
+                    title.textContent = component.name;
+
+                    const description = document.createElement('p');
+                    description.style.fontSize = '10px';
+                    description.style.color = 'var(--theme-text-secondary)';
+                    description.style.margin = '0';
+                    description.textContent = component.description;
+
+                    cardHeader.appendChild(title);
+                    cardHeader.appendChild(description);
+
+                    const cardBody = document.createElement('div');
+                    cardBody.style.padding = '16px';
+                    cardBody.style.display = 'flex';
+                    cardBody.style.flexDirection = 'column';
+                    cardBody.style.gap = '8px';
+
+                    component.states.forEach(state => {
+                        const stateContainer = document.createElement('div');
+
+                        const stateLabel = document.createElement('div');
+                        stateLabel.style.fontSize = '10px';
+                        stateLabel.style.color = 'var(--theme-text-secondary)';
+                        stateLabel.style.marginBottom = '4px';
+                        stateLabel.textContent = state.label;
+
+                        const stateDemo = document.createElement('div');
+                        try {
+                            stateDemo.innerHTML = component.template(state);
+                        } catch (error) {
+                            stateDemo.textContent = 'Render Error';
+                            stateDemo.style.color = 'var(--theme-error)';
+                        }
+
+                        stateContainer.appendChild(stateLabel);
+                        stateContainer.appendChild(stateDemo);
+                        cardBody.appendChild(stateContainer);
+                    });
+
+                    card.appendChild(cardHeader);
+                    card.appendChild(cardBody);
+                    grid.appendChild(card);
+                });
+            }
+        };
+
+        preview.render();
+        return preview;
+    }
+
+    // System Analysis Implementation
+    async function performSystemAnalysis() {
+        // Check if parsedTokens is available
+        if (!parsedTokens || !parsedTokens.tokens) {
+            throw new Error('parsedTokens is not defined or invalid');
+        }
+
+        // Mock analysis results
+        return {
+            stats: {
+                totalTokens: parsedTokens.tokens.length,
+                usedTokens: Math.floor(parsedTokens.tokens.length * 0.8),
+                unusedTokens: Math.floor(parsedTokens.tokens.length * 0.2),
+                filesScanned: 15,
+                inconsistenciesFound: 3,
+                recommendationsGenerated: 4
+            },
+            tokenUsage: parsedTokens.tokens.map(token => ({
+                tokenName: token.name,
+                usageCount: Math.floor(Math.random() * 10),
+                files: ['ui.ts', 'styles.css'],
+                locations: []
+            })),
+            unusedTokens: parsedTokens.tokens.slice(0, 2),
+            inconsistencies: [
+                {
+                    type: 'duplicate-values',
+                    severity: 'medium',
+                    description: 'Multiple tokens have the same value: 8px',
+                    tokens: ['spacing-lg', 'spacing-duplicate'],
+                    suggestions: ['Consider consolidating these tokens']
+                }
+            ],
+            recommendations: [
+                {
+                    type: 'cleanup',
+                    priority: 'medium',
+                    title: 'Remove Unused Tokens',
+                    description: 'Some tokens are not used in any files',
+                    impact: 'Reduces CSS bundle size',
+                    actions: ['Review unused tokens', 'Remove confirmed unused tokens']
+                }
+            ]
+        };
+    }
+
+    function createAnalysisDisplay(container, analysis) {
+        container.innerHTML = '';
+
+        // Stats overview
+        const statsSection = document.createElement('div');
+        statsSection.style.padding = '16px';
+        statsSection.style.background = 'var(--theme-bg-secondary)';
+        statsSection.style.borderBottom = '1px solid var(--theme-border-primary)';
+
+        const statsTitle = document.createElement('h3');
+        statsTitle.style.fontSize = '14px';
+        statsTitle.style.fontWeight = '600';
+        statsTitle.style.marginBottom = '8px';
+        statsTitle.textContent = 'Analysis Overview';
+
+        const statsGrid = document.createElement('div');
+        statsGrid.style.display = 'grid';
+        statsGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(120px, 1fr))';
+        statsGrid.style.gap = '8px';
+
+        const stats = [
+            { label: 'Total Tokens', value: analysis.stats.totalTokens },
+            { label: 'Used Tokens', value: analysis.stats.usedTokens },
+            { label: 'Unused Tokens', value: analysis.stats.unusedTokens },
+            { label: 'Files Scanned', value: analysis.stats.filesScanned },
+            { label: 'Issues Found', value: analysis.stats.inconsistenciesFound }
+        ];
+
+        stats.forEach(stat => {
+            const statCard = document.createElement('div');
+            statCard.style.padding = '8px';
+            statCard.style.background = 'var(--theme-bg-primary)';
+            statCard.style.border = '1px solid var(--theme-border-secondary)';
+            statCard.style.borderRadius = 'var(--border-radius-sm)';
+            statCard.style.textAlign = 'center';
+
+            const value = document.createElement('div');
+            value.style.fontSize = '16px';
+            value.style.fontWeight = '600';
+            value.style.color = 'var(--theme-info)';
+            value.textContent = stat.value;
+
+            const label = document.createElement('div');
+            label.style.fontSize = '10px';
+            label.style.color = 'var(--theme-text-secondary)';
+            label.textContent = stat.label;
+
+            statCard.appendChild(value);
+            statCard.appendChild(label);
+            statsGrid.appendChild(statCard);
+        });
+
+        statsSection.appendChild(statsTitle);
+        statsSection.appendChild(statsGrid);
+
+        // Recommendations
+        const recsSection = document.createElement('div');
+        recsSection.style.padding = '16px';
+
+        const recsTitle = document.createElement('h3');
+        recsTitle.style.fontSize = '14px';
+        recsTitle.style.fontWeight = '600';
+        recsTitle.style.marginBottom = '8px';
+        recsTitle.textContent = 'Recommendations';
+
+        const recsList = document.createElement('div');
+        recsList.style.display = 'flex';
+        recsList.style.flexDirection = 'column';
+        recsList.style.gap = '8px';
+
+        analysis.recommendations.forEach(rec => {
+            const recCard = document.createElement('div');
+            recCard.style.padding = '12px';
+            recCard.style.border = '1px solid var(--theme-border-secondary)';
+            recCard.style.borderRadius = 'var(--border-radius-sm)';
+            recCard.style.background = 'var(--theme-bg-elevated)';
+
+            const recHeader = document.createElement('div');
+            recHeader.style.display = 'flex';
+            recHeader.style.justifyContent = 'space-between';
+            recHeader.style.alignItems = 'center';
+            recHeader.style.marginBottom = '4px';
+
+            const recTitle = document.createElement('h4');
+            recTitle.style.fontSize = '12px';
+            recTitle.style.fontWeight = '600';
+            recTitle.style.margin = '0';
+            recTitle.textContent = rec.title;
+
+            const priority = document.createElement('span');
+            priority.style.fontSize = '10px';
+            priority.style.padding = '2px 6px';
+            priority.style.borderRadius = '2px';
+            priority.style.background = rec.priority === 'high' ? 'var(--theme-error-bg)' :
+                rec.priority === 'medium' ? 'var(--theme-warning-bg)' :
+                    'var(--theme-success-bg)';
+            priority.style.color = rec.priority === 'high' ? 'var(--theme-error)' :
+                rec.priority === 'medium' ? 'var(--theme-warning)' :
+                    'var(--theme-success)';
+            priority.textContent = rec.priority;
+
+            recHeader.appendChild(recTitle);
+            recHeader.appendChild(priority);
+
+            const recDesc = document.createElement('p');
+            recDesc.style.fontSize = '11px';
+            recDesc.style.color = 'var(--theme-text-secondary)';
+            recDesc.style.margin = '0';
+            recDesc.textContent = rec.description;
+
+            recCard.appendChild(recHeader);
+            recCard.appendChild(recDesc);
+            recsList.appendChild(recCard);
+        });
+
+        recsSection.appendChild(recsTitle);
+        recsSection.appendChild(recsList);
+
+        container.appendChild(statsSection);
+        container.appendChild(recsSection);
+    }
+
+    // Theme Testing Interface Implementation - Simplified and Robust
+    function createThemeTestingInterface(container, themes, tokens, components) {
+        console.log('Creating theme testing interface...');
+
+        try {
+            // Validate inputs
+            if (!container) {
+                throw new Error('Container element is required');
+            }
+
+            // Use fallbacks if data is missing
+            if (!themes || themes.length === 0) {
+                themes = [{ name: 'boilerplate', displayName: 'Default Theme', selector: ':root' }];
+            }
+
+            if (!tokens || tokens.length === 0) {
+                tokens = [
+                    { name: 'spacing-md', category: 'spacing', values: { boilerplate: '6px' }, usage: [] },
+                    { name: 'font-size-md', category: 'typography', values: { boilerplate: '12px' }, usage: [] },
+                    { name: 'theme-bg-primary', category: 'color', values: { boilerplate: '#ffffff' }, usage: [] }
+                ];
+            }
+
+            console.log('Using themes:', themes.length, 'tokens:', tokens.length);
+
+            // Create the interface using innerHTML for simplicity
+            container.innerHTML = `
+                    <div style="background: var(--theme-bg-primary, #fff); border-radius: 4px; overflow: hidden;">
+                        <!-- Header -->
+                        <div style="padding: 16px; background: var(--theme-bg-secondary, #f8f9fa); border-bottom: 1px solid var(--theme-border-primary, #e1e5e9);">
+                            <h3 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: var(--theme-text-primary, #333);">
+                                Theme Testing Interface
+                            </h3>
+                            <p style="margin: 0; font-size: 11px; color: var(--theme-text-secondary, #666);">
+                                Test theme switching and validate design token resolution
+                            </p>
+                        </div>
+                        
+                        <!-- Controls -->
+                        <div style="padding: 16px; border-bottom: 1px solid var(--theme-border-secondary, #f0f0f0);">
+                            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                                <label style="font-size: 11px; font-weight: 500; color: var(--theme-text-secondary, #666);">
+                                    Current Theme:
+                                </label>
+                                <select id="theme-selector" style="padding: 4px 8px; border: 1px solid var(--theme-border-primary, #e1e5e9); border-radius: 3px; background: var(--theme-bg-primary, #fff); font-size: 11px; min-width: 120px;">
+                                    ${themes.map(theme =>
+                `<option value="${theme.name}">${theme.displayName}</option>`
+            ).join('')}
+                                </select>
+                                <button id="validate-btn" style="padding: 4px 12px; background: var(--theme-info, #007acc); color: white; border: none; border-radius: 3px; font-size: 10px; cursor: pointer;">
+                                    Validate All Themes
+                                </button>
+                                <button id="clear-btn" style="padding: 4px 12px; background: var(--theme-bg-secondary, #f8f9fa); color: var(--theme-text-primary, #333); border: 1px solid var(--theme-border-primary, #e1e5e9); border-radius: 3px; font-size: 10px; cursor: pointer;">
+                                    Clear Results
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Results Area -->
+                        <div id="results-area" style="padding: 16px; min-height: 200px;">
+                            <div style="text-align: center; color: var(--theme-text-muted, #999); padding: 40px 0;">
+                                <p style="margin: 0; font-size: 12px;">🎨 Ready to test themes!</p>
+                                <p style="margin: 8px 0 0 0; font-size: 10px;">Select a theme above to validate design tokens</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            // Create the testing object with methods
+            const testing = {
+                currentTheme: themes[0].name,
+                validationResults: [],
+
+                switchTheme(themeName) {
+                    console.log('Switching to theme:', themeName);
+                    this.currentTheme = themeName;
+
+                    // Apply theme to document
+                    document.body.setAttribute('data-theme', themeName);
+
+                    // Update selector
+                    const selector = document.getElementById('theme-selector');
+                    if (selector) {
+                        selector.value = themeName;
+                    }
+
+                    // Validate the new theme
+                    this.validateTheme(themeName);
+                },
+
+                validateTheme(themeName) {
+                    console.log('Validating theme:', themeName);
+
+                    const results = [];
+                    let successCount = 0;
+                    let errorCount = 0;
+
+                    tokens.forEach(token => {
+                        const hasValue = token.values && token.values.hasOwnProperty(themeName);
+                        const value = hasValue ? token.values[themeName] : null;
+                        const isValid = hasValue && value && value.trim() !== '';
+
+                        if (isValid) {
+                            successCount++;
+                        } else {
+                            errorCount++;
+                        }
+
+                        results.push({
+                            tokenName: token.name,
+                            category: token.category,
+                            resolved: isValid,
+                            value: value,
+                            error: !hasValue ? `Missing in ${themeName}` :
+                                !value || value.trim() === '' ? 'Empty value' : null
+                        });
+                    });
+
+                    this.validationResults = results;
+                    this.displayResults(themeName, successCount, errorCount);
+                },
+
+                validateAllThemes() {
+                    console.log('Validating all themes...');
+
+                    let allResults = [];
+                    let totalSuccess = 0;
+                    let totalErrors = 0;
+
+                    themes.forEach(theme => {
+                        tokens.forEach(token => {
+                            const hasValue = token.values && token.values.hasOwnProperty(theme.name);
+                            const value = hasValue ? token.values[theme.name] : null;
+                            const isValid = hasValue && value && value.trim() !== '';
+
+                            if (isValid) {
+                                totalSuccess++;
+                            } else {
+                                totalErrors++;
+                            }
+
+                            allResults.push({
+                                theme: theme.displayName,
+                                tokenName: token.name,
+                                resolved: isValid,
+                                value: value,
+                                error: !hasValue ? `Missing in ${theme.name}` :
+                                    !value || value.trim() === '' ? 'Empty value' : null
+                            });
+                        });
+                    });
+
+                    this.displayAllResults(allResults, totalSuccess, totalErrors);
+                },
+
+                displayResults(themeName, successCount, errorCount) {
+                    const resultsArea = document.getElementById('results-area');
+                    if (!resultsArea) return;
+
+                    const statusColor = errorCount === 0 ? 'var(--theme-success, #28a745)' : 'var(--theme-warning, #ffc107)';
+                    const statusBg = errorCount === 0 ? 'rgba(40, 167, 69, 0.1)' : 'rgba(255, 193, 7, 0.1)';
+
+                    resultsArea.innerHTML = `
+                            <div style="margin-bottom: 16px;">
+                                <div style="padding: 12px; background: ${statusBg}; border: 1px solid ${statusColor}; border-radius: 4px; margin-bottom: 16px;">
+                                    <div style="font-size: 12px; font-weight: 600; color: ${statusColor}; margin-bottom: 4px;">
+                                        Theme: ${themes.find(t => t.name === themeName)?.displayName || themeName}
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--theme-text-primary, #333);">
+                                        ${errorCount === 0 ?
+                            `✅ All ${successCount} tokens validated successfully` :
+                            `⚠️ ${errorCount} issues found, ${successCount} tokens valid`
+                        }
+                                    </div>
+                                </div>
+                                
+                                <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--theme-border-secondary, #f0f0f0); border-radius: 4px;">
+                                    ${this.validationResults.map(result => `
+                                        <div style="padding: 8px 12px; border-bottom: 1px solid var(--theme-border-secondary, #f0f0f0); display: flex; justify-content: space-between; align-items: center; background: ${result.resolved ? 'rgba(40, 167, 69, 0.05)' : 'rgba(220, 53, 69, 0.05)'};">
+                                            <div style="font-family: monospace; font-size: 10px;">
+                                                <span style="font-weight: 600; color: var(--theme-text-primary, #333);">${result.tokenName}</span>
+                                                <span style="color: var(--theme-text-muted, #999); margin-left: 8px;">
+                                                    ${result.resolved ? `: ${result.value}` : `- ${result.error}`}
+                                                </span>
+                                            </div>
+                                            <span style="font-size: 12px; color: ${result.resolved ? 'var(--theme-success, #28a745)' : 'var(--theme-error, #dc3545)'};">
+                                                ${result.resolved ? '✓' : '✗'}
+                                            </span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                },
+
+                displayAllResults(allResults, totalSuccess, totalErrors) {
+                    const resultsArea = document.getElementById('results-area');
+                    if (!resultsArea) return;
+
+                    const statusColor = totalErrors === 0 ? 'var(--theme-success, #28a745)' : 'var(--theme-warning, #ffc107)';
+                    const statusBg = totalErrors === 0 ? 'rgba(40, 167, 69, 0.1)' : 'rgba(255, 193, 7, 0.1)';
+
+                    resultsArea.innerHTML = `
+                            <div style="padding: 12px; background: ${statusBg}; border: 1px solid ${statusColor}; border-radius: 4px; margin-bottom: 16px;">
+                                <div style="font-size: 12px; font-weight: 600; color: ${statusColor}; margin-bottom: 4px;">
+                                    All Themes Validation Complete
+                                </div>
+                                <div style="font-size: 11px; color: var(--theme-text-primary, #333);">
+                                    ${totalErrors === 0 ?
+                            `✅ All ${totalSuccess} token instances validated successfully across ${themes.length} themes` :
+                            `⚠️ ${totalErrors} issues found, ${totalSuccess} token instances valid`
+                        }
+                                </div>
+                            </div>
+                            
+                            <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--theme-border-secondary, #f0f0f0); border-radius: 4px;">
+                                ${allResults.map(result => `
+                                    <div style="padding: 6px 12px; border-bottom: 1px solid var(--theme-border-secondary, #f0f0f0); display: flex; justify-content: space-between; align-items: center; background: ${result.resolved ? 'rgba(40, 167, 69, 0.05)' : 'rgba(220, 53, 69, 0.05)'};">
+                                        <div style="font-family: monospace; font-size: 9px;">
+                                            <span style="color: var(--theme-info, #007acc); font-weight: 600;">${result.theme}</span>
+                                            <span style="color: var(--theme-text-primary, #333); margin: 0 8px;">→</span>
+                                            <span style="font-weight: 600; color: var(--theme-text-primary, #333);">${result.tokenName}</span>
+                                            <span style="color: var(--theme-text-muted, #999); margin-left: 8px;">
+                                                ${result.resolved ? `: ${result.value}` : `- ${result.error}`}
+                                            </span>
+                                        </div>
+                                        <span style="font-size: 12px; color: ${result.resolved ? 'var(--theme-success, #28a745)' : 'var(--theme-error, #dc3545)'};">
+                                            ${result.resolved ? '✓' : '✗'}
+                                        </span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                },
+
+                clearResults() {
+                    const resultsArea = document.getElementById('results-area');
+                    if (resultsArea) {
+                        resultsArea.innerHTML = `
+                                <div style="text-align: center; color: var(--theme-text-muted, #999); padding: 40px 0;">
+                                    <p style="margin: 0; font-size: 12px;">🎨 Ready to test themes!</p>
+                                    <p style="margin: 8px 0 0 0; font-size: 10px;">Select a theme above to validate design tokens</p>
+                                </div>
+                            `;
+                    }
+                }
+            };
+
+            // Add event listeners
+            const themeSelector = document.getElementById('theme-selector');
+            const validateBtn = document.getElementById('validate-btn');
+            const clearBtn = document.getElementById('clear-btn');
+
+            if (themeSelector) {
+                themeSelector.addEventListener('change', (e) => {
+                    testing.switchTheme(e.target.value);
+                });
+            }
+
+            if (validateBtn) {
+                validateBtn.addEventListener('click', () => {
+                    testing.validateAllThemes();
+                });
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    testing.clearResults();
+                });
+            }
+
+            // Initialize with first theme
+            testing.switchTheme(themes[0].name);
+
+            console.log('Theme testing interface created successfully');
+            return testing;
+
+        } catch (error) {
+            console.error('Error creating theme testing interface:', error);
+
+            container.innerHTML = `
+                    <div style="padding: 24px; text-align: center; background: var(--theme-error-bg-light, #fff8f8); border: 1px solid var(--theme-error, #dc3545); border-radius: 4px;">
+                        <h3 style="margin: 0 0 8px 0; color: var(--theme-error, #dc3545); font-size: 14px;">Theme Testing Interface Error</h3>
+                        <p style="margin: 0 0 8px 0; color: var(--theme-text-primary, #333); font-size: 11px;">Failed to initialize: ${error.message}</p>
+                        <p style="margin: 0; color: var(--theme-text-muted, #999); font-size: 10px;">Check browser console for detailed error information</p>
+                    </div>
+                `;
+
+            throw error;
+        }
+    }
+</script>

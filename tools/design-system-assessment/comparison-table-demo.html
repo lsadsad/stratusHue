@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Comparison Table Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-header {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .demo-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+
+        .demo-description {
+            color: #666;
+            margin: 0;
+        }
+
+        .demo-controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .demo-button {
+            padding: 8px 16px;
+            border: 1px solid #e1e5e9;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .demo-button:hover {
+            background: #f8f9fa;
+        }
+
+        #comparison-table-container {
+            border: 1px solid #e1e5e9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* CSS Design Tokens for Demo */
+        :root {
+            --spacing-xs: 2px;
+            --spacing-sm: 4px;
+            --spacing-md: 6px;
+            --spacing-lg: 8px;
+            --spacing-xl: 10px;
+            --spacing-xxl: 12px;
+
+            --font-size-xs: 10px;
+            --font-size-sm: 11px;
+            --font-size-md: 12px;
+            --font-size-lg: 14px;
+
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+
+            --theme-bg-primary: #ffffff;
+            --theme-bg-secondary: #f8f9fa;
+            --theme-bg-elevated: #ffffff;
+            --theme-bg-hover: #f0f0f0;
+
+            --theme-text-primary: #333333;
+            --theme-text-secondary: #666666;
+            --theme-text-muted: #999999;
+            --theme-text-disabled: #cccccc;
+
+            --theme-border-primary: #e1e5e9;
+            --theme-border-secondary: #f0f0f0;
+
+            --border-radius-xs: 2px;
+            --border-radius-sm: 3px;
+            --border-radius-md: 4px;
+
+            --theme-warning: rgba(255, 193, 7, 0.9);
+        }
+
+        [data-theme="cybertron"] {
+            --theme-bg-primary: #1a1a1a;
+            --theme-bg-secondary: #2a2a2a;
+            --theme-text-primary: #00ff88;
+            --theme-text-secondary: #88ffaa;
+            --theme-border-primary: #00ff88;
+        }
+
+        [data-theme="figma-light"] {
+            --theme-bg-primary: #ffffff;
+            --theme-bg-secondary: #f0f0f0;
+            --theme-text-primary: #1e1e1e;
+            --theme-text-secondary: #757575;
+            --theme-border-primary: #e5e5e5;
+        }
+
+        [data-theme="figma-dark"] {
+            --theme-bg-primary: #2c2c2c;
+            --theme-bg-secondary: #3c3c3c;
+            --theme-text-primary: #ffffff;
+            --theme-text-secondary: #cccccc;
+            --theme-border-primary: #4c4c4c;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1 class="demo-title">Token Comparison Table Demo</h1>
+            <p class="demo-description">
+                Interactive demonstration of the design token comparison table component
+                showing tokens across Boilerplate, Cybertron, and Figma Light themes.
+            </p>
+        </div>
+
+        <div class="demo-controls">
+            <button class="demo-button" onclick="expandAll()">Expand All</button>
+            <button class="demo-button" onclick="collapseAll()">Collapse All</button>
+            <button class="demo-button" onclick="toggleDifferences()">Toggle Differences Only</button>
+            <button class="demo-button" onclick="refreshTable()">Refresh</button>
+        </div>
+
+        <div id="comparison-table-container"></div>
+    </div>
+
+    <script>
+        // Mock token data for demonstration
+        const mockTokens = [
+            {
+                name: 'spacing-xs',
+                category: 'spacing',
+                values: {
+                    'boilerplate': '2px',
+                    'cybertron': '2px',
+                    'figma-light': '2px'
+                },
+                usage: [],
+                description: 'Extra small spacing value'
+            },
+            {
+                name: 'spacing-md',
+                category: 'spacing',
+                values: {
+                    'boilerplate': '6px',
+                    'cybertron': '8px',
+                    'figma-light': '6px',
+                    'figma-dark': '6px'
+                },
+                usage: [],
+                description: 'Medium spacing value'
+            },
+            {
+                name: 'font-size-sm',
+                category: 'typography',
+                values: {
+                    'boilerplate': '11px',
+                    'cybertron': '12px',
+                    'figma-light': '11px',
+                    'figma-dark': '11px'
+                },
+                usage: [],
+                description: 'Small font size'
+            },
+            {
+                name: 'theme-bg-primary',
+                category: 'color',
+                values: {
+                    'boilerplate': '#ffffff',
+                    'cybertron': '#1a1a1a',
+                    'figma-light': '#ffffff',
+                    'figma-dark': '#2c2c2c'
+                },
+                usage: [],
+                description: 'Primary background color'
+            },
+            {
+                name: 'theme-text-primary',
+                category: 'color',
+                values: {
+                    'boilerplate': '#333333',
+                    'cybertron': '#00ff88',
+                    'figma-light': '#1e1e1e',
+                    'figma-dark': '#ffffff'
+                },
+                usage: [],
+                description: 'Primary text color'
+            },
+            {
+                name: 'border-radius-md',
+                category: 'border',
+                values: {
+                    'boilerplate': '4px',
+                    'figma-light': '4px'
+                    // Missing cybertron value
+                },
+                usage: [],
+                description: 'Medium border radius'
+            },
+            {
+                name: 'button-height-md',
+                category: 'sizing',
+                values: {
+                    'boilerplate': '24px',
+                    'cybertron': '28px',
+                    'figma-light': '24px',
+                    'figma-dark': '24px'
+                },
+                usage: [],
+                description: 'Medium button height'
+            }
+        ];
+
+        const mockThemes = [
+            { name: 'boilerplate', selector: ':root', displayName: 'Base/Boilerplate' },
+            { name: 'cybertron', selector: '[data-theme="cybertron"]', displayName: 'Cybertron' },
+            { name: 'figma-light', selector: '[data-theme="figma-light"]', displayName: 'Figma Light' },
+            { name: 'figma-dark', selector: '[data-theme="figma-dark"]', displayName: 'Figma Dark' }
+        ];
+
+        let comparisonTable;
+
+        // Initialize the comparison table
+        function initializeTable() {
+            const container = document.getElementById('comparison-table-container');
+            
+            // Create the comparison table using the new component
+            comparisonTable = createComparisonTable(container, mockTokens, mockThemes);
+        }
+
+
+
+        // Simplified ComparisonTable implementation for demo
+        function createComparisonTable(container, tokens, themes) {
+            const table = {
+                expandedCategories: new Set(['spacing', 'typography', 'color']),
+                showDifferencesOnly: false,
+                
+                render() {
+                    container.innerHTML = '';
+                    container.className = 'comparison-table';
+                    
+                    const tableElement = document.createElement('div');
+                    tableElement.className = 'comparison-table__table';
+                    
+                    // Create header
+                    const header = document.createElement('div');
+                    header.className = 'comparison-table__header';
+                    header.style.display = 'grid';
+                    header.style.gridTemplateColumns = '2fr repeat(4, 1fr)';
+                    header.style.background = 'var(--theme-bg-secondary)';
+                    header.style.borderBottom = '1px solid var(--theme-border-primary)';
+                    header.style.fontWeight = '600';
+                    header.style.fontSize = '11px';
+                    
+                    // Token header
+                    const tokenHeader = document.createElement('div');
+                    tokenHeader.style.padding = '8px';
+                    tokenHeader.style.borderRight = '1px solid var(--theme-border-primary)';
+                    tokenHeader.textContent = 'Design Token';
+                    header.appendChild(tokenHeader);
+                    
+                    // Theme headers
+                    themes.forEach((theme, index) => {
+                        const themeHeader = document.createElement('div');
+                        themeHeader.style.padding = '8px';
+                        if (index < themes.length - 1) {
+                            themeHeader.style.borderRight = '1px solid var(--theme-border-primary)';
+                        }
+                        themeHeader.textContent = theme.displayName;
+                        header.appendChild(themeHeader);
+                    });
+                    
+                    tableElement.appendChild(header);
+                    
+                    // Create body
+                    const body = document.createElement('div');
+                    body.className = 'comparison-table__body';
+                    body.style.maxHeight = '600px';
+                    body.style.overflowY = 'auto';
+                    
+                    // Group tokens by category
+                    const categories = this.groupTokensByCategory(tokens);
+                    
+                    Object.entries(categories).forEach(([categoryName, categoryTokens]) => {
+                        if (categoryTokens.length === 0) return;
+                        
+                        const categorySection = this.createCategorySection(categoryName, categoryTokens, themes);
+                        body.appendChild(categorySection);
+                    });
+                    
+                    tableElement.appendChild(body);
+                    
+                    // Create stats
+                    const stats = document.createElement('div');
+                    stats.style.padding = '8px';
+                    stats.style.background = 'var(--theme-bg-secondary)';
+                    stats.style.borderTop = '1px solid var(--theme-border-primary)';
+                    stats.style.fontSize = '10px';
+                    stats.style.color = 'var(--theme-text-secondary)';
+                    
+                    const totalTokens = tokens.length;
+                    const differentTokens = tokens.filter(token => this.hasDifferentValues(token)).length;
+                    const missingTokens = tokens.filter(token => this.hasMissingValues(token, themes)).length;
+                    
+                    stats.textContent = `${totalTokens} total tokens • ${differentTokens} with differences • ${missingTokens} with missing values`;
+                    tableElement.appendChild(stats);
+                    
+                    container.appendChild(tableElement);
+                },
+                
+                groupTokensByCategory(tokens) {
+                    const categories = {
+                        spacing: [],
+                        typography: [],
+                        color: [],
+                        sizing: [],
+                        border: [],
+                        shadow: [],
+                        transition: [],
+                        other: []
+                    };
+
+                    const tokensToShow = this.showDifferencesOnly 
+                        ? tokens.filter(token => this.hasDifferentValues(token))
+                        : tokens;
+
+                    tokensToShow.forEach(token => {
+                        if (categories[token.category]) {
+                            categories[token.category].push(token);
+                        } else {
+                            categories.other.push(token);
+                        }
+                    });
+
+                    return categories;
+                },
+                
+                createCategorySection(categoryName, tokens, themes) {
+                    const section = document.createElement('div');
+                    
+                    // Category header
+                    const header = document.createElement('div');
+                    header.style.padding = '8px';
+                    header.style.background = 'var(--theme-bg-secondary)';
+                    header.style.fontWeight = '500';
+                    header.style.fontSize = '11px';
+                    header.style.cursor = 'pointer';
+                    header.style.borderBottom = '1px solid var(--theme-border-secondary)';
+                    header.style.display = 'flex';
+                    header.style.alignItems = 'center';
+                    header.style.gap = '4px';
+                    
+                    const isExpanded = this.expandedCategories.has(categoryName);
+                    
+                    // Icon
+                    const icon = document.createElement('div');
+                    icon.style.width = '0';
+                    icon.style.height = '0';
+                    icon.style.borderLeft = '4px solid var(--theme-text-secondary)';
+                    icon.style.borderTop = '3px solid transparent';
+                    icon.style.borderBottom = '3px solid transparent';
+                    icon.style.transition = 'transform 0.15s ease';
+                    if (isExpanded) {
+                        icon.style.transform = 'rotate(90deg)';
+                    }
+                    header.appendChild(icon);
+                    
+                    // Title
+                    const title = document.createElement('span');
+                    title.textContent = `${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} (${tokens.length})`;
+                    header.appendChild(title);
+                    
+                    // Content
+                    const content = document.createElement('div');
+                    content.style.display = isExpanded ? 'block' : 'none';
+                    
+                    // Click handler
+                    header.addEventListener('click', () => {
+                        const wasExpanded = this.expandedCategories.has(categoryName);
+                        if (wasExpanded) {
+                            this.expandedCategories.delete(categoryName);
+                            content.style.display = 'none';
+                            icon.style.transform = 'rotate(0deg)';
+                        } else {
+                            this.expandedCategories.add(categoryName);
+                            content.style.display = 'block';
+                            icon.style.transform = 'rotate(90deg)';
+                        }
+                    });
+                    
+                    // Token rows
+                    tokens.forEach(token => {
+                        const row = this.createTokenRow(token, themes);
+                        content.appendChild(row);
+                    });
+                    
+                    section.appendChild(header);
+                    section.appendChild(content);
+                    
+                    return section;
+                },
+                
+                createTokenRow(token, themes) {
+                    const row = document.createElement('div');
+                    row.style.display = 'grid';
+                    row.style.gridTemplateColumns = '2fr repeat(4, 1fr)';
+                    row.style.borderBottom = '1px solid var(--theme-border-secondary)';
+                    row.style.minHeight = '32px';
+                    
+                    // Token name cell
+                    const nameCell = document.createElement('div');
+                    nameCell.style.padding = '8px';
+                    nameCell.style.borderRight = '1px solid var(--theme-border-secondary)';
+                    nameCell.style.fontFamily = 'monospace';
+                    nameCell.style.fontSize = '10px';
+                    nameCell.style.display = 'flex';
+                    nameCell.style.flexDirection = 'column';
+                    nameCell.style.justifyContent = 'center';
+                    
+                    const tokenName = document.createElement('div');
+                    tokenName.textContent = `--${token.name}`;
+                    nameCell.appendChild(tokenName);
+                    
+                    if (token.description) {
+                        const description = document.createElement('div');
+                        description.style.color = 'var(--theme-text-muted)';
+                        description.style.fontSize = '9px';
+                        description.style.marginTop = '2px';
+                        description.textContent = token.description;
+                        nameCell.appendChild(description);
+                    }
+                    
+                    row.appendChild(nameCell);
+                    
+                    // Value cells
+                    const hasDifferentValues = this.hasDifferentValues(token);
+                    
+                    themes.forEach((theme, index) => {
+                        const valueCell = document.createElement('div');
+                        valueCell.style.padding = '8px';
+                        valueCell.style.fontFamily = 'monospace';
+                        valueCell.style.fontSize = '10px';
+                        valueCell.style.display = 'flex';
+                        valueCell.style.alignItems = 'center';
+                        valueCell.style.gap = '4px';
+                        if (index < themes.length - 1) {
+                            valueCell.style.borderRight = '1px solid var(--theme-border-secondary)';
+                        }
+                        
+                        const value = token.values[theme.name];
+                        if (value === undefined) {
+                            valueCell.textContent = '—';
+                            valueCell.style.color = 'var(--theme-text-muted)';
+                            valueCell.style.fontStyle = 'italic';
+                        } else {
+                            // Add color preview for color tokens
+                            if (token.category === 'color' && (value.startsWith('#') || value.startsWith('rgb'))) {
+                                const colorPreview = document.createElement('span');
+                                colorPreview.style.width = '12px';
+                                colorPreview.style.height = '12px';
+                                colorPreview.style.backgroundColor = value;
+                                colorPreview.style.border = '1px solid var(--theme-border-primary)';
+                                colorPreview.style.borderRadius = '2px';
+                                colorPreview.style.flexShrink = '0';
+                                valueCell.appendChild(colorPreview);
+                            }
+                            
+                            const valueText = document.createElement('span');
+                            valueText.textContent = value;
+                            valueCell.appendChild(valueText);
+                            
+                            // Highlight differences
+                            if (hasDifferentValues) {
+                                valueCell.style.background = 'rgba(255, 193, 7, 0.1)';
+                                valueCell.style.borderLeft = '3px solid var(--theme-warning)';
+                                valueCell.style.marginLeft = '-8px';
+                                valueCell.style.paddingLeft = '5px';
+                            }
+                        }
+                        
+                        row.appendChild(valueCell);
+                    });
+                    
+                    return row;
+                },
+                
+                hasDifferentValues(token) {
+                    const values = Object.values(token.values).filter(v => v !== undefined);
+                    return values.length > 1 && new Set(values).size > 1;
+                },
+                
+                hasMissingValues(token, themes) {
+                    return Object.keys(token.values).length < themes.length;
+                },
+                
+                expandAll() {
+                    const categories = this.groupTokensByCategory(mockTokens);
+                    Object.keys(categories).forEach(category => {
+                        this.expandedCategories.add(category);
+                    });
+                    this.render();
+                },
+                
+                collapseAll() {
+                    this.expandedCategories.clear();
+                    this.render();
+                },
+                
+                toggleDifferencesOnly() {
+                    this.showDifferencesOnly = !this.showDifferencesOnly;
+                    this.render();
+                }
+            };
+            
+            table.render();
+            return table;
+        }
+
+        // Control functions
+        function expandAll() {
+            if (comparisonTable) {
+                comparisonTable.expandAll();
+            }
+        }
+
+        function collapseAll() {
+            if (comparisonTable) {
+                comparisonTable.collapseAll();
+            }
+        }
+
+        function toggleDifferences() {
+            if (comparisonTable) {
+                comparisonTable.toggleDifferencesOnly();
+            }
+        }
+
+        function refreshTable() {
+            initializeTable();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeTable);
+    </script>
+</body>
+</html>

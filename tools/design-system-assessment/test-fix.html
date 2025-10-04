@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Design Token Parsing Fix</title>
+</head>
+<body>
+    <div id="test-output"></div>
+    
+    <script>
+        // Mock CSS content for testing
+        const mockCSSContent = `
+:root {
+  /* Spacing System */
+  --spacing-xs: 2px;
+  --spacing-sm: 4px;
+  --spacing-md: 6px;
+  --spacing-lg: 8px;
+  --spacing-xl: 10px;
+  --spacing-xxl: 12px;
+
+  /* Typography */
+  --font-size-xs: 10px;
+  --font-size-sm: 11px;
+  --font-size-md: 12px;
+  --font-size-lg: 14px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Colors */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f8f9fa;
+  --theme-text-primary: #333333;
+  --theme-text-secondary: #666666;
+  --theme-border-primary: #e1e5e9;
+  --theme-info: #007acc;
+  --theme-success: #4ade80;
+  --theme-warning: rgba(255, 193, 7, 0.9);
+  --theme-error: #ff6b6b;
+
+  /* Component Sizes */
+  --button-height-md: 24px;
+  --icon-size-md: 10px;
+  --border-radius-md: 4px;
+}
+
+[data-theme="cybertron"] {
+  --theme-bg-primary: #1a1a1a;
+  --theme-bg-secondary: #2a2a2a;
+  --theme-text-primary: #00ff88;
+  --theme-text-secondary: #88ffaa;
+  --theme-border-primary: #00ff88;
+}
+
+[data-theme="figma-light"] {
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f0f0f0;
+  --theme-text-primary: #1e1e1e;
+  --theme-text-secondary: #757575;
+  --theme-border-primary: #e5e5e5;
+}
+`;
+
+        function parseDesignTokens(cssContent) {
+            console.log('parseDesignTokens called with content length:', cssContent.length);
+            
+            const tokens = [];
+            const themes = [
+                { name: 'boilerplate', selector: ':root', displayName: 'Base/Boilerplate' },
+                { name: 'cybertron', selector: '[data-theme="cybertron"]', displayName: 'Cybertron' },
+                { name: 'figma-light', selector: '[data-theme="figma-light"]', displayName: 'Figma Light' },
+                { name: 'figma-dark', selector: '[data-theme="figma-dark"]', displayName: 'Figma Dark' }
+            ];
+
+            // Parse CSS custom properties with improved regex patterns to handle multiple blocks
+            const rootMatches = [...cssContent.matchAll(/:root\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/gs)];
+            const cybertronMatches = [...cssContent.matchAll(/\[data-theme="cybertron"\]\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/gs)];
+            const figmaLightMatches = [...cssContent.matchAll(/\[data-theme="figma-light"\]\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/gs)];
+
+            console.log('Regex matches:', {
+                rootMatches: rootMatches.length,
+                cybertronMatches: cybertronMatches.length,
+                figmaLightMatches: figmaLightMatches.length
+            });
+
+            const tokenMap = new Map();
+
+            // Parse root tokens from all :root blocks
+            rootMatches.forEach(match => {
+                const properties = match[1].match(/--[\w-]+\s*:\s*[^;]+/g) || [];
+                properties.forEach(prop => {
+                    const [name, value] = prop.split(':').map(s => s.trim());
+                    const tokenName = name.replace('--', '');
+                    if (!tokenMap.has(tokenName)) {
+                        tokenMap.set(tokenName, {
+                            name: tokenName,
+                            category: categorizeToken(tokenName),
+                            values: {},
+                            usage: []
+                        });
+                    }
+                    tokenMap.get(tokenName).values.boilerplate = value.replace(/;$/, '');
+                });
+            });
+
+            // Parse cybertron tokens from all cybertron blocks
+            cybertronMatches.forEach(match => {
+                const properties = match[1].match(/--[\w-]+\s*:\s*[^;]+/g) || [];
+                properties.forEach(prop => {
+                    const [name, value] = prop.split(':').map(s => s.trim());
+                    const tokenName = name.replace('--', '');
+                    if (!tokenMap.has(tokenName)) {
+                        tokenMap.set(tokenName, {
+                            name: tokenName,
+                            category: categorizeToken(tokenName),
+                            values: {},
+                            usage: []
+                        });
+                    }
+                    tokenMap.get(tokenName).values.cybertron = value.replace(/;$/, '');
+                });
+            });
+
+            // Parse figma-light tokens from all figma-light blocks
+            figmaLightMatches.forEach(match => {
+                const properties = match[1].match(/--[\w-]+\s*:\s*[^;]+/g) || [];
+                properties.forEach(prop => {
+                    const [name, value] = prop.split(':').map(s => s.trim());
+                    const tokenName = name.replace('--', '');
+                    if (!tokenMap.has(tokenName)) {
+                        tokenMap.set(tokenName, {
+                            name: tokenName,
+                            category: categorizeToken(tokenName),
+                            values: {},
+                            usage: []
+                        });
+                    }
+                    tokenMap.get(tokenName).values['figma-light'] = value.replace(/;$/, '');
+                });
+            });
+
+            const tokenArray = Array.from(tokenMap.values());
+            
+            console.log('Parsed tokens count:', tokenArray.length);
+            console.log('Sample tokens:', tokenArray.slice(0, 3));
+            
+            // Group by category
+            const categories = {};
+            tokenArray.forEach(token => {
+                if (!categories[token.category]) {
+                    categories[token.category] = [];
+                }
+                categories[token.category].push(token);
+            });
+
+            const result = {
+                tokens: tokenArray,
+                themes: themes,
+                categories: categories
+            };
+            
+            console.log('parseDesignTokens returning:', result);
+            return result;
+        }
+
+        function categorizeToken(tokenName) {
+            if (tokenName.includes('spacing')) return 'spacing';
+            if (tokenName.includes('font-size') || tokenName.includes('font-weight')) return 'typography';
+            if (tokenName.includes('color') || tokenName.includes('bg') || tokenName.includes('text') || tokenName.includes('border')) return 'color';
+            if (tokenName.includes('button-height') || tokenName.includes('icon-size')) return 'sizing';
+            if (tokenName.includes('border-radius')) return 'border';
+            if (tokenName.includes('shadow')) return 'shadow';
+            if (tokenName.includes('transition')) return 'transition';
+            return 'other';
+        }
+
+        // Test the parsing
+        function runTest() {
+            try {
+                console.log('Starting test...');
+                const parsedTokens = parseDesignTokens(mockCSSContent);
+                
+                const output = document.getElementById('test-output');
+                if (parsedTokens && parsedTokens.tokens && parsedTokens.tokens.length > 0) {
+                    output.innerHTML = `
+                        <h2 style="color: green;">✅ Test PASSED</h2>
+                        <p>Successfully parsed ${parsedTokens.tokens.length} tokens</p>
+                        <p>Found ${parsedTokens.themes.length} themes</p>
+                        <p>Categories: ${Object.keys(parsedTokens.categories).join(', ')}</p>
+                        <h3>Sample tokens:</h3>
+                        <pre>${JSON.stringify(parsedTokens.tokens.slice(0, 3), null, 2)}</pre>
+                    `;
+                } else {
+                    output.innerHTML = `
+                        <h2 style="color: red;">❌ Test FAILED</h2>
+                        <p>parsedTokens is null or has no tokens</p>
+                        <p>Result: ${JSON.stringify(parsedTokens)}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Test failed:', error);
+                document.getElementById('test-output').innerHTML = `
+                    <h2 style="color: red;">❌ Test FAILED</h2>
+                    <p>Error: ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+
+        // Run test when page loads
+        document.addEventListener('DOMContentLoaded', runTest);
+    </script>
+</body>
+</html>

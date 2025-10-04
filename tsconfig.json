@@ -22,9 +22,12 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ],
   "types": [
-    "@figma/plugin-typings"
+    "@figma/plugin-typings",
+    "vitest/globals"
   ]
 }

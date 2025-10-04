@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     environment: 'jsdom',
+    globals: true,
     setupFiles: ['src/test/setup.ts'],
     // Exclude problematic test files for now
     exclude: [

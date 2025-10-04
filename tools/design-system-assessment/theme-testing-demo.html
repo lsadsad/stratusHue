@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Testing Interface Demo</title>
+    <style>
+        /* Base demo styles */
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            transition: background-color 200ms ease-out;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .demo-header {
+            padding: 20px;
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+        }
+
+        .demo-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+
+        .demo-header p {
+            margin: 0;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .demo-content {
+            padding: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        /* Theme-specific styles */
+        [data-theme="boilerplate"] {
+            --theme-bg-primary: #0f0f0f;
+            --theme-bg-secondary: #1a1a1a;
+            --theme-bg-elevated: #2a2a2a;
+            --theme-text-primary: #ffffff;
+            --theme-text-secondary: #cccccc;
+            --theme-text-muted: #999999;
+            --theme-border-primary: #333333;
+            --theme-border-secondary: #444444;
+            --theme-info: #007acc;
+            --theme-success: #28a745;
+            --theme-warning: #ffc107;
+            --theme-error: #dc3545;
+            --theme-interactive-hover: #333333;
+        }
+
+        [data-theme="cybertron"] {
+            --theme-bg-primary: #0a0a0f;
+            --theme-bg-secondary: #141420;
+            --theme-bg-elevated: #1e1e2e;
+            --theme-text-primary: #00ffff;
+            --theme-text-secondary: #00ccff;
+            --theme-text-muted: #0099cc;
+            --theme-border-primary: #00ccff;
+            --theme-border-secondary: #0099cc;
+            --theme-info: #00ffff;
+            --theme-success: #00ff00;
+            --theme-warning: #ffff00;
+            --theme-error: #ff0066;
+            --theme-interactive-hover: #1e1e2e;
+        }
+
+        [data-theme="figma-light"] {
+            --theme-bg-primary: #ffffff;
+            --theme-bg-secondary: #f8f9fa;
+            --theme-bg-elevated: #ffffff;
+            --theme-text-primary: #333333;
+            --theme-text-secondary: #666666;
+            --theme-text-muted: #999999;
+            --theme-border-primary: #e1e5e9;
+            --theme-border-secondary: #f0f0f0;
+            --theme-info: #007acc;
+            --theme-success: #28a745;
+            --theme-warning: #ffc107;
+            --theme-error: #dc3545;
+            --theme-interactive-hover: #e9ecef;
+        }
+
+        /* Apply theme colors to demo container */
+        [data-theme] .demo-container {
+            background: var(--theme-bg-primary);
+            color: var(--theme-text-primary);
+        }
+
+        [data-theme] .demo-content {
+            background: var(--theme-bg-primary);
+        }
+    </style>
+</head>
+<body data-theme="boilerplate">
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>Theme Testing Interface Demo</h1>
+            <p>Interactive theme switching and validation system for design tokens</p>
+        </div>
+        <div class="demo-content">
+            <div id="theme-testing-container">
+                <div class="loading">Loading theme testing interface...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Mock data for demonstration
+        const mockThemes = [
+            {
+                name: 'boilerplate',
+                displayName: 'Boilerplate (Dark)',
+                description: 'Pure dark theme without Figma integration'
+            },
+            {
+                name: 'cybertron',
+                displayName: 'Cybertron (Neon)',
+                description: 'Futuristic dark theme inspired by Transformers'
+            },
+            {
+                name: 'figma-light',
+                displayName: 'Figma Light',
+                description: 'Native Figma light theme integration'
+            }
+        ];
+
+        const mockTokens = [
+            {
+                name: 'theme-bg-primary',
+                category: 'color',
+                values: {
+                    'boilerplate': '#0f0f0f',
+                    'cybertron': '#0a0a0f',
+                    'figma-light': '#ffffff'
+                }
+            },
+            {
+                name: 'theme-text-primary',
+                category: 'color',
+                values: {
+                    'boilerplate': '#ffffff',
+                    'cybertron': '#00ffff',
+                    'figma-light': '#333333'
+                }
+            },
+            {
+                name: 'spacing-md',
+                category: 'spacing',
+                values: {
+                    'boilerplate': '6px',
+                    'cybertron': '6px',
+                    'figma-light': '6px'
+                }
+            },
+            {
+                name: 'border-radius-sm',
+                category: 'border',
+                values: {
+                    'boilerplate': '3px',
+                    'cybertron': '3px',
+                    'figma-light': '3px'
+                }
+            },
+            {
+                name: 'font-size-md',
+                category: 'typography',
+                values: {
+                    'boilerplate': '12px',
+                    'cybertron': '12px'
+                    // Missing figma-light value to demonstrate validation
+                }
+            }
+        ];
+
+        const mockComponents = [
+            {
+                name: 'Primary Button',
+                category: 'buttons',
+                description: 'Main action button',
+                baseClass: 'btn-primary',
+                states: [
+                    {
+                        name: 'default',
+                        label: 'Default',
+                        content: 'Click me'
+                    }
+                ],
+                template: (state) => `<button style="
+                    padding: var(--spacing-md, 6px) 12px;
+                    background: var(--theme-info, #007acc);
+                    color: white;
+                    border: none;
+                    border-radius: var(--border-radius-sm, 3px);
+                    font-size: var(--font-size-md, 12px);
+                    cursor: pointer;
+                ">${state.content}</button>`
+            },
+            {
+                name: 'Text Input',
+                category: 'inputs',
+                description: 'Basic text input field',
+                baseClass: 'input-text',
+                states: [
+                    {
+                        name: 'default',
+                        label: 'Default',
+                        content: ''
+                    }
+                ],
+                template: (state) => `<input type="text" placeholder="Enter text..." style="
+                    padding: var(--spacing-md, 6px);
+                    background: var(--theme-bg-primary, #ffffff);
+                    color: var(--theme-text-primary, #333333);
+                    border: 1px solid var(--theme-border-primary, #e1e5e9);
+                    border-radius: var(--border-radius-sm, 3px);
+                    font-size: var(--font-size-md, 12px);
+                    width: 150px;
+                ">`
+            },
+            {
+                name: 'Card Container',
+                category: 'containers',
+                description: 'Basic card layout',
+                baseClass: 'card',
+                states: [
+                    {
+                        name: 'default',
+                        label: 'Default',
+                        content: 'Card content'
+                    }
+                ],
+                template: (state) => `<div style="
+                    padding: 12px;
+                    background: var(--theme-bg-elevated, #ffffff);
+                    border: 1px solid var(--theme-border-secondary, #f0f0f0);
+                    border-radius: var(--border-radius-sm, 3px);
+                    color: var(--theme-text-primary, #333333);
+                    font-size: var(--font-size-md, 12px);
+                ">${state.content}</div>`
+            }
+        ];
+
+        // Simulate loading the theme testing interface
+        setTimeout(() => {
+            try {
+                const container = document.getElementById('theme-testing-container');
+                
+                // Create a mock theme testing interface
+                container.innerHTML = `
+                    <div class="theme-testing-interface">
+                        <div class="theme-testing__header">
+                            <h2 class="theme-testing__title">Theme Testing Interface</h2>
+                            <p class="theme-testing__subtitle">Test theme switching, validate token resolution, and identify errors</p>
+                        </div>
+                        
+                        <div class="theme-testing__controls">
+                            <div class="theme-testing__control-group">
+                                <label class="theme-testing__label" for="demo-theme-select">Current Theme:</label>
+                                <select class="theme-testing__theme-select" id="demo-theme-select">
+                                    <option value="boilerplate">Boilerplate (Dark)</option>
+                                    <option value="cybertron">Cybertron (Neon)</option>
+                                    <option value="figma-light">Figma Light</option>
+                                </select>
+                            </div>
+                            <div class="theme-testing__control-group">
+                                <button class="theme-testing__action-btn theme-testing__action-btn--primary" onclick="validateAllThemes()">Validate All Themes</button>
+                                <button class="theme-testing__action-btn" onclick="clearErrors()">Clear Errors</button>
+                                <button class="theme-testing__action-btn" onclick="testComponents()">Test Components</button>
+                            </div>
+                        </div>
+                        
+                        <div class="theme-testing__validation-panel">
+                            <div class="theme-testing__panel-header">
+                                <h3 class="theme-testing__panel-title">Token Validation Results</h3>
+                                <span class="theme-testing__status-badge theme-testing__status-badge--warning" id="demo-validation-status">1 error, 4 valid</span>
+                            </div>
+                            <div class="theme-testing__validation-list" id="demo-validation-results">
+                                <div class="theme-testing__validation-item theme-testing__validation-item--success">
+                                    <div>
+                                        <span class="theme-testing__token-name">theme-bg-primary</span>
+                                        <span class="theme-testing__token-value">: #0f0f0f</span>
+                                    </div>
+                                    <span style="color: var(--theme-success, #28a745)">✓</span>
+                                </div>
+                                <div class="theme-testing__validation-item theme-testing__validation-item--success">
+                                    <div>
+                                        <span class="theme-testing__token-name">theme-text-primary</span>
+                                        <span class="theme-testing__token-value">: #ffffff</span>
+                                    </div>
+                                    <span style="color: var(--theme-success, #28a745)">✓</span>
+                                </div>
+                                <div class="theme-testing__validation-item theme-testing__validation-item--success">
+                                    <div>
+                                        <span class="theme-testing__token-name">spacing-md</span>
+                                        <span class="theme-testing__token-value">: 6px</span>
+                                    </div>
+                                    <span style="color: var(--theme-success, #28a745)">✓</span>
+                                </div>
+                                <div class="theme-testing__validation-item theme-testing__validation-item--success">
+                                    <div>
+                                        <span class="theme-testing__token-name">border-radius-sm</span>
+                                        <span class="theme-testing__token-value">: 3px</span>
+                                    </div>
+                                    <span style="color: var(--theme-success, #28a745)">✓</span>
+                                </div>
+                                <div class="theme-testing__validation-item theme-testing__validation-item--error">
+                                    <div>
+                                        <span class="theme-testing__token-name">font-size-md</span>
+                                        <span class="theme-testing__token-value"> - Token not defined for theme figma-light</span>
+                                    </div>
+                                    <span style="color: var(--theme-error, #dc3545)">✗</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="theme-testing__error-panel" id="demo-error-panel" style="display: block;">
+                            <div class="theme-testing__panel-header">
+                                <h3 class="theme-testing__panel-title">Error Log</h3>
+                                <span class="theme-testing__status-badge theme-testing__status-badge--error" id="demo-error-count">1 errors</span>
+                            </div>
+                            <div class="theme-testing__error-list" id="demo-error-results">
+                                <div class="theme-testing__error-item">
+                                    <div class="theme-testing__error-message">Token font-size-md not defined for theme figma-light</div>
+                                    <div class="theme-testing__error-details">Theme: figma-light | Type: token-resolution | Severity: medium | Token: font-size-md</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="theme-testing__component-test">
+                            <h3 class="theme-testing__panel-title">Component Theme Testing</h3>
+                            <div class="theme-testing__test-grid" id="demo-component-grid">
+                                <div class="theme-testing__test-component">
+                                    <div class="theme-testing__test-component-name">Primary Button</div>
+                                    <div>
+                                        <button style="
+                                            padding: var(--spacing-md, 6px) 12px;
+                                            background: var(--theme-info, #007acc);
+                                            color: white;
+                                            border: none;
+                                            border-radius: var(--border-radius-sm, 3px);
+                                            font-size: var(--font-size-md, 12px);
+                                            cursor: pointer;
+                                        ">Click me</button>
+                                    </div>
+                                </div>
+                                <div class="theme-testing__test-component">
+                                    <div class="theme-testing__test-component-name">Text Input</div>
+                                    <div>
+                                        <input type="text" placeholder="Enter text..." style="
+                                            padding: var(--spacing-md, 6px);
+                                            background: var(--theme-bg-primary, #ffffff);
+                                            color: var(--theme-text-primary, #333333);
+                                            border: 1px solid var(--theme-border-primary, #e1e5e9);
+                                            border-radius: var(--border-radius-sm, 3px);
+                                            font-size: var(--font-size-md, 12px);
+                                            width: 150px;
+                                        ">
+                                    </div>
+                                </div>
+                                <div class="theme-testing__test-component">
+                                    <div class="theme-testing__test-component-name">Card Container</div>
+                                    <div>
+                                        <div style="
+                                            padding: 12px;
+                                            background: var(--theme-bg-elevated, #ffffff);
+                                            border: 1px solid var(--theme-border-secondary, #f0f0f0);
+                                            border-radius: var(--border-radius-sm, 3px);
+                                            color: var(--theme-text-primary, #333333);
+                                            font-size: var(--font-size-md, 12px);
+                                        ">Card content</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add the theme testing interface styles
+                const style = document.createElement('style');
+                style.textContent = \`
+                    .theme-testing-interface {
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        background: var(--theme-bg-primary, #ffffff);
+                        color: var(--theme-text-primary, #333333);
+                        border-radius: 4px;
+                        overflow: hidden;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+
+                    .theme-testing__header {
+                        padding: 8px;
+                        background: var(--theme-bg-secondary, #f8f9fa);
+                        border-bottom: 1px solid var(--theme-border-primary, #e1e5e9);
+                    }
+
+                    .theme-testing__title {
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: var(--theme-text-primary, #333333);
+                        margin: 0 0 4px 0;
+                    }
+
+                    .theme-testing__subtitle {
+                        font-size: 10px;
+                        color: var(--theme-text-muted, #999999);
+                        margin: 0;
+                    }
+
+                    .theme-testing__controls {
+                        padding: 8px;
+                        background: var(--theme-bg-primary, #ffffff);
+                        border-bottom: 1px solid var(--theme-border-secondary, #f0f0f0);
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 6px;
+                        align-items: center;
+                    }
+
+                    .theme-testing__control-group {
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                    }
+
+                    .theme-testing__label {
+                        font-size: 11px;
+                        font-weight: 500;
+                        color: var(--theme-text-secondary, #666666);
+                    }
+
+                    .theme-testing__theme-select {
+                        padding: 4px 6px;
+                        border: 1px solid var(--theme-border-primary, #e1e5e9);
+                        border-radius: 3px;
+                        background: var(--theme-bg-primary, #ffffff);
+                        color: var(--theme-text-primary, #333333);
+                        font-size: 11px;
+                        cursor: pointer;
+                        min-width: 120px;
+                    }
+
+                    .theme-testing__action-btn {
+                        padding: 4px 6px;
+                        border: 1px solid var(--theme-border-primary, #e1e5e9);
+                        border-radius: 3px;
+                        background: var(--theme-bg-secondary, #f8f9fa);
+                        color: var(--theme-text-primary, #333333);
+                        font-size: 10px;
+                        cursor: pointer;
+                        transition: all 150ms ease-out;
+                    }
+
+                    .theme-testing__action-btn:hover {
+                        background: var(--theme-interactive-hover, #e9ecef);
+                        border-color: var(--theme-info, #007acc);
+                    }
+
+                    .theme-testing__action-btn--primary {
+                        background: var(--theme-info, #007acc);
+                        color: white;
+                        border-color: var(--theme-info, #007acc);
+                    }
+
+                    .theme-testing__validation-panel,
+                    .theme-testing__error-panel {
+                        padding: 8px;
+                        background: var(--theme-bg-elevated, #ffffff);
+                        border: 1px solid var(--theme-border-secondary, #f0f0f0);
+                        border-radius: 3px;
+                        margin: 0 8px;
+                    }
+
+                    .theme-testing__error-panel {
+                        background: #fff8f8;
+                        border-color: #f5c6cb;
+                    }
+
+                    .theme-testing__panel-header {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        margin-bottom: 6px;
+                    }
+
+                    .theme-testing__panel-title {
+                        font-size: 11px;
+                        font-weight: 500;
+                        color: var(--theme-text-primary, #333333);
+                        margin: 0;
+                    }
+
+                    .theme-testing__status-badge {
+                        padding: 2px 4px;
+                        border-radius: 2px;
+                        font-size: 10px;
+                        font-weight: 500;
+                    }
+
+                    .theme-testing__status-badge--success {
+                        background: #d4edda;
+                        color: #155724;
+                    }
+
+                    .theme-testing__status-badge--warning {
+                        background: #fff3cd;
+                        color: #856404;
+                    }
+
+                    .theme-testing__status-badge--error {
+                        background: #f8d7da;
+                        color: #721c24;
+                    }
+
+                    .theme-testing__validation-list,
+                    .theme-testing__error-list {
+                        max-height: 200px;
+                        overflow-y: auto;
+                        border: 1px solid var(--theme-border-secondary, #f0f0f0);
+                        border-radius: 2px;
+                    }
+
+                    .theme-testing__validation-item {
+                        padding: 4px 6px;
+                        border-bottom: 1px solid var(--theme-border-secondary, #f0f0f0);
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        font-size: 10px;
+                    }
+
+                    .theme-testing__validation-item:last-child {
+                        border-bottom: none;
+                    }
+
+                    .theme-testing__validation-item--success {
+                        background: #f8fff9;
+                    }
+
+                    .theme-testing__validation-item--error {
+                        background: #fff8f8;
+                    }
+
+                    .theme-testing__token-name {
+                        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+                        color: var(--theme-text-secondary, #666666);
+                    }
+
+                    .theme-testing__token-value {
+                        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+                        color: var(--theme-text-muted, #999999);
+                        font-size: 10px;
+                    }
+
+                    .theme-testing__error-item {
+                        padding: 4px 0;
+                        border-bottom: 1px solid #fdeaea;
+                        font-size: 10px;
+                    }
+
+                    .theme-testing__error-item:last-child {
+                        border-bottom: none;
+                    }
+
+                    .theme-testing__error-message {
+                        color: #721c24;
+                        font-weight: 500;
+                        margin-bottom: 2px;
+                    }
+
+                    .theme-testing__error-details {
+                        color: #999999;
+                        font-size: 10px;
+                    }
+
+                    .theme-testing__component-test {
+                        padding: 8px;
+                        background: var(--theme-bg-primary, #ffffff);
+                        border-top: 1px solid var(--theme-border-secondary, #f0f0f0);
+                    }
+
+                    .theme-testing__test-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 6px;
+                        margin-top: 6px;
+                    }
+
+                    .theme-testing__test-component {
+                        padding: 6px;
+                        border: 1px solid var(--theme-border-secondary, #f0f0f0);
+                        border-radius: 3px;
+                        background: var(--theme-bg-elevated, #ffffff);
+                        text-align: center;
+                    }
+
+                    .theme-testing__test-component-name {
+                        font-size: 10px;
+                        color: var(--theme-text-secondary, #666666);
+                        margin-bottom: 4px;
+                    }
+
+                    /* Theme transition support */
+                    .theme-testing-interface,
+                    .theme-testing-interface * {
+                        transition: 
+                            background-color 200ms ease-out,
+                            border-color 200ms ease-out,
+                            color 200ms ease-out;
+                    }
+                \`;
+                document.head.appendChild(style);
+
+                // Add theme switching functionality
+                const themeSelect = document.getElementById('demo-theme-select');
+                themeSelect.addEventListener('change', (e) => {
+                    const newTheme = e.target.value;
+                    document.body.setAttribute('data-theme', newTheme);
+                    
+                    // Update validation results based on theme
+                    updateValidationForTheme(newTheme);
+                });
+
+                // Global functions for demo buttons
+                window.validateAllThemes = () => {
+                    alert('Validating all themes... (Demo functionality)');
+                };
+
+                window.clearErrors = () => {
+                    const errorPanel = document.getElementById('demo-error-panel');
+                    errorPanel.style.display = 'none';
+                    alert('Errors cleared! (Demo functionality)');
+                };
+
+                window.testComponents = () => {
+                    alert('Testing components across themes... (Demo functionality)');
+                };
+
+                function updateValidationForTheme(theme) {
+                    const statusElement = document.getElementById('demo-validation-status');
+                    const resultsElement = document.getElementById('demo-validation-results');
+                    const errorPanel = document.getElementById('demo-error-panel');
+                    
+                    if (theme === 'figma-light') {
+                        statusElement.textContent = '1 error, 4 valid';
+                        statusElement.className = 'theme-testing__status-badge theme-testing__status-badge--warning';
+                        errorPanel.style.display = 'block';
+                    } else {
+                        statusElement.textContent = '5 tokens valid';
+                        statusElement.className = 'theme-testing__status-badge theme-testing__status-badge--success';
+                        errorPanel.style.display = 'none';
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error loading theme testing interface:', error);
+                document.getElementById('theme-testing-container').innerHTML = 
+                    '<div class="error">Error loading theme testing interface: ' + error.message + '</div>';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

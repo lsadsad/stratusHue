@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Preview System Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            transition: background-color 200ms ease-out, color 200ms ease-out;
+        }
+
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-header {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .demo-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+
+        .demo-description {
+            color: #666;
+            margin: 0;
+        }
+
+        .demo-controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .demo-button {
+            padding: 8px 16px;
+            border: 1px solid #e1e5e9;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 150ms ease-out;
+        }
+
+        .demo-button:hover {
+            background: #f8f9fa;
+        }
+
+        .demo-button.active {
+            background: #007acc;
+            color: white;
+            border-color: #007acc;
+        }
+
+        #component-preview-container {
+            border: 1px solid #e1e5e9;
+            border-radius: 4px;
+            overflow: hidden;
+            background: white;
+        }
+
+        /* Import Stratus Hue design tokens */
+        :root {
+            /* Spacing System */
+            --spacing-xs: 2px;
+            --spacing-sm: 4px;
+            --spacing-md: 6px;
+            --spacing-lg: 8px;
+            --spacing-xl: 10px;
+            --spacing-xxl: 12px;
+
+            /* Typography */
+            --font-size-xs: 10px;
+            --font-size-sm: 11px;
+            --font-size-md: 12px;
+            --font-size-lg: 14px;
+
+            --font-weight-light: 300;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+
+            /* Component Sizes */
+            --button-height-sm: 16px;
+            --button-height-md: 24px;
+            --button-height-lg: 32px;
+            --icon-size-xs: 6px;
+            --icon-size-sm: 8px;
+            --icon-size-md: 10px;
+            --icon-size-lg: 16px;
+            --icon-size-xl: 18px;
+
+            /* Border Radius */
+            --border-radius-xs: 2px;
+            --border-radius-sm: 3px;
+            --border-radius-md: 4px;
+            --border-radius-lg: 6px;
+            --border-radius-xl: 8px;
+
+            /* Base Theme Colors */
+            --theme-bg-primary: #ffffff;
+            --theme-bg-secondary: #f8f9fa;
+            --theme-bg-elevated: #ffffff;
+            --theme-bg-hover: #f0f0f0;
+            --theme-bg-active: #e9ecef;
+
+            --theme-text-primary: #333333;
+            --theme-text-secondary: #666666;
+            --theme-text-muted: #999999;
+            --theme-text-disabled: #cccccc;
+
+            --theme-border-primary: #e1e5e9;
+            --theme-border-secondary: #f0f0f0;
+
+            --theme-interactive-hover: #f8f9fa;
+            --theme-interactive-active: #e9ecef;
+            --theme-interactive-disabled: #f8f9fa;
+
+            --theme-info: #007acc;
+            --theme-success: #4ade80;
+            --theme-warning: rgba(255, 193, 7, 0.9);
+            --theme-error: #ff6b6b;
+
+            /* Transitions */
+            --transition-fast: 150ms ease-out;
+            --transition-normal: 200ms ease-out;
+            --transition-slow: 300ms ease-out;
+
+            /* Elevation */
+            --elevation-nudge: 1px;
+        }
+
+        /* Cybertron Theme */
+        [data-theme="cybertron"] {
+            --theme-bg-primary: #1a1a1a;
+            --theme-bg-secondary: #2a2a2a;
+            --theme-bg-elevated: #2a2a2a;
+            --theme-bg-hover: #3a3a3a;
+            --theme-bg-active: #4a4a4a;
+
+            --theme-text-primary: #00ff88;
+            --theme-text-secondary: #88ffaa;
+            --theme-text-muted: #66cc77;
+            --theme-text-disabled: #444444;
+
+            --theme-border-primary: #00ff88;
+            --theme-border-secondary: #333333;
+
+            --theme-interactive-hover: #3a3a3a;
+            --theme-interactive-active: #4a4a4a;
+            --theme-interactive-disabled: #2a2a2a;
+        }
+
+        /* Figma Light Theme */
+        [data-theme="figma-light"] {
+            --theme-bg-primary: #ffffff;
+            --theme-bg-secondary: #f0f0f0;
+            --theme-bg-elevated: #ffffff;
+            --theme-bg-hover: #e5e5e5;
+            --theme-bg-active: #d9d9d9;
+
+            --theme-text-primary: #1e1e1e;
+            --theme-text-secondary: #757575;
+            --theme-text-muted: #a8a8a8;
+            --theme-text-disabled: #cccccc;
+
+            --theme-border-primary: #e5e5e5;
+            --theme-border-secondary: #f0f0f0;
+
+            --theme-interactive-hover: #e5e5e5;
+            --theme-interactive-active: #d9d9d9;
+            --theme-interactive-disabled: #f0f0f0;
+        }
+
+        /* Figma Dark Theme */
+        [data-theme="figma-dark"] {
+            --theme-bg-primary: #2c2c2c;
+            --theme-bg-secondary: #3c3c3c;
+            --theme-bg-elevated: #1c1c1c;
+            --theme-bg-hover: rgba(255, 255, 255, 0.08);
+            --theme-bg-active: rgba(24, 160, 251, 0.15);
+
+            --theme-text-primary: #ffffff;
+            --theme-text-secondary: #cccccc;
+            --theme-text-muted: rgba(255, 255, 255, 0.6);
+            --theme-text-disabled: rgba(255, 255, 255, 0.3);
+
+            --theme-border-primary: #4c4c4c;
+            --theme-border-secondary: #5c5c5c;
+
+            --theme-interactive-hover: rgba(255, 255, 255, 0.08);
+            --theme-interactive-active: rgba(24, 160, 251, 0.15);
+            --theme-interactive-disabled: #2c2c2c;
+        }
+
+        /* Component Styles - Base Button */
+        .btn-base {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-md);
+            background: var(--theme-bg-primary);
+            color: var(--theme-text-primary);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: var(--button-height-md);
+        }
+
+        .btn-base:hover {
+            background: var(--theme-interactive-hover);
+            transform: translateY(calc(var(--elevation-nudge) * -1));
+        }
+
+        .btn-base:active {
+            background: var(--theme-interactive-active);
+            transform: translateY(0);
+        }
+
+        .btn-base:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Action Button */
+        .action-btn {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-md);
+            background: var(--theme-bg-secondary);
+            color: var(--theme-text-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: var(--button-height-md);
+            height: var(--button-height-md);
+        }
+
+        .action-btn:hover {
+            background: var(--theme-interactive-hover);
+            transform: translateY(calc(var(--elevation-nudge) * -1));
+        }
+
+        .action-btn:active {
+            background: var(--theme-interactive-active);
+            transform: translateY(0);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn[data-state="loading"]::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--theme-border-primary);
+            border-top: 2px solid var(--theme-text-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: absolute;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Emoji Button */
+        .emoji-button {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-md);
+            background: var(--theme-bg-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: var(--button-height-md);
+            height: var(--button-height-md);
+            font-size: var(--font-size-md);
+        }
+
+        .emoji-button:hover {
+            background: var(--theme-interactive-hover);
+            transform: scale(1.1);
+        }
+
+        .emoji-button:active {
+            background: var(--theme-interactive-active);
+            transform: scale(0.95);
+        }
+
+        .emoji-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .emoji-button[aria-pressed="true"] {
+            background: var(--theme-interactive-active);
+            border-color: var(--theme-info);
+        }
+
+        /* Navigation Button */
+        .nav-button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-md);
+            background: var(--theme-bg-primary);
+            color: var(--theme-text-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: var(--button-height-lg);
+            font-size: var(--font-size-xs);
+            gap: 2px;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: var(--theme-interactive-hover);
+            transform: translateY(calc(var(--elevation-nudge) * -1));
+        }
+
+        .nav-button:active:not(:disabled) {
+            background: var(--theme-interactive-active);
+            transform: translateY(0);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .nav-button-wide {
+            grid-column: span 2;
+            flex-direction: row;
+            gap: var(--spacing-sm);
+        }
+
+        .nav-icon {
+            font-size: var(--icon-size-md);
+            line-height: 1;
+        }
+
+        .nav-label {
+            font-size: var(--font-size-xs);
+            line-height: 1;
+        }
+
+        /* Theme Option */
+        .theme-option {
+            display: block;
+            position: relative;
+            padding: var(--spacing-md);
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-md);
+            background: var(--theme-bg-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .theme-option:hover {
+            background: var(--theme-bg-hover);
+            border-color: var(--theme-info);
+        }
+
+        .theme-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .theme-option input[type="radio"]:checked + .theme-option-content {
+            background: var(--theme-interactive-active);
+            border-color: var(--theme-info);
+        }
+
+        .theme-option-content {
+            display: block;
+        }
+
+        .theme-name {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--theme-text-primary);
+            margin-bottom: 2px;
+        }
+
+        .theme-description {
+            font-size: var(--font-size-xs);
+            color: var(--theme-text-secondary);
+        }
+
+        /* Section Header */
+        .section-header {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            border-radius: var(--border-radius-md);
+            background: var(--theme-bg-secondary);
+            color: var(--theme-text-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            text-align: left;
+        }
+
+        .section-header:hover {
+            background: var(--theme-bg-hover);
+        }
+
+        .section-header .icon-container {
+            position: relative;
+            display: inline-block;
+            width: var(--icon-size-lg);
+            height: var(--icon-size-lg);
+        }
+
+        .section-header .tag-icon {
+            font-size: var(--icon-size-md);
+            transition: opacity var(--transition-fast);
+        }
+
+        .section-header .arrow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: var(--icon-size-lg);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .section-header:hover .arrow {
+            opacity: 1;
+        }
+
+        .section-header:hover .tag-icon {
+            opacity: 0;
+        }
+
+        .section-header[aria-expanded="true"] .arrow::before {
+            content: "−";
+        }
+
+        .section-header[aria-expanded="false"] .arrow::before {
+            content: "+";
+        }
+
+        .header-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .header-subtitle {
+            font-size: var(--font-size-xs);
+            color: var(--theme-text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Bookmark Item */
+        .bookmark-item {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-md);
+            border: 1px solid var(--theme-border-secondary);
+            border-radius: var(--border-radius-md);
+            background: var(--theme-bg-primary);
+            transition: all var(--transition-fast);
+            gap: var(--spacing-md);
+        }
+
+        .bookmark-item:hover {
+            background: var(--theme-bg-hover);
+            border-color: var(--theme-border-primary);
+        }
+
+        .bookmark-content {
+            flex: 1;
+        }
+
+        .bookmark-name {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--theme-text-primary);
+            margin-bottom: 2px;
+        }
+
+        .bookmark-path {
+            font-size: var(--font-size-xs);
+            color: var(--theme-text-secondary);
+        }
+
+        .bookmark-action {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-sm);
+            background: var(--theme-bg-secondary);
+            color: var(--theme-text-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bookmark-action:hover {
+            background: var(--theme-interactive-hover);
+        }
+
+        /* Navigation Grid */
+        .navigation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background: var(--theme-bg-secondary);
+            border-radius: var(--border-radius-md);
+        }
+
+        /* Text Demo */
+        .text-demo {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            color: var(--theme-text-primary);
+        }
+
+        /* Theme transitions for body */
+        body {
+            transition: background-color 200ms ease-out, color 200ms ease-out;
+        }
+
+        [data-theme="cybertron"] body {
+            background: #0a0a0a;
+            color: var(--theme-text-primary);
+        }
+
+        [data-theme="cybertron"] .demo-container {
+            background: var(--theme-bg-primary);
+            border: 1px solid var(--theme-border-primary);
+        }
+
+        [data-theme="figma-light"] body {
+            background: #f5f5f5;
+        }
+
+        [data-theme="figma-light"] .demo-container {
+            background: var(--theme-bg-primary);
+        }
+
+        [data-theme="figma-dark"] body {
+            background: #1c1c1c;
+        }
+
+        [data-theme="figma-dark"] .demo-container {
+            background: var(--theme-bg-primary);
+            border: 1px solid var(--theme-border-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1 class="demo-title">Component Preview System Demo</h1>
+            <p class="demo-description">
+                Interactive demonstration of the component preview system showing all major UI components
+                from the Stratus Hue plugin across different themes with real-time theme switching.
+            </p>
+        </div>
+
+        <div class="demo-controls">
+            <button class="demo-button" onclick="toggleStates()">Toggle States</button>
+            <button class="demo-button" onclick="toggleCode()">Toggle Code</button>
+            <button class="demo-button" onclick="toggleCompact()">Toggle Compact</button>
+            <button class="demo-button" onclick="refreshPreview()">Refresh</button>
+        </div>
+
+        <div id="component-preview-container"></div>
+    </div>
+
+    <script type="module">
+        // Mock component definitions for demo
+        const mockComponents = [
+            {
+                name: 'Base Button',
+                category: 'buttons',
+                description: 'Base button component with standard styling',
+                baseClass: 'btn-base',
+                states: [
+                    { name: 'default', label: 'Default', content: 'Button' },
+                    { name: 'hover', label: 'Hover', modifiers: ['hover'], content: 'Button' },
+                    { name: 'active', label: 'Active', modifiers: ['active'], content: 'Button' },
+                    { name: 'disabled', label: 'Disabled', attributes: { disabled: 'true' }, content: 'Button' }
+                ],
+                template: (state) => {
+                    const modifiers = state.modifiers ? state.modifiers.map(m => `btn-base--${m}`).join(' ') : '';
+                    const attributes = state.attributes ? Object.entries(state.attributes).map(([k, v]) => `${k}="${v}"`).join(' ') : '';
+                    return `<button class="btn-base ${modifiers}" ${attributes}>${state.content}</button>`;
+                }
+            },
+            {
+                name: 'Action Button',
+                category: 'buttons',
+                description: 'Action button for primary interactions',
+                baseClass: 'action-btn',
+                states: [
+                    { name: 'default', label: 'Default', content: '<span class="icon">⚡</span>' },
+                    { name: 'hover', label: 'Hover', modifiers: ['hover'], content: '<span class="icon">⚡</span>' },
+                    { name: 'loading', label: 'Loading', attributes: { 'data-state': 'loading' }, content: '<span class="icon">⚡</span>' },
+                    { name: 'disabled', label: 'Disabled', attributes: { disabled: 'true' }, content: '<span class="icon">⚡</span>' }
+                ],
+                template: (state) => {
+                    const modifiers = state.modifiers ? state.modifiers.map(m => `action-btn--${m}`).join(' ') : '';
+                    const attributes = state.attributes ? Object.entries(state.attributes).map(([k, v]) => `${k}="${v}"`).join(' ') : '';
+                    return `<button class="action-btn ${modifiers}" ${attributes}>${state.content}</button>`;
+                }
+            },
+            {
+                name: 'Emoji Button',
+                category: 'buttons',
+                description: 'Emoji button for color coding',
+                baseClass: 'emoji-button',
+                states: [
+                    { name: 'default', label: 'Default', content: '🟥' },
+                    { name: 'hover', label: 'Hover', modifiers: ['hover'], content: '🟧' },
+                    { name: 'selected', label: 'Selected', attributes: { 'aria-pressed': 'true' }, content: '🟩' },
+                    { name: 'disabled', label: 'Disabled', attributes: { disabled: 'true' }, content: '⬜' }
+                ],
+                template: (state) => {
+                    const modifiers = state.modifiers ? state.modifiers.map(m => `emoji-button--${m}`).join(' ') : '';
+                    const attributes = state.attributes ? Object.entries(state.attributes).map(([k, v]) => `${k}="${v}"`).join(' ') : '';
+                    return `<button class="emoji-button ${modifiers}" ${attributes}>${state.content}</button>`;
+                }
+            },
+            {
+                name: 'Navigation Button',
+                category: 'buttons',
+                description: 'Navigation button for layer traversal',
+                baseClass: 'nav-button',
+                states: [
+                    { name: 'default', label: 'Default', content: '<span class="nav-icon">↑</span><span class="nav-label">Up</span>' },
+                    { name: 'hover', label: 'Hover', modifiers: ['hover'], content: '<span class="nav-icon">↓</span><span class="nav-label">Down</span>' },
+                    { name: 'disabled', label: 'Disabled', attributes: { disabled: 'true' }, content: '<span class="nav-icon">←</span><span class="nav-label">Exit</span>' },
+                    { name: 'wide', label: 'Wide (Enter)', modifiers: ['wide'], content: '<span class="nav-icon">⏎</span><span class="nav-label">Enter Selection</span>' }
+                ],
+                template: (state) => {
+                    const modifiers = state.modifiers ? state.modifiers.map(m => `nav-button-${m}`).join(' ') : '';
+                    const attributes = state.attributes ? Object.entries(state.attributes).map(([k, v]) => `${k}="${v}"`).join(' ') : '';
+                    return `<button class="nav-button ${modifiers}" ${attributes}>${state.content}</button>`;
+                }
+            },
+            {
+                name: 'Theme Option',
+                category: 'inputs',
+                description: 'Radio button theme selection option',
+                baseClass: 'theme-option',
+                states: [
+                    { 
+                        name: 'default', 
+                        label: 'Default', 
+                        content: `<input type="radio" name="theme" value="boilerplate" id="theme-boilerplate"><div class="theme-option-content"><div class="theme-name">Boilerplate</div><div class="theme-description">Pure dark theme</div></div>` 
+                    },
+                    { 
+                        name: 'checked', 
+                        label: 'Selected', 
+                        content: `<input type="radio" name="theme" value="cybertron" id="theme-cybertron" checked><div class="theme-option-content"><div class="theme-name">Cybertron</div><div class="theme-description">Futuristic neon theme</div></div>` 
+                    }
+                ],
+                template: (state) => {
+                    const modifiers = state.modifiers ? state.modifiers.map(m => `theme-option--${m}`).join(' ') : '';
+                    return `<label class="theme-option ${modifiers}">${state.content}</label>`;
+                }
+            },
+            {
+                name: 'Section Header',
+                category: 'containers',
+                description: 'Collapsible section header with icon',
+                baseClass: 'section-header',
+                states: [
+                    { 
+                        name: 'collapsed', 
+                        label: 'Collapsed', 
+                        attributes: { 'aria-expanded': 'false' },
+                        content: `<div class="header-left"><div class="icon-container"><span class="tag-icon">🏷️</span><span class="arrow"></span></div><div class="header-title">Tags</div></div>` 
+                    },
+                    { 
+                        name: 'expanded', 
+                        label: 'Expanded', 
+                        attributes: { 'aria-expanded': 'true' },
+                        content: `<div class="header-left"><div class="icon-container"><span class="tag-icon">🏷️</span><span class="arrow"></span></div><div class="header-title">Tags</div></div>` 
+                    }
+                ],
+                template: (state) => {
+                    const modifiers = state.modifiers ? state.modifiers.map(m => `section-header--${m}`).join(' ') : '';
+                    const attributes = state.attributes ? Object.entries(state.attributes).map(([k, v]) => `${k}="${v}"`).join(' ') : '';
+                    return `<button class="section-header ${modifiers}" ${attributes}>${state.content}</button>`;
+                }
+            },
+            {
+                name: 'Text Sizes',
+                category: 'typography',
+                description: 'Typography scale demonstration',
+                baseClass: 'text-demo',
+                states: [
+                    {
+                        name: 'sizes',
+                        label: 'Font Sizes',
+                        content: `<div style="font-size: var(--font-size-xs);">Extra Small (10px)</div><div style="font-size: var(--font-size-sm);">Small (11px)</div><div style="font-size: var(--font-size-md);">Medium (12px)</div><div style="font-size: var(--font-size-lg);">Large (14px)</div>`
+                    },
+                    {
+                        name: 'weights',
+                        label: 'Font Weights',
+                        content: `<div style="font-weight: var(--font-weight-light);">Light (300)</div><div style="font-weight: var(--font-weight-normal);">Normal (400)</div><div style="font-weight: var(--font-weight-medium);">Medium (500)</div><div style="font-weight: var(--font-weight-semibold);">Semibold (600)</div><div style="font-weight: var(--font-weight-bold);">Bold (700)</div>`
+                    }
+                ],
+                template: (state) => {
+                    return `<div class="text-demo">${state.content}</div>`;
+                }
+            }
+        ];
+
+        const mockThemes = [
+            { name: 'boilerplate', selector: ':root', displayName: 'Base/Boilerplate' },
+            { name: 'cybertron', selector: '[data-theme="cybertron"]', displayName: 'Cybertron' },
+            { name: 'figma-light', selector: '[data-theme="figma-light"]', displayName: 'Figma Light' },
+            { name: 'figma-dark', selector: '[data-theme="figma-dark"]', displayName: 'Figma Dark' }
+        ];
+
+        let componentPreview;
+        let showStates = true;
+        let showCode = false;
+        let compactMode = false;
+
+        // Simplified ComponentPreview implementation for demo
+        function createComponentPreview(container, components, themes, options = {}) {
+            const preview = {
+                currentTheme: themes[0]?.name || 'boilerplate',
+                options: options,
+                
+                render() {
+                    container.innerHTML = '';
+                    container.className = 'component-preview';
+                    
+                    // Create theme switcher
+                    const switcher = document.createElement('div');
+                    switcher.className = 'component-preview__theme-switcher';
+                    
+                    const label = document.createElement('label');
+                    label.className = 'component-preview__theme-label';
+                    label.textContent = 'Theme:';
+                    label.htmlFor = 'theme-select';
+                    
+                    const select = document.createElement('select');
+                    select.className = 'component-preview__theme-select';
+                    select.id = 'theme-select';
+                    
+                    themes.forEach(theme => {
+                        const option = document.createElement('option');
+                        option.value = theme.name;
+                        option.textContent = theme.displayName;
+                        option.selected = theme.name === this.currentTheme;
+                        select.appendChild(option);
+                    });
+                    
+                    select.addEventListener('change', (e) => {
+                        this.switchTheme(e.target.value);
+                    });
+                    
+                    switcher.appendChild(label);
+                    switcher.appendChild(select);
+                    container.appendChild(switcher);
+                    
+                    // Create component grid
+                    const grid = document.createElement('div');
+                    grid.className = 'component-preview__grid';
+                    if (this.options.compactMode) {
+                        grid.classList.add('component-preview--compact');
+                    }
+                    
+                    // Group by category
+                    const categories = this.groupByCategory(components);
+                    
+                    Object.entries(categories).forEach(([categoryName, categoryComponents]) => {
+                        if (categoryComponents.length === 0) return;
+                        
+                        // Category header
+                        const categorySection = document.createElement('div');
+                        categorySection.className = 'component-preview__category';
+                        
+                        const categoryHeader = document.createElement('h3');
+                        categoryHeader.className = 'component-preview__category-header';
+                        categoryHeader.textContent = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
+                        categorySection.appendChild(categoryHeader);
+                        
+                        grid.appendChild(categorySection);
+                        
+                        // Component cards
+                        categoryComponents.forEach(component => {
+                            const card = this.createComponentCard(component);
+                            grid.appendChild(card);
+                        });
+                    });
+                    
+                    container.appendChild(grid);
+                },
+                
+                groupByCategory(components) {
+                    const categories = {
+                        buttons: [],
+                        inputs: [],
+                        containers: [],
+                        navigation: [],
+                        typography: [],
+                        other: []
+                    };
+
+                    components.forEach(component => {
+                        if (categories[component.category]) {
+                            categories[component.category].push(component);
+                        } else {
+                            categories.other.push(component);
+                        }
+                    });
+
+                    return categories;
+                },
+                
+                createComponentCard(component) {
+                    const card = document.createElement('div');
+                    card.className = 'component-preview__component';
+                    
+                    // Header
+                    const header = document.createElement('div');
+                    header.className = 'component-preview__component-header';
+                    
+                    const name = document.createElement('h4');
+                    name.className = 'component-preview__component-name';
+                    name.textContent = component.name;
+                    
+                    const description = document.createElement('p');
+                    description.className = 'component-preview__component-description';
+                    description.textContent = component.description;
+                    
+                    header.appendChild(name);
+                    header.appendChild(description);
+                    card.appendChild(header);
+                    
+                    // Body
+                    const body = document.createElement('div');
+                    body.className = 'component-preview__component-body';
+                    
+                    const states = document.createElement('div');
+                    states.className = 'component-preview__states';
+                    
+                    component.states.forEach(state => {
+                        const stateElement = document.createElement('div');
+                        stateElement.className = 'component-preview__state';
+                        
+                        if (this.options.showStates !== false) {
+                            const label = document.createElement('div');
+                            label.className = 'component-preview__state-label';
+                            label.textContent = state.label;
+                            stateElement.appendChild(label);
+                        }
+                        
+                        const demo = document.createElement('div');
+                        demo.className = 'component-preview__state-demo';
+                        
+                        const componentHTML = component.template(state);
+                        demo.innerHTML = componentHTML;
+                        
+                        stateElement.appendChild(demo);
+                        
+                        if (this.options.showCode) {
+                            const code = document.createElement('div');
+                            code.className = 'component-preview__code';
+                            code.textContent = componentHTML;
+                            stateElement.appendChild(code);
+                        }
+                        
+                        states.appendChild(stateElement);
+                    });
+                    
+                    body.appendChild(states);
+                    card.appendChild(body);
+                    
+                    return card;
+                },
+                
+                switchTheme(themeName) {
+                    this.currentTheme = themeName;
+                    document.body.setAttribute('data-theme', themeName);
+                    
+                    const select = container.querySelector('.component-preview__theme-select');
+                    if (select) {
+                        select.value = themeName;
+                    }
+                    
+                    if (this.options.onThemeChange) {
+                        this.options.onThemeChange(themeName);
+                    }
+                },
+                
+                updateOptions(newOptions) {
+                    this.options = { ...this.options, ...newOptions };
+                    this.render();
+                }
+            };
+            
+            preview.render();
+            return preview;
+        }
+
+        // Initialize the component preview
+        function initializePreview() {
+            const container = document.getElementById('component-preview-container');
+            
+            componentPreview = createComponentPreview(container, mockComponents, mockThemes, {
+                showStates: showStates,
+                showCode: showCode,
+                compactMode: compactMode,
+                onThemeChange: (theme) => {
+                    console.log('Theme changed to:', theme);
+                }
+            });
+        }
+
+        // Control functions
+        window.toggleStates = function() {
+            showStates = !showStates;
+            const button = event.target;
+            button.classList.toggle('active', showStates);
+            if (componentPreview) {
+                componentPreview.updateOptions({ showStates });
+            }
+        };
+
+        window.toggleCode = function() {
+            showCode = !showCode;
+            const button = event.target;
+            button.classList.toggle('active', showCode);
+            if (componentPreview) {
+                componentPreview.updateOptions({ showCode });
+            }
+        };
+
+        window.toggleCompact = function() {
+            compactMode = !compactMode;
+            const button = event.target;
+            button.classList.toggle('active', compactMode);
+            if (componentPreview) {
+                componentPreview.updateOptions({ compactMode });
+            }
+        };
+
+        window.refreshPreview = function() {
+            initializePreview();
+        };
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializePreview);
+    </script>
+</body>
+</html>
