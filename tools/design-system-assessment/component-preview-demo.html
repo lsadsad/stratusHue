@@ -562,6 +562,108 @@
             color: var(--theme-text-primary);
         }
 
+        /* Component Preview Tables */
+        .component-preview__tables {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .component-preview__category-header {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: var(--font-size-lg);
+            color: var(--theme-text-primary);
+        }
+
+        .component-preview__table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--theme-bg-primary);
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+        }
+
+        .component-preview__table thead th {
+            background: var(--theme-bg-secondary);
+            color: var(--theme-text-primary);
+            text-align: left;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--theme-border-primary);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .component-preview__table th,
+        .component-preview__table td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--theme-border-secondary);
+            vertical-align: top;
+            color: var(--theme-text-primary);
+            font-size: var(--font-size-sm);
+        }
+
+        .component-preview__table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .component-preview__cell-demo {
+            background: var(--theme-bg-elevated);
+            border: 1px solid var(--theme-border-secondary);
+            border-radius: var(--border-radius-sm);
+            display: inline-block;
+            padding: var(--spacing-sm);
+        }
+
+        .component-preview__cell-code {
+            background: var(--theme-bg-elevated);
+            border: 1px dashed var(--theme-border-secondary);
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-sm);
+            color: var(--theme-text-secondary);
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: var(--font-size-xs);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .component-preview--compact .component-preview__table th,
+        .component-preview--compact .component-preview__table td {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: var(--font-size-xs);
+        }
+
+        /* Category collapse bar */
+        .component-preview__category-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            background: var(--theme-bg-secondary);
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+        }
+
+        .component-preview__category-title {
+            margin: 0;
+            font-size: var(--font-size-lg);
+            color: var(--theme-text-primary);
+        }
+
+        .component-preview__category-toggle {
+            border: 1px solid var(--theme-border-primary);
+            background: var(--theme-bg-primary);
+            color: var(--theme-text-primary);
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+        }
+
         /* Theme transitions for body */
         body {
             transition: background-color 200ms ease-out, color 200ms ease-out;
@@ -593,6 +695,147 @@
             background: var(--theme-bg-primary);
             border: 1px solid var(--theme-border-primary);
         }
+
+        /* Demo two-column layout */
+        .demo-main {
+            display: grid;
+            grid-template-columns: 1fr max-content;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .demo-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .demo-column--preview #component-preview-container {
+            min-height: 300px;
+        }
+
+        /* Plugin mock panel */
+        .plugin-mock-container {
+            border: 1px solid var(--theme-border-primary);
+            border-radius: 4px;
+            background: var(--theme-bg-primary);
+            overflow: hidden;
+            width: 188px;
+            box-sizing: border-box;
+        }
+
+        .plugin-mock__header {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: var(--theme-bg-secondary);
+            border-bottom: 1px solid var(--theme-border-primary);
+        }
+
+        .plugin-mock__title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            margin: 0;
+            color: var(--theme-text-primary);
+        }
+
+        .plugin-mock__subtitle {
+            font-size: var(--font-size-xs);
+            color: var(--theme-text-secondary);
+            margin-top: 2px;
+        }
+
+        .plugin-mock__content {
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+            background: var(--theme-bg-primary);
+        }
+
+        .plugin-mock__toolbar {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+            padding: var(--spacing-sm);
+            background: var(--theme-bg-secondary);
+            border: 1px solid var(--theme-border-secondary);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .plugin-mock__toolbar .spacer {
+            flex: 1;
+        }
+
+        .plugin-mock__section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .plugin-mock__status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--theme-bg-secondary);
+            border: 1px solid var(--theme-border-secondary);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .plugin-mock__color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(24px, 1fr));
+            gap: var(--spacing-sm);
+        }
+
+        /* Settings mock */
+        .plugin-settings__panel {
+            border: 1px solid var(--theme-border-primary);
+            border-radius: var(--border-radius-md);
+            background: var(--theme-bg-elevated);
+            overflow: hidden;
+            display: none;
+        }
+
+        .plugin-settings__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            background: var(--theme-bg-secondary);
+            border-bottom: 1px solid var(--theme-border-primary);
+        }
+
+        .plugin-settings__title {
+            margin: 0;
+            font-size: var(--font-size-lg);
+            color: var(--theme-text-primary);
+        }
+
+        .plugin-settings__content {
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .plugin-settings__group-title {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: var(--font-size-sm);
+            color: var(--theme-text-secondary);
+        }
+
+        .plugin-settings__theme-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-sm);
+        }
+
+        /* Responsive collapse to single column */
+        @media (max-width: 960px) {
+            .demo-main {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -612,7 +855,101 @@
             <button class="demo-button" onclick="refreshPreview()">Refresh</button>
         </div>
 
-        <div id="component-preview-container"></div>
+        <div class="demo-main">
+            <div class="demo-column demo-column--preview">
+                <div id="component-preview-container"></div>
+            </div>
+            <div class="demo-column demo-column--plugin">
+                <div class="plugin-mock-container" role="region" aria-label="Plugin mock panel">
+                    <div class="plugin-mock__header">
+                        <h2 class="plugin-mock__title">Stratus Hue Plugin</h2>
+                        <p class="plugin-mock__subtitle">Theme-linked mock panel</p>
+                    </div>
+                    <div class="plugin-mock__content">
+                        <div class="plugin-mock__toolbar" role="toolbar" aria-label="Quick actions">
+                            <button class="action-btn" aria-label="Back" disabled>↩</button>
+                            <button class="action-btn" aria-label="Forward" disabled>↪</button>
+                            <div class="spacer"></div>
+                            <button class="action-btn" aria-label="Settings" id="plugin-settings-toggle"><span class="icon">≡</span></button>
+                        </div>
+
+                        <button class="section-header" aria-expanded="true">
+                            <div class="icon-container">
+                                <span class="tag-icon">🏷️</span><span class="arrow"></span>
+                            </div>
+                            <div class="header-title">Tags</div>
+                        </button>
+                        <div class="plugin-mock__section">
+                            <div class="plugin-mock__status-bar">
+                                <div class="emoji-set-title"><span class="set-name">Colors</span></div>
+                                <div class="emoji-nav">
+                                    <button class="action-btn" aria-label="Previous">←</button>
+                                    <button class="action-btn" aria-label="Next">→</button>
+                                </div>
+                            </div>
+                            <div class="plugin-mock__color-grid" role="group" aria-label="Color tags">
+                                <button class="emoji-button">🟥</button>
+                                <button class="emoji-button">🟧</button>
+                                <button class="emoji-button" aria-pressed="true">🟩</button>
+                                <button class="emoji-button">🟦</button>
+                                <button class="emoji-button">🟪</button>
+                            </div>
+                        </div>
+
+                        <button class="section-header" aria-expanded="true">
+                            <div class="icon-container">
+                                <span class="tag-icon">🧭</span><span class="arrow"></span>
+                            </div>
+                            <div class="header-title">Navigation</div>
+                        </button>
+                        <div class="plugin-mock__section">
+                            <div class="navigation-grid">
+                                <button class="nav-button" disabled><span class="nav-icon">↑</span><span class="nav-label">Exit</span></button>
+                                <button class="nav-button" disabled><span class="nav-icon">↑</span><span class="nav-label">Up</span></button>
+                                <button class="nav-button" disabled><span class="nav-icon">⌄</span><span class="nav-label">Collapse</span></button>
+                                <button class="nav-button" disabled><span class="nav-icon">↓</span><span class="nav-label">Down</span></button>
+                                <button class="nav-button nav-button-wide" disabled><span class="nav-icon">⏎</span><span class="nav-label">Enter</span></button>
+                            </div>
+                        </div>
+
+                        <button class="section-header" aria-expanded="true">
+                            <div class="icon-container">
+                                <span class="tag-icon">⚓️</span><span class="arrow"></span>
+                            </div>
+                            <div class="header-title">Anchors</div>
+                        </button>
+                        <div class="plugin-mock__section">
+                            <div class="bookmark-item">
+                                <div class="bookmark-content">
+                                    <div class="bookmark-name">Home</div>
+                                    <div class="bookmark-path">Page 1</div>
+                                </div>
+                                <button class="bookmark-action" aria-label="Jump">⤴</button>
+                            </div>
+                        </div>
+
+                        <div class="plugin-settings__panel" id="plugin-settings-panel" role="dialog" aria-modal="false" aria-hidden="true">
+                            <div class="plugin-settings__header">
+                                <h3 class="plugin-settings__title">Settings</h3>
+                                <button class="action-btn" aria-label="Close settings" id="plugin-settings-close">✕</button>
+                            </div>
+                            <div class="plugin-settings__content">
+                                <div>
+                                    <div class="plugin-settings__group-title">Theme</div>
+                                    <div class="plugin-settings__theme-group" role="radiogroup" aria-label="Theme selection">
+                                        <label class="theme-option"><input type="radio" name="demo-theme" value="system"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">🔄</span><span class="theme-name">System</span></span></label>
+                                        <label class="theme-option"><input type="radio" name="demo-theme" value="figma-light"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-name">Light</span></span></label>
+                                        <label class="theme-option"><input type="radio" name="demo-theme" value="figma-dark"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-name">Dark</span></span></label>
+                                        <label class="theme-option"><input type="radio" name="demo-theme" value="boilerplate"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">⚫</span><span class="theme-name">Boilerplate</span></span></label>
+                                        <label class="theme-option"><input type="radio" name="demo-theme" value="cybertron"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">🤖</span><span class="theme-name">Cybertron</span></span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -767,6 +1104,7 @@
         let showStates = true;
         let showCode = false;
         let compactMode = false;
+        const collapsedCategories = new Set();
 
         // Simplified ComponentPreview implementation for demo
         function createComponentPreview(container, components, themes, options = {}) {
@@ -807,38 +1145,51 @@
                     switcher.appendChild(select);
                     container.appendChild(switcher);
                     
-                    // Create component grid
-                    const grid = document.createElement('div');
-                    grid.className = 'component-preview__grid';
+                    // Create tables container
+                    const tables = document.createElement('div');
+                    tables.className = 'component-preview__tables';
                     if (this.options.compactMode) {
-                        grid.classList.add('component-preview--compact');
+                        tables.classList.add('component-preview--compact');
                     }
-                    
-                    // Group by category
+
+                    // Group by category and render tables
                     const categories = this.groupByCategory(components);
-                    
                     Object.entries(categories).forEach(([categoryName, categoryComponents]) => {
                         if (categoryComponents.length === 0) return;
-                        
-                        // Category header
-                        const categorySection = document.createElement('div');
-                        categorySection.className = 'component-preview__category';
-                        
-                        const categoryHeader = document.createElement('h3');
-                        categoryHeader.className = 'component-preview__category-header';
-                        categoryHeader.textContent = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
-                        categorySection.appendChild(categoryHeader);
-                        
-                        grid.appendChild(categorySection);
-                        
-                        // Component cards
-                        categoryComponents.forEach(component => {
-                            const card = this.createComponentCard(component);
-                            grid.appendChild(card);
+
+                        const categoryWrapper = document.createElement('div');
+                        categoryWrapper.className = 'component-preview__category';
+
+                        const bar = document.createElement('div');
+                        bar.className = 'component-preview__category-bar';
+                        const categoryTitle = document.createElement('h3');
+                        categoryTitle.className = 'component-preview__category-title';
+                        categoryTitle.textContent = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
+                        const toggleBtn = document.createElement('button');
+                        toggleBtn.className = 'component-preview__category-toggle';
+                        const isCollapsed = collapsedCategories.has(categoryName);
+                        toggleBtn.textContent = isCollapsed ? 'Expand' : 'Collapse';
+                        toggleBtn.addEventListener('click', () => {
+                            if (collapsedCategories.has(categoryName)) {
+                                collapsedCategories.delete(categoryName);
+                            } else {
+                                collapsedCategories.add(categoryName);
+                            }
+                            this.render();
                         });
+                        bar.appendChild(categoryTitle);
+                        bar.appendChild(toggleBtn);
+                        categoryWrapper.appendChild(bar);
+
+                        if (!isCollapsed) {
+                            const table = this.createCategoryTable(categoryComponents);
+                            categoryWrapper.appendChild(table);
+                        }
+
+                        tables.appendChild(categoryWrapper);
                     });
-                    
-                    container.appendChild(grid);
+
+                    container.appendChild(tables);
                 },
                 
                 groupByCategory(components) {
@@ -863,65 +1214,78 @@
                 },
                 
                 createComponentCard(component) {
-                    const card = document.createElement('div');
-                    card.className = 'component-preview__component';
-                    
-                    // Header
-                    const header = document.createElement('div');
-                    header.className = 'component-preview__component-header';
-                    
-                    const name = document.createElement('h4');
-                    name.className = 'component-preview__component-name';
-                    name.textContent = component.name;
-                    
-                    const description = document.createElement('p');
-                    description.className = 'component-preview__component-description';
-                    description.textContent = component.description;
-                    
-                    header.appendChild(name);
-                    header.appendChild(description);
-                    card.appendChild(header);
-                    
-                    // Body
-                    const body = document.createElement('div');
-                    body.className = 'component-preview__component-body';
-                    
-                    const states = document.createElement('div');
-                    states.className = 'component-preview__states';
-                    
-                    component.states.forEach(state => {
-                        const stateElement = document.createElement('div');
-                        stateElement.className = 'component-preview__state';
-                        
-                        if (this.options.showStates !== false) {
-                            const label = document.createElement('div');
-                            label.className = 'component-preview__state-label';
-                            label.textContent = state.label;
-                            stateElement.appendChild(label);
-                        }
-                        
-                        const demo = document.createElement('div');
-                        demo.className = 'component-preview__state-demo';
-                        
-                        const componentHTML = component.template(state);
-                        demo.innerHTML = componentHTML;
-                        
-                        stateElement.appendChild(demo);
-                        
-                        if (this.options.showCode) {
-                            const code = document.createElement('div');
-                            code.className = 'component-preview__code';
-                            code.textContent = componentHTML;
-                            stateElement.appendChild(code);
-                        }
-                        
-                        states.appendChild(stateElement);
+                    // Unused in table layout, retained for reference
+                    const placeholder = document.createElement('div');
+                    return placeholder;
+                },
+
+                createCategoryTable(categoryComponents) {
+                    const wrapper = document.createElement('div');
+                    const table = document.createElement('table');
+                    table.className = 'component-preview__table';
+
+                    const thead = document.createElement('thead');
+                    const headRow = document.createElement('tr');
+
+                    const thComponent = document.createElement('th');
+                    thComponent.textContent = 'Component';
+                    headRow.appendChild(thComponent);
+
+                    const thState = document.createElement('th');
+                    thState.textContent = 'State';
+                    headRow.appendChild(thState);
+
+                    const thPreview = document.createElement('th');
+                    thPreview.textContent = 'Preview';
+                    headRow.appendChild(thPreview);
+
+                    if (this.options.showCode) {
+                        const thCode = document.createElement('th');
+                        thCode.textContent = 'Code';
+                        headRow.appendChild(thCode);
+                    }
+
+                    thead.appendChild(headRow);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+
+                    categoryComponents.forEach(component => {
+                        component.states.forEach(state => {
+                            const row = document.createElement('tr');
+
+                            const tdComponent = document.createElement('td');
+                            tdComponent.textContent = component.name;
+                            row.appendChild(tdComponent);
+
+                            const tdState = document.createElement('td');
+                            tdState.textContent = this.options.showStates !== false ? state.label : '';
+                            row.appendChild(tdState);
+
+                            const tdPreview = document.createElement('td');
+                            const demo = document.createElement('div');
+                            demo.className = 'component-preview__cell-demo';
+                            const componentHTML = component.template(state);
+                            demo.innerHTML = componentHTML;
+                            tdPreview.appendChild(demo);
+                            row.appendChild(tdPreview);
+
+                            if (this.options.showCode) {
+                                const tdCode = document.createElement('td');
+                                const code = document.createElement('pre');
+                                code.className = 'component-preview__cell-code';
+                                code.textContent = componentHTML;
+                                tdCode.appendChild(code);
+                                row.appendChild(tdCode);
+                            }
+
+                            tbody.appendChild(row);
+                        });
                     });
-                    
-                    body.appendChild(states);
-                    card.appendChild(body);
-                    
-                    return card;
+
+                    table.appendChild(tbody);
+                    wrapper.appendChild(table);
+                    return wrapper;
                 },
                 
                 switchTheme(themeName) {
@@ -995,7 +1359,36 @@
         };
 
         // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', initializePreview);
+        document.addEventListener('DOMContentLoaded', () => {
+            initializePreview();
+            // Settings toggle wiring
+            const panel = document.getElementById('plugin-settings-panel');
+            const toggleBtn = document.getElementById('plugin-settings-toggle');
+            const closeBtn = document.getElementById('plugin-settings-close');
+            function setSettingsVisible(visible) {
+                if (!panel) return;
+                panel.style.display = visible ? 'block' : 'none';
+                panel.setAttribute('aria-hidden', visible ? 'false' : 'true');
+            }
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => setSettingsVisible(panel && panel.style.display !== 'block'));
+            }
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => setSettingsVisible(false));
+            }
+
+            // Theme sync from settings mock
+            const themeRadios = document.querySelectorAll('input[name="demo-theme"]');
+            themeRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const value = e.target.value;
+                    if (!componentPreview) return;
+                    // Map 'system' to boilerplate for demo
+                    const themeName = value === 'system' ? 'boilerplate' : value;
+                    componentPreview.switchTheme(themeName);
+                });
+            });
+        });
     </script>
 </body>
 </html>
