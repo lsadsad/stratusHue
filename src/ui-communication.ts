@@ -3,8 +3,8 @@
 // UI Communication for Stratus Hue Plugin
 // Handles all communication between plugin and UI
 
-import type { Bookmark } from './types';
-import { getBookmarks, currentAnchorState, recentHistoryState, canGoBack, canGoForward, navigationHistory, historyIndex } from './state';
+import type { Bookmark } from './core/types';
+import { getBookmarks, currentAnchorState, recentHistoryState, canGoBack, canGoForward, navigationHistory, historyIndex } from './core/state';
 import { getNavigationState, hasAnySelectionEntry } from './navigation';
 import { getCurrentEmojiSet, getEmojiNavigationState } from './emoji-manager';
 

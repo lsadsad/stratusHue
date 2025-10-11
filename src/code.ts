@@ -14,7 +14,7 @@ import {
   setPreviousSelection,
   getPreviousSelection,
   clearPreviousSelection
-} from './state';
+} from './core/state';
 import {
   addBookmark,
   removeBookmark,
@@ -48,7 +48,7 @@ import {
   withErrorBoundary,
   validateMessage,
   ErrorType
-} from './error-handling';
+} from './core/error-handling';
 
 // ===== PLUGIN INITIALIZATION =====
 figma.showUI(__html__, { width: currentUiWidth, height: lastUiHeight });

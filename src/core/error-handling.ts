@@ -3,7 +3,7 @@
 // Error Handling and Recovery for Stratus Hue Plugin
 // Centralized error handling with recovery strategies
 
-import { sendErrorToUI } from './ui-communication';
+import { sendErrorToUI } from '../ui-communication';
 import { clearBookmarksCache } from './state';
 
 // ===== ERROR TYPES =====

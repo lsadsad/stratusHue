@@ -3,8 +3,8 @@
 // Navigation Management for Stratus Hue Plugin
 // Handles bookmark navigation and history
 
-import type { Bookmark } from './types';
-import { getBookmarks, currentAnchorState, recentHistoryState, setCurrentAnchor, setPreviousBookmark, saveAnchorState, navigationHistory, historyIndex, addToHistory, canGoBack, canGoForward, setHistoryIndex, isNavigatingThroughHistory, setNavigatingThroughHistory } from './state';
+import type { Bookmark } from './core/types';
+import { getBookmarks, currentAnchorState, recentHistoryState, setCurrentAnchor, setPreviousBookmark, saveAnchorState, navigationHistory, historyIndex, addToHistory, canGoBack, canGoForward, setHistoryIndex, isNavigatingThroughHistory, setNavigatingThroughHistory } from './core/state';
 import { getContainingPage } from './utils';
 import { removeBookmark } from './bookmarks';
 
