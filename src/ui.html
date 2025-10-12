@@ -201,30 +201,19 @@
   <div id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="settings-panel" role="document">
       <header class="settings-header">
-        <h2 class="settings-title">Settings</h2>
+        <h2 class="settings-title">SETTINGS</h2>
         <button id="settings-close" class="action-btn" aria-label="Close settings">✕</button>
       </header>
       <div class="settings-content" tabindex="0">
 
-        <!-- Plugin Settings Section -->
+        <!-- Theme Section -->
         <div class="settings-section">
-          <h3 class="settings-section-title">⚙️ Plugin Settings</h3>
-
-          <!-- Navigation Controls Toggle -->
-          <div class="setting-item">
-            <label class="setting-label">
-              <input type="checkbox" id="navigation-controls-toggle" checked>
-              Navigation Controls
-            </label>
-            <div class="setting-description">Show layer navigation controls in the main interface</div>
-          </div>
+          <h3 class="settings-section-title">🎨&nbsp;Appearance</h3>
 
           <!-- Theme Selection -->
           <div class="setting-item">
-            <label class="setting-label" id="theme-selector-label">Theme:</label>
-            <div class="theme-selector" role="radiogroup" aria-labelledby="theme-selector-label"
-              aria-describedby="theme-selector-description">
-              <!-- Primary Theme Options -->
+            <div class="theme-selector" role="radiogroup" aria-describedby="theme-selector-description">
+              <!-- Theme Options -->
               <div class="theme-group primary-themes">
                 <label class="theme-option">
                   <input type="radio" name="theme" value="system" id="theme-system" checked
@@ -254,13 +243,6 @@
                     <span class="theme-description" id="dark-theme-description"></span>
                   </span>
                 </label>
-              </div>
-
-              <!-- Advanced Theme Options -->
-              <div class="theme-group advanced-themes">
-                <div class="theme-group-header">
-                  <span class="theme-group-title">Advanced Themes</span>
-                </div>
                 <label class="theme-option">
                   <input type="radio" name="theme" value="boilerplate" id="theme-boilerplate"
                     aria-describedby="boilerplate-theme-description">
@@ -285,18 +267,27 @@
               Use arrow keys to navigate between theme options. Press Enter or Space to select a theme.
             </div>
           </div>
+        </div>
 
+        <!-- Navigation Controls Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">🧭 Layer Navigation</h3>
 
+          <!-- Navigation Controls Toggle -->
+          <div class="setting-item">
+            <label class="setting-label-small">
+              <input type="checkbox" id="navigation-controls-toggle" checked>
+              <span class="checkbox-description">Allows navigation of the layer hierarchy</span>
+            </label>
+          </div>
         </div>
 
         <!-- Support Section -->
         <div class="settings-section">
-          <h3 class="settings-section-title">💝 Support</h3>
           <div class="support-section">
-            <p class="support-text">Enjoying this plugin? Support its development!</p>
+            <p class="support-text">Enjoying this plugin?<br>Support its development!</p>
             <button id="kofi-btn" class="kofi-button" aria-label="Support on Ko-fi">
-              <span class="kofi-icon">🍦</span>
-              <span class="kofi-text">Buy me an ice cream</span>
+              <span class="action-text">🍦 Buy me an ice cream</span>
             </button>
           </div>
         </div>
@@ -324,8 +315,8 @@
     </ul>
     <div class="footer-branding">
       <span class="made-with">
-        made w/ <img src="./assets/LOGO-L3Vi_dsgn-dark.svg" alt="L3Vi Design" class="logo-svg logo-dark">
-        <img src="./assets/LOGO-L3Vi_dsgn-light.svg" alt="L3Vi Design" class="logo-svg logo-light">
+        <a href="https://levinsadsad.com" target="_blank" rel="noopener noreferrer">made w/ <img src="./assets/LOGO-L3Vi_dsgn-dark.svg" alt="L3Vi Design" class="logo-svg logo-dark">
+        <img src="./assets/LOGO-L3Vi_dsgn-light.svg" alt="L3Vi Design" class="logo-svg logo-light"></a>
       </span>
     </div>
   </footer>

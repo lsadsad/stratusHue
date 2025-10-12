@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -85,6 +86,7 @@
             --spacing-xxl: 12px;
 
             /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
             --font-size-xs: 10px;
             --font-size-sm: 11px;
             --font-size-md: 12px;
@@ -136,6 +138,14 @@
             --theme-success: #4ade80;
             --theme-warning: rgba(255, 193, 7, 0.9);
             --theme-error: #ff6b6b;
+
+            /* Additional theme colors for accuracy */
+            --theme-accent-red: rgba(255, 107, 107, 0.15);
+            --theme-accent-blue: rgba(111, 176, 255, 0.08);
+            --theme-border-translucent: rgba(0, 0, 0, 0.2);
+            --theme-border-soft: rgba(0, 0, 0, 0.24);
+            --letter-spacing-tight: 0.5px;
+            --border-radius-pill: 999px;
 
             /* Transitions */
             --transition-fast: 150ms ease-out;
@@ -242,6 +252,98 @@
             transform: none;
         }
 
+        /* Clear Action & Save Bookmark Buttons (Drop/Remove) */
+        .clear-action,
+        .save-bookmark {
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-family);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0 calc(var(--spacing-lg) * 2);
+            font-size: var(--spacing-xl);
+            border-radius: var(--border-radius-pill);
+            background: var(--theme-bg-hover);
+            color: var(--theme-text-primary);
+            font-weight: var(--font-weight-normal);
+            justify-content: space-between;
+            opacity: 1;
+            height: var(--button-height-md);
+            box-sizing: border-box;
+            transition: all var(--transition-fast);
+        }
+
+        .save-bookmark {
+            transition: none !important;
+        }
+
+        .clear-action:hover,
+        .save-bookmark:hover {
+            background: var(--theme-bg-hover);
+            border: 1px solid var(--theme-info);
+            color: var(--theme-info);
+        }
+
+        .clear-action:active,
+        .save-bookmark:active {
+            background: var(--theme-interactive-active);
+            color: var(--theme-text-primary);
+        }
+
+        .action-text {
+            flex: 1;
+            text-align: center;
+            font-weight: inherit;
+            color: var(--theme-text-primary);
+            letter-spacing: 0.55px;
+            transition: color var(--transition-normal);
+        }
+
+        .clear-action:hover .action-text,
+        .save-bookmark:hover .action-text {
+            color: var(--theme-info);
+        }
+
+        /* Bookmark Remove Button */
+        .bookmark-remove {
+            color: var(--theme-text-primary);
+            background: transparent;
+            border: none;
+            font-size: var(--icon-size-md);
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            opacity: 0;
+            pointer-events: none;
+            width: var(--button-height-md);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transform: none;
+            transition: none !important;
+            border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0;
+        }
+
+        .bookmark-item:hover .bookmark-remove {
+            opacity: 1;
+            pointer-events: auto;
+            color: var(--theme-text-primary);
+            background: transparent;
+        }
+
+        .bookmark-remove:hover {
+            background: var(--theme-error);
+            color: var(--theme-text-primary);
+            font-weight: var(--font-weight-semibold);
+            opacity: 1;
+        }
+
         /* Action Button */
         .action-btn {
             padding: var(--spacing-sm);
@@ -286,8 +388,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Emoji Button */
@@ -401,7 +508,7 @@
             height: 0;
         }
 
-        .theme-option input[type="radio"]:checked + .theme-option-content {
+        .theme-option input[type="radio"]:checked+.theme-option-content {
             background: var(--theme-interactive-active);
             border-color: var(--theme-info);
         }
@@ -496,33 +603,61 @@
         .bookmark-item {
             display: flex;
             align-items: center;
-            padding: var(--spacing-md);
-            border: 1px solid var(--theme-border-secondary);
-            border-radius: var(--border-radius-md);
-            background: var(--theme-bg-primary);
-            transition: all var(--transition-fast);
-            gap: var(--spacing-md);
+            margin-bottom: 0;
+            font-size: var(--spacing-xl);
+            background: transparent;
+            border-radius: 0;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            padding-right: calc(var(--spacing-lg) + var(--spacing-xl));
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
 
         .bookmark-item:hover {
-            background: var(--theme-bg-hover);
-            border-color: var(--theme-border-primary);
+            background: var(--theme-bg-secondary);
+            border-radius: var(--border-radius-lg);
+        }
+
+        .bookmark-item:active {
+            background: var(--theme-interactive-hover);
         }
 
         .bookmark-content {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            cursor: pointer;
+            min-width: 0;
         }
 
         .bookmark-name {
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-medium);
+            font-weight: normal;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             color: var(--theme-text-primary);
-            margin-bottom: 2px;
+            letter-spacing: 0.05em;
+            max-width: 100%;
+            min-width: 0;
         }
 
-        .bookmark-path {
-            font-size: var(--font-size-xs);
-            color: var(--theme-text-secondary);
+        .bookmark-page {
+            font-size: var(--icon-size-sm);
+            color: var(--theme-text-primary);
+            font-weight: normal;
+            margin-top: var(--spacing-sm);
+            opacity: 0.6;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            max-width: 100%;
+            min-width: 0;
         }
 
         .bookmark-action {
@@ -714,7 +849,7 @@
             min-height: 300px;
         }
 
-        /* Plugin mock panel */
+        /* Plugin mock panel - exact replica styling */
         .plugin-mock-container {
             border: 1px solid var(--theme-border-primary);
             border-radius: 4px;
@@ -722,6 +857,90 @@
             overflow: hidden;
             width: 188px;
             box-sizing: border-box;
+            font-family: var(--font-family);
+            font-size: var(--font-size-md);
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0;
+            margin: 0;
+            position: relative;
+        }
+
+        /* Scrollable content area - exact match */
+        .scrollable-content {
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0;
+            margin: 0;
+            position: relative;
+            padding-bottom: var(--spacing-md);
+        }
+
+        /* Quick Actions - exact match */
+        #quick-actions {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-sm) 0 var(--spacing-lg);
+            align-self: stretch;
+            background: var(--theme-bg-elevated);
+            flex-wrap: nowrap;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .action-list {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: var(--spacing-md);
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            flex-wrap: nowrap;
+            min-width: 0;
+        }
+
+        .action-list li.align-right {
+            margin-left: auto;
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .action-list li {
+            display: flex;
+            flex-shrink: 0;
+        }
+
+        #quick-actions .action-btn {
+            width: calc(var(--spacing-lg) * 3);
+            min-width: calc(var(--spacing-lg) * 3);
+            min-height: calc(var(--spacing-lg) * 3);
+            font-size: var(--icon-size-md);
+            background: var(--theme-bg-secondary);
+            color: var(--theme-text-secondary);
+            flex-shrink: 0;
+            border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+            border: none;
+        }
+
+        #quick-actions .action-btn:hover {
+            background: var(--theme-bg-secondary);
+            color: var(--theme-info);
+        }
+
+        #quick-actions .action-btn:disabled {
+            background: var(--theme-bg-secondary);
+            color: var(--theme-text-disabled);
+        }
+
+        .label {
+            display: none; /* Hidden in compact layout */
         }
 
         .plugin-mock__header {
@@ -768,7 +987,10 @@
         .plugin-mock__section {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-sm);
+            gap: var(--spacing-lg);
+            background: var(--theme-bg-elevated);
+            padding: calc(var(--spacing-xxl) * 2 - var(--spacing-lg)) var(--spacing-lg) calc(var(--spacing-xxl) * 2) var(--spacing-lg);
+            border-radius: var(--border-radius-md);
         }
 
         .plugin-mock__status-bar {
@@ -800,7 +1022,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: var(--spacing-md);
+            padding: var(--spacing-xl) var(--spacing-xxl);
             background: var(--theme-bg-secondary);
             border-bottom: 1px solid var(--theme-border-primary);
         }
@@ -808,26 +1030,43 @@
         .plugin-settings__title {
             margin: 0;
             font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
             color: var(--theme-text-primary);
+            letter-spacing: var(--letter-spacing-tight);
+            text-transform: uppercase;
         }
 
         .plugin-settings__content {
-            padding: var(--spacing-md);
+            padding: var(--spacing-xxl);
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-md);
+            gap: var(--spacing-xl);
         }
 
         .plugin-settings__group-title {
-            margin: 0 0 var(--spacing-sm) 0;
+            margin: 0 0 var(--spacing-md) 0;
             font-size: var(--font-size-sm);
-            color: var(--theme-text-secondary);
+            font-weight: var(--font-weight-medium);
+            color: var(--theme-text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
         }
 
         .plugin-settings__theme-group {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: var(--spacing-sm);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .setting-label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--theme-text-primary);
+            margin-bottom: var(--spacing-md);
+            text-transform: uppercase;
+            letter-spacing: var(--letter-spacing-tight);
         }
 
         /* Responsive collapse to single column */
@@ -838,6 +1077,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="demo-container">
         <div class="demo-header">
@@ -870,7 +1110,8 @@
                             <button class="action-btn" aria-label="Back" disabled>↩</button>
                             <button class="action-btn" aria-label="Forward" disabled>↪</button>
                             <div class="spacer"></div>
-                            <button class="action-btn" aria-label="Settings" id="plugin-settings-toggle"><span class="icon">≡</span></button>
+                            <button class="action-btn" aria-label="Settings" id="plugin-settings-toggle"><span
+                                    class="icon">≡</span></button>
                         </div>
 
                         <button class="section-header" aria-expanded="true">
@@ -894,6 +1135,9 @@
                                 <button class="emoji-button">🟦</button>
                                 <button class="emoji-button">🟪</button>
                             </div>
+                            <button class="clear-action" aria-label="Clear color tags">
+                                <span class="action-text">Remove 🏷️</span>
+                            </button>
                         </div>
 
                         <button class="section-header" aria-expanded="true">
@@ -904,11 +1148,16 @@
                         </button>
                         <div class="plugin-mock__section">
                             <div class="navigation-grid">
-                                <button class="nav-button" disabled><span class="nav-icon">↑</span><span class="nav-label">Exit</span></button>
-                                <button class="nav-button" disabled><span class="nav-icon">↑</span><span class="nav-label">Up</span></button>
-                                <button class="nav-button" disabled><span class="nav-icon">⌄</span><span class="nav-label">Collapse</span></button>
-                                <button class="nav-button" disabled><span class="nav-icon">↓</span><span class="nav-label">Down</span></button>
-                                <button class="nav-button nav-button-wide" disabled><span class="nav-icon">⏎</span><span class="nav-label">Enter</span></button>
+                                <button class="nav-button" disabled><span class="nav-icon">↑</span><span
+                                        class="nav-label">Exit</span></button>
+                                <button class="nav-button" disabled><span class="nav-icon">↑</span><span
+                                        class="nav-label">Up</span></button>
+                                <button class="nav-button" disabled><span class="nav-icon">⌄</span><span
+                                        class="nav-label">Collapse</span></button>
+                                <button class="nav-button" disabled><span class="nav-icon">↓</span><span
+                                        class="nav-label">Down</span></button>
+                                <button class="nav-button nav-button-wide" disabled><span class="nav-icon">⏎</span><span
+                                        class="nav-label">Enter</span></button>
                             </div>
                         </div>
 
@@ -922,26 +1171,47 @@
                             <div class="bookmark-item">
                                 <div class="bookmark-content">
                                     <div class="bookmark-name">Home</div>
-                                    <div class="bookmark-path">Page 1</div>
+                                    <div class="bookmark-page">Page 1</div>
                                 </div>
-                                <button class="bookmark-action" aria-label="Jump">⤴</button>
+                                <button class="bookmark-remove" aria-label="Remove bookmark">✕</button>
                             </div>
+                            <button class="save-bookmark" aria-label="Save bookmark">
+                                <span class="action-text">Drop ⚓️</span>
+                            </button>
                         </div>
 
-                        <div class="plugin-settings__panel" id="plugin-settings-panel" role="dialog" aria-modal="false" aria-hidden="true">
+                        <div class="plugin-settings__panel" id="plugin-settings-panel" role="dialog" aria-modal="false"
+                            aria-hidden="true">
                             <div class="plugin-settings__header">
                                 <h3 class="plugin-settings__title">Settings</h3>
-                                <button class="action-btn" aria-label="Close settings" id="plugin-settings-close">✕</button>
+                                <button class="action-btn" aria-label="Close settings"
+                                    id="plugin-settings-close">✕</button>
                             </div>
                             <div class="plugin-settings__content">
                                 <div>
                                     <div class="plugin-settings__group-title">Theme</div>
-                                    <div class="plugin-settings__theme-group" role="radiogroup" aria-label="Theme selection">
-                                        <label class="theme-option"><input type="radio" name="demo-theme" value="system"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">🔄</span><span class="theme-name">System</span></span></label>
-                                        <label class="theme-option"><input type="radio" name="demo-theme" value="figma-light"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-name">Light</span></span></label>
-                                        <label class="theme-option"><input type="radio" name="demo-theme" value="figma-dark"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-name">Dark</span></span></label>
-                                        <label class="theme-option"><input type="radio" name="demo-theme" value="boilerplate"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">⚫</span><span class="theme-name">Boilerplate</span></span></label>
-                                        <label class="theme-option"><input type="radio" name="demo-theme" value="cybertron"><span class="theme-option-content"><span class="theme-icon" aria-hidden="true">🤖</span><span class="theme-name">Cybertron</span></span></label>
+                                    <div class="plugin-settings__theme-group" role="radiogroup"
+                                        aria-label="Theme selection">
+                                        <label class="theme-option"><input type="radio" name="demo-theme"
+                                                value="system"><span class="theme-option-content"><span
+                                                    class="theme-icon" aria-hidden="true">🔄</span><span
+                                                    class="theme-name">System</span></span></label>
+                                        <label class="theme-option"><input type="radio" name="demo-theme"
+                                                value="figma-light"><span class="theme-option-content"><span
+                                                    class="theme-icon" aria-hidden="true">☀️</span><span
+                                                    class="theme-name">Light</span></span></label>
+                                        <label class="theme-option"><input type="radio" name="demo-theme"
+                                                value="figma-dark"><span class="theme-option-content"><span
+                                                    class="theme-icon" aria-hidden="true">🌙</span><span
+                                                    class="theme-name">Dark</span></span></label>
+                                        <label class="theme-option"><input type="radio" name="demo-theme"
+                                                value="boilerplate"><span class="theme-option-content"><span
+                                                    class="theme-icon" aria-hidden="true">⚫</span><span
+                                                    class="theme-name">Boilerplate</span></span></label>
+                                        <label class="theme-option"><input type="radio" name="demo-theme"
+                                                value="cybertron"><span class="theme-option-content"><span
+                                                    class="theme-icon" aria-hidden="true">🤖</span><span
+                                                    class="theme-name">Cybertron</span></span></label>
                                     </div>
                                 </div>
                             </div>
@@ -1029,15 +1299,15 @@
                 description: 'Radio button theme selection option',
                 baseClass: 'theme-option',
                 states: [
-                    { 
-                        name: 'default', 
-                        label: 'Default', 
-                        content: `<input type="radio" name="theme" value="boilerplate" id="theme-boilerplate"><div class="theme-option-content"><div class="theme-name">Boilerplate</div><div class="theme-description">Pure dark theme</div></div>` 
+                    {
+                        name: 'default',
+                        label: 'Default',
+                        content: `<input type="radio" name="theme" value="boilerplate" id="theme-boilerplate"><div class="theme-option-content"><div class="theme-name">Boilerplate</div><div class="theme-description">Pure dark theme</div></div>`
                     },
-                    { 
-                        name: 'checked', 
-                        label: 'Selected', 
-                        content: `<input type="radio" name="theme" value="cybertron" id="theme-cybertron" checked><div class="theme-option-content"><div class="theme-name">Cybertron</div><div class="theme-description">Futuristic neon theme</div></div>` 
+                    {
+                        name: 'checked',
+                        label: 'Selected',
+                        content: `<input type="radio" name="theme" value="cybertron" id="theme-cybertron" checked><div class="theme-option-content"><div class="theme-name">Cybertron</div><div class="theme-description">Futuristic neon theme</div></div>`
                     }
                 ],
                 template: (state) => {
@@ -1051,23 +1321,72 @@
                 description: 'Collapsible section header with icon',
                 baseClass: 'section-header',
                 states: [
-                    { 
-                        name: 'collapsed', 
-                        label: 'Collapsed', 
+                    {
+                        name: 'collapsed',
+                        label: 'Collapsed',
                         attributes: { 'aria-expanded': 'false' },
-                        content: `<div class="header-left"><div class="icon-container"><span class="tag-icon">🏷️</span><span class="arrow"></span></div><div class="header-title">Tags</div></div>` 
+                        content: `<div class="header-left"><div class="icon-container"><span class="tag-icon">🏷️</span><span class="arrow"></span></div><div class="header-title">Tags</div></div>`
                     },
-                    { 
-                        name: 'expanded', 
-                        label: 'Expanded', 
+                    {
+                        name: 'expanded',
+                        label: 'Expanded',
                         attributes: { 'aria-expanded': 'true' },
-                        content: `<div class="header-left"><div class="icon-container"><span class="tag-icon">🏷️</span><span class="arrow"></span></div><div class="header-title">Tags</div></div>` 
+                        content: `<div class="header-left"><div class="icon-container"><span class="tag-icon">🏷️</span><span class="arrow"></span></div><div class="header-title">Tags</div></div>`
                     }
                 ],
                 template: (state) => {
                     const modifiers = state.modifiers ? state.modifiers.map(m => `section-header--${m}`).join(' ') : '';
                     const attributes = state.attributes ? Object.entries(state.attributes).map(([k, v]) => `${k}="${v}"`).join(' ') : '';
                     return `<button class="section-header ${modifiers}" ${attributes}>${state.content}</button>`;
+                }
+            },
+            {
+                name: 'Clear Action Button',
+                category: 'buttons',
+                description: 'Remove tags action button',
+                baseClass: 'clear-action',
+                states: [
+                    { name: 'default', label: 'Default', content: '<span class="action-text">Remove 🏷️</span>' },
+                    { name: 'hover', label: 'Hover', modifiers: ['hover'], content: '<span class="action-text">Remove 🏷️</span>' },
+                    { name: 'active', label: 'Active', modifiers: ['active'], content: '<span class="action-text">Remove 🏷️</span>' }
+                ],
+                template: (state) => {
+                    const modifiers = state.modifiers ? state.modifiers.map(m => `clear-action--${m}`).join(' ') : '';
+                    const attributes = state.attributes ? Object.entries(state.attributes).map(([k, v]) => `${k}="${v}"`).join(' ') : '';
+                    return `<button class="clear-action ${modifiers}" ${attributes}>${state.content}</button>`;
+                }
+            },
+            {
+                name: 'Save Bookmark Button',
+                category: 'buttons',
+                description: 'Drop anchor action button',
+                baseClass: 'save-bookmark',
+                states: [
+                    { name: 'default', label: 'Default', content: '<span class="action-text">Drop ⚓️</span>' },
+                    { name: 'hover', label: 'Hover', modifiers: ['hover'], content: '<span class="action-text">Drop ⚓️</span>' },
+                    { name: 'active', label: 'Active', modifiers: ['active'], content: '<span class="action-text">Drop ⚓️</span>' }
+                ],
+                template: (state) => {
+                    const modifiers = state.modifiers ? state.modifiers.map(m => `save-bookmark--${m}`).join(' ') : '';
+                    const attributes = state.attributes ? Object.entries(state.attributes).map(([k, v]) => `${k}="${v}"`).join(' ') : '';
+                    return `<button class="save-bookmark ${modifiers}" ${attributes}>${state.content}</button>`;
+                }
+            },
+            {
+                name: 'Bookmark Remove Button',
+                category: 'buttons',
+                description: 'Remove bookmark button (appears on hover)',
+                baseClass: 'bookmark-remove',
+                states: [
+                    { name: 'hidden', label: 'Hidden (default)', content: '✕' },
+                    { name: 'visible', label: 'Visible (on parent hover)', modifiers: ['visible'], content: '✕' },
+                    { name: 'hover', label: 'Hover', modifiers: ['visible', 'hover'], content: '✕' }
+                ],
+                template: (state) => {
+                    const modifiers = state.modifiers ? state.modifiers.map(m => `bookmark-remove--${m}`).join(' ') : '';
+                    const style = state.name === 'visible' || state.name === 'hover' ? 'opacity: 1; pointer-events: auto;' : '';
+                    const hoverStyle = state.name === 'hover' ? 'background: var(--theme-error);' : '';
+                    return `<div style="position: relative; padding: 8px; background: var(--theme-bg-secondary); border-radius: 4px; width: 120px;"><span>Bookmark Item</span><button class="bookmark-remove ${modifiers}" style="${style} ${hoverStyle}">${state.content}</button></div>`;
                 }
             },
             {
@@ -1111,24 +1430,24 @@
             const preview = {
                 currentTheme: themes[0]?.name || 'boilerplate',
                 options: options,
-                
+
                 render() {
                     container.innerHTML = '';
                     container.className = 'component-preview';
-                    
+
                     // Create theme switcher
                     const switcher = document.createElement('div');
                     switcher.className = 'component-preview__theme-switcher';
-                    
+
                     const label = document.createElement('label');
                     label.className = 'component-preview__theme-label';
                     label.textContent = 'Theme:';
                     label.htmlFor = 'theme-select';
-                    
+
                     const select = document.createElement('select');
                     select.className = 'component-preview__theme-select';
                     select.id = 'theme-select';
-                    
+
                     themes.forEach(theme => {
                         const option = document.createElement('option');
                         option.value = theme.name;
@@ -1136,15 +1455,15 @@
                         option.selected = theme.name === this.currentTheme;
                         select.appendChild(option);
                     });
-                    
+
                     select.addEventListener('change', (e) => {
                         this.switchTheme(e.target.value);
                     });
-                    
+
                     switcher.appendChild(label);
                     switcher.appendChild(select);
                     container.appendChild(switcher);
-                    
+
                     // Create tables container
                     const tables = document.createElement('div');
                     tables.className = 'component-preview__tables';
@@ -1191,7 +1510,7 @@
 
                     container.appendChild(tables);
                 },
-                
+
                 groupByCategory(components) {
                     const categories = {
                         buttons: [],
@@ -1212,7 +1531,7 @@
 
                     return categories;
                 },
-                
+
                 createComponentCard(component) {
                     // Unused in table layout, retained for reference
                     const placeholder = document.createElement('div');
@@ -1287,27 +1606,27 @@
                     wrapper.appendChild(table);
                     return wrapper;
                 },
-                
+
                 switchTheme(themeName) {
                     this.currentTheme = themeName;
                     document.body.setAttribute('data-theme', themeName);
-                    
+
                     const select = container.querySelector('.component-preview__theme-select');
                     if (select) {
                         select.value = themeName;
                     }
-                    
+
                     if (this.options.onThemeChange) {
                         this.options.onThemeChange(themeName);
                     }
                 },
-                
+
                 updateOptions(newOptions) {
                     this.options = { ...this.options, ...newOptions };
                     this.render();
                 }
             };
-            
+
             preview.render();
             return preview;
         }
@@ -1315,7 +1634,7 @@
         // Initialize the component preview
         function initializePreview() {
             const container = document.getElementById('component-preview-container');
-            
+
             componentPreview = createComponentPreview(container, mockComponents, mockThemes, {
                 showStates: showStates,
                 showCode: showCode,
@@ -1327,7 +1646,7 @@
         }
 
         // Control functions
-        window.toggleStates = function() {
+        window.toggleStates = function () {
             showStates = !showStates;
             const button = event.target;
             button.classList.toggle('active', showStates);
@@ -1336,7 +1655,7 @@
             }
         };
 
-        window.toggleCode = function() {
+        window.toggleCode = function () {
             showCode = !showCode;
             const button = event.target;
             button.classList.toggle('active', showCode);
@@ -1345,7 +1664,7 @@
             }
         };
 
-        window.toggleCompact = function() {
+        window.toggleCompact = function () {
             compactMode = !compactMode;
             const button = event.target;
             button.classList.toggle('active', compactMode);
@@ -1354,7 +1673,7 @@
             }
         };
 
-        window.refreshPreview = function() {
+        window.refreshPreview = function () {
             initializePreview();
         };
 
@@ -1391,4 +1710,5 @@
         });
     </script>
 </body>
+
 </html>

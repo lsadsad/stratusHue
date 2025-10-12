@@ -1141,7 +1141,8 @@ body {
 }
 
 [data-theme="cybertron"] .clear-action:hover,
-[data-theme="cybertron"] #save-bookmark:hover {
+[data-theme="cybertron"] #save-bookmark:hover,
+[data-theme="cybertron"] .kofi-button:hover {
   box-shadow: var(--cybertron-glow-accent);
   border: 1px solid rgba(255, 0, 255, 0.3);
 }
@@ -1790,7 +1791,8 @@ h3 {
 .emoji-button:focus-visible,
 .section-header:focus-visible,
 .clear-action:focus-visible,
-#save-bookmark:focus-visible {
+#save-bookmark:focus-visible,
+.kofi-button:focus-visible {
   outline: var(--outline-width) solid var(--figma-color-border-brand, #18a0fb);
   outline-offset: var(--outline-offset);
   border-radius: var(--border-radius-md);
@@ -1820,7 +1822,8 @@ h3 {
   .emoji-button,
   .bookmark-item,
   .clear-action,
-  #save-bookmark {
+  #save-bookmark,
+  .kofi-button {
     transition: none;
   }
 
@@ -1837,7 +1840,8 @@ h3 {
   }
 
   .clear-action:hover,
-  #save-bookmark:hover {
+  #save-bookmark:hover,
+  .kofi-button:hover {
     transform: none;
   }
 
@@ -2816,7 +2820,6 @@ h3 {
 .nav-label {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   line-height: 1;
 }
@@ -3221,7 +3224,8 @@ i.grip {
 .action-btn[data-state="loading"],
 .emoji-button[data-state="loading"],
 .clear-action[data-state="loading"],
-#save-bookmark[data-state="loading"] {
+#save-bookmark[data-state="loading"],
+.kofi-button[data-state="loading"] {
   opacity: 0.6;
   cursor: wait;
   position: relative;
@@ -3231,7 +3235,8 @@ i.grip {
 .action-btn[data-state="loading"]::after,
 .emoji-button[data-state="loading"]::after,
 .clear-action[data-state="loading"]::after,
-#save-bookmark[data-state="loading"]::after {
+#save-bookmark[data-state="loading"]::after,
+.kofi-button[data-state="loading"]::after {
   content: "";
   position: absolute;
   width: var(--spinner-size);
@@ -3411,7 +3416,7 @@ i.grip {
 
 .settings-title {
   margin: 0;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   letter-spacing: var(--letter-spacing-tight);
@@ -3434,7 +3439,7 @@ i.grip {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -3459,62 +3464,49 @@ i.grip {
   text-align: center;
 }
 
-/* Ko-fi button */
+/* Ko-fi button - styled to match Remove and Drop buttons */
 .kofi-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  width: 100%;
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--figma-color-bg-brand);
-  color: var(--figma-color-text-onbrand);
-  text-decoration: none;
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  transition: all var(--transition-duration-fast) var(--transition-timing-function);
+  /* Inherit from .btn-base - match clear-action and save-bookmark */
   border: none;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
+  font-family: var(--font-family);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-.kofi-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
+  /* Specific properties - match clear-action and save-bookmark */
   width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left var(--transition-duration-medium) var(--transition-timing-function);
+  font-size: var(--spacing-xl);
+  border-radius: var(--border-radius-pill);
+  background: var(--figma-color-bg-hover);
+  color: var(--figma-color-text);
+  font-weight: var(--font-weight-normal);
+  justify-content: space-between;
+  opacity: 1;
+  height: var(--button-height-md);
+  box-sizing: border-box;
+  transition: none !important;
 }
 
 .kofi-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--figma-color-bg-brand-tertiary);
-  background: var(--figma-color-bg-brand-hover);
-}
-
-.kofi-button:hover::before {
-  left: 100%;
+  background: var(--figma-color-bg-hover);
+  color: var(--figma-color-border-brand);
+  border: var(--border-width) solid var(--figma-color-border-brand);
 }
 
 .kofi-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px var(--figma-color-bg-brand-tertiary);
-  background: var(--figma-color-bg-brand-pressed);
+  background: var(--figma-color-bg-selected);
+  color: var(--figma-color-text);
 }
 
-.kofi-icon {
-  font-size: var(--icon-size-md);
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+.kofi-button .action-text {
+  color: var(--color-text-primary);
+  letter-spacing: 0.55px;
+  transition: color var(--transition-normal);
 }
 
-.kofi-text {
-  font-weight: var(--font-weight-medium);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+.kofi-button:hover .action-text {
+  color: var(--figma-color-border-brand);
 }
 
 /* Additional state management classes */
@@ -3532,6 +3524,30 @@ i.grip {
   margin-bottom: var(--spacing-md);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-tight);
+}
+
+.setting-label-small {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--spacing-sm);
+  align-items: start;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.setting-description {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.3;
+}
+
+.checkbox-description {
+  line-height: 1.3;
+  grid-column: 2;
 }
 
 .theme-selector {
@@ -3636,6 +3652,11 @@ i.grip {
 }
 
 /* Theme option states */
+.theme-option .theme-name {
+  font-size: var(--spacing-xl) !important;
+  font-weight: var(--font-weight-normal) !important;
+}
+
 .theme-option:has(input:checked) .theme-name {
   color: var(--figma-color-text-brand);
 }
@@ -5218,4 +5239,55 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 .nav-button-unavailable .nav-label {
   font-style: italic;
   opacity: 0.6;
+}
+/* 
+Footer Styles */
+#footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--footer-height);
+  background: var(--theme-bg-primary);
+  border-top: 1px solid var(--theme-border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-lg);
+  z-index: var(--z-footer);
+}
+
+.footer-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-branding {
+  display: flex;
+  align-items: center;
+}
+
+.made-with {
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-secondary);
+}
+
+.made-with a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.made-with a:hover {
+  color: var(--theme-info, rgba(111, 176, 255, 0.9));
+}
+
+.logo-svg {
+  height: var(--icon-size-md);
+  width: auto;
+  margin-left: var(--spacing-xs);
 }
