@@ -122,9 +122,10 @@ export interface NavigationContext {
   containerCount: number;   // For collapse toggle state (legacy - kept for compatibility)
   siblingContainerCount: number;   // Number of sibling containers for targeted collapse
   hasCollapsibleSiblings: boolean; // Whether sibling containers exist to collapse
+  hasComponentInstance: boolean; // Whether selection contains component instances
 }
 
-export type NavigationAction = 'enter' | 'exit' | 'next-sibling' | 'prev-sibling' | 'toggle-collapse';
+export type NavigationAction = 'enter' | 'exit' | 'next-sibling' | 'prev-sibling' | 'toggle-collapse' | 'goto-main-component';
 
 // Navigation message types
 export interface NavigationActionMessage extends UIMessage {

@@ -730,8 +730,8 @@ export class LayerNavigationHandler {
         if (validateSceneNode(node)) {
           try {
             // Test node accessibility
-            const _ = node.type;
-            const __ = node.name;
+            const _nodeType = node.type;
+            const _nodeName = node.name;
             validNodes.push(node);
           } catch (nodeError) {
             console.warn('Skipping inaccessible node in selection:', nodeError);
@@ -1120,8 +1120,8 @@ export class LayerNavigationHandler {
         if (validateSceneNode(node)) {
           try {
             // Test node accessibility
-            const _ = node.type;
-            const __ = node.name;
+            const _nodeType = node.type;
+            const _nodeName = node.name;
             validNodes.push(node);
           } catch (nodeError) {
             console.warn('Skipping inaccessible node in multiple selection:', nodeError);
@@ -1270,8 +1270,8 @@ export class LayerNavigationHandler {
         if (validateSceneNode(node)) {
           try {
             // Test node accessibility
-            const _ = node.type;
-            const __ = node.name;
+            const _nodeType = node.type;
+            const _nodeName = node.name;
             validNodes.push(node);
           } catch (nodeError) {
             console.warn('Skipping inaccessible node in selection:', nodeError);
@@ -1411,7 +1411,8 @@ export class LayerNavigationHandler {
           canNavigateSiblings: canNavigatePages, // Enable for page navigation
           containerCount,
           siblingContainerCount: 0,
-          hasCollapsibleSiblings: false
+          hasCollapsibleSiblings: false,
+          hasComponentInstance: false
         };
       }
 
@@ -1421,8 +1422,8 @@ export class LayerNavigationHandler {
         if (validateSceneNode(node)) {
           try {
             // Test node accessibility
-            const _ = node.type;
-            const __ = node.name;
+            const _nodeType = node.type;
+            const _nodeName = node.name;
             validNodes.push(node);
           } catch (nodeError) {
             console.warn('Skipping inaccessible node in selection:', nodeError);
@@ -1438,7 +1439,8 @@ export class LayerNavigationHandler {
           canNavigateSiblings: false,
           containerCount,
           siblingContainerCount: 0,
-          hasCollapsibleSiblings: false
+          hasCollapsibleSiblings: false,
+          hasComponentInstance: false
         };
       }
 
@@ -1496,6 +1498,15 @@ export class LayerNavigationHandler {
           canEnter = false;
         }
 
+        // Check if any selected items are component instances
+        let hasComponentInstance = false;
+        try {
+          hasComponentInstance = validNodes.some(node => node.type === 'INSTANCE');
+        } catch (componentError) {
+          console.warn('Failed to check for component instances in multiple selection:', componentError);
+          hasComponentInstance = false;
+        }
+
         return {
           hasSelection: true,
           canEnter,
@@ -1503,7 +1514,8 @@ export class LayerNavigationHandler {
           canNavigateSiblings,
           containerCount,
           siblingContainerCount,
-          hasCollapsibleSiblings
+          hasCollapsibleSiblings,
+          hasComponentInstance
         };
       }
 
@@ -1553,6 +1565,15 @@ export class LayerNavigationHandler {
         console.warn('Failed to analyze sibling containers for single selection:', siblingError);
       }
 
+      // Check if selected item is a component instance
+      let hasComponentInstance = false;
+      try {
+        hasComponentInstance = primaryNode.type === 'INSTANCE';
+      } catch (componentError) {
+        console.warn('Failed to check for component instance in single selection:', componentError);
+        hasComponentInstance = false;
+      }
+
       return {
         hasSelection: true,
         canEnter,
@@ -1560,7 +1581,8 @@ export class LayerNavigationHandler {
         canNavigateSiblings,
         containerCount,
         siblingContainerCount,
-        hasCollapsibleSiblings
+        hasCollapsibleSiblings,
+        hasComponentInstance
       };
     }, ErrorType.VALIDATION_FAILED)() || {
       // Fallback context in case of complete failure
@@ -1570,7 +1592,8 @@ export class LayerNavigationHandler {
       canNavigateSiblings: false,
       containerCount: 0,
       siblingContainerCount: 0,
-      hasCollapsibleSiblings: false
+      hasCollapsibleSiblings: false,
+      hasComponentInstance: false
     };
   }
 
@@ -1601,8 +1624,8 @@ export class LayerNavigationHandler {
             continue;
           }
           // Test node accessibility
-          const _ = node.type;
-          const __ = node.name;
+          const _nodeType = node.type;
+          const _nodeName = node.name;
           if (!('visible' in node) || !node.visible) {
             continue;
           }
@@ -1741,7 +1764,8 @@ export class LayerNavigationHandler {
           canNavigateSiblings: false,
           containerCount,
           siblingContainerCount: 0,
-          hasCollapsibleSiblings: false
+          hasCollapsibleSiblings: false,
+          hasComponentInstance: false
         };
       }
 
@@ -1751,7 +1775,7 @@ export class LayerNavigationHandler {
         if (validateSceneNode(node)) {
           try {
             // Minimal accessibility test
-            const _ = node.type;
+            const _nodeType = node.type;
             validNodes.push(node);
           } catch (nodeError) {
             // Skip inaccessible nodes
@@ -1769,7 +1793,8 @@ export class LayerNavigationHandler {
           canNavigateSiblings: false,
           containerCount,
           siblingContainerCount: 0,
-          hasCollapsibleSiblings: false
+          hasCollapsibleSiblings: false,
+          hasComponentInstance: false
         };
       }
 
@@ -1805,6 +1830,14 @@ export class LayerNavigationHandler {
           // Skip sibling analysis for performance
         }
         
+        // Check if any selected items are component instances
+        let hasComponentInstance = false;
+        try {
+          hasComponentInstance = nodesToCheck.some(node => node.type === 'INSTANCE');
+        } catch (componentError) {
+          hasComponentInstance = false;
+        }
+
         console.log(`Navigation context calculation (multiple): ${endTime - startTime}ms`);
         return {
           hasSelection: true,
@@ -1813,7 +1846,8 @@ export class LayerNavigationHandler {
           canNavigateSiblings: false,
           containerCount,
           siblingContainerCount,
-          hasCollapsibleSiblings
+          hasCollapsibleSiblings,
+          hasComponentInstance
         };
       }
 
@@ -1848,6 +1882,14 @@ export class LayerNavigationHandler {
         // Skip sibling analysis for performance
       }
 
+      // Check if selected item is a component instance
+      let hasComponentInstance = false;
+      try {
+        hasComponentInstance = primaryNode.type === 'INSTANCE';
+      } catch (componentError) {
+        hasComponentInstance = false;
+      }
+
       console.log(`Navigation context calculation (single): ${endTime - startTime}ms`);
 
       return {
@@ -1855,7 +1897,8 @@ export class LayerNavigationHandler {
         ...capabilities,
         containerCount,
         siblingContainerCount,
-        hasCollapsibleSiblings
+        hasCollapsibleSiblings,
+        hasComponentInstance
       };
     }, ErrorType.VALIDATION_FAILED)() || {
       // Fallback context in case of complete failure
@@ -1865,7 +1908,8 @@ export class LayerNavigationHandler {
       canNavigateSiblings: false,
       containerCount: 0,
       siblingContainerCount: 0,
-      hasCollapsibleSiblings: false
+      hasCollapsibleSiblings: false,
+      hasComponentInstance: false
     };
   }
 
@@ -2233,8 +2277,8 @@ export class LayerNavigationHandler {
         }
 
         // Test node accessibility
-        const _ = node.type;
-        const __ = node.name;
+        const _nodeType = node.type;
+        const _nodeName = node.name;
         validNodes.push(node);
       } catch (nodeError) {
         console.warn('Skipping inaccessible node:', nodeError);
@@ -2266,8 +2310,8 @@ export class LayerNavigationHandler {
         }
 
         // Test node accessibility
-        const _ = node.type;
-        const __ = node.name;
+        const _nodeType = node.type;
+        const _nodeName = node.name;
         visibleNodes.push(node);
       } catch (nodeError) {
         console.warn('Skipping inaccessible node:', nodeError);
@@ -2584,8 +2628,8 @@ export class LayerNavigationHandler {
       }
 
       // Test node accessibility
-      const _ = node.type;
-      const __ = node.name;
+      const _nodeType = node.type;
+      const _nodeName = node.name;
 
       const parent = LayerNavigationHandler.findParentContainer(node);
       if (!parent) {
@@ -2623,8 +2667,8 @@ export class LayerNavigationHandler {
       }
 
       // Test node accessibility
-      const _ = node.type;
-      const __ = node.name;
+      const _nodeType = node.type;
+      const _nodeName = node.name;
 
       const parent = node.parent;
       if (!parent || !('children' in parent)) {
@@ -3003,5 +3047,117 @@ export class LayerNavigationHandler {
       message,
       viewportUpdate: false
     };
+  }
+
+  /**
+   * Navigate to the main component of a selected component instance
+   * Enhanced with comprehensive error handling and validation
+   */
+  static async gotoMainComponent(selection: readonly SceneNode[]): Promise<NavigationResult> {
+    try {
+      if (selection.length === 0) {
+        return {
+          success: false,
+          message: 'No selection found',
+          viewportUpdate: false
+        };
+      }
+
+      // Find component instances in the selection
+      const componentInstances = selection.filter(node => node.type === 'INSTANCE') as InstanceNode[];
+      
+      if (componentInstances.length === 0) {
+        return {
+          success: false,
+          message: 'No component instances selected',
+          viewportUpdate: false
+        };
+      }
+
+      // Use the first component instance
+      const instance = componentInstances[0];
+      
+      // Get the main component
+      const mainComponent = await instance.getMainComponentAsync();
+      
+      if (!mainComponent) {
+        return {
+          success: false,
+          message: 'Main component not found or not accessible',
+          viewportUpdate: false
+        };
+      }
+
+      // Check if the main component is on a different page
+      const componentPage = mainComponent.parent;
+      let targetPage: PageNode | null = null;
+      
+      // Walk up the hierarchy to find the page
+      let currentParent = componentPage;
+      while (currentParent && currentParent.type !== 'PAGE') {
+        currentParent = currentParent.parent;
+      }
+      
+      if (currentParent && currentParent.type === 'PAGE') {
+        targetPage = currentParent as PageNode;
+      }
+
+      // Navigate to the component's page if different from current page
+      if (targetPage && targetPage !== figma.currentPage) {
+        await figma.setCurrentPageAsync(targetPage);
+        
+        // Add page change to navigation history
+        addPageChangeToHistory();
+      }
+
+      // Select the main component and focus on it
+      figma.currentPage.selection = [mainComponent];
+      figma.viewport.scrollAndZoomIntoView([mainComponent]);
+
+      // Record this navigation action in history
+      try {
+        const entry: import('../types').HistoryEntry = {
+          id: mainComponent.id,
+          timestamp: Date.now(),
+          type: 'selection',
+          pageId: figma.currentPage.id,
+          pageName: figma.currentPage.name,
+          nodeId: mainComponent.id,
+          nodeName: mainComponent.name
+        };
+        
+        addToHistory(entry);
+      } catch (historyError) {
+        // History recording failure shouldn't prevent navigation
+        console.warn('Failed to record component navigation in history:', historyError);
+      }
+
+      const componentName = mainComponent.name || 'Unnamed component';
+      const pageInfo = targetPage && targetPage !== figma.currentPage ? ` on page "${targetPage.name}"` : '';
+      
+      return {
+        success: true,
+        message: `Navigated to main component "${componentName}"${pageInfo}`,
+        viewportUpdate: true
+      };
+
+    } catch (error) {
+      const navigationError = createError(
+        ErrorType.NAVIGATION_FAILED,
+        'Failed to navigate to main component',
+        { 
+          instanceId: selection[0]?.id, 
+          instanceName: selection[0]?.name,
+          error: error 
+        }
+      );
+      handleError(navigationError);
+      
+      return {
+        success: false,
+        message: 'Failed to access main component',
+        viewportUpdate: false
+      };
+    }
   }
 }

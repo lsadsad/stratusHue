@@ -5224,9 +5224,9 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     box-shadow: none !important;
     animation: none !important;
   }
-  }
-}/*
- Navigation button permanently unavailable (API limitations) */
+}
+
+/* Navigation button permanently unavailable (API limitations) */
 .nav-button-unavailable {
   opacity: 0.3 !important;
   cursor: not-allowed !important;
@@ -5290,4 +5290,159 @@ Footer Styles */
   height: var(--icon-size-md);
   width: auto;
   margin-left: var(--spacing-xs);
+}
+/* ===
+== NAVIGATION CONTROLS ===== */
+
+/* Navigation Grid Layout */
+.navigation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+  width: 100%;
+  margin-top: var(--spacing-md);
+}
+
+.nav-row {
+  display: contents; /* Allow grid items to participate in parent grid */
+}
+
+/* Navigation Buttons */
+.nav-button {
+  /* Inherit from .btn-base */
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-family: var(--font-family);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+
+  /* Specific properties */
+  height: var(--button-height-lg);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  background: var(--theme-bg-secondary);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  position: relative;
+  min-width: 0; /* Allow text to truncate */
+}
+
+.nav-button:hover:not(:disabled) {
+  background: var(--theme-bg-hover);
+  border-color: var(--theme-border-accent);
+  transform: translateY(-1px);
+}
+
+.nav-button:active:not(:disabled) {
+  background: var(--theme-bg-active);
+  transform: translateY(0);
+}
+
+.nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--theme-bg-secondary);
+  color: var(--theme-text-disabled);
+  border-color: var(--theme-border-secondary);
+}
+
+.nav-button:focus-visible {
+  outline: 2px solid var(--theme-info);
+  outline-offset: 2px;
+}
+
+/* Navigation Button Content */
+.nav-icon {
+  font-size: var(--icon-size-md);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Navigation Spacers */
+.nav-spacer {
+  /* Empty grid cells for layout spacing */
+  min-height: var(--button-height-lg);
+}
+
+/* Navigation Controls Container */
+.navigation-controls {
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 240px) {
+  .navigation-grid {
+    gap: var(--spacing-xs);
+  }
+  
+  .nav-button {
+    height: calc(var(--button-height-lg) - 2px);
+    padding: var(--spacing-xs);
+  }
+  
+  .nav-icon {
+    font-size: var(--icon-size-sm);
+  }
+  
+  .nav-label {
+    font-size: calc(var(--font-size-xs) - 1px);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .nav-button {
+    border-width: 2px;
+  }
+  
+  .nav-button:focus-visible {
+    outline-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .nav-button {
+    transition: none;
+  }
+  
+  .nav-button:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .nav-button:active:not(:disabled) {
+    transform: none;
+  }
 }

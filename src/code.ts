@@ -615,6 +615,14 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
       result = LayerNavigationHandler.toggleCollapse();
       break;
 
+    case 'goto-main-component':
+      if (selection.length === 0) {
+        figma.notify('Please select a component instance');
+        return;
+      }
+      result = await LayerNavigationHandler.gotoMainComponent(selection);
+      break;
+
     default:
       figma.notify('Unknown navigation action');
       return;
@@ -633,7 +641,7 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
 
     if (result.newSelection) {
       // For navigation actions that should preserve expansion states
-      let nodesToRestore: Array<{ node: any, wasExpanded: boolean }> = [];
+      const nodesToRestore: Array<{ node: any, wasExpanded: boolean }> = [];
 
       if (needsExpansionControl && result.newSelection.length > 0) {
         if (isSingleEnter) {

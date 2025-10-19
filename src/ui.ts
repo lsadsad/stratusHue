@@ -224,7 +224,7 @@ function computeFitHeight(): number {
 }
 
 // Debounce timer for auto-fit to prevent feedback loops
-let autoFitDebounceTimer: number | null = null;
+const autoFitDebounceTimer: number | null = null;
 let scrollBehaviorDebounceTimer: number | null = null;
 
 // Check if scrolling should be enabled based on content height
@@ -2774,14 +2774,15 @@ if (typeof window !== 'undefined') {
 // NAVIGATION CONTROLS
 
 // Navigation context state
-let navigationContext = {
+let navigationContext: NavigationContext = {
   hasSelection: false,
   canEnter: false,
   canExit: false,
   canNavigateSiblings: false,
   containerCount: 0,
   siblingContainerCount: 0,
-  hasCollapsibleSiblings: false
+  hasCollapsibleSiblings: false,
+  hasComponentInstance: false
 };
 
 // Navigation controls setting state
@@ -2794,6 +2795,7 @@ function updateNavigationControlButtons(context: NavigationContext): void {
   const prevBtn = document.getElementById('nav-prev') as HTMLButtonElement;
   const nextBtn = document.getElementById('nav-next') as HTMLButtonElement;
   const collapseBtn = document.getElementById('nav-collapse') as HTMLButtonElement;
+  const gotoComponentBtn = document.getElementById('nav-goto-component') as HTMLButtonElement;
 
   if (enterBtn) {
     const canEnter = context.canEnter;
@@ -2957,6 +2959,25 @@ function updateNavigationControlButtons(context: NavigationContext): void {
         'No containers available on current page';
     }
   }
+
+  if (gotoComponentBtn) {
+    // Check if current selection contains component instances
+    // This will be determined by the plugin and sent via context
+    const hasComponentInstance = (context as any).hasComponentInstance || false;
+    gotoComponentBtn.disabled = !hasComponentInstance;
+    
+    const label = hasComponentInstance ?
+      'Go to main component' :
+      'Go to main component - no component instance selected';
+    gotoComponentBtn.setAttribute('aria-label', label);
+
+    const descElement = document.getElementById('nav-goto-component-desc');
+    if (descElement) {
+      descElement.textContent = hasComponentInstance ?
+        'Navigate to the main component of selected instance' :
+        'Select a component instance to navigate to its main component';
+    }
+  }
 }
 
 // Update navigation controls visibility based on setting
@@ -3053,6 +3074,7 @@ function setupNavigationControls(): void {
   const prevBtn = document.getElementById('nav-prev');
   const nextBtn = document.getElementById('nav-next');
   const collapseBtn = document.getElementById('nav-collapse');
+  const gotoComponentBtn = document.getElementById('nav-goto-component');
   const navigationGrid = document.querySelector('.navigation-grid');
 
   // Add click event listeners with screen reader announcements
@@ -3096,6 +3118,14 @@ function setupNavigationControls(): void {
     });
   }
 
+  if (gotoComponentBtn) {
+    gotoComponentBtn.addEventListener('click', () => {
+      console.log('Navigation: Go to main component');
+      announceNavigationResult({ success: true, message: 'Navigating to main component' });
+      sendMessage('navigation-action', { action: 'goto-main-component' });
+    });
+  }
+
   // Add keyboard navigation support
   if (navigationGrid) {
     setupNavigationKeyboardSupport(navigationGrid as HTMLElement);
@@ -3106,23 +3136,19 @@ function setupNavigationControls(): void {
 function setupNavigationKeyboardSupport(navigationGrid: HTMLElement): void {
   const buttons = Array.from(navigationGrid.querySelectorAll('.nav-button')) as HTMLButtonElement[];
 
-  // Create a 2D grid representation for navigation
+  // Create a 3D grid representation for navigation (3 columns now)
   const gridButtons: (HTMLButtonElement | null)[][] = [
-    [null, null], // Row 0: Exit, Prev
-    [null, null], // Row 1: Collapse, Next  
-    [null, null]  // Row 2: Enter (spans 2 columns)
+    [null, null, null], // Row 0: Exit, Prev, (empty)
+    [null, null, null], // Row 1: Collapse, Next, Enter  
+    [null, null, null]  // Row 2: GotoComponent, (empty), (empty)
   ];
 
   // Map buttons to grid positions based on data attributes
   buttons.forEach(button => {
     const row = parseInt(button.dataset.gridRow || '0');
     const col = parseInt(button.dataset.gridCol || '0');
-    if (row >= 0 && row < 3 && col >= 0 && col < 2) {
+    if (row >= 0 && row < 3 && col >= 0 && col < 3) {
       gridButtons[row][col] = button;
-      // For wide buttons (Enter), also occupy the second column
-      if (button.classList.contains('nav-button-wide')) {
-        gridButtons[row][1] = button;
-      }
     }
   });
 
@@ -3176,19 +3202,41 @@ function setupNavigationKeyboardSupport(navigationGrid: HTMLElement): void {
 
         case 'ArrowLeft':
           event.preventDefault();
-          // Move left in grid
-          const leftCol = currentCol === 0 ? 1 : 0;
-          if (gridButtons[currentRow][leftCol] && !gridButtons[currentRow][leftCol]!.disabled) {
-            targetButton = gridButtons[currentRow][leftCol];
+          // Move left in grid (3 columns)
+          for (let col = currentCol - 1; col >= 0; col--) {
+            if (gridButtons[currentRow][col] && !gridButtons[currentRow][col]!.disabled) {
+              targetButton = gridButtons[currentRow][col];
+              break;
+            }
+          }
+          // Wrap to rightmost column if no button found to the left
+          if (!targetButton) {
+            for (let col = 2; col > currentCol; col--) {
+              if (gridButtons[currentRow][col] && !gridButtons[currentRow][col]!.disabled) {
+                targetButton = gridButtons[currentRow][col];
+                break;
+              }
+            }
           }
           break;
 
         case 'ArrowRight':
           event.preventDefault();
-          // Move right in grid
-          const rightCol = currentCol === 0 ? 1 : 0;
-          if (gridButtons[currentRow][rightCol] && !gridButtons[currentRow][rightCol]!.disabled) {
-            targetButton = gridButtons[currentRow][rightCol];
+          // Move right in grid (3 columns)
+          for (let col = currentCol + 1; col < 3; col++) {
+            if (gridButtons[currentRow][col] && !gridButtons[currentRow][col]!.disabled) {
+              targetButton = gridButtons[currentRow][col];
+              break;
+            }
+          }
+          // Wrap to leftmost column if no button found to the right
+          if (!targetButton) {
+            for (let col = 0; col < currentCol; col++) {
+              if (gridButtons[currentRow][col] && !gridButtons[currentRow][col]!.disabled) {
+                targetButton = gridButtons[currentRow][col];
+                break;
+              }
+            }
           }
           break;
 
@@ -3205,7 +3253,7 @@ function setupNavigationKeyboardSupport(navigationGrid: HTMLElement): void {
           event.preventDefault();
           // Go to first enabled button
           for (let row = 0; row < 3; row++) {
-            for (let col = 0; col < 2; col++) {
+            for (let col = 0; col < 3; col++) {
               if (gridButtons[row][col] && !gridButtons[row][col]!.disabled) {
                 targetButton = gridButtons[row][col];
                 break;
@@ -3219,7 +3267,7 @@ function setupNavigationKeyboardSupport(navigationGrid: HTMLElement): void {
           event.preventDefault();
           // Go to last enabled button
           for (let row = 2; row >= 0; row--) {
-            for (let col = 1; col >= 0; col--) {
+            for (let col = 2; col >= 0; col--) {
               if (gridButtons[row][col] && !gridButtons[row][col]!.disabled) {
                 targetButton = gridButtons[row][col];
                 break;
@@ -3283,6 +3331,12 @@ function announceButtonState(button: HTMLButtonElement): void {
       detailedInfo = enhanced ? (isDisabled ?
         'Current page contains no Groups, Sections, or Frames' :
         'Will collapse selected containers, or sibling containers if none selected') : '';
+      break;
+    case 'nav-goto-component':
+      contextInfo = isDisabled ? 'No component instance selected' : 'Component instance selected';
+      detailedInfo = enhanced ? (isDisabled ?
+        'Select a component instance to navigate to its main component' :
+        'Will navigate to the main component definition') : '';
       break;
   }
 
