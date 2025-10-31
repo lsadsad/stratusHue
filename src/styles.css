@@ -902,6 +902,7 @@ body {
   .nav-button,
   .nav-button *,
   .navigation-grid,
+  .arrow-keys-grid,
   .navigation-controls,
   #navigation-section {
     transition: none !important;
@@ -3443,6 +3444,24 @@ i.grip {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Beta badge for settings titles */
+.beta-badge {
+  background: var(--color-background-tertiary);
+  color: var(--color-text-secondary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--spacing-xs);
 }
 
 
@@ -3681,11 +3700,6 @@ i.grip {
   margin-top: var(--spacing-md);
 }
 
-/* Advanced themes styling */
-.advanced-themes .theme-option {
-  background: var(--color-background-main);
-}
-
 .theme-group-header {
   margin-bottom: var(--spacing-xs);
 }
@@ -3698,16 +3712,6 @@ i.grip {
   letter-spacing: 0.5px;
   border-style: dashed;
   opacity: 0.9;
-}
-
-.advanced-themes .theme-option:hover {
-  opacity: 1;
-  background: var(--color-background-secondary);
-}
-
-.advanced-themes .theme-option:has(input:checked) {
-  opacity: 1;
-  background: var(--figma-color-bg-brand-tertiary);
 }
 
 /* Responsive theme selector */
@@ -5007,7 +5011,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 /* Narrow viewport adjustments for navigation controls */
 @media (max-width: 240px) {
-  .navigation-grid {
+  .navigation-grid,
+  .arrow-keys-grid {
     grid-template-columns: var(--nav-grid-narrow);
     grid-gap: var(--spacing-sm);
     max-width: 180px;
@@ -5029,7 +5034,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 /* Wide viewport enhancements for navigation controls */
 @media (min-width: 280px) {
-  .navigation-grid {
+  .navigation-grid,
+  .arrow-keys-grid {
     grid-template-columns: var(--nav-grid-wide);
     max-width: 220px;
   }
@@ -5076,7 +5082,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
   
   /* Ensure navigation grid has proper contrast */
-  .navigation-grid {
+  .navigation-grid,
+  .arrow-keys-grid {
     border: 1px solid ButtonBorder;
     background: Canvas;
   }
@@ -5158,7 +5165,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
   
   /* Enhanced grid visibility in high contrast */
-  .navigation-grid {
+  .navigation-grid,
+  .arrow-keys-grid {
     border: 2px solid var(--theme-border-contrast);
     padding: var(--spacing-sm);
     background: var(--theme-bg-secondary);
@@ -5214,7 +5222,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
   
   /* Ensure navigation grid doesn't have motion effects */
-  .navigation-grid {
+  .navigation-grid,
+  .arrow-keys-grid {
     transition: none !important;
     animation: none !important;
   }
@@ -5293,6 +5302,16 @@ Footer Styles */
 }
 /* ===
 == NAVIGATION CONTROLS ===== */
+
+/* Arrow Keys Grid Layout */
+.arrow-keys-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+  width: 100%;
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
 
 /* Navigation Grid Layout */
 .navigation-grid {
@@ -5403,7 +5422,8 @@ Footer Styles */
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 240px) {
-  .navigation-grid {
+  .navigation-grid,
+  .arrow-keys-grid {
     gap: var(--spacing-xs);
   }
   

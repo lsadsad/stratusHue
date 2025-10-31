@@ -2978,6 +2978,30 @@ function updateNavigationControlButtons(context: NavigationContext): void {
         'Select a component instance to navigate to its main component';
     }
   }
+
+  // Update arrow key buttons - enable when elements are selected (for nudging/moving on canvas)
+  const arrowUpBtn = document.getElementById('arrow-up') as HTMLButtonElement;
+  const arrowDownBtn = document.getElementById('arrow-down') as HTMLButtonElement;
+  const arrowLeftBtn = document.getElementById('arrow-left') as HTMLButtonElement;
+  const arrowRightBtn = document.getElementById('arrow-right') as HTMLButtonElement;
+
+  const hasSelection = context.hasSelection;
+
+  if (arrowUpBtn) {
+    arrowUpBtn.disabled = !hasSelection;
+  }
+
+  if (arrowDownBtn) {
+    arrowDownBtn.disabled = !hasSelection;
+  }
+
+  if (arrowLeftBtn) {
+    arrowLeftBtn.disabled = !hasSelection;
+  }
+
+  if (arrowRightBtn) {
+    arrowRightBtn.disabled = !hasSelection;
+  }
 }
 
 // Update navigation controls visibility based on setting
@@ -3075,7 +3099,19 @@ function setupNavigationControls(): void {
   const nextBtn = document.getElementById('nav-next');
   const collapseBtn = document.getElementById('nav-collapse');
   const gotoComponentBtn = document.getElementById('nav-goto-component');
+  const undoBtn = document.getElementById('nav-undo');
+  const redoBtn = document.getElementById('nav-redo');
   const navigationGrid = document.querySelector('.navigation-grid');
+
+  // Arrow key buttons
+  const arrowUpBtn = document.getElementById('arrow-up');
+  const arrowDownBtn = document.getElementById('arrow-down');
+  const arrowLeftBtn = document.getElementById('arrow-left');
+  const arrowRightBtn = document.getElementById('arrow-right');
+  const zoomInBtn = document.getElementById('zoom-in');
+  const zoomOutBtn = document.getElementById('zoom-out');
+  const zoom100Btn = document.getElementById('zoom-100');
+  const arrowKeysGrid = document.querySelector('.arrow-keys-grid');
 
   // Add click event listeners with screen reader announcements
   if (enterBtn) {
@@ -3126,9 +3162,82 @@ function setupNavigationControls(): void {
     });
   }
 
+  if (undoBtn) {
+    undoBtn.addEventListener('click', () => {
+      console.log('Undo action');
+      sendMessage('undo');
+    });
+  }
+
+  if (redoBtn) {
+    redoBtn.addEventListener('click', () => {
+      console.log('Redo action');
+      sendMessage('redo');
+    });
+  }
+
+  // Arrow key button event listeners - for nudging/moving elements on canvas
+  if (arrowUpBtn) {
+    arrowUpBtn.addEventListener('click', (e: MouseEvent) => {
+      const amount = e.shiftKey ? 8 : 1;
+      console.log(`Arrow Move: Up (nudge ${amount}px)`);
+      sendMessage('nudge-elements', { direction: 'up', amount });
+    });
+  }
+
+  if (arrowDownBtn) {
+    arrowDownBtn.addEventListener('click', (e: MouseEvent) => {
+      const amount = e.shiftKey ? 8 : 1;
+      console.log(`Arrow Move: Down (nudge ${amount}px)`);
+      sendMessage('nudge-elements', { direction: 'down', amount });
+    });
+  }
+
+  if (arrowLeftBtn) {
+    arrowLeftBtn.addEventListener('click', (e: MouseEvent) => {
+      const amount = e.shiftKey ? 8 : 1;
+      console.log(`Arrow Move: Left (nudge ${amount}px)`);
+      sendMessage('nudge-elements', { direction: 'left', amount });
+    });
+  }
+
+  if (arrowRightBtn) {
+    arrowRightBtn.addEventListener('click', (e: MouseEvent) => {
+      const amount = e.shiftKey ? 8 : 1;
+      console.log(`Arrow Move: Right (nudge ${amount}px)`);
+      sendMessage('nudge-elements', { direction: 'right', amount });
+    });
+  }
+
+  // Zoom button event listeners
+  if (zoomInBtn) {
+    zoomInBtn.addEventListener('click', () => {
+      console.log('Zoom: In');
+      sendMessage('zoom', { direction: 'in' });
+    });
+  }
+
+  if (zoomOutBtn) {
+    zoomOutBtn.addEventListener('click', () => {
+      console.log('Zoom: Out');
+      sendMessage('zoom', { direction: 'out' });
+    });
+  }
+
+  if (zoom100Btn) {
+    zoom100Btn.addEventListener('click', () => {
+      console.log('Zoom: 100%');
+      sendMessage('zoom', { direction: '100' });
+    });
+  }
+
   // Add keyboard navigation support
   if (navigationGrid) {
     setupNavigationKeyboardSupport(navigationGrid as HTMLElement);
+  }
+
+  if (arrowKeysGrid) {
+    setupNavigationKeyboardSupport(arrowKeysGrid as HTMLElement);
   }
 }
 

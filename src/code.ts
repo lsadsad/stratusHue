@@ -197,6 +197,27 @@ figma.ui.onmessage = async (msg) => {
         sendSelectionStateToUI();
         break;
 
+      case 'nudge-elements':
+        if ('direction' in msg && 'amount' in msg && 
+            typeof msg.direction === 'string' && typeof msg.amount === 'number') {
+          await handleNudgeElements(msg.direction as 'up' | 'down' | 'left' | 'right', msg.amount);
+        }
+        break;
+
+      case 'zoom':
+        if ('direction' in msg && typeof msg.direction === 'string') {
+          await handleZoom(msg.direction as 'in' | 'out' | '100');
+        }
+        break;
+
+      case 'undo':
+        await handleUndo();
+        break;
+
+      case 'redo':
+        await handleRedo();
+        break;
+
       case 'toggle-mode':
         if ('mode' in msg && msg.mode === 'onLayer') {
           await handleToggleToLayerMode();
@@ -322,6 +343,59 @@ const handleClearEmoji = withErrorBoundary(async () => {
   if (result.success) {
     updateUIAfterEmojiChange();
   }
+}, ErrorType.UNKNOWN);
+
+const handleNudgeElements = withErrorBoundary(async (direction: 'up' | 'down' | 'left' | 'right', amount: number) => {
+  const selection = figma.currentPage.selection;
+  
+  if (selection.length === 0) {
+    return;
+  }
+
+  for (const node of selection) {
+    // Only move nodes that have x and y properties (excludes pages, document, etc.)
+    if ('x' in node && 'y' in node) {
+      switch (direction) {
+        case 'up':
+          node.y -= amount;
+          break;
+        case 'down':
+          node.y += amount;
+          break;
+        case 'left':
+          node.x -= amount;
+          break;
+        case 'right':
+          node.x += amount;
+          break;
+      }
+    }
+  }
+}, ErrorType.UNKNOWN);
+
+const handleZoom = withErrorBoundary(async (direction: 'in' | 'out' | '100') => {
+  const currentZoom = figma.viewport.zoom;
+  const zoomFactor = 1.2; // 20% zoom change
+  
+  if (direction === 'in') {
+    figma.viewport.zoom = currentZoom * zoomFactor;
+  } else if (direction === 'out') {
+    figma.viewport.zoom = currentZoom / zoomFactor;
+  } else if (direction === '100') {
+    figma.viewport.zoom = 1.0; // Reset to 100%
+  }
+}, ErrorType.UNKNOWN);
+
+const handleUndo = withErrorBoundary(async () => {
+  // Note: Figma doesn't provide a programmatic undo API
+  // These buttons serve as visual reminders of the undo/redo shortcuts
+  figma.notify('Use Ctrl+Z (Cmd+Z on Mac) to undo');
+}, ErrorType.UNKNOWN);
+
+const handleRedo = withErrorBoundary(async () => {
+  // Note: Figma doesn't provide a programmatic redo API
+  // These buttons serve as visual reminders of the undo/redo shortcuts
+  figma.notify('Use Ctrl+Shift+Z (Cmd+Shift+Z on Mac) to redo');
 }, ErrorType.UNKNOWN);
 
 const handleNavigateEmojiSet = withErrorBoundary(async (direction: 'prev' | 'next') => {
