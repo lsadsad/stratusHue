@@ -2874,10 +2874,14 @@ function updateNavigationControlButtons(context: NavigationContext): void {
 
     prevBtn.disabled = !canNavigate;
 
-    // Update visible label
+    // Update visible label and icon
     const labelElement = prevBtn.querySelector('.nav-label');
+    const iconElement = prevBtn.querySelector('.nav-icon');
     if (labelElement) {
-      labelElement.textContent = isPageMode ? 'Next' : 'Down';
+      labelElement.textContent = isPageMode ? 'Up' : 'Up';
+    }
+    if (iconElement) {
+      iconElement.textContent = isPageMode ? '↑' : '↑';
     }
 
     if (isPageMode && canNavigate) {
@@ -2911,10 +2915,14 @@ function updateNavigationControlButtons(context: NavigationContext): void {
 
     nextBtn.disabled = !canNavigate;
 
-    // Update visible label
+    // Update visible label and icon
     const labelElement = nextBtn.querySelector('.nav-label');
+    const iconElement = nextBtn.querySelector('.nav-icon');
     if (labelElement) {
-      labelElement.textContent = isPageMode ? 'Prev' : 'Up';
+      labelElement.textContent = isPageMode ? 'Down' : 'Down';
+    }
+    if (iconElement) {
+      iconElement.textContent = isPageMode ? '↓' : '↓';
     }
 
     if (isPageMode && canNavigate) {
@@ -2976,6 +2984,25 @@ function updateNavigationControlButtons(context: NavigationContext): void {
       descElement.textContent = hasComponentInstance ?
         'Navigate to the main component of selected instance' :
         'Select a component instance to navigate to its main component';
+    }
+  }
+
+  // Update delete button - enable when elements are selected
+  const deleteBtn = document.getElementById('nav-delete') as HTMLButtonElement;
+  if (deleteBtn) {
+    const hasSelection = context.hasSelection;
+    deleteBtn.disabled = !hasSelection;
+    
+    const label = hasSelection ?
+      'Delete selected nodes' :
+      'Delete selected nodes - no selection';
+    deleteBtn.setAttribute('aria-label', label);
+
+    const descElement = document.getElementById('nav-delete-desc');
+    if (descElement) {
+      descElement.textContent = hasSelection ?
+        'Delete currently selected nodes' :
+        'Select nodes to delete them';
     }
   }
 
@@ -3099,8 +3126,7 @@ function setupNavigationControls(): void {
   const nextBtn = document.getElementById('nav-next');
   const collapseBtn = document.getElementById('nav-collapse');
   const gotoComponentBtn = document.getElementById('nav-goto-component');
-  const undoBtn = document.getElementById('nav-undo');
-  const redoBtn = document.getElementById('nav-redo');
+  const deleteBtn = document.getElementById('nav-delete');
   const navigationGrid = document.querySelector('.navigation-grid');
 
   // Arrow key buttons
@@ -3132,17 +3158,23 @@ function setupNavigationControls(): void {
 
   if (prevBtn) {
     prevBtn.addEventListener('click', () => {
-      console.log('Navigation: Previous sibling');
-      announceNavigationResult({ success: true, message: 'Navigating to previous sibling' });
-      sendMessage('navigation-action', { action: 'prev-sibling' });
+      // In layer mode, swap actions but keep labels
+      const isLayerMode = navigationContext.hasSelection;
+      const action = isLayerMode ? 'next-sibling' : 'prev-sibling';
+      console.log(`Navigation: ${isLayerMode ? 'Next sibling (swapped)' : 'Previous sibling'}`);
+      announceNavigationResult({ success: true, message: `Navigating to ${isLayerMode ? 'next' : 'previous'} sibling` });
+      sendMessage('navigation-action', { action });
     });
   }
 
   if (nextBtn) {
     nextBtn.addEventListener('click', () => {
-      console.log('Navigation: Next sibling');
-      announceNavigationResult({ success: true, message: 'Navigating to next sibling' });
-      sendMessage('navigation-action', { action: 'next-sibling' });
+      // In layer mode, swap actions but keep labels
+      const isLayerMode = navigationContext.hasSelection;
+      const action = isLayerMode ? 'prev-sibling' : 'next-sibling';
+      console.log(`Navigation: ${isLayerMode ? 'Previous sibling (swapped)' : 'Next sibling'}`);
+      announceNavigationResult({ success: true, message: `Navigating to ${isLayerMode ? 'previous' : 'next'} sibling` });
+      sendMessage('navigation-action', { action });
     });
   }
 
@@ -3162,17 +3194,11 @@ function setupNavigationControls(): void {
     });
   }
 
-  if (undoBtn) {
-    undoBtn.addEventListener('click', () => {
-      console.log('Undo action');
-      sendMessage('undo');
-    });
-  }
-
-  if (redoBtn) {
-    redoBtn.addEventListener('click', () => {
-      console.log('Redo action');
-      sendMessage('redo');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', () => {
+      console.log('Delete: Deleting selected nodes');
+      announceNavigationResult({ success: true, message: 'Deleting selected nodes' });
+      sendMessage('delete-nodes');
     });
   }
 

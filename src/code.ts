@@ -210,12 +210,8 @@ figma.ui.onmessage = async (msg) => {
         }
         break;
 
-      case 'undo':
-        await handleUndo();
-        break;
-
-      case 'redo':
-        await handleRedo();
+      case 'delete-nodes':
+        await handleDeleteNodes();
         break;
 
       case 'toggle-mode':
@@ -386,16 +382,29 @@ const handleZoom = withErrorBoundary(async (direction: 'in' | 'out' | '100') => 
   }
 }, ErrorType.UNKNOWN);
 
-const handleUndo = withErrorBoundary(async () => {
-  // Note: Figma doesn't provide a programmatic undo API
-  // These buttons serve as visual reminders of the undo/redo shortcuts
-  figma.notify('Use Ctrl+Z (Cmd+Z on Mac) to undo');
-}, ErrorType.UNKNOWN);
+const handleDeleteNodes = withErrorBoundary(async () => {
+  const selection = figma.currentPage.selection;
+  
+  if (selection.length === 0) {
+    figma.notify('Please select at least one node to delete');
+    return;
+  }
 
-const handleRedo = withErrorBoundary(async () => {
-  // Note: Figma doesn't provide a programmatic redo API
-  // These buttons serve as visual reminders of the undo/redo shortcuts
-  figma.notify('Use Ctrl+Shift+Z (Cmd+Shift+Z on Mac) to redo');
+  const count = selection.length;
+  
+  // Delete all selected nodes
+  for (const node of selection) {
+    node.remove();
+  }
+  
+  // Clear selection after deletion
+  figma.currentPage.selection = [];
+  
+  figma.notify(`Deleted ${count} node${count === 1 ? '' : 's'}`);
+  
+  // Update UI state
+  sendSelectionStateToUI();
+  sendNavigationStateToUI();
 }, ErrorType.UNKNOWN);
 
 const handleNavigateEmojiSet = withErrorBoundary(async (direction: 'prev' | 'next') => {

@@ -728,16 +728,6 @@ body {
   position: relative;
 }
 
-.theme-selector[role="radiogroup"]::before {
-  content: attr(aria-label);
-  position: absolute;
-  top: -20px;
-  left: 0;
-  font-size: var(--font-size-xs);
-  color: var(--theme-text-muted);
-  font-weight: var(--font-weight-medium);
-}
-
 /* KEYBOARD NAVIGATION HELPERS */
 .theme-option input[type="radio"] {
   position: relative;
@@ -1340,9 +1330,9 @@ body {
 /* Figma light theme action buttons */
 [data-theme="figma-light"] .clear-action,
 [data-theme="figma-light"] #save-bookmark {
-  background: var(--theme-bg-secondary);
-  border: 1px solid var(--theme-border-primary);
-  color: var(--theme-text-primary);
+  background: var(--figma-light-enhanced-hover);
+  border: 1px solid var(--theme-info);
+  color: var(--theme-info);
 }
 
 [data-theme="figma-light"] .clear-action:hover,
@@ -1356,6 +1346,41 @@ body {
 [data-theme="figma-light"] #save-bookmark:active {
   background: var(--figma-light-enhanced-active);
   transform: scale(0.98);
+}
+
+/* Light theme action buttons - default state matches hover */
+[data-theme="light"] .clear-action,
+[data-theme="light"] #save-bookmark {
+  background: var(--figma-color-bg-hover);
+  border: var(--border-width) solid var(--figma-color-border-brand);
+  color: var(--figma-color-border-brand);
+}
+
+[data-theme="light"] .clear-action:hover,
+[data-theme="light"] #save-bookmark:hover {
+  background: var(--figma-color-bg-hover);
+  border: var(--border-width) solid var(--figma-color-border-brand);
+  color: var(--figma-color-border-brand);
+}
+
+[data-theme="light"] .clear-action .action-text,
+[data-theme="light"] #save-bookmark .action-text {
+  color: var(--figma-color-border-brand);
+}
+
+[data-theme="light"] .clear-action:hover .action-text,
+[data-theme="light"] #save-bookmark:hover .action-text {
+  color: var(--figma-color-border-brand);
+}
+
+[data-theme="figma-light"] .clear-action .action-text,
+[data-theme="figma-light"] #save-bookmark .action-text {
+  color: var(--theme-info);
+}
+
+[data-theme="figma-light"] .clear-action:hover .action-text,
+[data-theme="figma-light"] #save-bookmark:hover .action-text {
+  color: var(--theme-info);
 }
 
 /* Figma light theme footer enhancements */
@@ -2668,7 +2693,7 @@ h3 {
   align-items: center;
   gap: var(--spacing-lg);
   background: var(--color-background-elevated);
-  padding: calc(var(--spacing-xxl) * 2 - var(--spacing-lg)) var(--double-spacing-lg) calc(var(--spacing-xxl) * 2) var(--double-spacing-lg);
+  padding: var(--spacing-xl) var(--double-spacing-lg);
   border-radius: var(--border-radius-md);
 }
 
@@ -2685,12 +2710,20 @@ h3 {
   border: 0;
 }
 
-/* Navigation Grid - 2x3 layout as specified */
+/* Navigation Grid - 2x3 layout for hierarchy controls */
 .navigation-grid {
   display: grid;
   grid-template-columns: var(--nav-grid-cols);
-  grid-template-rows: repeat(3, 1fr);
-  grid-gap: var(--spacing-md);
+  grid-template-rows: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+/* Actions Grid - separate section for component and delete buttons */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
   width: 100%;
 }
 
@@ -2755,6 +2788,7 @@ h3 {
   /* Ensure text meets WCAG AA contrast requirements */
   color: var(--nav-text-contrast);
   background: var(--nav-bg-contrast);
+  /* Border color will be overridden by color-specific classes */
   border-color: var(--nav-border-contrast);
 }
 
@@ -2828,6 +2862,102 @@ h3 {
   grid-column: span 2;
 }
 
+/* Color-coded navigation button groups - placed after general nav-button rules for proper override */
+/* Green: Arrow key movement buttons */
+.nav-button.nav-button-arrow {
+  /* 40% more visible - success color at 40% opacity (was ~15%, now ~21% effective) */
+  border-color: rgba(74, 222, 128, 0.4) !important;
+  /* Default fill 40% less than hover: rgba(110, 222, 110, 0.15) -> rgba(110, 222, 110, 0.09) */
+  background: rgba(110, 222, 110, 0.09) !important;
+}
+
+.nav-button.nav-button-arrow:hover:not(:disabled) {
+  background: var(--theme-accent-green);
+  border-color: var(--theme-success) !important;
+  color: var(--theme-text-primary);
+}
+
+.nav-button.nav-button-arrow:active:not(:disabled) {
+  background: var(--theme-success);
+  border-color: var(--theme-success) !important;
+}
+
+.nav-button.nav-button-arrow:disabled {
+  border-color: var(--theme-border-secondary) !important;
+  opacity: 0.4;
+}
+
+/* Blue: Zoom controls */
+.nav-button.nav-button-zoom {
+  /* 40% more visible - info color at 40% opacity (was ~8%, now ~11% effective) */
+  border-color: rgba(111, 176, 255, 0.4) !important;
+  /* Default fill 40% less than hover: rgba(111, 176, 255, 0.08) -> rgba(111, 176, 255, 0.048) */
+  background: rgba(111, 176, 255, 0.048) !important;
+}
+
+.nav-button.nav-button-zoom:hover:not(:disabled) {
+  background: var(--theme-accent-blue);
+  border-color: var(--theme-info) !important;
+  color: var(--theme-text-primary);
+}
+
+.nav-button.nav-button-zoom:active:not(:disabled) {
+  background: var(--theme-info);
+  border-color: var(--theme-info) !important;
+}
+
+.nav-button.nav-button-zoom:disabled {
+  border-color: var(--theme-border-secondary) !important;
+  opacity: 0.4;
+}
+
+/* Yellow: Hierarchy navigation buttons */
+.nav-button.nav-button-hierarchy {
+  /* 40% more visible - warning color at 40% opacity (was ~15%, now ~21% effective) */
+  border-color: rgba(255, 193, 7, 0.4) !important;
+  /* Default fill 40% less than hover: rgba(255, 193, 7, 0.15) -> rgba(255, 193, 7, 0.09) */
+  background: rgba(255, 193, 7, 0.09) !important;
+}
+
+.nav-button.nav-button-hierarchy:hover:not(:disabled) {
+  background: var(--theme-accent-yellow);
+  border-color: var(--theme-warning) !important;
+  color: var(--theme-text-primary);
+}
+
+.nav-button.nav-button-hierarchy:active:not(:disabled) {
+  background: var(--theme-warning);
+  border-color: var(--theme-warning) !important;
+}
+
+.nav-button.nav-button-hierarchy:disabled {
+  border-color: var(--theme-border-secondary) !important;
+  opacity: 0.4;
+}
+
+/* Red: History/undo-redo buttons */
+.nav-button.nav-button-action {
+  /* Delete button styling - red/danger color */
+  border-color: rgba(255, 107, 107, 0.4) !important;
+  background: rgba(255, 107, 107, 0.09) !important;
+}
+
+.nav-button.nav-button-action:hover:not(:disabled) {
+  background: var(--theme-accent-red);
+  border-color: var(--theme-error) !important;
+  color: var(--theme-text-primary);
+}
+
+.nav-button.nav-button-action:active:not(:disabled) {
+  background: var(--theme-error);
+  border-color: var(--theme-error) !important;
+}
+
+.nav-button.nav-button-action:disabled {
+  border-color: var(--theme-border-secondary) !important;
+  opacity: 0.4;
+}
+
 /* Navigation Header - match other section headers */
 #navigation-header {
   background: transparent;
@@ -2841,18 +2971,18 @@ h3 {
 }
 
 /* Theme-specific navigation button enhancements */
-[data-theme="boilerplate"] .nav-button:hover:not(:disabled) {
+[data-theme="boilerplate"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action) {
   background: var(--theme-interactive-hover);
   border-color: var(--theme-border-accent);
 }
 
-[data-theme="cybertron"] .nav-button:hover:not(:disabled) {
+[data-theme="cybertron"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action) {
   box-shadow: var(--cybertron-glow);
   color: var(--theme-text-primary);
   border-color: rgba(0, 255, 255, 0.3);
 }
 
-[data-theme="figma-light"] .nav-button:hover:not(:disabled) {
+[data-theme="figma-light"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action) {
   background: var(--figma-light-enhanced-hover);
   border-color: var(--theme-info);
   color: var(--theme-info);
@@ -3399,7 +3529,7 @@ i.grip {
   border: var(--border-width) solid var(--color-border-accent);
   border-radius: var(--border-radius-lg);
   width: min(560px, 96%);
-  height: min(80vh, 560px);
+  max-height: min(80vh, 560px);
   display: flex;
   flex-direction: column;
   box-shadow: 0 16px 40px var(--theme-shadow-heavy);
@@ -3452,7 +3582,7 @@ i.grip {
   color: var(--color-text-secondary);
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: var(--icon-size-sm);
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -3469,15 +3599,15 @@ i.grip {
 
 /* Support section */
 .support-section {
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-md);
+  margin-top: calc(var(--spacing-xxl) * 2);
+  padding-top: var(--spacing-xl);
   border-top: var(--border-width) solid var(--color-border-secondary);
 }
 
 .support-text {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: calc(var(--spacing-lg) * 2);
   text-align: center;
 }
 
@@ -3524,6 +3654,42 @@ i.grip {
 
 .kofi-button:hover .action-text {
   color: var(--figma-color-border-brand);
+}
+
+/* Light mode contrast improvements for Ko-fi button */
+[data-theme="light"] .kofi-button {
+  background: var(--figma-color-bg-hover);
+  color: var(--figma-color-border-brand);
+  border: var(--border-width) solid var(--figma-color-border-brand);
+}
+
+[data-theme="figma-light"] .kofi-button {
+  background: var(--theme-interactive-hover);
+  border: var(--border-width) solid var(--figma-color-border-brand);
+  color: var(--figma-color-border-brand);
+}
+
+[data-theme="light"] .kofi-button .action-text,
+[data-theme="figma-light"] .kofi-button .action-text {
+  color: var(--figma-color-border-brand);
+}
+
+[data-theme="light"] .kofi-button:hover,
+[data-theme="figma-light"] .kofi-button:hover {
+  background: var(--theme-interactive-hover);
+  border-color: var(--figma-color-border-brand);
+  color: var(--figma-color-border-brand);
+}
+
+[data-theme="light"] .kofi-button:hover .action-text,
+[data-theme="figma-light"] .kofi-button:hover .action-text {
+  color: var(--figma-color-border-brand);
+}
+
+[data-theme="light"] .kofi-button:active,
+[data-theme="figma-light"] .kofi-button:active {
+  background: var(--theme-interactive-active);
+  color: var(--theme-text-primary);
 }
 
 /* Additional state management classes */
@@ -4217,19 +4383,6 @@ i.grip {
 
 .theme-option input[type="radio"]:checked+.theme-option-content {
   color: var(--figma-color-text-onbrand);
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--figma-color-bg-brand);
-  border-radius: var(--border-radius-md);
-  opacity: 0.1;
-  pointer-events: none;
 }
 
 .theme-option input[type="radio"]:checked~.theme-option {
@@ -5292,17 +5445,22 @@ Footer Styles */
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-sm);
   width: 100%;
-  margin-top: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
 }
 
-/* Navigation Grid Layout */
+/* Navigation Grid Layout - hierarchy controls only */
 .navigation-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-sm);
   width: 100%;
-  margin-top: var(--spacing-md);
+}
+
+/* Actions Grid Layout - component and delete buttons */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+  width: 100%;
 }
 
 .nav-row {
@@ -5384,6 +5542,7 @@ Footer Styles */
   /* Empty grid cells for layout spacing */
   min-height: var(--button-height-lg);
 }
+
 
 /* Screen Reader Only Content */
 .sr-only {
