@@ -9,6 +9,19 @@ import type { NavigationContext } from './types';
 
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
+// Global error handlers to catch unexpected issues
+window.addEventListener('error', (event) => {
+  console.error('🚨 Global error caught:', event.error || event.message);
+  // Prevent error from bubbling to Figma's error handler
+  event.preventDefault();
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('🚨 Unhandled promise rejection:', event.reason);
+  // Prevent error from bubbling to Figma's error handler
+  event.preventDefault();
+});
+
 // Type definitions for better development experience
 interface _PluginMessage {
   type: string;
@@ -2585,12 +2598,15 @@ function clearAllTimers(): void {
 }
 
 // Event listener management
+// DISABLED: Overriding EventTarget.prototype can interfere with Figma's internal event handling
+// This was causing styleq errors in Figma's UI framework
 const activeEventListeners = new Map<EventTarget, Array<{
   type: string;
   listener: EventListener;
   options?: boolean | AddEventListenerOptions;
 }>>();
 
+/* COMMENTED OUT TO AVOID CONFLICTS WITH FIGMA'S EVENT HANDLING
 const originalAddEventListener = EventTarget.prototype.addEventListener;
 const originalRemoveEventListener = EventTarget.prototype.removeEventListener;
 
@@ -2622,8 +2638,13 @@ EventTarget.prototype.removeEventListener = function (
   }
   return originalRemoveEventListener.call(this, type, listener, options);
 };
+*/
 
 function removeAllEventListeners(): void {
+  // Since we're not tracking listeners anymore, this is a no-op
+  // Keep function for backward compatibility
+  console.log('Event listener cleanup skipped (prototype override disabled)');
+  /* ORIGINAL CODE COMMENTED OUT
   activeEventListeners.forEach((listeners, target) => {
     listeners.forEach(({ type, listener, options }) => {
       try {
@@ -2634,6 +2655,7 @@ function removeAllEventListeners(): void {
     });
   });
   activeEventListeners.clear();
+  */
 }
 
 // Performance optimization: pause/resume operations
