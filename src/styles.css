@@ -2204,11 +2204,6 @@ h3 {
   font-weight: var(--font-weight-normal);
 }
 
-/* Ensure Tags header uses transparent background on hover */
-#tags-header:hover {
-  background: transparent;
-}
-
 /* ===== SECTIONS ===== */
 
 /* Quick Actions Section */
@@ -2340,7 +2335,6 @@ h3 {
   min-height: unset;
   height: calc(var(--spacing-lg) * 5);
   padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
-  background: transparent;
   border-top: var(--border-width) solid var(--color-border-accent);
   border-bottom: var(--border-width) solid var(--color-border-accent);
   box-sizing: border-box;
@@ -2353,7 +2347,6 @@ h3 {
 
 /* Anchors Header - match Tags header strokes */
 #anchors-header {
-  background: transparent;
   border-top: var(--border-width) solid var(--color-border-accent);
   border-bottom: var(--border-width) solid var(--color-border-accent);
 }
@@ -2960,7 +2953,6 @@ h3 {
 
 /* Navigation Header - match other section headers */
 #navigation-header {
-  background: transparent;
   border-top: var(--border-width) solid var(--color-border-accent);
   border-bottom: var(--border-width) solid var(--color-border-accent);
 }
@@ -4861,7 +4853,6 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   min-height: unset;
   height: calc(var(--spacing-lg) * 5);
   padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
-  background: transparent;
   border-top: var(--border-width) solid var(--color-border-accent);
   border-bottom: var(--border-width) solid var(--color-border-accent);
   box-sizing: border-box;
@@ -4873,7 +4864,6 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 #anchors-header {
-  background: transparent;
   border-top: var(--border-width) solid var(--color-border-accent);
   border-bottom: var(--border-width) solid var(--color-border-accent);
 }
@@ -4893,11 +4883,6 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 #tags-header .header-right {
   gap: var(--spacing-xxl);
-}
-
-/* Ensure Tags header uses transparent background on hover */
-#tags-header:hover {
-  background: transparent;
 }
 
 .header-right .top-badge {
