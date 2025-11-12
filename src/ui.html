@@ -292,6 +292,43 @@
         </div>
       </div>
     </section>
+
+    <!-- Layout Sizing Controls -->
+    <header id="layout-header" class="section-header collapsible" data-target="layout-section" role="button"
+      tabindex="0" aria-expanded="true" aria-controls="layout-section">
+      <div class="header-left">
+        <div class="icon-container">
+          <i class="arrow" aria-hidden="true"></i>
+          <i class="tag-icon">📐</i>
+        </div>
+        <h2 class="header-title">LAYOUT SIZING</h2>
+      </div>
+    </header>
+
+    <section id="layout-section" class="collapsible-content" role="region" aria-labelledby="layout-header">
+      <div class="navigation-controls">
+        <div class="actions-grid" role="group" aria-label="Layout sizing controls"
+          aria-describedby="layout-instructions">
+          <!-- Screen reader instructions -->
+          <div id="layout-instructions" class="sr-only">
+            Cycle through auto layout sizing modes. Use Tab to navigate, Enter or Space to activate buttons.
+          </div>
+
+          <button id="cycle-width" class="nav-button nav-button-hierarchy"
+            aria-label="Cycle width sizing (Hug → Fill → Fixed)" aria-describedby="cycle-width-desc" disabled>
+            <span class="nav-icon" aria-hidden="true">↔</span>
+            <span class="nav-label"><span id="width-mode">—</span></span>
+            <span id="cycle-width-desc" class="sr-only">Cycle horizontal sizing mode between Hug, Fill, and Fixed</span>
+          </button>
+          <button id="cycle-height" class="nav-button nav-button-hierarchy"
+            aria-label="Cycle height sizing (Hug → Fill → Fixed)" aria-describedby="cycle-height-desc" disabled>
+            <span class="nav-icon" aria-hidden="true">↕</span>
+            <span class="nav-label"><span id="height-mode">—</span></span>
+            <span id="cycle-height-desc" class="sr-only">Cycle vertical sizing mode between Hug, Fill, and Fixed</span>
+          </button>
+        </div>
+      </div>
+    </section>
   </main>
 
   <div id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-hidden="true">

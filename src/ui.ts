@@ -116,6 +116,9 @@ function handlePluginMessage(event: MessageEvent): void {
         message: message.message
       });
       break;
+    case 'update-layout-state':
+      updateLayoutSizingButtons(message.horizontal, message.vertical);
+      break;
   }
 }
 
@@ -1318,6 +1321,30 @@ function updateNavigationButtons(canGoBack: boolean, canGoForward: boolean): voi
 
   if (backBtn) backBtn.disabled = !canGoBack;
   if (forwardBtn) forwardBtn.disabled = !canGoForward;
+}
+
+function updateLayoutSizingButtons(horizontal: string | undefined, vertical: string | undefined): void {
+  const widthModeSpan = document.getElementById('width-mode');
+  const heightModeSpan = document.getElementById('height-mode');
+  const cycleWidthBtn = document.getElementById('cycle-width') as HTMLButtonElement;
+  const cycleHeightBtn = document.getElementById('cycle-height') as HTMLButtonElement;
+
+  // Update button labels
+  if (widthModeSpan) {
+    widthModeSpan.textContent = horizontal || '—';
+  }
+  if (heightModeSpan) {
+    heightModeSpan.textContent = vertical || '—';
+  }
+
+  // Enable/disable buttons based on whether we have valid layout properties
+  const hasValidState = horizontal && horizontal !== '—';
+  if (cycleWidthBtn) {
+    cycleWidthBtn.disabled = !hasValidState;
+  }
+  if (cycleHeightBtn) {
+    cycleHeightBtn.disabled = !hasValidState;
+  }
 }
 
 function updateEmojiSetIndicator(setName: string, currentIndex: number, totalSets: number): void {
@@ -3276,6 +3303,24 @@ function setupNavigationControls(): void {
     zoom100Btn.addEventListener('click', () => {
       console.log('Zoom: 100%');
       sendMessage('zoom', { direction: '100' });
+    });
+  }
+
+  // Layout sizing buttons
+  const cycleWidthBtn = document.getElementById('cycle-width');
+  const cycleHeightBtn = document.getElementById('cycle-height');
+
+  if (cycleWidthBtn) {
+    cycleWidthBtn.addEventListener('click', () => {
+      console.log('Layout sizing: Cycle width');
+      sendMessage('cycle-layout-sizing', { axis: 'horizontal' });
+    });
+  }
+
+  if (cycleHeightBtn) {
+    cycleHeightBtn.addEventListener('click', () => {
+      console.log('Layout sizing: Cycle height');
+      sendMessage('cycle-layout-sizing', { axis: 'vertical' });
     });
   }
 

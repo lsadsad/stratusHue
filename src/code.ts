@@ -84,6 +84,7 @@ const debouncedSelectionUpdate = debounce(() => {
   detectCurrentAnchorFromSelection();
   addSelectionToHistory();
   sendNavigationStateToUI();
+  sendLayoutStateToUI();
 
   // Send optimized navigation context updates with dedicated debounce
   debouncedNavigationContextUpdate();
@@ -312,6 +313,12 @@ figma.ui.onmessage = async (msg) => {
 
       case 'get-navigation-controls-setting':
         await handleGetNavigationControlsSetting();
+        break;
+
+      case 'cycle-layout-sizing':
+        if ('axis' in msg && (msg.axis === 'horizontal' || msg.axis === 'vertical')) {
+          await handleCycleLayoutSizing(msg.axis as 'horizontal' | 'vertical');
+        }
         break;
 
       // Removed license management message handlers
@@ -837,5 +844,69 @@ const handleGetNavigationControlsSetting = withErrorBoundary(async () => {
     });
   }
 }, ErrorType.STORAGE_ERROR);
+
+const handleCycleLayoutSizing = withErrorBoundary(async (axis: 'horizontal' | 'vertical') => {
+  const selection = figma.currentPage.selection;
+
+  if (selection.length === 0) {
+    figma.notify('⚠️ Please select at least one layer');
+    return;
+  }
+
+  // Cycle order: HUG → FILL → FIXED
+  const cycleOrder: Array<'HUG' | 'FILL' | 'FIXED'> = ['HUG', 'FILL', 'FIXED'];
+
+  let count = 0;
+  let newMode: 'HUG' | 'FILL' | 'FIXED' | undefined;
+
+  selection.forEach(node => {
+    if ('layoutSizingHorizontal' in node && 'layoutSizingVertical' in node) {
+      const currentMode = axis === 'horizontal'
+        ? node.layoutSizingHorizontal
+        : node.layoutSizingVertical;
+
+      const currentIndex = cycleOrder.indexOf(currentMode);
+      newMode = cycleOrder[(currentIndex + 1) % 3];
+
+      if (axis === 'horizontal') {
+        node.layoutSizingHorizontal = newMode;
+      } else {
+        node.layoutSizingVertical = newMode;
+      }
+      count++;
+    }
+  });
+
+  if (count > 0) {
+    const axisName = axis === 'horizontal' ? 'width' : 'height';
+    figma.notify(`✓ Set ${axisName} to ${newMode}`);
+
+    // Send updated state back to UI for single selections
+    sendLayoutStateToUI();
+  } else {
+    figma.notify('⚠️ Selected layers must be inside an auto-layout frame');
+  }
+}, ErrorType.UNKNOWN);
+
+// Helper function to send layout state to UI
+function sendLayoutStateToUI(): void {
+  const selection = figma.currentPage.selection;
+
+  if (selection.length === 1 && 'layoutSizingHorizontal' in selection[0]) {
+    const node = selection[0] as any;
+    figma.ui.postMessage({
+      type: 'update-layout-state',
+      horizontal: node.layoutSizingHorizontal,
+      vertical: node.layoutSizingVertical
+    });
+  } else {
+    // Multiple selection or no layout properties - show neutral state
+    figma.ui.postMessage({
+      type: 'update-layout-state',
+      horizontal: '—',
+      vertical: '—'
+    });
+  }
+}
 
 // License management removed
