@@ -305,14 +305,14 @@ figma.ui.onmessage = async (msg) => {
         }
         break;
 
-      case 'toggle-navigation-controls':
+      case 'toggle-controls':
         if ('enabled' in msg && typeof msg.enabled === 'boolean') {
-          await handleToggleNavigationControls(msg.enabled);
+          await handleToggleControls(msg.enabled);
         }
         break;
 
-      case 'get-navigation-controls-setting':
-        await handleGetNavigationControlsSetting();
+      case 'get-controls-setting':
+        await handleGetControlsSetting();
         break;
 
       case 'cycle-layout-sizing':
@@ -808,38 +808,38 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
   figma.notify(result.message);
 }, ErrorType.NAVIGATION_FAILED);
 
-const handleToggleNavigationControls = withErrorBoundary(async (enabled: boolean) => {
-  // Store navigation controls setting in plugin storage
+const handleToggleControls = withErrorBoundary(async (enabled: boolean) => {
+  // Store controls setting in plugin storage
   try {
-    await figma.clientStorage.setAsync('navigationControlsEnabled', enabled);
+    await figma.clientStorage.setAsync('controlsEnabled', enabled);
 
     // Send updated setting to UI
     figma.ui.postMessage({
-      type: 'navigation-controls-setting',
+      type: 'controls-setting',
       enabled: enabled
     });
 
-    figma.notify(enabled ? 'Navigation controls enabled' : 'Navigation controls disabled');
+    figma.notify(enabled ? 'Controls enabled' : 'Controls disabled');
   } catch (error) {
-    console.error('Failed to save navigation controls setting:', error);
-    figma.notify('Failed to save navigation controls setting');
+    console.error('Failed to save controls setting:', error);
+    figma.notify('Failed to save controls setting');
   }
 }, ErrorType.STORAGE_ERROR);
 
-const handleGetNavigationControlsSetting = withErrorBoundary(async () => {
+const handleGetControlsSetting = withErrorBoundary(async () => {
   try {
-    const enabled = await figma.clientStorage.getAsync('navigationControlsEnabled') ?? true;
+    const enabled = await figma.clientStorage.getAsync('controlsEnabled') ?? true;
 
     // Send current setting to UI
     figma.ui.postMessage({
-      type: 'navigation-controls-setting',
+      type: 'controls-setting',
       enabled: enabled
     });
   } catch (error) {
-    console.error('Failed to load navigation controls setting:', error);
+    console.error('Failed to load controls setting:', error);
     // Default to enabled
     figma.ui.postMessage({
-      type: 'navigation-controls-setting',
+      type: 'controls-setting',
       enabled: true
     });
   }

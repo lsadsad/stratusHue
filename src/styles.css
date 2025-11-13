@@ -162,7 +162,7 @@ body {
   --toggle-min-width: 156px;
 
   /* Grid Systems */
-  --nav-grid-cols: repeat(2, 1fr);
+  --nav-grid-cols: repeat(3, 1fr);
   --tags-grid-cols: repeat(4, 1fr);
   --tags-actions-cols: repeat(4, 1fr);
 
@@ -175,8 +175,8 @@ body {
   --breakpoint-wide: 280px;
   
   /* Navigation Grid Responsive */
-  --nav-grid-narrow: repeat(2, 1fr);
-  --nav-grid-wide: repeat(2, 1fr);
+  --nav-grid-narrow: repeat(3, 1fr);
+  --nav-grid-wide: repeat(3, 1fr);
 
   /* Adaptive Sizing */
   --container-min-width: 188px;
@@ -815,25 +815,25 @@ body {
 /* Additional Windows High Contrast Mode Support */
 @media (forced-colors: active) {
   /* Ensure navigation section is properly outlined */
-  #navigation-section {
+  #controls-section {
     border: 2px solid WindowText;
     background: Window;
   }
   
-  /* Navigation header in high contrast */
-  #navigation-header {
+  /* Controls header in high contrast */
+  #controls-header {
     background: ButtonFace;
     color: ButtonText;
     border-color: ButtonBorder;
   }
   
-  #navigation-header:hover {
+  #controls-header:hover {
     background: Highlight;
     color: HighlightText;
   }
   
-  /* Navigation controls container */
-  .navigation-controls {
+  /* Controls container */
+  .controls-container {
     background: Window;
     border: 1px solid WindowText;
   }
@@ -854,7 +854,7 @@ body {
 
 /* Enhanced contrast validation for WCAG AAA compliance */
 @media (prefers-contrast: high) {
-  /* Ensure all navigation elements meet 7:1 contrast ratio */
+  /* Ensure all control elements meet 7:1 contrast ratio */
   .nav-button {
     /* Enhanced contrast colors */
     color: var(--theme-text-primary);
@@ -888,13 +888,13 @@ body {
 
 /* Comprehensive reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  /* Override all potential motion in navigation */
+  /* Override all potential motion in controls */
   .nav-button,
   .nav-button *,
-  .navigation-grid,
+  .controls-grid,
   .arrow-keys-grid,
-  .navigation-controls,
-  #navigation-section {
+  .controls-container,
+  #controls-section {
     transition: none !important;
     animation: none !important;
     transform: none !important;
@@ -1753,7 +1753,7 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xxl);
-  padding: calc(var(--spacing-xxl) * 2) var(--double-spacing-lg) calc(var(--spacing-xxl) * 2 - var(--spacing-lg)) var(--double-spacing-lg);
+  padding: 16px var(--double-spacing-lg) calc(var(--spacing-xxl) * 2 - var(--spacing-lg)) var(--double-spacing-lg);
   min-height: 120px;
 }
 
@@ -1768,6 +1768,7 @@ h3 {
   margin-bottom: 0;
   padding-top: 0;
   padding-bottom: 0;
+  pointer-events: none;
   overflow: hidden;
 }
 
@@ -2219,6 +2220,9 @@ h3 {
   overflow: hidden;
   width: 100%;
   box-sizing: border-box;
+  height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
+  min-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
+  max-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
 }
 
 /* Scoped toolbar tweaks */
@@ -2293,15 +2297,13 @@ h3 {
   align-items: center;
   background: transparent;
   border: none;
-  border-bottom: var(--border-width) solid var(--color-border-accent);
   border-radius: 0;
-  height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
+  height: 36px;
+  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
-  text-transform: uppercase;
   letter-spacing: 0.16em;
 }
 
@@ -2333,10 +2335,9 @@ h3 {
 /* Tags Header */
 #tags-header {
   min-height: unset;
-  height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
+  height: 36px;
+  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
   border-top: var(--border-width) solid var(--color-border-accent);
-  border-bottom: var(--border-width) solid var(--color-border-accent);
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -2348,7 +2349,6 @@ h3 {
 /* Anchors Header - match Tags header strokes */
 #anchors-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  border-bottom: var(--border-width) solid var(--color-border-accent);
 }
 
 /* Remove bottom border when headers are collapsed */
@@ -2407,9 +2407,8 @@ h3 {
 }
 
 #tags-header .header-title {
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
-  text-transform: uppercase;
   letter-spacing: var(--letter-spacing-tight);
 }
 
@@ -2421,7 +2420,6 @@ h3 {
 #tags-header .header-subtitle .emoji-set-title {
   font-weight: var(--font-weight-normal);
   color: var(--color-text-secondary);
-  text-transform: uppercase;
   letter-spacing: var(--letter-spacing-tight);
 }
 
@@ -2451,7 +2449,7 @@ h3 {
   gap: var(--spacing-xs);
   margin: 0;
   font-size: inherit;
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
   color: inherit;
 }
 
@@ -2563,37 +2561,13 @@ h3 {
   flex-direction: column;
   align-items: center;
   gap: 0;
+  width: 100%;
   background: var(--color-background-elevated);
   padding: calc(var(--spacing-lg) + var(--spacing-sm)) var(--spacing-lg);
   border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
   position: relative;
-}
-
-.emoji-set-title {
-  position: absolute;
-  top: calc(var(--border-width) * -1);
-  left: var(--icon-size-lg);
-  font-size: var(--icon-size-md);
-  font-weight: var(--font-weight-normal);
-  color: var(--color-text-primary);
-  text-transform: none;
-  letter-spacing: var(--letter-spacing-tight);
-  text-align: left;
-  margin: 0;
-  padding: var(--spacing-xs) var(--spacing-md);
-  background: var(--color-background-secondary);
-  border-radius: var(--border-radius-sm);
-  z-index: 1;
-}
-
-.emoji-set-title::before {
-  content: ' ↳ ';
-}
-
-.set-name {
-  font-weight: inherit;
 }
 
 .color-grid {
@@ -2664,10 +2638,10 @@ h3 {
   /* No transform for Drop button */
 }
 
-/* ===== NAVIGATION CONTROLS ===== */
+/* ===== CONTROLS SECTION ===== */
 
-/* Navigation Section */
-#navigation-section {
+/* Controls Section */
+#controls-section {
   display: flex;
   flex-direction: column;
   overflow: visible;
@@ -2676,17 +2650,17 @@ h3 {
   border-radius: var(--border-radius-md);
 }
 
-#navigation-section:not(.collapsed) {
+#controls-section:not(.collapsed) {
   flex: 0 0 auto;
 }
 
-.navigation-controls {
+.controls-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: 16px;
   background: var(--color-background-elevated);
-  padding: var(--spacing-xl) var(--double-spacing-lg);
+  padding: 16px var(--double-spacing-lg) var(--double-spacing-lg) var(--double-spacing-lg);
   border-radius: var(--border-radius-md);
 }
 
@@ -2703,13 +2677,19 @@ h3 {
   border: 0;
 }
 
-/* Navigation Grid - 2x3 layout for hierarchy controls */
-.navigation-grid {
+/* Controls Grid - 3 column layout for hierarchy controls */
+.controls-grid {
   display: grid;
-  grid-template-columns: var(--nav-grid-cols);
+  grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: var(--spacing-sm);
   width: 100%;
+}
+
+/* Controls Grid Icons - 16x16 equivalent token */
+.controls-grid .nav-icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
 }
 
 /* Actions Grid - separate section for component and delete buttons */
@@ -2720,12 +2700,18 @@ h3 {
   width: 100%;
 }
 
-/* Navigation rows for semantic structure */
+/* Actions Grid Icons - 16x16 equivalent token */
+.actions-grid .nav-icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+}
+
+/* Control rows for semantic structure */
 .nav-row {
   display: contents;
 }
 
-/* Navigation Buttons */
+/* Control Buttons */
 .nav-button {
   /* Inherit from .btn-base */
   border: var(--border-width) solid var(--theme-border-primary);
@@ -2771,7 +2757,7 @@ h3 {
   z-index: 1;
 }
 
-/* Ensure sufficient color contrast for navigation elements */
+/* Ensure sufficient color contrast for control elements */
 .nav-button {
   /* Minimum contrast ratio of 4.5:1 for normal text, 7:1 for enhanced */
   --nav-text-contrast: var(--theme-text-primary);
@@ -2835,14 +2821,22 @@ h3 {
   transform: none;
 }
 
-/* Navigation Button Icons */
+/* Control Button Icons */
 .nav-icon {
   font-size: var(--icon-size-lg);
   font-weight: var(--font-weight-normal);
   line-height: 1;
 }
 
-/* Navigation Button Labels */
+/* SVG Images inside control icons */
+.nav-icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  display: block;
+  filter: var(--icon-filter, none);
+}
+
+/* Control Button Labels */
 .nav-label {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
@@ -2855,7 +2849,7 @@ h3 {
   grid-column: span 2;
 }
 
-/* Color-coded navigation button groups - placed after general nav-button rules for proper override */
+/* Color-coded control button groups - placed after general nav-button rules for proper override */
 /* Green: Arrow key movement buttons */
 .nav-button.nav-button-arrow {
   /* 40% more visible - success color at 40% opacity (was ~15%, now ~21% effective) */
@@ -2904,7 +2898,7 @@ h3 {
   opacity: 0.4;
 }
 
-/* Yellow: Hierarchy navigation buttons */
+/* Yellow: Hierarchy control buttons */
 .nav-button.nav-button-hierarchy {
   /* 40% more visible - warning color at 40% opacity (was ~15%, now ~21% effective) */
   border-color: rgba(255, 193, 7, 0.4) !important;
@@ -2951,18 +2945,24 @@ h3 {
   opacity: 0.4;
 }
 
-/* Navigation Header - match other section headers */
-#navigation-header {
+/* Controls Header - match other section headers */
+#controls-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  border-bottom: var(--border-width) solid var(--color-border-accent);
+  padding-right: var(--spacing-lg);
 }
 
-/* Remove bottom border when navigation header is collapsed */
-#navigation-header[aria-expanded="false"] {
+/* Make header-left take full width in controls header */
+#controls-header .header-left {
+  flex: 1;
+  width: 100%;
+}
+
+/* Remove bottom border when controls header is collapsed */
+#controls-header[aria-expanded="false"] {
   border-bottom: none;
 }
 
-/* Theme-specific navigation button enhancements */
+/* Theme-specific control button enhancements */
 [data-theme="boilerplate"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action) {
   background: var(--theme-interactive-hover);
   border-color: var(--theme-border-accent);
@@ -2980,7 +2980,7 @@ h3 {
   color: var(--theme-info);
 }
 
-/* Navigation controls theme transitions */
+/* Controls section theme transitions */
 .nav-button {
   transition: 
     background-color var(--theme-transition-duration) var(--theme-transition-easing),
@@ -2989,7 +2989,7 @@ h3 {
     transform var(--transition-duration-fast) var(--transition-timing-function);
 }
 
-/* Ensure navigation controls participate in theme transitions */
+/* Ensure controls section participates in theme transitions */
 .theme-transitioning .nav-button,
 .theme-previewing .nav-button {
   transition:
@@ -3018,7 +3018,7 @@ h3 {
   align-items: center;
   gap: calc(var(--spacing-lg) * 2 - var(--spacing-sm));
   background: var(--color-background-elevated);
-  padding: calc(var(--spacing-xxl) * 2 - var(--spacing-lg) - var(--spacing-lg)) var(--double-spacing-lg) var(--double-spacing-lg) var(--double-spacing-lg);
+  padding: var(--spacing-lg) var(--double-spacing-lg) var(--double-spacing-lg) var(--double-spacing-lg);
   border-radius: var(--border-radius-md);
 }
 
@@ -3454,6 +3454,10 @@ i.grip {
     flex-wrap: nowrap;
     gap: var(--spacing-xs);
     padding: var(--spacing-xs) var(--spacing-sm) 0 var(--spacing-sm);
+    /* Maintain fixed height to prevent resizing when width is toggled */
+    height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
+    min-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
+    max-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
   }
 
   #quick-actions .action-list {
@@ -3465,7 +3469,9 @@ i.grip {
   #quick-actions .action-btn {
     width: calc(var(--spacing-lg) * 2.5);
     /* min-width: calc(var(--spacing-lg) * 2.5); */
-    min-height: calc(var(--spacing-lg) * 2.5);
+    /* Keep button height consistent to maintain section height */
+    min-height: calc(var(--spacing-lg) * 3);
+    height: calc(var(--spacing-lg) * 3);
     /* Keep icon size consistent - do not resize icons when width is collapsed */
     font-size: var(--icon-size-md);
     flex-shrink: 1;
@@ -3532,7 +3538,6 @@ i.grip {
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-xl) var(--spacing-xxl);
-  border-bottom: var(--border-width) solid var(--color-border-accent);
 }
 
 .settings-title {
@@ -3541,12 +3546,11 @@ i.grip {
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   letter-spacing: var(--letter-spacing-tight);
-  text-transform: uppercase;
 }
 
 .settings-content {
   flex: 1;
-  padding: var(--spacing-xxl);
+  padding: var(--spacing-lg) var(--spacing-xxl) var(--spacing-xxl) var(--spacing-xxl);
   overflow: auto;
   color: var(--color-text-primary);
 }
@@ -3572,7 +3576,7 @@ i.grip {
 .beta-badge {
   background: var(--color-background-tertiary);
   color: var(--color-text-secondary);
-  padding: 2px 8px;
+  padding: 2px 4px;
   border-radius: 4px;
   font-size: var(--icon-size-sm);
   font-weight: var(--font-weight-medium);
@@ -3581,7 +3585,7 @@ i.grip {
   line-height: 1;
   display: inline-flex;
   align-items: center;
-  margin-left: var(--spacing-xs);
+  margin-left: auto;
 }
 
 
@@ -3734,7 +3738,6 @@ i.grip {
 .theme-group-header {
   margin-bottom: var(--spacing-xs);
   padding-bottom: var(--spacing-xs);
-  border-bottom: var(--border-width) solid var(--color-border-secondary);
 }
 
 .theme-group-title {
@@ -3942,51 +3945,33 @@ i.grip {
 
 /* ===== TOGGLE COMPONENT ===== */
 .toggle-container {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: auto;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  width: 100%;
 }
 
 .toggle-button {
-  display: inline-grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
+  display: flex;
   align-items: center;
+  gap: var(--spacing-sm);
   position: relative;
   background: transparent;
   border: none;
-  border-radius: var(--border-radius-pill);
   cursor: pointer;
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
-  box-shadow: none;
-}
-
-.toggle-button:hover {
-  border-color: var(--theme-border-translucent);
+  padding: 0;
 }
 
 .toggle-button:focus-visible {
   outline: var(--outline-width) solid var(--figma-color-border-brand, #18a0fb);
   outline-offset: var(--outline-offset);
-  border-radius: var(--border-radius-pill);
+  border-radius: var(--border-radius-sm);
 }
 
-/* Sliding capsule */
+/* Toggle indicator removed - using independent button states instead */
 .toggle-indicator {
-  position: absolute;
-  top: var(--spacing-xs);
-  left: var(--spacing-xs);
-  width: calc(50% - var(--spacing-xs));
-  height: calc(100% - var(--spacing-sm));
-  background: transparent;
-  /* keep capsule invisible to reduce prominence */
-  border: none;
-  border-radius: var(--border-radius-pill);
-  box-shadow: none;
-  pointer-events: none;
-  transition: transform var(--transition-normal);
-  transform: translateX(0%);
+  display: none;
 }
 
 /* Options */
@@ -3997,9 +3982,19 @@ i.grip {
   font-size: var(--icon-size-sm);
   font-weight: var(--font-weight-normal);
   color: var(--color-text-secondary);
-  z-index: 1;
   user-select: none;
   padding: var(--spacing-xs) var(--spacing-md);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--border-radius-pill);
+  background: transparent;
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.toggle-option:hover {
+  border-color: var(--theme-border-translucent);
+  background: var(--theme-background-hover);
 }
 
 .toggle-option.active {
@@ -4007,22 +4002,14 @@ i.grip {
   font-weight: var(--font-weight-semibold);
   border: var(--border-width) solid var(--theme-border-soft);
   border-radius: var(--border-radius-pill);
+  background: var(--theme-background-subtle);
 }
 
 /* Disabled state for onLayer */
 .toggle-option.disabled {
   opacity: 0.60;
   cursor: not-allowed;
-}
-
-/* When onLayer is active, move indicator */
-.toggle-button[data-active="onLayer"] .toggle-indicator {
-  transform: translateX(100%);
-}
-
-/* When onPage is active, reset indicator */
-.toggle-button[data-active="onPage"] .toggle-indicator {
-  transform: translateX(0%);
+  pointer-events: none;
 }
 
 /* Section header shared spacing for left/right groups */
@@ -4077,9 +4064,8 @@ i.grip {
 /* Title and subtitle shared styling */
 .section-header .header-title {
   font-size: var(--icon-size-md);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
-  text-transform: uppercase;
   letter-spacing: var(--letter-spacing-tight);
 }
 
@@ -4091,7 +4077,6 @@ i.grip {
 .section-header .header-subtitle .emoji-set-title {
   font-weight: var(--font-weight-normal);
   color: var(--color-text-secondary);
-  text-transform: uppercase;
   letter-spacing: var(--letter-spacing-tight);
 }
 
@@ -4277,9 +4262,9 @@ i.grip {
   position: absolute;
   top: calc(var(--border-width) * -1 - var(--spacing-lg));
   left: var(--spacing-sm);
-  font-size: var(--icon-size-md);
+  font-size: var(--icon-size-sm);
   font-weight: var(--font-weight-normal);
-  color: var(--theme-text-primary);
+  color: var(--theme-text-muted);
   text-transform: none;
   letter-spacing: var(--letter-spacing-tight);
   text-align: left;
@@ -4708,15 +4693,13 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   align-items: center;
   background: transparent;
   border: none;
-  border-bottom: var(--border-width) solid var(--color-border-accent);
   border-radius: 0;
-  height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
+  height: 36px;
+  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
-  text-transform: uppercase;
   letter-spacing: 0.16em;
 }
 
@@ -4838,7 +4821,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   gap: var(--spacing-xs);
   margin: 0;
   font-size: inherit;
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
   color: inherit;
 }
 
@@ -4851,10 +4834,9 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 /* Specific header styling */
 #tags-header {
   min-height: unset;
-  height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) calc(var(--spacing-xxl) - var(--spacing-lg)) var(--spacing-xxl) var(--spacing-lg);
+  height: 36px;
+  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
   border-top: var(--border-width) solid var(--color-border-accent);
-  border-bottom: var(--border-width) solid var(--color-border-accent);
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -4865,7 +4847,6 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 #anchors-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  border-bottom: var(--border-width) solid var(--color-border-accent);
 }
 
 /* Remove bottom border when headers are collapsed */
@@ -5155,11 +5136,11 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   outline-offset: 2px;
 }
 /*
- ===== RESPONSIVE NAVIGATION CONTROLS ===== */
+ ===== RESPONSIVE CONTROLS SECTION ===== */
 
-/* Narrow viewport adjustments for navigation controls */
+/* Narrow viewport adjustments for controls */
 @media (max-width: 240px) {
-  .navigation-grid,
+  .controls-grid,
   .arrow-keys-grid {
     grid-template-columns: var(--nav-grid-narrow);
     grid-gap: var(--spacing-sm);
@@ -5173,20 +5154,25 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     font-size: var(--icon-size-md);
   }
   
+  .nav-icon img {
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+  }
+  
   .nav-label {
     font-size: var(--font-size-xs);
   }
 }
 
-/* Wide viewport enhancements for navigation controls */
+/* Wide viewport enhancements for controls */
 @media (min-width: 280px) {
-  .navigation-grid,
+  .controls-grid,
   .arrow-keys-grid {
     grid-template-columns: var(--nav-grid-wide);
   }
 }
 
-/* High contrast mode support for navigation controls */
+/* High contrast mode support for controls */
 @media (forced-colors: active) {
   .nav-button {
     border: 2px solid ButtonBorder;
@@ -5226,8 +5212,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     color: inherit;
   }
   
-  /* Ensure navigation grid has proper contrast */
-  .navigation-grid,
+  /* Ensure controls grid has proper contrast */
+  .controls-grid,
   .arrow-keys-grid {
     border: 1px solid ButtonBorder;
     background: Canvas;
@@ -5238,20 +5224,20 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     forced-color-adjust: none;
   }
   
-  /* Enhanced navigation grid contrast in forced colors mode */
-  .navigation-controls {
+  /* Enhanced controls grid contrast in forced colors mode */
+  .controls-container {
     background: Canvas;
     border: 2px solid WindowText;
   }
   
-  /* Ensure navigation section header is visible */
-  #navigation-header {
+  /* Ensure controls section header is visible */
+  #controls-header {
     border-color: WindowText;
     background: Canvas;
     color: WindowText;
   }
   
-  /* Navigation icons need to be clearly visible */
+  /* Control icons need to be clearly visible */
   .nav-icon {
     color: ButtonText;
     font-weight: bold;
@@ -5310,7 +5296,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
   
   /* Enhanced grid visibility in high contrast */
-  .navigation-grid,
+  .controls-grid,
   .arrow-keys-grid {
     border: 2px solid var(--theme-border-contrast);
     padding: var(--spacing-sm);
@@ -5318,7 +5304,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
 }
 
-/* Reduced motion support for navigation controls */
+/* Reduced motion support for controls */
 @media (prefers-reduced-motion: reduce) {
   .nav-button {
     transition: none !important;
@@ -5366,8 +5352,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     transform: none !important;
   }
   
-  /* Ensure navigation grid doesn't have motion effects */
-  .navigation-grid,
+  /* Ensure controls grid doesn't have motion effects */
+  .controls-grid,
   .arrow-keys-grid {
     transition: none !important;
     animation: none !important;
@@ -5380,7 +5366,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
 }
 
-/* Navigation button permanently unavailable (API limitations) */
+/* Control button permanently unavailable (API limitations) */
 .nav-button-unavailable {
   opacity: 0.3 !important;
   cursor: not-allowed !important;
@@ -5422,7 +5408,7 @@ Footer Styles */
 
 /* Footer branding - moved to .footer-controls .made-with (see line ~4505) */
 /* ===
-== NAVIGATION CONTROLS ===== */
+== CONTROLS SECTION ===== */
 
 /* Arrow Keys Grid Layout */
 .arrow-keys-grid {
@@ -5432,10 +5418,17 @@ Footer Styles */
   width: 100%;
 }
 
-/* Navigation Grid Layout - hierarchy controls only */
-.navigation-grid {
+/* Arrow Keys Grid Icons - 16x16 equivalent token */
+.arrow-keys-grid .nav-icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+}
+
+/* Controls Grid Layout - hierarchy controls only */
+.controls-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: var(--spacing-sm);
   width: 100%;
 }
@@ -5452,7 +5445,7 @@ Footer Styles */
   display: contents; /* Allow grid items to participate in parent grid */
 }
 
-/* Navigation Buttons */
+/* Control Buttons */
 .nav-button {
   /* Inherit from .btn-base */
   border: none;
@@ -5502,13 +5495,19 @@ Footer Styles */
   outline-offset: 2px;
 }
 
-/* Navigation Button Content */
+/* Control Button Content */
 .nav-icon {
-  font-size: var(--icon-size-md);
+  font-size: var(--icon-size-lg);
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.nav-icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  display: block;
 }
 
 .nav-label {
@@ -5522,7 +5521,7 @@ Footer Styles */
   max-width: 100%;
 }
 
-/* Navigation Spacers */
+/* Control Spacers */
 .nav-spacer {
   /* Empty grid cells for layout spacing */
   min-height: var(--button-height-lg);
@@ -5544,7 +5543,7 @@ Footer Styles */
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 240px) {
-  .navigation-grid,
+  .controls-grid,
   .arrow-keys-grid {
     gap: var(--spacing-xs);
   }
@@ -5555,6 +5554,11 @@ Footer Styles */
   
   .nav-icon {
     font-size: var(--icon-size-sm);
+  }
+  
+  .nav-icon img {
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
   }
   
   .nav-label {

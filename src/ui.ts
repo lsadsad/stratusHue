@@ -103,11 +103,11 @@ function handlePluginMessage(event: MessageEvent): void {
       break;
     case 'navigation-context-update':
       navigationContext = message.context;
-      updateNavigationControlButtons(navigationContext);
+      updateControlButtons(navigationContext);
       break;
-    case 'navigation-controls-setting':
-      navigationControlsEnabled = message.enabled;
-      updateNavigationControlsVisibility(navigationControlsEnabled);
+    case 'controls-setting':
+      controlsEnabled = message.enabled;
+      updateControlsVisibility(controlsEnabled);
       break;
     case 'navigation-action-result':
       // Announce the actual navigation result to screen readers
@@ -590,8 +590,8 @@ function initializePlugin(): void {
   // Setup cleanup on page unload
   setupCleanupHandlers();
 
-  // Initialize navigation controls
-  initializeNavigationControls();
+  // Initialize controls
+  initializeControls();
 
   // Request and restore UI section states
   requestUISectionStates();
@@ -2820,7 +2820,7 @@ if (typeof window !== 'undefined') {
   (window as any).getThemeManager = () => themeManager;
 }
 
-// NAVIGATION CONTROLS
+// CONTROLS SECTION
 
 // Navigation context state
 let navigationContext: NavigationContext = {
@@ -2834,11 +2834,11 @@ let navigationContext: NavigationContext = {
   hasComponentInstance: false
 };
 
-// Navigation controls setting state
-let navigationControlsEnabled = true;
+// Controls section setting state
+let controlsEnabled = true;
 
-// Update navigation button states based on context
-function updateNavigationControlButtons(context: NavigationContext): void {
+// Update control button states based on context
+function updateControlButtons(context: NavigationContext): void {
   const enterBtn = document.getElementById('nav-enter') as HTMLButtonElement;
   const exitBtn = document.getElementById('nav-exit') as HTMLButtonElement;
   const prevBtn = document.getElementById('nav-prev') as HTMLButtonElement;
@@ -2923,14 +2923,10 @@ function updateNavigationControlButtons(context: NavigationContext): void {
 
     prevBtn.disabled = !canNavigate;
 
-    // Update visible label and icon
+    // Update visible label (icon is already set in HTML as SVG image)
     const labelElement = prevBtn.querySelector('.nav-label');
-    const iconElement = prevBtn.querySelector('.nav-icon');
     if (labelElement) {
       labelElement.textContent = isPageMode ? 'Up' : 'Up';
-    }
-    if (iconElement) {
-      iconElement.textContent = isPageMode ? '↑' : '↑';
     }
 
     if (isPageMode && canNavigate) {
@@ -2964,14 +2960,10 @@ function updateNavigationControlButtons(context: NavigationContext): void {
 
     nextBtn.disabled = !canNavigate;
 
-    // Update visible label and icon
+    // Update visible label (icon is already set in HTML as SVG image)
     const labelElement = nextBtn.querySelector('.nav-label');
-    const iconElement = nextBtn.querySelector('.nav-icon');
     if (labelElement) {
       labelElement.textContent = isPageMode ? 'Down' : 'Down';
-    }
-    if (iconElement) {
-      iconElement.textContent = isPageMode ? '↓' : '↓';
     }
 
     if (isPageMode && canNavigate) {
@@ -3080,18 +3072,18 @@ function updateNavigationControlButtons(context: NavigationContext): void {
   }
 }
 
-// Update navigation controls visibility based on setting
-function updateNavigationControlsVisibility(enabled: boolean): void {
-  const navigationSection = document.getElementById('navigation-section');
-  const navigationHeader = document.getElementById('navigation-header');
+// Update controls section visibility based on setting
+function updateControlsVisibility(enabled: boolean): void {
+  const controlsSection = document.getElementById('controls-section');
+  const controlsHeader = document.getElementById('controls-header');
 
-  if (navigationSection && navigationHeader) {
+  if (controlsSection && controlsHeader) {
     if (enabled) {
-      navigationSection.style.display = '';
-      navigationHeader.style.display = '';
+      controlsSection.style.display = '';
+      controlsHeader.style.display = '';
     } else {
-      navigationSection.style.display = 'none';
-      navigationHeader.style.display = 'none';
+      controlsSection.style.display = 'none';
+      controlsHeader.style.display = 'none';
     }
   }
 }
@@ -3167,8 +3159,8 @@ function enhanceScreenReaderAnnouncements(enhanced: boolean): void {
   (window as any).enhancedAnnouncements = enhanced;
 }
 
-// Setup navigation controls event listeners
-function setupNavigationControls(): void {
+// Setup controls event listeners
+function setupControls(): void {
   const enterBtn = document.getElementById('nav-enter');
   const exitBtn = document.getElementById('nav-exit');
   const prevBtn = document.getElementById('nav-prev');
@@ -3176,7 +3168,7 @@ function setupNavigationControls(): void {
   const collapseBtn = document.getElementById('nav-collapse');
   const gotoComponentBtn = document.getElementById('nav-goto-component');
   const deleteBtn = document.getElementById('nav-delete');
-  const navigationGrid = document.querySelector('.navigation-grid');
+  const controlsGrid = document.querySelector('.controls-grid');
 
   // Arrow key buttons
   const arrowUpBtn = document.getElementById('arrow-up');
@@ -3325,18 +3317,18 @@ function setupNavigationControls(): void {
   }
 
   // Add keyboard navigation support
-  if (navigationGrid) {
-    setupNavigationKeyboardSupport(navigationGrid as HTMLElement);
+  if (controlsGrid) {
+    setupControlsKeyboardSupport(controlsGrid as HTMLElement);
   }
 
   if (arrowKeysGrid) {
-    setupNavigationKeyboardSupport(arrowKeysGrid as HTMLElement);
+    setupControlsKeyboardSupport(arrowKeysGrid as HTMLElement);
   }
 }
 
-// Keyboard navigation support for navigation grid
-function setupNavigationKeyboardSupport(navigationGrid: HTMLElement): void {
-  const buttons = Array.from(navigationGrid.querySelectorAll('.nav-button')) as HTMLButtonElement[];
+// Keyboard navigation support for controls grid
+function setupControlsKeyboardSupport(controlsGrid: HTMLElement): void {
+  const buttons = Array.from(controlsGrid.querySelectorAll('.nav-button')) as HTMLButtonElement[];
 
   // Create a 3D grid representation for navigation (3 columns now)
   const gridButtons: (HTMLButtonElement | null)[][] = [
@@ -3488,7 +3480,7 @@ function setupNavigationKeyboardSupport(navigationGrid: HTMLElement): void {
   });
 
   // Set initial focus management
-  navigationGrid.addEventListener('focusin', (event) => {
+  controlsGrid.addEventListener('focusin', (event) => {
     const target = event.target as HTMLElement;
     if (target.classList.contains('nav-button')) {
       // Announce current button state for screen readers
@@ -3616,32 +3608,32 @@ function updateButtonStateWithAnnouncement(button: HTMLButtonElement, enabled: b
   }
 }
 
-// Setup navigation controls settings
-function setupNavigationSettings(): void {
-  const navigationToggle = document.getElementById('navigation-controls-toggle') as HTMLInputElement;
+// Setup controls settings
+function setupControlsSettings(): void {
+  const controlsToggle = document.getElementById('controls-toggle') as HTMLInputElement;
 
-  if (navigationToggle) {
-    navigationToggle.addEventListener('change', () => {
-      const enabled = navigationToggle.checked;
-      console.log('Navigation controls setting changed:', enabled);
-      sendMessage('toggle-navigation-controls', { enabled });
+  if (controlsToggle) {
+    controlsToggle.addEventListener('change', () => {
+      const enabled = controlsToggle.checked;
+      console.log('Controls setting changed:', enabled);
+      sendMessage('toggle-controls', { enabled });
     });
   }
 }
 
-// Initialize navigation controls
-function initializeNavigationControls(): void {
-  setupNavigationControls();
-  setupNavigationSettings();
+// Initialize controls
+function initializeControls(): void {
+  setupControls();
+  setupControlsSettings();
 
   // Initialize accessibility features
   initializeAccessibilityFeatures();
 
-  // Request current navigation controls setting from plugin
-  sendMessage('get-navigation-controls-setting');
+  // Request current controls setting from plugin
+  sendMessage('get-controls-setting');
 }
 
-// Initialize accessibility features for navigation controls
+// Initialize accessibility features for controls
 function initializeAccessibilityFeatures(): void {
   // Detect and handle high contrast mode
   detectHighContrastMode();
@@ -3739,15 +3731,15 @@ function enhanceNavigationForHighContrast(): void {
     }
   });
 
-  // Enhance navigation grid visibility
-  const navGrid = document.querySelector('.navigation-grid') as HTMLElement;
-  if (navGrid) {
-    navGrid.style.border = '2px solid';
-    navGrid.style.padding = '4px';
+  // Enhance controls grid visibility
+  const controlsGrid = document.querySelector('.controls-grid') as HTMLElement;
+  if (controlsGrid) {
+    controlsGrid.style.border = '2px solid';
+    controlsGrid.style.padding = '4px';
   }
 }
 
-// Enhance navigation controls for reduced motion
+// Enhance controls for reduced motion
 function enhanceNavigationForReducedMotion(): void {
   const navButtons = document.querySelectorAll('.nav-button');
 
@@ -3771,7 +3763,7 @@ function enhanceNavigationForReducedMotion(): void {
   });
 }
 
-// Validate color contrast ratios for navigation controls
+// Validate color contrast ratios for controls
 function validateNavigationContrast(): void {
   const navButtons = document.querySelectorAll('.nav-button');
 
@@ -3791,9 +3783,9 @@ function validateNavigationContrast(): void {
   });
 }
 
-// Test navigation controls accessibility features
+// Test controls accessibility features
 function testNavigationAccessibility(): void {
-  console.log('🧪 Testing navigation controls accessibility...');
+  console.log('🧪 Testing controls accessibility...');
 
   // Test high contrast mode
   testHighContrastMode();
@@ -3898,8 +3890,8 @@ function testColorContrastRatios(): void {
 function testKeyboardNavigation(): void {
   console.log('⌨️ Testing keyboard navigation...');
 
-  const navGrid = document.querySelector('.navigation-grid') as HTMLElement;
-  const navButtons = navGrid?.querySelectorAll('.nav-button') as NodeListOf<HTMLButtonElement>;
+  const controlsGrid = document.querySelector('.controls-grid') as HTMLElement;
+  const navButtons = controlsGrid?.querySelectorAll('.nav-button') as NodeListOf<HTMLButtonElement>;
 
   if (!navButtons || navButtons.length === 0) {
     console.log('❌ No navigation buttons found');
@@ -3928,10 +3920,10 @@ function testKeyboardNavigation(): void {
   });
 
   // Test grid structure
-  const gridRole = navGrid?.getAttribute('role');
-  const gridLabel = navGrid?.getAttribute('aria-label');
+  const gridRole = controlsGrid?.getAttribute('role');
+  const gridLabel = controlsGrid?.getAttribute('aria-label');
 
-  console.log('Navigation grid ARIA:', {
+  console.log('Controls grid ARIA:', {
     role: gridRole,
     label: gridLabel
   });
@@ -3961,11 +3953,11 @@ function runAccessibilityTests(): void {
 
   // Test 4: ARIA attributes validation
   console.log('\n4. Testing ARIA attributes...');
-  const navGrid = document.querySelector('.navigation-grid');
+  const controlsGrid = document.querySelector('.controls-grid');
   const navButtons = document.querySelectorAll('.nav-button');
 
-  console.log(`Navigation grid ARIA role: ${navGrid?.getAttribute('role') || 'Missing'}`);
-  console.log(`Navigation grid ARIA label: ${navGrid?.getAttribute('aria-label') || 'Missing'}`);
+  console.log(`Controls grid ARIA role: ${controlsGrid?.getAttribute('role') || 'Missing'}`);
+  console.log(`Controls grid ARIA label: ${controlsGrid?.getAttribute('aria-label') || 'Missing'}`);
 
   navButtons.forEach((button, index) => {
     const ariaLabel = button.getAttribute('aria-label');
