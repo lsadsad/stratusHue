@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stratus Hue - Thumbnail Preview (Before & After)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'SF Pro Display', sans-serif;
+      background: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .thumbnail-container {
+      width: 1920px;
+      height: 1080px;
+      background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    /* Header Section */
+    .header {
+      position: absolute;
+      top: 80px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .header h1 {
+      font-size: 84px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 20px;
+      letter-spacing: -2px;
+    }
+
+    .header p {
+      font-size: 42px;
+      color: #5B9BF3;
+      font-weight: 600;
+    }
+
+    /* Split Screen Layout */
+    .split-container {
+      display: flex;
+      height: 100%;
+      padding-top: 280px;
+    }
+
+    .split-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px;
+      position: relative;
+    }
+
+    .split-section::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 280px;
+      bottom: 100px;
+      width: 2px;
+      background: linear-gradient(to bottom, transparent, #5B9BF3, transparent);
+    }
+
+    .split-section:last-child::after {
+      display: none;
+    }
+
+    .section-label {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      padding: 16px 40px;
+      border-radius: 12px;
+    }
+
+    .before .section-label {
+      background: rgba(255, 82, 82, 0.15);
+      color: #ff5252;
+      border: 2px solid rgba(255, 82, 82, 0.3);
+    }
+
+    .after .section-label {
+      background: rgba(91, 155, 243, 0.15);
+      color: #5B9BF3;
+      border: 2px solid rgba(91, 155, 243, 0.3);
+    }
+
+    /* Layer Panel Mockup */
+    .layer-panel {
+      background: #2c2c2c;
+      border-radius: 12px;
+      padding: 24px;
+      width: 640px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      border: 1px solid #3a3a3a;
+    }
+
+    .layer-panel-header {
+      font-size: 20px;
+      color: #999;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .layer-item {
+      background: #242424;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      font-size: 26px;
+      color: #e0e0e0;
+      border: 1px solid #333;
+      font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .layer-item.nested {
+      margin-left: 30px;
+    }
+
+    .layer-item.double-nested {
+      margin-left: 60px;
+    }
+
+    /* Before state - messy */
+    .before .layer-item {
+      opacity: 0.85;
+    }
+
+    .before .layer-item:nth-child(2) { color: #888; }
+    .before .layer-item:nth-child(4) { color: #999; }
+    .before .layer-item:nth-child(6) { color: #777; }
+
+    /* After state - organized */
+    .after .layer-item {
+      transition: all 0.3s ease;
+    }
+
+    .after .layer-item:hover {
+      background: #2a2a2a;
+      border-color: #5B9BF3;
+      transform: translateX(4px);
+    }
+
+    .emoji {
+      font-size: 28px;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    /* Footer Badge */
+    .footer-badge {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #5B9BF3 0%, #4a7ac2 100%);
+      padding: 20px 50px;
+      border-radius: 50px;
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 8px 32px rgba(91, 155, 243, 0.4);
+    }
+
+    /* Scale down for display */
+    @media (max-width: 1920px) {
+      .thumbnail-container {
+        transform: scale(0.8);
+        transform-origin: center center;
+      }
+    }
+
+    @media (max-width: 1600px) {
+      .thumbnail-container {
+        transform: scale(0.6);
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .thumbnail-container {
+        transform: scale(0.45);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="thumbnail-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>From Chaos to Clarity</h1>
+      <p>Color code your way to organized designs</p>
+    </div>
+
+    <!-- Split Screen Content -->
+    <div class="split-container">
+      <!-- BEFORE Section -->
+      <div class="split-section before">
+        <div class="section-label">❌ BEFORE</div>
+        <div class="layer-panel">
+          <div class="layer-panel-header">Layers</div>
+          <div class="layer-item">Frame 1</div>
+          <div class="layer-item nested">Rectangle 45</div>
+          <div class="layer-item nested">Component 32</div>
+          <div class="layer-item">Frame 2</div>
+          <div class="layer-item nested">Button copy 3</div>
+          <div class="layer-item double-nested">Text</div>
+          <div class="layer-item">Group 18</div>
+          <div class="layer-item nested">Image 23</div>
+          <div class="layer-item nested">Card final final v2</div>
+          <div class="layer-item">Frame 876</div>
+          <div class="layer-item nested">Component 1</div>
+        </div>
+      </div>
+
+      <!-- AFTER Section -->
+      <div class="split-section after">
+        <div class="section-label">✅ AFTER</div>
+        <div class="layer-panel">
+          <div class="layer-panel-header">Layers</div>
+          <div class="layer-item">
+            <span class="emoji">🟩</span> Hero Section
+          </div>
+          <div class="layer-item nested">
+            <span class="emoji">🟩</span> Header Image
+          </div>
+          <div class="layer-item nested">
+            <span class="emoji">🟦</span> CTA Button
+          </div>
+          <div class="layer-item">
+            <span class="emoji">🟨</span> Content Cards
+          </div>
+          <div class="layer-item nested">
+            <span class="emoji">🟩</span> Card Primary
+          </div>
+          <div class="layer-item double-nested">
+            <span class="emoji">⬜</span> Card Text
+          </div>
+          <div class="layer-item">
+            <span class="emoji">🟥</span> Footer (Needs Review)
+          </div>
+          <div class="layer-item nested">
+            <span class="emoji">🟦</span> Social Links
+          </div>
+          <div class="layer-item nested">
+            <span class="emoji">🟩</span> Legal Info
+          </div>
+          <div class="layer-item">
+            <span class="emoji">🟪</span> Archive
+          </div>
+          <div class="layer-item nested">
+            <span class="emoji">⬛</span> Old Version
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Badge -->
+    <div class="footer-badge">
+      Stratus Hue Plugin for Figma
+    </div>
+  </div>
+</body>
+</html>
