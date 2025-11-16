@@ -133,3 +133,7 @@ While MCP tools can't directly create variables, you can:
 
 
 
+
+
+
+

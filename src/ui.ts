@@ -2458,7 +2458,7 @@ function handleDOMReady(): void {
   });
 
   // Periodic cleanup to prevent stuck states (every 2 seconds)
-  setInterval(() => {
+  const footerCleanupInterval = setInterval(() => {
     const footerButtons = document.querySelectorAll('.footer-icon-btn');
     footerButtons.forEach((button) => {
       const btn = button as HTMLElement;
@@ -2471,6 +2471,7 @@ function handleDOMReady(): void {
       }
     });
   }, 2000);
+  activeTimers.add(footerCleanupInterval);
 }
 
 // Initialize when DOM is ready
@@ -2540,9 +2541,10 @@ function initializeThemePerformanceMonitoring(): void {
 
   // Monitor memory usage periodically
   if ('memory' in performance) {
-    setInterval(() => {
+    const memoryMonitorInterval = setInterval(() => {
       const memInfo = (performance as any).memory;
-      if (memInfo.usedJSHeapSize > 50 * 1024 * 1024) { // 50MB threshold
+      // Increased threshold to 200MB - Figma plugins with animations typically use 100-300MB
+      if (memInfo.usedJSHeapSize > 200 * 1024 * 1024) {
         console.warn('High memory usage detected:', {
           used: `${(memInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
           total: `${(memInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
@@ -2550,6 +2552,7 @@ function initializeThemePerformanceMonitoring(): void {
         });
       }
     }, 30000); // Check every 30 seconds
+    activeTimers.add(memoryMonitorInterval);
   }
 }
 

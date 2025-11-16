@@ -1383,6 +1383,19 @@ body {
   color: var(--theme-info);
 }
 
+/* SVG icon colors in light mode - use black equivalent token */
+[data-theme="figma-light"] .tag-icon img,
+[data-theme="light"] .tag-icon img {
+  filter: brightness(0);
+  opacity: 1;
+}
+
+[data-theme="figma-light"] .nav-icon img,
+[data-theme="light"] .nav-icon img {
+  filter: brightness(0);
+  opacity: 1;
+}
+
 /* Figma light theme footer enhancements */
 [data-theme="figma-light"] #footer {
   border-top: 1px solid var(--theme-border-primary);
@@ -2030,7 +2043,6 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: absolute;
   width: 100%;
   height: 100%;
   font-size: var(--icon-size-xl);
@@ -2299,7 +2311,7 @@ h3 {
   border: none;
   border-radius: 0;
   height: 36px;
-  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
+  padding: var(--spacing-xxl) 16px var(--spacing-xxl) 16px;
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
@@ -2336,7 +2348,7 @@ h3 {
 #tags-header {
   min-height: unset;
   height: 36px;
-  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
+  padding: var(--spacing-xxl) 16px var(--spacing-xxl) 16px;
   border-top: var(--border-width) solid var(--color-border-accent);
   box-sizing: border-box;
   display: flex;
@@ -2361,16 +2373,17 @@ h3 {
 }
 
 #tags-header .header-left {
-  gap: var(--spacing-xl);
+  gap: var(--spacing-xxl);
 }
 
 /* Unified icon container for all section headers */
 .section-header .icon-container {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   width: var(--arrow-width);
-  height: var(--icon-size-md);
-  line-height: var(--icon-size-md);
+  height: 100%;
 }
 
 .section-header .tag-icon {
@@ -2378,9 +2391,12 @@ h3 {
   color: var(--color-text-secondary);
   display: inline-block;
   transition: opacity var(--transition-normal);
-  position: absolute;
-  left: 0;
-  top: 0;
+}
+
+.section-header .tag-icon img {
+  width: var(--icon-size-md-plus);
+  height: var(--icon-size-md-plus);
+  display: block;
 }
 
 .section-header .arrow {
@@ -2390,9 +2406,6 @@ h3 {
   color: var(--color-text-primary);
   width: var(--arrow-width);
   transition: opacity var(--transition-normal);
-  position: absolute;
-  left: 0;
-  top: 0;
 }
 
 .section-header:hover .arrow,
@@ -2948,14 +2961,9 @@ h3 {
 /* Controls Header - match other section headers */
 #controls-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  padding-right: var(--spacing-lg);
+  padding-right: 16px;
 }
 
-/* Make header-left take full width in controls header */
-#controls-header .header-left {
-  flex: 1;
-  width: 100%;
-}
 
 /* Remove bottom border when controls header is collapsed */
 #controls-header[aria-expanded="false"] {
@@ -3185,6 +3193,7 @@ h3 {
   color: var(--color-text-primary);
   font-weight: normal;
   margin-top: var(--spacing-sm);
+  padding-left: var(--spacing-xxl);
   opacity: 0.6;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4031,10 +4040,11 @@ i.grip {
 /* Generic icon container rules for all section headers */
 .section-header .icon-container {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   width: var(--arrow-width);
-  height: var(--icon-size-md);
-  line-height: var(--icon-size-md);
+  height: 100%;
 }
 
 .section-header .tag-icon {
@@ -4042,9 +4052,12 @@ i.grip {
   color: var(--color-text-secondary);
   display: inline-block;
   transition: opacity var(--transition-normal);
-  position: absolute;
-  left: 0;
-  top: 0;
+}
+
+.section-header .tag-icon img {
+  width: var(--icon-size-md-plus);
+  height: var(--icon-size-md-plus);
+  display: block;
 }
 
 .section-header .arrow {
@@ -4054,9 +4067,6 @@ i.grip {
   color: var(--color-text-primary);
   width: var(--arrow-width);
   transition: opacity var(--transition-normal);
-  position: absolute;
-  left: 0;
-  top: 0;
 }
 
 
@@ -4695,7 +4705,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   border: none;
   border-radius: 0;
   height: 36px;
-  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
+  padding: var(--spacing-xxl) 16px var(--spacing-xxl) 16px;
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
@@ -4731,10 +4741,11 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 /* Unified icon container for all section headers */
 .section-header .icon-container {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   width: var(--arrow-width);
-  height: var(--icon-size-md);
-  line-height: var(--icon-size-md);
+  height: 100%;
 }
 
 .section-header .tag-icon {
@@ -4742,9 +4753,12 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   color: var(--color-text-secondary);
   display: inline-block;
   transition: opacity var(--transition-normal);
-  position: absolute;
-  left: 0;
-  top: 0;
+}
+
+.section-header .tag-icon img {
+  width: var(--icon-size-md-plus);
+  height: var(--icon-size-md-plus);
+  display: block;
 }
 
 .section-header .arrow {
@@ -4754,9 +4768,6 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   color: var(--color-text-primary);
   width: var(--arrow-width);
   transition: opacity var(--transition-normal);
-  position: absolute;
-  left: 0;
-  top: 0;
 }
 
 /* Show arrow on hover, hide icon */
@@ -4835,7 +4846,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 #tags-header {
   min-height: unset;
   height: 36px;
-  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
+  padding: var(--spacing-xxl) 16px var(--spacing-xxl) 16px;
   border-top: var(--border-width) solid var(--color-border-accent);
   box-sizing: border-box;
   display: flex;
@@ -4859,7 +4870,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 #tags-header .header-left {
-  gap: var(--spacing-xl);
+  gap: var(--spacing-xxl);
 }
 
 #tags-header .header-right {
