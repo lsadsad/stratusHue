@@ -309,7 +309,7 @@ body {
 }
 
 .theme-notification-text {
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
 }
 
 /* THEME PREVIEW INDICATOR */
@@ -344,7 +344,7 @@ body {
 }
 
 .preview-text {
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   white-space: nowrap;
 }
 
@@ -1396,6 +1396,13 @@ body {
   opacity: 1;
 }
 
+/* Quick actions icon colors for light mode */
+[data-theme="figma-light"] #quick-actions .action-btn .icon img,
+[data-theme="light"] #quick-actions .action-btn .icon img {
+  filter: brightness(0);
+  opacity: 1;
+}
+
 /* Figma light theme footer enhancements */
 [data-theme="figma-light"] #footer {
   border-top: 1px solid var(--theme-border-primary);
@@ -1712,7 +1719,7 @@ body,
 button,
 h3 {
   font-family: var(--font-family);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   font-size: var(--font-size-base);
 }
 
@@ -2122,8 +2129,8 @@ h3 {
   justify-content: center;
 
   /* Specific properties */
-  width: var(--button-height-md);
-  height: var(--button-height-md);
+  width: 20px;
+  height: 20px;
   padding: 0;
   font-size: var(--icon-size-md);
   border-radius: var(--border-radius-sm);
@@ -2161,8 +2168,8 @@ h3 {
 
 /* Header Action Buttons */
 .header-right .action-btn {
-  width: var(--button-height-md);
-  height: var(--button-height-md);
+  width: 20px;
+  height: 20px;
   font-size: var(--icon-size-md);
 }
 
@@ -2172,8 +2179,8 @@ h3 {
 
 /* Tags Header Emoji Nav Buttons */
 #tags-header .emoji-nav-btn {
-  width: var(--button-height-md);
-  height: var(--button-height-md);
+  width: 20px;
+  height: 20px;
   /* Align visuals with header refresh .action-btn styling */
   background: var(--color-background-secondary);
   border-radius: var(--border-radius-md);
@@ -2225,7 +2232,7 @@ h3 {
   flex-direction: row;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-sm) 0 var(--spacing-lg);
+  padding: 0 var(--spacing-md) 0 var(--spacing-md);
   align-self: stretch;
   background: var(--color-background-elevated);
   flex-wrap: nowrap;
@@ -2235,6 +2242,8 @@ h3 {
   height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
   min-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
   max-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
+  position: relative;
+  z-index: calc(var(--z-footer) + 1);
 }
 
 /* Scoped toolbar tweaks */
@@ -2249,7 +2258,7 @@ h3 {
   min-width: calc(var(--spacing-lg) * 3);
   min-height: calc(var(--spacing-lg) * 3);
   font-size: var(--icon-size-md);
-  background: var(--color-background-secondary);
+  background: transparent;
   color: var(--color-text-secondary);
   flex-shrink: 0;
   border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
@@ -2286,7 +2295,7 @@ h3 {
   padding: 0 var(--spacing-md);
   border-radius: var(--spacing-xl);
   font-size: var(--icon-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   line-height: var(--button-height-sm);
   height: var(--button-height-sm);
@@ -2310,7 +2319,7 @@ h3 {
   background: transparent;
   border: none;
   border-radius: 0;
-  height: 36px;
+  height: calc(var(--spacing-lg) * 5);
   padding: var(--spacing-xxl) 16px var(--spacing-xxl) 16px;
   gap: var(--spacing-lg);
   align-self: stretch;
@@ -2336,7 +2345,7 @@ h3 {
 }
 
 .header-left {
-  gap: var(--spacing-xxl);
+  gap: calc(var(--spacing-xxl) - var(--spacing-sm));
 }
 
 .header-right {
@@ -2347,7 +2356,7 @@ h3 {
 /* Tags Header */
 #tags-header {
   min-height: unset;
-  height: 36px;
+  height: calc(var(--spacing-lg) * 5);
   padding: var(--spacing-xxl) 16px var(--spacing-xxl) 16px;
   border-top: var(--border-width) solid var(--color-border-accent);
   box-sizing: border-box;
@@ -2373,7 +2382,7 @@ h3 {
 }
 
 #tags-header .header-left {
-  gap: var(--spacing-xxl);
+  gap: calc(var(--spacing-xxl) - var(--spacing-sm));
 }
 
 /* Unified icon container for all section headers */
@@ -2420,7 +2429,7 @@ h3 {
 }
 
 #tags-header .header-title {
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   letter-spacing: var(--letter-spacing-tight);
 }
@@ -2462,7 +2471,7 @@ h3 {
   gap: var(--spacing-xs);
   margin: 0;
   font-size: inherit;
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: inherit;
 }
 
@@ -2576,7 +2585,7 @@ h3 {
   gap: 0;
   width: 100%;
   background: var(--color-background-elevated);
-  padding: calc(var(--spacing-lg) + var(--spacing-sm)) var(--spacing-lg);
+  padding: calc(var(--spacing-lg) + var(--spacing-sm)) 12px;
   border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
@@ -2667,6 +2676,12 @@ h3 {
   flex: 0 0 auto;
 }
 
+/* Ensure collapsed state properly hides content and prevents scroll */
+#controls-section.collapsed {
+  overflow: hidden;
+  min-height: 0;
+}
+
 .controls-container {
   display: flex;
   flex-direction: column;
@@ -2727,7 +2742,7 @@ h3 {
 /* Control Buttons */
 .nav-button {
   /* Inherit from .btn-base */
-  border: var(--border-width) solid var(--theme-border-primary);
+  border: var(--border-width) solid transparent;
   cursor: pointer;
   transition: all var(--transition-normal);
   font-family: var(--font-family);
@@ -2780,8 +2795,8 @@ h3 {
   /* Ensure text meets WCAG AA contrast requirements */
   color: var(--nav-text-contrast);
   background: var(--nav-bg-contrast);
-  /* Border color will be overridden by color-specific classes */
-  border-color: var(--nav-border-contrast);
+  /* Border transparent in default state, visible on hover */
+  border-color: transparent;
 }
 
 /* Color contrast validation for different themes */
@@ -2811,7 +2826,7 @@ h3 {
   opacity: 0.6;
   color: var(--theme-text-disabled);
   background: var(--theme-interactive-disabled);
-  border-color: var(--theme-border-secondary);
+  border-color: transparent;
 }
 
 .nav-button:active:not(:disabled) {
@@ -2824,13 +2839,13 @@ h3 {
   cursor: not-allowed;
   background: var(--theme-interactive-disabled);
   color: var(--theme-text-disabled);
-  border-color: var(--theme-border-primary);
+  border-color: transparent;
 }
 
 .nav-button:disabled:hover {
   background: var(--theme-interactive-disabled);
   color: var(--theme-text-disabled);
-  border-color: var(--theme-border-primary);
+  border-color: transparent;
   transform: none;
 }
 
@@ -2865,8 +2880,8 @@ h3 {
 /* Color-coded control button groups - placed after general nav-button rules for proper override */
 /* Green: Arrow key movement buttons */
 .nav-button.nav-button-arrow {
-  /* 40% more visible - success color at 40% opacity (was ~15%, now ~21% effective) */
-  border-color: rgba(74, 222, 128, 0.4) !important;
+  /* Transparent border in default state, visible on hover */
+  border-color: transparent !important;
   /* Default fill 40% less than hover: rgba(110, 222, 110, 0.15) -> rgba(110, 222, 110, 0.09) */
   background: rgba(110, 222, 110, 0.09) !important;
 }
@@ -2883,14 +2898,14 @@ h3 {
 }
 
 .nav-button.nav-button-arrow:disabled {
-  border-color: var(--theme-border-secondary) !important;
+  border-color: transparent !important;
   opacity: 0.4;
 }
 
 /* Blue: Zoom controls */
 .nav-button.nav-button-zoom {
-  /* 40% more visible - info color at 40% opacity (was ~8%, now ~11% effective) */
-  border-color: rgba(111, 176, 255, 0.4) !important;
+  /* Transparent border in default state, visible on hover */
+  border-color: transparent !important;
   /* Default fill 40% less than hover: rgba(111, 176, 255, 0.08) -> rgba(111, 176, 255, 0.048) */
   background: rgba(111, 176, 255, 0.048) !important;
 }
@@ -2907,14 +2922,14 @@ h3 {
 }
 
 .nav-button.nav-button-zoom:disabled {
-  border-color: var(--theme-border-secondary) !important;
+  border-color: transparent !important;
   opacity: 0.4;
 }
 
 /* Yellow: Hierarchy control buttons */
 .nav-button.nav-button-hierarchy {
-  /* 40% more visible - warning color at 40% opacity (was ~15%, now ~21% effective) */
-  border-color: rgba(255, 193, 7, 0.4) !important;
+  /* Transparent border in default state, visible on hover */
+  border-color: transparent !important;
   /* Default fill 40% less than hover: rgba(255, 193, 7, 0.15) -> rgba(255, 193, 7, 0.09) */
   background: rgba(255, 193, 7, 0.09) !important;
 }
@@ -2931,14 +2946,15 @@ h3 {
 }
 
 .nav-button.nav-button-hierarchy:disabled {
-  border-color: var(--theme-border-secondary) !important;
+  border-color: transparent !important;
   opacity: 0.4;
 }
 
 /* Red: History/undo-redo buttons */
 .nav-button.nav-button-action {
   /* Delete button styling - red/danger color */
-  border-color: rgba(255, 107, 107, 0.4) !important;
+  /* Transparent border in default state, visible on hover */
+  border-color: transparent !important;
   background: rgba(255, 107, 107, 0.09) !important;
 }
 
@@ -2954,7 +2970,7 @@ h3 {
 }
 
 .nav-button.nav-button-action:disabled {
-  border-color: var(--theme-border-secondary) !important;
+  border-color: transparent !important;
   opacity: 0.4;
 }
 
@@ -3020,6 +3036,12 @@ h3 {
   flex: 0 0 auto;
 }
 
+/* Ensure collapsed state properly hides content and prevents scroll */
+#anchors-section.collapsed {
+  overflow: hidden;
+  min-height: 0;
+}
+
 .anchors-container {
   display: flex;
   flex-direction: column;
@@ -3032,7 +3054,7 @@ h3 {
 
 /* Null State */
 .null-state {
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -3043,6 +3065,16 @@ h3 {
   width: 100%;
 }
 
+/* Hide null state when aria-hidden is true */
+.null-state[aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Show null state when aria-hidden is false */
+.null-state[aria-hidden="false"] {
+  display: flex !important;
+}
+
 .null-state-icon {
   font-size: calc(var(--icon-size-xl) * 2);
   opacity: 0.6;
@@ -3051,7 +3083,7 @@ h3 {
 
 .null-state-title {
   font-size: var(--icon-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-xs);
 }
@@ -3073,7 +3105,7 @@ h3 {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 0;
   position: relative;
 }
 
@@ -3111,6 +3143,25 @@ h3 {
 
 .bookmark-item.recent-history .bookmark-name {
   color: var(--theme-text-primary);
+}
+
+/* Recent steps icon in bottom left of recent-history bookmark items */
+.bookmark-item.recent-history .recent-steps-icon {
+  position: absolute;
+  bottom: var(--spacing-md);
+  left: var(--spacing-xl);
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+/* Adjust icon color for light mode */
+[data-theme="figma-light"] .bookmark-item.recent-history .recent-steps-icon,
+[data-theme="light"] .bookmark-item.recent-history .recent-steps-icon {
+  filter: brightness(0);
+  opacity: 0.6;
 }
 
 .bookmark-item.current-anchor {
@@ -3193,7 +3244,7 @@ h3 {
   color: var(--color-text-primary);
   font-weight: normal;
   margin-top: var(--spacing-sm);
-  padding-left: var(--spacing-xxl);
+  padding-left: 16px;
   opacity: 0.6;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3462,7 +3513,7 @@ i.grip {
   #quick-actions {
     flex-wrap: nowrap;
     gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-sm) 0 var(--spacing-sm);
+    padding: 0 var(--spacing-sm) 0 var(--spacing-sm);
     /* Maintain fixed height to prevent resizing when width is toggled */
     height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
     min-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
@@ -3571,7 +3622,7 @@ i.grip {
 
 .settings-section-title {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-lg);
   display: flex;
@@ -3588,7 +3639,7 @@ i.grip {
   padding: 2px 4px;
   border-radius: 4px;
   font-size: var(--icon-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1;
@@ -3707,7 +3758,7 @@ i.grip {
 .setting-label {
   display: block;
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-md);
   text-transform: uppercase;
@@ -3720,7 +3771,7 @@ i.grip {
   gap: var(--spacing-sm);
   align-items: start;
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-md);
   text-transform: none;
@@ -3751,7 +3802,7 @@ i.grip {
 
 .theme-group-title {
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-tight);
@@ -3815,7 +3866,7 @@ i.grip {
 
 .theme-name {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   line-height: 1.2;
   flex: 1;
@@ -3874,7 +3925,7 @@ i.grip {
 
 .theme-group-title {
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -4030,7 +4081,7 @@ i.grip {
 
 /* Normalize group gaps */
 .section-header .header-left {
-  gap: var(--spacing-xxl);
+  gap: calc(var(--spacing-xxl) - var(--spacing-sm));
 }
 
 .section-header .header-right {
@@ -4074,7 +4125,7 @@ i.grip {
 /* Title and subtitle shared styling */
 .section-header .header-title {
   font-size: var(--icon-size-md);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   letter-spacing: var(--letter-spacing-tight);
 }
@@ -4097,27 +4148,37 @@ i.grip {
 /* Quick Actions icon sizing to 16px equivalent */
 #quick-actions .action-btn .icon {
   font-size: var(--icon-size-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#quick-actions .action-btn .icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  display: block;
 }
 
 /* Darker quick action hover/active states */
 #quick-actions .action-btn:hover {
-  background: var(--color-background-secondary);
+  background: transparent;
   color: var(--figma-color-border-brand);
 }
 
 #quick-actions .action-btn:active {
-  background: var(--color-interactive-active);
+  background: transparent;
   color: var(--figma-color-border-brand);
 }
 
 /* Disabled state: grey arrow/icon to indicate inactivity */
 #quick-actions .action-btn:disabled {
-  background: var(--color-background-secondary);
+  background: transparent;
   color: var(--color-text-disabled);
 }
 
 #quick-actions .action-btn:disabled .icon {
   color: var(--figma-color-icon-disabled);
+  opacity: 0.4;
 }
 
 /* Enabled quick action buttons: restore brand blue color */
@@ -4129,22 +4190,66 @@ i.grip {
   color: var(--figma-color-border-brand);
 }
 
+/* Date and page button icons */
+#quick-actions #date-btn .icon,
+#quick-actions #new-page-btn .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#quick-actions #date-btn .icon img,
+#quick-actions #new-page-btn .icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  display: block;
+}
+
+/* Back and forward button icons */
+#quick-actions #back-btn .icon,
+#quick-actions #forward-btn .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#quick-actions #back-btn .icon img,
+#quick-actions #forward-btn .icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  display: block;
+}
+
 /* Indent controls: no fill in any state */
 #quick-actions #indent-title-btn,
 #quick-actions #outdent-title-btn {
   background: transparent;
 }
 
+#quick-actions #indent-title-btn .icon,
+#quick-actions #outdent-title-btn .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#quick-actions #indent-title-btn .icon img,
+#quick-actions #outdent-title-btn .icon img {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
 #quick-actions #indent-title-btn:hover,
 #quick-actions #outdent-title-btn:hover {
   background: transparent;
-  transform: none;
+  transform: translateY(calc(var(--elevation-nudge) * -1));
 }
 
 #quick-actions #indent-title-btn:active,
 #quick-actions #outdent-title-btn:active {
   background: transparent;
-  transform: none;
+  transform: translateY(0);
 }
 
 /* Indent icon color behavior: white by default, blue on hover/press */
@@ -4187,14 +4292,19 @@ i.grip {
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translateY(calc(var(--spacing-sm) * -1));
+}
+
+#quick-actions #settings-btn .icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  display: block;
 }
 
 /* Keep brand blue on hover/active */
 #quick-actions #settings-btn:hover {
   background: transparent;
   color: var(--figma-color-border-brand);
-  transform: none;
+  transform: translateY(calc(var(--elevation-nudge) * -1));
 }
 
 #quick-actions #settings-btn:hover .icon {
@@ -4202,12 +4312,21 @@ i.grip {
 }
 
 #quick-actions #settings-btn:active {
-  background: var(--color-interactive-active);
+  background: transparent;
   color: var(--figma-color-border-brand);
 }
 
 #quick-actions #settings-btn:active .icon {
   color: var(--figma-color-border-brand);
+}
+
+/* Remove backplates on quick action button hover states */
+#quick-actions #new-page-btn:hover,
+#quick-actions #deselect-btn:hover,
+#quick-actions #back-btn:hover,
+#quick-actions #forward-btn:hover,
+#quick-actions #date-btn:hover {
+  background: transparent;
 }
 
 /* Header titles to 10pt equivalent */
@@ -4704,7 +4823,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   background: transparent;
   border: none;
   border-radius: 0;
-  height: 36px;
+  height: calc(var(--spacing-lg) * 5);
   padding: var(--spacing-xxl) 16px var(--spacing-xxl) 16px;
   gap: var(--spacing-lg);
   align-self: stretch;
@@ -4730,7 +4849,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .header-left {
-  gap: var(--spacing-xxl);
+  gap: calc(var(--spacing-xxl) - var(--spacing-sm));
 }
 
 .header-right {
@@ -4832,7 +4951,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   gap: var(--spacing-xs);
   margin: 0;
   font-size: inherit;
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: inherit;
 }
 
@@ -4845,7 +4964,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 /* Specific header styling */
 #tags-header {
   min-height: unset;
-  height: 36px;
+  height: calc(var(--spacing-lg) * 5);
   padding: var(--spacing-xxl) 16px var(--spacing-xxl) 16px;
   border-top: var(--border-width) solid var(--color-border-accent);
   box-sizing: border-box;
@@ -4870,7 +4989,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 #tags-header .header-left {
-  gap: var(--spacing-xxl);
+  gap: calc(var(--spacing-xxl) - var(--spacing-sm));
 }
 
 #tags-header .header-right {
@@ -4926,7 +5045,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 .theme-name {
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--theme-text-primary);
   flex-grow: 1;
 }
@@ -5108,7 +5227,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 .theme-name {
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--theme-text-primary);
   flex-grow: 1;
 }
@@ -5391,22 +5510,6 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   font-style: italic;
   opacity: 0.6;
 }
-/* 
-Footer Styles */
-#footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: var(--footer-height);
-  background: var(--theme-bg-primary);
-  border-top: 1px solid var(--theme-border-primary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--spacing-lg);
-  z-index: var(--z-footer);
-}
 
 .footer-controls {
   display: flex;
@@ -5463,21 +5566,22 @@ Footer Styles */
   cursor: pointer;
   transition: all var(--transition-normal);
   font-family: var(--font-family);
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: var(--spacing-xs);
+  width: 100%;
 
   /* Specific properties */
   height: var(--button-height-lg);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-sm);
   border-radius: var(--border-radius-md);
   background: var(--theme-bg-secondary);
   color: var(--theme-text-primary);
   border: 1px solid var(--theme-border-primary);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   position: relative;
   min-width: 0; /* Allow text to truncate */
 }

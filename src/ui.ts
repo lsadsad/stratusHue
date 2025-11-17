@@ -1203,11 +1203,16 @@ function updateBookmarksList(
       }
 
       // Inner content
+      const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId
+        ? '<img src="./assets/ICO-recentSteps.svg" alt="" class="recent-steps-icon">'
+        : '';
+      
       li.innerHTML = `
         <div class="bookmark-content">
           <div class="bookmark-name">${bookmark.name}</div>
           <div class="bookmark-page">${bookmark.pageName}</div>
         </div>
+        ${recentHistoryIcon}
         <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">
           ✕
         </button>
@@ -2539,18 +2544,35 @@ function initializeThemePerformanceMonitoring(): void {
     };
   }
 
-  // Monitor memory usage periodically
+  // Monitor memory usage periodically with tiered thresholds
   if ('memory' in performance) {
     const memoryMonitorInterval = setInterval(() => {
       const memInfo = (performance as any).memory;
-      // Increased threshold to 200MB - Figma plugins with animations typically use 100-300MB
-      if (memInfo.usedJSHeapSize > 200 * 1024 * 1024) {
-        console.warn('High memory usage detected:', {
-          used: `${(memInfo.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
-          total: `${(memInfo.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
-          limit: `${(memInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB`
+      const usedMB = memInfo.usedJSHeapSize / (1024 * 1024);
+      const limitMB = memInfo.jsHeapSizeLimit / (1024 * 1024);
+      const usagePercent = (memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit) * 100;
+      
+      // Memory usage guidelines for Figma plugins:
+      // Normal: < 50% of heap limit (~2000MB on 4GB heap)
+      // Warning: 50-70% (indicates possible leak, should investigate)
+      // Critical: > 70% (likely memory leak, may cause crashes)
+      
+      if (usagePercent > 70) {
+        console.error('🚨 CRITICAL memory usage:', {
+          used: `${usedMB.toFixed(2)}MB`,
+          limit: `${limitMB.toFixed(2)}MB`,
+          percentage: `${usagePercent.toFixed(1)}%`,
+          status: 'Critical - possible memory leak!'
+        });
+      } else if (usagePercent > 50) {
+        console.warn('⚠️ High memory usage detected:', {
+          used: `${usedMB.toFixed(2)}MB`,
+          limit: `${limitMB.toFixed(2)}MB`,
+          percentage: `${usagePercent.toFixed(1)}%`,
+          status: 'Warning - monitor closely'
         });
       }
+      // Below 50% is considered normal, no warnings
     }, 30000); // Check every 30 seconds
     activeTimers.add(memoryMonitorInterval);
   }
