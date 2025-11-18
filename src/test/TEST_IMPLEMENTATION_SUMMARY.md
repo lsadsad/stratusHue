@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document summarizes the comprehensive test suite implemented for the Layer Navigation Controls feature in the Stratus Hue plugin. The testing implementation covers unit tests, integration tests, settings tests, UI integration tests, and manual testing scenarios.
+This document summarizes the comprehensive test suite implemented for the Layer Navigation Controls feature in the stratusHue plugin. The testing implementation covers unit tests, integration tests, settings tests, UI integration tests, and manual testing scenarios.
 
 ## Test Files Created
 

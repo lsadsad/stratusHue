@@ -1,8 +1,8 @@
 /**
- * Component Definitions - Predefined UI component definitions for Stratus Hue
+ * Component Definitions - Predefined UI component definitions for stratusHue
  * 
  * This module contains the component definitions for all major UI elements
- * in the Stratus Hue plugin, organized by category with various states.
+ * in the stratusHue plugin, organized by category with various states.
  */
 
 import { ComponentDefinition, ComponentState } from './component-preview.js';

@@ -11,7 +11,7 @@ The 2-button layout sizing feature has been successfully implemented and built. 
 2. Go to **Plugins** → **Development** → **Import plugin from manifest**
 3. Navigate to: `/Users/levinsadsad/Documents/Github/Stratus_Hue`
 4. Select the `manifest.json` file
-5. Run the plugin: **Plugins** → **Stratus Hue**
+5. Run the plugin: **Plugins** → **stratusHue**
 
 ### Step 2: Prepare Test Layers
 

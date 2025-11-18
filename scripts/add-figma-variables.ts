@@ -1,7 +1,7 @@
 /// <reference types="@figma/plugin-typings" />
 
 /**
- * Script to add Stratus Hue design system variables to Figma
+ * Script to add stratusHue design system variables to Figma
  * 
  * This script extracts design tokens from the plugin's CSS and creates
  * corresponding Figma variables organized by category.
@@ -312,7 +312,7 @@ export async function addDesignSystemVariablesToFigma(): Promise<void> {
   const collections = new Map<string, VariableCollection>();
   
   for (const [category, tokens] of tokensByCategory) {
-    const collectionName = `Stratus Hue / ${category.charAt(0).toUpperCase() + category.slice(1)}`;
+    const collectionName = `stratusHue / ${category.charAt(0).toUpperCase() + category.slice(1)}`;
     const collection = getOrCreateCollection(collectionName);
     const modeId = getOrCreateMode(collection);
     collections.set(category, collection);
@@ -338,6 +338,9 @@ if (require.main === module) {
     figma.notify('❌ Error adding variables. Check console for details.', { timeout: 5000 });
   });
 }
+
+
+
 
 
 

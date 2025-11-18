@@ -1,6 +1,6 @@
 /// <reference types="@figma/plugin-typings" />
 
-// Validation and Cleanup for Stratus Hue Plugin
+// Validation and Cleanup for stratusHue Plugin
 // Handles bookmark validation and automatic cleanup
 
 import { validateAndSyncBookmarks, validateRecentHistory, validateCurrentAnchor } from '../features/bookmarks';

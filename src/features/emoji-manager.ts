@@ -1,6 +1,6 @@
 /// <reference types="@figma/plugin-typings" />
 
-// Emoji Management for Stratus Hue Plugin
+// Emoji Management for stratusHue Plugin
 // Handles emoji operations and set navigation
 
 import { LAYER_EMOJI_SETS, PAGE_EMOJI_SETS } from '../core/constants';

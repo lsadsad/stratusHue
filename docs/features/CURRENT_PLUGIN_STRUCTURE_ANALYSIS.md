@@ -1,8 +1,8 @@
-# Current Plugin Structure Analysis - Stratus Hue Framework
+# Current Plugin Structure Analysis - stratusHue Framework
 
 ## 📋 **OVERVIEW**
 
-This document analyzes the existing Stratus Hue plugin framework to provide a reference for building the Rive Preview Plugin. The current plugin demonstrates exceptional compliance with Figma plugin best practices and serves as an excellent foundation for the new Rive preview functionality.
+This document analyzes the existing stratusHue plugin framework to provide a reference for building the Rive Preview Plugin. The current plugin demonstrates exceptional compliance with Figma plugin best practices and serves as an excellent foundation for the new Rive preview functionality.
 
 ---
 
@@ -504,7 +504,7 @@ export async function setBookmarks(bookmarks: Bookmark[]): Promise<void> {
 
 ### **10.1 For Rive Plugin Development**
 
-1. **Follow Established Patterns**: Use the same architectural patterns as Stratus Hue
+1. **Follow Established Patterns**: Use the same architectural patterns as stratusHue
 2. **Extend Type System**: Add Rive-specific types while maintaining compatibility
 3. **Implement Error Boundaries**: Apply error handling patterns to Rive operations
 4. **Optimize Performance**: Use debouncing and caching patterns for Rive operations
@@ -520,4 +520,4 @@ export async function setBookmarks(bookmarks: Bookmark[]): Promise<void> {
 
 ---
 
-This analysis provides a comprehensive reference for building the Rive Preview Plugin using the proven patterns and best practices established in the Stratus Hue plugin framework.
+This analysis provides a comprehensive reference for building the Rive Preview Plugin using the proven patterns and best practices established in the stratusHue plugin framework.

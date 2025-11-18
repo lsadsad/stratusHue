@@ -1,10 +1,10 @@
 # Adding Design System Variables to Figma
 
-This directory contains scripts to add the Stratus Hue plugin's design system variables to Figma using the Figma Variables API.
+This directory contains scripts to add the stratusHue plugin's design system variables to Figma using the Figma Variables API.
 
 ## Overview
 
-The Stratus Hue plugin uses a comprehensive design token system defined in CSS custom properties. These scripts extract those tokens and create corresponding Figma variables, organized by category:
+The stratusHue plugin uses a comprehensive design token system defined in CSS custom properties. These scripts extract those tokens and create corresponding Figma variables, organized by category:
 
 - **Spacing**: Spacing scale (xs, sm, md, lg, xl, xxl)
 - **Typography**: Font sizes and weights
@@ -62,7 +62,7 @@ Standalone JavaScript version that can be run directly. Simpler and more portabl
 Variables are organized into collections by category:
 
 ```
-Stratus Hue /
+stratusHue /
   ├── Spacing
   ├── Typography
   ├── Sizing
@@ -130,6 +130,9 @@ While MCP tools can't directly create variables, you can:
 **Want to add more tokens?**
 - Add them to the `designTokens` array in the script
 - Re-run the script to create new variables
+
+
+
 
 
 

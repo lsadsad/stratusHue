@@ -1,5 +1,5 @@
 {
-  "name": "Stratus Hue",
+  "name": "stratusHue",
   "id": "1525275589707623280",
   "api": "1.0.0",
   "main": "dist/code.js",

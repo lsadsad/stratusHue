@@ -7,7 +7,7 @@ This document provides comprehensive manual testing scenarios for the Layer Navi
 ## Prerequisites
 
 - Figma desktop app or browser version
-- Stratus Hue plugin installed with Layer Navigation Controls feature
+- stratusHue plugin installed with Layer Navigation Controls feature
 - Test files with various layer hierarchies (simple, complex, nested)
 - Different device types for responsive testing (if applicable)
 

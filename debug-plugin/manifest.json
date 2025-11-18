@@ -1,6 +1,6 @@
 {
-  "name": "Stratus Hue Debug",
-  "id": "debug-stratus-hue",
+  "name": "stratusHue Debug",
+  "id": "debug-stratushue",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",

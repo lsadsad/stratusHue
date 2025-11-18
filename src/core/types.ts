@@ -1,6 +1,6 @@
 /// <reference types="@figma/plugin-typings" />
 
-// Type Definitions for Stratus Hue Plugin
+// Type Definitions for stratusHue Plugin
 // Centralized type definitions for better maintainability
 
 // ===== CORE TYPES =====

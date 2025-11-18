@@ -1,6 +1,6 @@
 /// <reference types="@figma/plugin-typings" />
 
-// State Management for Stratus Hue Plugin
+// State Management for stratusHue Plugin
 // Centralized state management with persistence
 
 import type { Bookmark, CurrentAnchorState, RecentHistoryState, HistoryEntry } from './types';

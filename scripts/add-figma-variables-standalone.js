@@ -1,5 +1,5 @@
 /**
- * Standalone script to add Stratus Hue design system variables to Figma
+ * Standalone script to add stratusHue design system variables to Figma
  * 
  * This can be run directly in Figma's plugin console or integrated into your plugin.
  * 
@@ -203,7 +203,7 @@ async function addDesignSystemVariablesToFigma() {
   
   // Process each category
   for (const [category, tokens] of Object.entries(designTokens)) {
-    const collectionName = `Stratus Hue / ${category.charAt(0).toUpperCase() + category.slice(1)}`;
+    const collectionName = `stratusHue / ${category.charAt(0).toUpperCase() + category.slice(1)}`;
     const collection = getOrCreateCollection(collectionName);
     const modeId = getOrCreateMode(collection);
     
@@ -244,6 +244,9 @@ if (typeof figma !== 'undefined') {
     figma.notify('❌ Error adding variables. Check console for details.', { timeout: 5000 });
   });
 }
+
+
+
 
 
 

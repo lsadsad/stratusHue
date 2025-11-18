@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 // Clean plugin-ready directory
-const outputDir = 'plugin-ready'; // Change this to 'Stratus_Hue' if desired
+const outputDir = 'plugin-ready'; // Change this to 'stratusHue' if desired
 if (fs.existsSync(outputDir)) {
     fs.rmSync(outputDir, { recursive: true });
 }
@@ -49,7 +49,7 @@ if (fs.existsSync('dist/assets')) {
 
 // Create production manifest (without source maps references)
 const manifest = {
-    "name": "Stratus Hue",
+    "name": "stratusHue",
     "id": "1525275589707623280",
     "api": "1.0.0",
     "main": "code.js",
@@ -64,9 +64,9 @@ fs.writeFileSync('plugin-ready/manifest.json', JSON.stringify(manifest, null, 2)
 console.log('✅ Created plugin-ready/manifest.json');
 
 // Create a README for the plugin-ready folder
-const pluginReadyReadme = `# Stratus Hue - Plugin Distribution
+const pluginReadyReadme = `# stratusHue - Plugin Distribution
 
-This folder contains the production-ready build of the Stratus Hue Figma plugin.
+This folder contains the production-ready build of the stratusHue Figma plugin.
 
 ## Files
 

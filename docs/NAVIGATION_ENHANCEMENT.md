@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Forward and Back buttons in the Stratus Hue plugin header now function like web browser navigation buttons, allowing users to navigate through their selection history seamlessly.
+The Forward and Back buttons in the stratusHue plugin header now function like web browser navigation buttons, allowing users to navigate through their selection history seamlessly.
 
 ## Features
 

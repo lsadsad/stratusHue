@@ -1,7 +1,7 @@
 # Layout Sizing Feature Implementation Summary
 
 ## Overview
-Added a 2-button layout sizing feature to the Stratus_Hue Figma plugin that allows designers to quickly cycle through Auto Layout sizing modes (Hug → Fill → Fixed) for both horizontal and vertical axes.
+Added a 2-button layout sizing feature to the stratusHue Figma plugin that allows designers to quickly cycle through Auto Layout sizing modes (Hug → Fill → Fixed) for both horizontal and vertical axes.
 
 ## Implementation Date
 November 12, 2025

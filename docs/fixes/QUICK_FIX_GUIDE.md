@@ -16,14 +16,14 @@ I've fixed the issue by removing code that was interfering with Figma's internal
 
 **Option A: Simple Reload** (Try this first)
 1. In Figma, close your plugin if it's open
-2. Go to **Plugins → Development → Stratus Hue**
+2. Go to **Plugins → Development → stratusHue**
 3. The plugin should now load without errors
 
 **Option B: Full Restart** (If Option A doesn't work)
 1. Close your plugin if it's open
 2. **Quit Figma completely** (don't just close the window)
 3. Reopen Figma
-4. Load your plugin again: **Plugins → Development → Stratus Hue**
+4. Load your plugin again: **Plugins → Development → stratusHue**
 
 ### 2. Verify It's Working
 

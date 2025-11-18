@@ -1,6 +1,6 @@
 # Performance Baselines
 
-This directory contains performance baseline data for the Stratus Hue plugin performance tests.
+This directory contains performance baseline data for the stratusHue plugin performance tests.
 
 ## How It Works
 

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-const packageName = 'stratus-hue-plugin';
+const packageName = 'stratushue-plugin';
 const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
 const zipName = `${packageName}-v${version}.zip`;
 

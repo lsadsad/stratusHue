@@ -45,7 +45,7 @@ The `removeAllEventListeners()` function was kept as a no-op for backward compat
 2. **In Figma Desktop:**
    - Close the plugin if it's open
    - Quit and restart Figma Desktop completely (to clear any cached states)
-   - Reload the plugin from **Plugins → Development → Stratus Hue**
+   - Reload the plugin from **Plugins → Development → stratusHue**
 
 3. **Verify the fix:**
    - The plugin should now load without the styleq error

@@ -1,6 +1,6 @@
 /// <reference types="@figma/plugin-typings" />
 
-// Navigation Management for Stratus Hue Plugin
+// Navigation Management for stratusHue Plugin
 // Handles bookmark navigation and history
 
 import type { Bookmark } from '../core/types';

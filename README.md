@@ -1,6 +1,6 @@
-# Stratus_Hue
+# stratusHue
 
-A powerful Figma plugin for strategic color coding and intelligent bookmarking of design elements. Stratus_Hue helps designers organize their work with visual color indicators and smart tagging tools.
+A powerful Figma plugin for strategic color coding and intelligent bookmarking of design elements. stratusHue helps designers organize their work with visual color indicators and smart tagging tools.
 
 ## ✨ Features
 
@@ -42,7 +42,7 @@ A powerful Figma plugin for strategic color coding and intelligent bookmarking o
 
 ### Installation
 1. Open Figma and go to **Plugins > Browse plugins in Community**
-2. Search for "Stratus_Hue" and click **Install**
+2. Search for "stratusHue" and click **Install**
 3. Or install manually by copying the plugin files to your Figma plugins directory
 
 ### Basic Usage
@@ -105,7 +105,7 @@ This plugin is built with TypeScript and uses modern web technologies for optima
 ## 📁 Project Structure
 
 ```
-Stratus_Hue/
+stratusHue/
 ├── src/
 │   ├── code.ts          # Main plugin logic (TypeScript)
 │   ├── core.ts          # Core functionality (bookmarks, navigation, etc.)
@@ -128,7 +128,7 @@ Stratus_Hue/
 
 ## 🎨 Design Philosophy
 
-Stratus_Hue is designed with the modern designer in mind:
+stratusHue is designed with the modern designer in mind:
 - **Minimalist Interface**: Clean, distraction-free UI
 - **Intuitive Workflow**: Actions that feel natural and efficient
 - **Visual Hierarchy**: Clear organization with proper spacing and typography

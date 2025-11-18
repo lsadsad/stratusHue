@@ -2,7 +2,7 @@
 
 ## 🚀 **IMPLEMENTATION OVERVIEW**
 
-This document provides a comprehensive technical implementation guide for building the Rive Preview Plugin for Figma, based on the existing Stratus Hue plugin framework.
+This document provides a comprehensive technical implementation guide for building the Rive Preview Plugin for Figma, based on the existing stratusHue plugin framework.
 
 ---
 
@@ -1319,4 +1319,4 @@ export class RiveManager {
 
 ---
 
-This implementation guide provides a comprehensive foundation for building the Rive Preview Plugin, following the established patterns from the Stratus Hue plugin while adding Rive-specific functionality.
+This implementation guide provides a comprehensive foundation for building the Rive Preview Plugin, following the established patterns from the stratusHue plugin while adding Rive-specific functionality.

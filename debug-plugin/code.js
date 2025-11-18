@@ -1,4 +1,4 @@
-console.log('🚀 Stratus Hue Debug - Plugin starting...');
+console.log('🚀 stratusHue Debug - Plugin starting...');
 
 try {
   // Simple UI without external dependencies
@@ -7,7 +7,7 @@ try {
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>Stratus Hue Debug</title>
+      <title>stratusHue Debug</title>
       <style>
         body { 
           font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
@@ -33,7 +33,7 @@ try {
       </style>
     </head>
     <body>
-      <h2>Stratus Hue Debug</h2>
+      <h2>stratusHue Debug</h2>
       <div class="status" id="status">Plugin loaded successfully!</div>
       <button onclick="testFunction()">Test Function</button>
       

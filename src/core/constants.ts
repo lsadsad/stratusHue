@@ -1,4 +1,4 @@
-// Constants for Stratus Hue Plugin
+// Constants for stratusHue Plugin
 // Centralized constants for better maintainability
 
 import type { EmojiSet } from './types';

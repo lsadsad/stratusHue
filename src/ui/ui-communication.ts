@@ -1,6 +1,6 @@
 /// <reference types="@figma/plugin-typings" />
 
-// UI Communication for Stratus Hue Plugin
+// UI Communication for stratusHue Plugin
 // Handles all communication between plugin and UI
 
 import type { Bookmark } from '../core/types';

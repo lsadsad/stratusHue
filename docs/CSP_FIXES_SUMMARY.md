@@ -48,7 +48,7 @@
 ## Testing the Fix
 
 1. **Visual Test**: Status indicator should show "✅ JS Active" with green background
-2. **Console Test**: Should see "🚀 Stratus Hue UI initializing..." in console
+2. **Console Test**: Should see "🚀 stratusHue UI initializing..." in console
 3. **Functionality Test**: All buttons and interactions should work properly
 
 ## Next Steps

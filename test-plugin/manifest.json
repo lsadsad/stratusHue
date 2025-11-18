@@ -1,6 +1,6 @@
 {
-  "name": "Stratus Hue Test",
-  "id": "test-stratus-hue",
+  "name": "stratusHue Test",
+  "id": "test-stratushue",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",

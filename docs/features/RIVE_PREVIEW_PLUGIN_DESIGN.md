@@ -12,7 +12,7 @@
 
 ### **1. Plugin Structure Overview**
 
-Based on the existing Stratus Hue plugin framework, the Rive Preview plugin will follow a similar modular architecture:
+Based on the existing stratusHue plugin framework, the Rive Preview plugin will follow a similar modular architecture:
 
 ```
 src/

@@ -1,6 +1,6 @@
 /// <reference types="@figma/plugin-typings" />
 
-// Stratus Hue: A Figma plugin for layer tagging and navigation.
+// stratusHue: A Figma plugin for layer tagging and navigation.
 // Optimized modular architecture with error handling and performance
 
 // ===== IMPORTS =====

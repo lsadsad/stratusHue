@@ -1,6 +1,6 @@
 /// <reference types="@figma/plugin-typings" />
 
-// Utility Functions for Stratus Hue Plugin
+// Utility Functions for stratusHue Plugin
 // Centralized utility functions for better maintainability
 
 import type { PageTitleParts } from '../core/types';

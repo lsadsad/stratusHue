@@ -1,6 +1,6 @@
 /// <reference types="@figma/plugin-typings" />
 
-// Error Handling and Recovery for Stratus Hue Plugin
+// Error Handling and Recovery for stratusHue Plugin
 // Centralized error handling with recovery strategies
 
 import { sendErrorToUI } from '../ui/ui-communication';
