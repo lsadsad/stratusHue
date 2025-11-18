@@ -11,51 +11,20 @@
 <body>
   <main class="scrollable-content">
     <nav id="quick-actions" role="toolbar" aria-label="Quick actions">
-      <ul class="action-list">
-        <li>
-          <button id="back-btn" class="action-btn" aria-label="Go back" disabled>
-            <span class="icon"><img src="./assets/ICO-navBack.svg" alt=""></span><span class="label">Back</span>
-          </button>
-        </li>
-        <li>
-          <button id="forward-btn" class="action-btn" aria-label="Go forward" disabled>
-            <span class="icon"><img src="./assets/ICO-navForward.svg" alt=""></span><span class="label">Forward</span>
-          </button>
-        </li>
-        <li class="align-right">
-          <button id="date-btn" class="action-btn" aria-label="Add date">
-            <span class="icon"><img src="./assets/ICO-addDate.svg" alt=""></span><span class="label">Date</span>
-          </button>
-          <div id="page-actions-group" role="group" aria-label="Page actions">
-            <button id="new-page-btn" class="action-btn" aria-label="Create new page">
-              <span class="icon"><img src="./assets/ICO-addPage.svg" alt=""></span><span class="label">New Page</span>
-            </button>
-            <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
-              <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span><span class="label">Outdent</span>
-            </button>
-            <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
-              <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span><span class="label">Indent</span>
-            </button>
-          </div>
-        </li>
-        <li class="align-right">
-          <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
-            <span class="icon"><img src="./assets/ICO-settingsMenu.svg" alt=""></span>
-          </button>
-        </li>
-      </ul>
-    </nav>
-
-    <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="0"
-      aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
-        <div class="icon-container">
-          <i class="arrow" aria-hidden="true"></i>
-          <i class="tag-icon"><img src="./assets/ICO-featTags.svg" alt=""></i>
+        <button id="new-page-btn" class="action-btn" aria-label="Create new page">
+          <span class="icon"><img src="./assets/ICO-addPage.svg" alt=""></span><span class="label">New Page</span>
+        </button>
+        <div id="page-actions-group" role="group" aria-label="Page actions">
+          <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
+            <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span><span class="label">Outdent</span>
+          </button>
+          <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
+            <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span><span class="label">Indent</span>
+          </button>
         </div>
-        <h2 class="header-title">Tags</h2>
       </div>
-      <div class="header-right">
+      <div class="header-center">
         <div class="toggle-container">
           <button id="toggle-mode" class="toggle-button" aria-label="Toggle between page and layer mode">
             <span class="toggle-indicator" aria-hidden="true"></span>
@@ -63,6 +32,23 @@
             <span class="toggle-option" data-mode="onLayer">onLayer</span>
           </button>
         </div>
+      </div>
+      <div class="header-right">
+        <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
+          <span class="icon"><img src="./assets/ICO-settingsMenu.svg" alt=""></span>
+        </button>
+      </div>
+    </nav>
+
+    <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="0"
+      aria-expanded="true" aria-controls="color-section">
+      <div class="header-left">
+        <button id="date-btn" class="action-btn header-action-btn" aria-label="Add date tag" onclick="event.stopPropagation();">
+          <span class="icon"><img src="./assets/ICO-addDate.svg" alt=""></span>
+        </button>
+      </div>
+      <div class="header-center">
+        <h2 class="header-title">Tags</h2>
       </div>
     </header>
 
@@ -74,15 +60,15 @@
               <span class="set-name">Colors</span>
             </span>
             <nav class="emoji-nav-container">
-              <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set">←</button>
-              <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set">→</button>
+              <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set"><img src="./assets/ICO-menuPrev.svg" class="nav-arrow" alt=""></button>
+              <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set"><img src="./assets/ICO-menuNext.svg" class="nav-arrow" alt=""></button>
             </nav>
           </div>
           <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
         </div>
         <button id="clear-color" class="clear-action" aria-label="Clear color tags">
           <!-- <span class="action-bracket">[ [</span> -->
-          <span class="action-text">Remove 🏷️</span>
+          <span class="action-text">Remove <img src="./assets/ICO-tags.svg" class="action-icon" alt=""></span>
           <!-- <span class="action-bracket">] ]</span> -->
         </button>
       </div>
@@ -91,17 +77,23 @@
     <header id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button"
       tabindex="0" aria-expanded="true" aria-controls="anchors-section">
       <div class="header-left">
-        <div class="icon-container">
-          <i class="arrow" aria-hidden="true"></i>
-          <i class="tag-icon"><img src="./assets/ICO-featAnchors.svg" alt=""></i>
-        </div>
+        <nav class="header-nav-group" role="group" aria-label="Navigation history">
+          <button id="back-btn" class="header-nav-btn" aria-label="Go back" disabled onclick="event.stopPropagation();">
+            <span class="icon"><img src="./assets/ICO-navBack.svg" alt=""></span>
+          </button>
+          <button id="forward-btn" class="header-nav-btn" aria-label="Go forward" disabled onclick="event.stopPropagation();">
+            <span class="icon"><img src="./assets/ICO-navForward.svg" alt=""></span>
+          </button>
+        </nav>
+      </div>
+      <div class="header-center">
         <h2 class="header-title">Anchors</h2>
       </div>
-      <nav class="header-right">
-        <button id="refresh-anchors" class="action-btn" aria-label="Refresh anchors"
-          data-tooltip-placement="below"><span class="icon">⟳</span></button>
-        <!-- <p id="bookmark-count" class="top-badge" aria-live="polite">0</p> -->
-      </nav>
+      <div class="header-right">
+        <button id="refresh-anchors" class="action-btn header-action-btn" aria-label="Sync bookmarks across plugin windows" onclick="event.stopPropagation();">
+          <span class="icon"><img src="./assets/ICO-anchorRefresh.svg" alt=""></span>
+        </button>
+      </div>
     </header>
 
     <section id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
@@ -113,7 +105,7 @@
         </div>
         <button id="save-bookmark" aria-label="Save bookmark">
           <!-- <span class="action-bracket">[ [</span> -->
-          <span class="action-text">Drop ⚓️</span>
+          <span class="action-text">Drop <img src="./assets/ICO-anchors.svg" class="action-icon" alt=""></span>
           <!-- <span class="action-bracket">] ]</span> -->
         </button>
       </div>
@@ -121,15 +113,8 @@
 
     <header id="controls-header" class="section-header collapsible" data-target="controls-section" role="button"
       tabindex="0" aria-expanded="true" aria-controls="controls-section">
-      <div class="header-left">
-        <div class="icon-container">
-          <i class="arrow" aria-hidden="true"></i>
-          <i class="tag-icon"><img src="./assets/ICO-featControls.svg" alt=""></i>
-        </div>
+      <div class="header-center">
         <h2 class="header-title">Controls</h2>
-      </div>
-      <div class="header-right">
-        <span class="top-badge">Beta</span>
       </div>
     </header>
 
@@ -349,52 +334,37 @@
             <div class="theme-selector" role="radiogroup" aria-describedby="theme-selector-description">
               <!-- Theme Options -->
               <div class="theme-group primary-themes">
-                <label class="theme-option">
-                  <input type="radio" name="theme" value="system" id="theme-system" checked
-                    aria-describedby="system-theme-description">
-                  <span class="theme-option-content">
-                    <span class="theme-icon" aria-hidden="true">🔄</span>
-                    <span class="theme-name">System</span>
-                    <span class="theme-description" id="system-theme-description"></span>
-                    <span class="theme-status" id="system-theme-status" aria-live="polite"></span>
-                  </span>
-                </label>
-                <label class="theme-option">
-                  <input type="radio" name="theme" value="light" id="theme-light"
-                    aria-describedby="light-theme-description">
-                  <span class="theme-option-content">
-                    <span class="theme-icon" aria-hidden="true">☀️</span>
-                    <span class="theme-name">Light</span>
-                    <span class="theme-description" id="light-theme-description"></span>
-                  </span>
-                </label>
-                <label class="theme-option">
-                  <input type="radio" name="theme" value="dark" id="theme-dark"
-                    aria-describedby="dark-theme-description">
-                  <span class="theme-option-content">
-                    <span class="theme-icon" aria-hidden="true">🌙</span>
-                    <span class="theme-name">Dark</span>
-                    <span class="theme-description" id="dark-theme-description"></span>
-                  </span>
-                </label>
-                <label class="theme-option">
-                  <input type="radio" name="theme" value="boilerplate" id="theme-boilerplate"
-                    aria-describedby="boilerplate-theme-description">
-                  <span class="theme-option-content">
-                    <span class="theme-icon" aria-hidden="true">⚫</span>
-                    <span class="theme-name">Boilerplate</span>
-                    <span class="theme-description" id="boilerplate-theme-description"></span>
-                  </span>
-                </label>
-                <label class="theme-option">
-                  <input type="radio" name="theme" value="cybertron" id="theme-cybertron"
-                    aria-describedby="cybertron-theme-description">
-                  <span class="theme-option-content">
-                    <span class="theme-icon" aria-hidden="true">🤖</span>
-                    <span class="theme-name">Cybertron</span>
-                    <span class="theme-description" id="cybertron-theme-description"></span>
-                  </span>
-                </label>
+                <button class="theme-option" data-theme="system" id="theme-system" aria-pressed="true"
+                  aria-describedby="system-theme-description">
+                  <span class="theme-icon" aria-hidden="true">🔄</span>
+                  <span class="theme-name">System</span>
+                  <span class="theme-description" id="system-theme-description"></span>
+                  <span class="theme-status" id="system-theme-status" aria-live="polite"></span>
+                </button>
+                <button class="theme-option" data-theme="light" id="theme-light" aria-pressed="false"
+                  aria-describedby="light-theme-description">
+                  <span class="theme-icon" aria-hidden="true">☀️</span>
+                  <span class="theme-name">Light</span>
+                  <span class="theme-description" id="light-theme-description"></span>
+                </button>
+                <button class="theme-option" data-theme="dark" id="theme-dark" aria-pressed="false"
+                  aria-describedby="dark-theme-description">
+                  <span class="theme-icon" aria-hidden="true">🌙</span>
+                  <span class="theme-name">Dark</span>
+                  <span class="theme-description" id="dark-theme-description"></span>
+                </button>
+                <button class="theme-option" data-theme="boilerplate" id="theme-boilerplate" aria-pressed="false"
+                  aria-describedby="boilerplate-theme-description">
+                  <span class="theme-icon" aria-hidden="true">⚫</span>
+                  <span class="theme-name">Boilerplate</span>
+                  <span class="theme-description" id="boilerplate-theme-description"></span>
+                </button>
+                <button class="theme-option" data-theme="cybertron" id="theme-cybertron" aria-pressed="false"
+                  aria-describedby="cybertron-theme-description">
+                  <span class="theme-icon" aria-hidden="true">🤖</span>
+                  <span class="theme-name">Cybertron</span>
+                  <span class="theme-description" id="cybertron-theme-description"></span>
+                </button>
               </div>
             </div>
             <div id="theme-selector-description" class="sr-only">
@@ -405,7 +375,7 @@
 
         <!-- Controls Section -->
         <div class="settings-section">
-          <h3 class="settings-section-title">🧭 Controls<span class="beta-badge">Beta</span></h3>
+          <h3 class="settings-section-title">🧭 Controls</h3>
 
           <!-- Controls Section Toggle -->
           <div class="setting-item">

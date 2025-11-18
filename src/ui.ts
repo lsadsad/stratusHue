@@ -1572,42 +1572,40 @@ function setupThemeSwitching(): void {
   console.log('📤 Requesting saved theme preference from backend...');
   sendMessage('get-theme-preference');
 
-  // Add event listeners to theme radio buttons with enhanced keyboard navigation
-  const themeRadios = document.querySelectorAll('input[name="theme"]');
-  themeRadios.forEach((radio) => {
-    const radioElement = radio as HTMLInputElement;
-    const themeOption = radioElement.closest('.theme-option') as HTMLElement;
+  // Add event listeners to theme buttons with enhanced keyboard navigation
+  const themeButtons = document.querySelectorAll('.theme-option') as NodeListOf<HTMLButtonElement>;
+  themeButtons.forEach((button) => {
+    // Enhanced click handler
+    button.addEventListener('click', () => {
+      const themeMode = button.dataset.theme as ThemeMode;
 
-    // Enhanced change handler
-    radioElement.addEventListener('change', (e) => {
-      const target = e.target as HTMLInputElement;
-      if (target.checked) {
-        const themeMode = target.value as ThemeMode;
+      // Hide any active preview before applying the actual theme
+      hideThemePreview();
 
-        // Hide any active preview before applying the actual theme
-        hideThemePreview();
+      // Update aria-pressed state for all buttons
+      themeButtons.forEach(btn => btn.setAttribute('aria-pressed', 'false'));
+      button.setAttribute('aria-pressed', 'true');
 
-        // Apply the selected theme
-        themeManager.setTheme(themeMode);
-        console.log('Theme changed to:', themeMode);
+      // Apply the selected theme
+      themeManager.setTheme(themeMode);
+      console.log('Theme changed to:', themeMode);
 
-        // Announce theme selection for screen readers
-        announceThemeSelection(themeMode);
-      }
+      // Announce theme selection for screen readers
+      announceThemeSelection(themeMode);
     });
 
     // Enhanced keyboard navigation
-    radioElement.addEventListener('keydown', (e) => {
+    button.addEventListener('keydown', (e) => {
       switch (e.key) {
         case 'ArrowUp':
         case 'ArrowLeft':
           e.preventDefault();
-          navigateToAdjacentTheme(radioElement, 'previous');
+          navigateToAdjacentTheme(button, 'previous');
           break;
         case 'ArrowDown':
         case 'ArrowRight':
           e.preventDefault();
-          navigateToAdjacentTheme(radioElement, 'next');
+          navigateToAdjacentTheme(button, 'next');
           break;
         case 'Home':
           e.preventDefault();
@@ -1617,35 +1615,6 @@ function setupThemeSwitching(): void {
           e.preventDefault();
           navigateToLastTheme();
           break;
-        case 'Enter':
-        case ' ':
-          e.preventDefault();
-          if (!radioElement.checked) {
-            radioElement.checked = true;
-            radioElement.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-          break;
-      }
-    });
-
-    // Enhanced focus management
-    radioElement.addEventListener('focus', () => {
-      // Add visual focus indicator to the theme option
-      themeOption?.classList.add('theme-option-focused');
-
-      // Show preview on focus (but not on initial load)
-      if (!radioElement.checked && document.readyState === 'complete') {
-        showThemePreview(radioElement.value as ThemeMode);
-      }
-    });
-
-    radioElement.addEventListener('blur', () => {
-      // Remove visual focus indicator
-      themeOption?.classList.remove('theme-option-focused');
-
-      // Hide preview when losing focus (unless the theme is selected)
-      if (!radioElement.checked) {
-        hideThemePreview();
       }
     });
   });
@@ -1731,10 +1700,13 @@ function updateThemeUI(): void {
   if (!themeManager) return;
 
   const currentMode = themeManager.currentTheme;
-  const themeRadio = document.querySelector(`input[name="theme"][value="${currentMode}"]`) as HTMLInputElement;
-  if (themeRadio && !themeRadio.checked) {
-    themeRadio.checked = true;
-  }
+  
+  // Update all theme buttons' aria-pressed state
+  const allButtons = document.querySelectorAll('.theme-option') as NodeListOf<HTMLButtonElement>;
+  allButtons.forEach(button => {
+    const isCurrentTheme = button.dataset.theme === currentMode;
+    button.setAttribute('aria-pressed', isCurrentTheme ? 'true' : 'false');
+  });
 
   // Update system theme status indicator
   updateSystemThemeStatus();
@@ -1812,49 +1784,46 @@ function _showThemeChangeNotification(_themeMode: ThemeMode, _effectiveTheme: Ef
 }
 
 // Enhanced keyboard navigation helpers for theme selection
-function navigateToAdjacentTheme(currentRadio: HTMLInputElement, direction: 'previous' | 'next'): void {
-  const allRadios = Array.from(document.querySelectorAll('input[name="theme"]')) as HTMLInputElement[];
-  const currentIndex = allRadios.indexOf(currentRadio);
+function navigateToAdjacentTheme(currentButton: HTMLButtonElement, direction: 'previous' | 'next'): void {
+  const allButtons = Array.from(document.querySelectorAll('.theme-option')) as HTMLButtonElement[];
+  const currentIndex = allButtons.indexOf(currentButton);
 
   if (currentIndex === -1) return;
 
   let targetIndex: number;
   if (direction === 'previous') {
-    targetIndex = currentIndex === 0 ? allRadios.length - 1 : currentIndex - 1;
+    targetIndex = currentIndex === 0 ? allButtons.length - 1 : currentIndex - 1;
   } else {
-    targetIndex = currentIndex === allRadios.length - 1 ? 0 : currentIndex + 1;
+    targetIndex = currentIndex === allButtons.length - 1 ? 0 : currentIndex + 1;
   }
 
-  const targetRadio = allRadios[targetIndex];
-  if (targetRadio) {
-    targetRadio.focus();
+  const targetButton = allButtons[targetIndex];
+  if (targetButton) {
+    targetButton.focus();
     // Optionally select the theme immediately on navigation
-    if (!targetRadio.checked) {
-      targetRadio.checked = true;
-      targetRadio.dispatchEvent(new Event('change', { bubbles: true }));
+    if (targetButton.getAttribute('aria-pressed') !== 'true') {
+      targetButton.click();
     }
   }
 }
 
 function navigateToFirstTheme(): void {
-  const firstRadio = document.querySelector('input[name="theme"]') as HTMLInputElement;
-  if (firstRadio) {
-    firstRadio.focus();
-    if (!firstRadio.checked) {
-      firstRadio.checked = true;
-      firstRadio.dispatchEvent(new Event('change', { bubbles: true }));
+  const firstButton = document.querySelector('.theme-option') as HTMLButtonElement;
+  if (firstButton) {
+    firstButton.focus();
+    if (firstButton.getAttribute('aria-pressed') !== 'true') {
+      firstButton.click();
     }
   }
 }
 
 function navigateToLastTheme(): void {
-  const allRadios = document.querySelectorAll('input[name="theme"]');
-  const lastRadio = allRadios[allRadios.length - 1] as HTMLInputElement;
-  if (lastRadio) {
-    lastRadio.focus();
-    if (!lastRadio.checked) {
-      lastRadio.checked = true;
-      lastRadio.dispatchEvent(new Event('change', { bubbles: true }));
+  const allButtons = document.querySelectorAll('.theme-option');
+  const lastButton = allButtons[allButtons.length - 1] as HTMLButtonElement;
+  if (lastButton) {
+    lastButton.focus();
+    if (lastButton.getAttribute('aria-pressed') !== 'true') {
+      lastButton.click();
     }
   }
 }
@@ -1931,37 +1900,38 @@ function announceThemeChange(themeName: string): void {
 
 // Theme preview functionality
 function setupThemePreview(): void {
-  const themeOptions = document.querySelectorAll('.theme-option');
+  const themeOptions = document.querySelectorAll('.theme-option') as NodeListOf<HTMLButtonElement>;
 
-  themeOptions.forEach((option) => {
-    const radio = option.querySelector('input[type="radio"]') as HTMLInputElement;
-    const content = option.querySelector('.theme-option-content') as HTMLElement;
+  themeOptions.forEach((button) => {
+    if (!button) return;
 
-    if (!radio || !content) return;
+    const isPressed = () => button.getAttribute('aria-pressed') === 'true';
 
     // Add preview on hover
-    option.addEventListener('mouseenter', () => {
-      if (!radio.checked) {
-        showThemePreview(radio.value as ThemeMode);
+    button.addEventListener('mouseenter', () => {
+      if (!isPressed()) {
+        const themeValue = button.dataset.theme as ThemeMode;
+        showThemePreview(themeValue);
       }
     });
 
     // Remove preview on mouse leave
-    option.addEventListener('mouseleave', () => {
-      if (!radio.checked) {
+    button.addEventListener('mouseleave', () => {
+      if (!isPressed()) {
         hideThemePreview();
       }
     });
 
     // Add keyboard preview support
-    radio.addEventListener('focus', () => {
-      if (!radio.checked) {
-        showThemePreview(radio.value as ThemeMode);
+    button.addEventListener('focus', () => {
+      if (!isPressed()) {
+        const themeValue = button.dataset.theme as ThemeMode;
+        showThemePreview(themeValue);
       }
     });
 
-    radio.addEventListener('blur', () => {
-      if (!radio.checked) {
+    button.addEventListener('blur', () => {
+      if (!isPressed()) {
         hideThemePreview();
       }
     });
@@ -2309,18 +2279,18 @@ function updateAccessibilityAttributes(effectiveTheme: EffectiveTheme, isHighCon
     themeSelector.setAttribute('aria-label', 'Theme selection');
 
     // Update individual theme options
-    const themeOptions = themeSelector.querySelectorAll('.theme-option');
-    themeOptions.forEach((option, index) => {
-      const radio = option.querySelector('input[type="radio"]') as HTMLInputElement;
-      const themeConfig = themeManager?.getThemeConfig(radio?.value as ThemeMode);
+    const themeButtons = themeSelector.querySelectorAll('.theme-option') as NodeListOf<HTMLButtonElement>;
+    themeButtons.forEach((button, index) => {
+      const themeValue = button.dataset.theme as ThemeMode;
+      const themeConfig = themeManager?.getThemeConfig(themeValue);
 
-      if (radio && themeConfig) {
+      if (button && themeConfig) {
         // Enhanced aria-label with description
-        radio.setAttribute('aria-label', `${themeConfig.displayName}: ${themeConfig.description}`);
+        button.setAttribute('aria-label', `${themeConfig.displayName}: ${themeConfig.description}`);
 
         // Add position information for screen readers
-        radio.setAttribute('aria-posinset', (index + 1).toString());
-        radio.setAttribute('aria-setsize', themeOptions.length.toString());
+        button.setAttribute('aria-posinset', (index + 1).toString());
+        button.setAttribute('aria-setsize', themeButtons.length.toString());
       }
     });
   }
