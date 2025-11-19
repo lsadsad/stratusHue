@@ -91,16 +91,30 @@ This plugin is built with TypeScript and uses modern web technologies for optima
 3. Install Figma plugin typings: `npm install --save-dev @figma/plugin-typings`
 4. Build the project: `npm run build`
 
+### Quick Start
+
+**For development:**
+```bash
+npm run dev  # Watch mode - automatically rebuilds on file changes
+```
+
+**For distribution:**
+```bash
+npm run build:plugin-ready:zip  # Full production build + package
+```
+
 ### Development Workflow
 1. Open the project in Visual Studio Code
-2. Run `npm run build` to compile TypeScript to JavaScript
-3. Use `npm run dev` for automatic compilation on file changes
-4. Test your changes in Figma by reloading the plugin
+2. Run `npm run dev` for automatic compilation on file changes
+3. In Figma: Plugins → Development → Import plugin from `manifest.json`
+4. Test your changes (reload plugin in Figma after rebuilds)
 
 ### Production Build
-1. Run `npm run build:plugin-ready` to create a production-ready build
-2. The `plugin-ready/` folder will contain all files needed for distribution
-3. Run `npm run package` to create a distributable zip file
+1. Run `npm run build:plugin-ready:zip` to create the full distributable package
+2. The `plugin-ready/` folder contains production-ready files
+3. The `packages/` folder contains the zipped package for distribution
+
+> **📖 Detailed Build Documentation:** See [docs/BUILD_PROCESS.md](docs/BUILD_PROCESS.md) for comprehensive information about the build pipeline, troubleshooting, and best practices.
 
 ## 📁 Project Structure
 

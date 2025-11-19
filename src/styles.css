@@ -1397,6 +1397,25 @@ body {
   opacity: 1;
 }
 
+/* Emoji nav arrows in light mode - match Colors title color */
+[data-theme="figma-light"] #tags-header .emoji-nav-btn .nav-arrow,
+[data-theme="light"] #tags-header .emoji-nav-btn .nav-arrow {
+  filter: brightness(0) saturate(100%) invert(0);
+  opacity: 0.6;
+}
+
+[data-theme="figma-light"] #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow,
+[data-theme="light"] #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow {
+  filter: brightness(0) saturate(100%) invert(0);
+  opacity: 0.6;
+}
+
+[data-theme="figma-light"] #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow,
+[data-theme="light"] #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow {
+  filter: brightness(0) saturate(100%) invert(0);
+  opacity: 0.6;
+}
+
 /* Figma light theme footer enhancements */
 [data-theme="figma-light"] #footer {
   border-top: 1px solid var(--theme-border-primary);
@@ -2023,28 +2042,16 @@ h3 {
 
 /* Color Section - consolidated styles */
 
-/* Tags Status Bar */
-.tags-status-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-md);
-}
-
-.emoji-set-title {
-  flex: 1;
-}
-
+/* Emoji Navigation Container */
 .emoji-nav-container {
   display: flex;
   gap: 0;
   position: absolute;
-  top: calc(var(--spacing-xxl) * -1);
-  right: var(--spacing-lg);
+  top: calc(var(--spacing-xl) * -1);
+  right: var(--spacing-sm);
   z-index: 1;
-  transform: translateY(1px);
-  background: var(--color-background-main);
-  border-radius: var(--border-radius-md);
+  background: var(--color-background-elevated);
+  border-radius: var(--border-radius-sm);
   padding: var(--spacing-xxs);
 }
 
@@ -2171,7 +2178,7 @@ h3 {
 #tags-header .emoji-nav-btn:hover:not(:disabled) {
   background: var(--color-interactive-hover);
   color: var(--theme-border-translucent);
-  transform: translateY(calc(var(--elevation-nudge) * -1));
+  transform: scale(1.05);
 }
 
 #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow {
@@ -2180,7 +2187,7 @@ h3 {
 
 #tags-header .emoji-nav-btn:active:not(:disabled) {
   background: var(--theme-accent-pink);
-  transform: translateY(0);
+  transform: scale(0.95);
 }
 
 #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow {
@@ -2580,51 +2587,6 @@ h3 {
   letter-spacing: normal;
 }
 
-/* Tags Status Bar */
-.tags-status-bar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  padding: 0;
-  gap: var(--spacing-lg);
-}
-
-.tags-status-bar .top-badge {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-normal);
-  color: var(--color-text-secondary);
-  text-transform: none;
-  letter-spacing: normal;
-}
-
-.tags-status-bar .action-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background: var(--color-background-secondary);
-  border: none;
-  border-radius: var(--border-radius-md);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-base);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-}
-
-.tags-status-bar .action-btn:hover {
-  background: var(--color-interactive-hover);
-  color: var(--color-text-primary);
-}
-
-.tags-status-bar .action-btn .icon {
-  font-size: var(--font-size-base);
-}
-
-.tags-status-bar .action-btn .label {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-normal);
-}
 
 /* ===== CONTENT AREAS ===== */
 
@@ -4401,13 +4363,7 @@ i.grip {
   color: var(--color-text-primary);
 }
 
-/* Tags status bar navigation */
-.tags-status-bar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
+/* Emoji set title - positioned absolutely at top-left of tag-grid-container */
 .emoji-set-title {
   position: absolute;
   top: calc(var(--border-width) * -1 - var(--spacing-lg));
@@ -4429,12 +4385,6 @@ i.grip {
   text-transform: none;
 }
 
-/* Emoji navigation */
-.emoji-nav-container {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
 
 .emoji-nav-list {
   display: flex;
@@ -4461,7 +4411,7 @@ i.grip {
 .emoji-nav-btn:hover {
   background: var(--color-background-main);
   color: var(--theme-text-muted);
-  transform: scale(2);
+  transform: scale(1.05);
 }
 
 .emoji-nav-btn:hover .nav-arrow {

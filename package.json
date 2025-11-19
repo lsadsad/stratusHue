@@ -9,6 +9,8 @@
     "build:prod": "cross-env NODE_ENV=production node esbuild.config.js",
     "build:plugin-ready": "npm run build:prod && node scripts/build-plugin-ready.js",
     "build:plugin-ready:zip": "npm run build:prod && node scripts/build-plugin-ready.js --package",
+    "pkg": "npm run build:plugin-ready:zip",
+    "ship": "npm run build:plugin-ready:zip",
     "package": "node scripts/package-plugin.js",
     "package:desktop": "node scripts/package-plugin.js \"%USERPROFILE%\\Desktop\"",
     "package:custom": "node scripts/package-plugin.js",
