@@ -955,7 +955,7 @@ body {
   --color-text-primary: var(--figma-color-text);
   --color-text-secondary: var(--figma-color-text-secondary);
   --color-text-muted: var(--figma-color-text-disabled);
-  --color-text-subtle: var(--figma-color-text-secondary);
+  --color-text-subtle: rgba(204, 204, 204, 0.6);
   --color-text-disabled: var(--figma-color-text-disabled);
   --color-border-primary: var(--figma-color-border);
   --color-border-secondary: var(--figma-color-border);
@@ -1390,13 +1390,6 @@ body {
   opacity: 1;
 }
 
-/* Quick actions icon colors for light mode */
-[data-theme="figma-light"] #quick-actions .action-btn .icon img,
-[data-theme="light"] #quick-actions .action-btn .icon img {
-  filter: brightness(0);
-  opacity: 1;
-}
-
 /* Emoji nav arrows in light mode - match Colors title color */
 [data-theme="figma-light"] #tags-header .emoji-nav-btn .nav-arrow,
 [data-theme="light"] #tags-header .emoji-nav-btn .nav-arrow {
@@ -1533,7 +1526,7 @@ body {
   --theme-text-primary: var(--figma-color-text);
   --theme-text-secondary: var(--figma-color-text-secondary);
   --theme-text-muted: var(--figma-color-text-disabled);
-  --theme-text-subtle: var(--figma-color-text-secondary);
+  --theme-text-subtle: rgba(204, 204, 204, 0.6);
   --theme-text-disabled: var(--figma-color-text-disabled);
 
   /* Border Colors */
@@ -2250,7 +2243,7 @@ h3 {
 #quick-actions .header-right {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
   margin-left: auto;
   z-index: 1;
 }
@@ -2260,14 +2253,13 @@ h3 {
   align-items: center;
   gap: var(--spacing-sm);
 }
-
 #quick-actions .action-btn {
   width: calc(var(--spacing-lg) * 3);
   min-width: calc(var(--spacing-lg) * 3);
   min-height: calc(var(--spacing-lg) * 3);
   font-size: var(--icon-size-md);
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--color-text-subtle);
   flex-shrink: 0;
   border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 }
@@ -2316,7 +2308,7 @@ h3 {
   border: none;
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) 4px var(--spacing-xxl) 4px;
+  padding: var(--spacing-lg) 4px var(--spacing-lg) 4px;
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
@@ -2359,7 +2351,7 @@ h3 {
 }
 
 .header-right {
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xs);
   margin-left: auto;
   z-index: 1;
 }
@@ -2410,12 +2402,27 @@ h3 {
   align-items: center;
   justify-content: center;
   font-size: var(--icon-size-md);
+  color: var(--color-text-subtle);
 }
 
 .header-nav-btn .icon img {
   width: 16px;
   height: 16px;
   display: block;
+  /* Default header nav icons: subtle monochrome */
+  filter: brightness(0) saturate(0%);
+  opacity: 0.7;
+}
+
+.header-nav-btn:hover:not(:disabled) .icon img,
+.header-nav-btn:active:not(:disabled) .icon img {
+  /* Hover/active: brand blue tint to match text color */
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 0.8;
+}
+
+.header-nav-btn:disabled .icon img {
+  opacity: 0.4;
 }
 
 /* Header action buttons (Date, etc.) */
@@ -2434,7 +2441,7 @@ h3 {
 
 .header-action-btn .icon {
   font-size: var(--icon-size-md);
-  color: var(--color-text-primary);
+  color: var(--color-text-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2444,6 +2451,9 @@ h3 {
   width: 16px;
   height: 16px;
   display: block;
+  /* Default header action icons: subtle monochrome */
+  filter: brightness(0) saturate(0%);
+  opacity: 0.7;
 }
 
 .header-action-btn:hover {
@@ -2454,6 +2464,13 @@ h3 {
 
 .header-action-btn:hover .icon {
   color: var(--figma-color-border-brand);
+}
+
+.header-action-btn:hover .icon img,
+.header-action-btn:active .icon img {
+  /* Hover/active: brand blue tint to match text color */
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 0.8;
 }
 
 .header-action-btn:active {
@@ -2469,12 +2486,23 @@ h3 {
 /* Tags Header */
 #tags-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  padding-right: 8px;
+  margin: 0 4px 4px 4px;
+  border-radius: var(--border-radius-md);
 }
 
 /* Anchors Header - match Tags header strokes */
 #anchors-header {
   border-top: var(--border-width) solid var(--color-border-accent);
+  margin: 0 4px 4px 4px;
+  border-radius: var(--border-radius-md);
+}
+
+#anchors-header .header-left {
+  gap: var(--spacing-xs);
+}
+
+#anchors-header .header-right {
+  gap: var(--spacing-xs);
 }
 
 /* Remove bottom border when headers are collapsed */
@@ -2503,8 +2531,12 @@ h3 {
   letter-spacing: var(--letter-spacing-tight);
 }
 
+#tags-header .header-left {
+  gap: var(--spacing-xs);
+}
+
 #tags-header .header-right {
-  gap: var(--spacing-xxl);
+  gap: var(--spacing-xs);
 }
 
 /* Emoji Navigation List */
@@ -2607,10 +2639,11 @@ h3 {
 
 .color-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, auto);
   /* Default fallback */
   grid-gap: var(--spacing-xs);
-  width: 100%;
+  width: auto;
+  justify-content: center;
   transition: grid-template-columns var(--transition-normal), grid-gap var(--transition-normal);
 }
 
@@ -2671,6 +2704,107 @@ h3 {
   background: var(--figma-color-bg-selected);
   color: var(--figma-color-text);
   /* No transform for Drop button */
+}
+
+/* Override clear-color, save-bookmark, nav-delete, and nav-goto-component styles when used as header action buttons */
+#tags-header #clear-color,
+#anchors-header #save-bookmark,
+#controls-header #nav-delete,
+#controls-header #nav-goto-component {
+  /* Reset to header action button dimensions */
+  width: calc(var(--spacing-lg) * 3);
+  height: calc(var(--spacing-lg) * 3);
+  padding: 0;
+  
+  /* Reset to header action button styling */
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: inherit;
+  justify-content: center;
+  transition: background var(--transition-normal), transform var(--transition-fast), color var(--transition-normal);
+}
+
+#tags-header #clear-color .icon,
+#anchors-header #save-bookmark .icon,
+#controls-header #nav-delete .icon,
+#controls-header #nav-goto-component .icon {
+  font-size: var(--icon-size-md);
+  color: var(--color-text-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#tags-header #clear-color .icon img,
+#anchors-header #save-bookmark .icon img,
+#controls-header #nav-delete .icon img,
+#controls-header #nav-goto-component .icon img {
+  width: 16px;
+  height: 16px;
+  display: block;
+  /* Default header action icons: subtle monochrome */
+  filter: brightness(0) saturate(0%);
+  opacity: 0.7;
+}
+
+#tags-header #clear-color:hover,
+#anchors-header #save-bookmark:hover,
+#controls-header #nav-delete:hover:not(:disabled),
+#controls-header #nav-goto-component:hover:not(:disabled) {
+  background: var(--color-background-secondary);
+  color: var(--figma-color-border-brand);
+  transform: scale(1.1);
+  border: none;
+}
+
+#tags-header #clear-color:hover .icon,
+#anchors-header #save-bookmark:hover .icon,
+#controls-header #nav-delete:hover:not(:disabled) .icon,
+#controls-header #nav-goto-component:hover:not(:disabled) .icon {
+  color: var(--figma-color-border-brand);
+}
+
+#tags-header #clear-color:hover .icon img,
+#tags-header #clear-color:active .icon img,
+#anchors-header #save-bookmark:hover .icon img,
+#anchors-header #save-bookmark:active .icon img,
+#controls-header #nav-delete:hover:not(:disabled) .icon img,
+#controls-header #nav-delete:active:not(:disabled) .icon img,
+#controls-header #nav-goto-component:hover:not(:disabled) .icon img,
+#controls-header #nav-goto-component:active:not(:disabled) .icon img {
+  /* Hover/active: brand blue tint to match text color */
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 0.8;
+}
+
+#tags-header #clear-color:active,
+#anchors-header #save-bookmark:active,
+#controls-header #nav-delete:active:not(:disabled),
+#controls-header #nav-goto-component:active:not(:disabled) {
+  background: var(--color-background-secondary);
+  color: var(--figma-color-border-brand);
+  transform: scale(0.95);
+}
+
+#tags-header #clear-color:active .icon,
+#anchors-header #save-bookmark:active .icon,
+#controls-header #nav-delete:active:not(:disabled) .icon,
+#controls-header #nav-goto-component:active:not(:disabled) .icon {
+  color: var(--figma-color-border-brand);
+}
+
+/* Disabled state for nav-delete and nav-goto-component in header */
+#controls-header #nav-delete:disabled,
+#controls-header #nav-goto-component:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+#controls-header #nav-delete:disabled .icon img,
+#controls-header #nav-goto-component:disabled .icon img {
+  opacity: 0.4;
 }
 
 /* ===== CONTROLS SECTION ===== */
@@ -2879,6 +3013,7 @@ h3 {
 
 /* Control Button Labels */
 .nav-label {
+  display: none; /* Hide labels, show only icons */
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
   letter-spacing: 0.05em;
@@ -2990,7 +3125,16 @@ h3 {
 /* Controls Header - match other section headers */
 #controls-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  padding-right: 16px;
+  margin: 0 4px 4px 4px;
+  border-radius: var(--border-radius-md);
+}
+
+#controls-header .header-left {
+  gap: var(--spacing-xs);
+}
+
+#controls-header .header-right {
+  gap: var(--spacing-xs);
 }
 
 
@@ -3576,8 +3720,10 @@ i.grip {
 
 /* Simplified responsive grid - two breakpoints only */
 .color-grid {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, auto);
   grid-gap: var(--spacing-xs);
+  width: auto;
+  justify-content: center;
 }
 
 .color-grid-container {
@@ -3587,7 +3733,9 @@ i.grip {
 /* Larger screens - more spacing and bigger elements */
 @media (min-width: 280px) {
   .color-grid {
+    grid-template-columns: repeat(4, 1fr);
     grid-gap: var(--spacing-md);
+    width: 100%;
   }
 
   .emoji-button {
@@ -4107,7 +4255,7 @@ i.grip {
 }
 
 .section-header .header-right {
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xs);
 }
 
 /* Title and subtitle shared styling */
@@ -4145,6 +4293,9 @@ i.grip {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
   display: block;
+  /* Default quick actions icons: subtle monochrome */
+  filter: brightness(0) saturate(0%);
+  opacity: 0.7;
 }
 
 /* Darker quick action hover/active states */
@@ -4158,6 +4309,13 @@ i.grip {
   color: var(--figma-color-border-brand);
 }
 
+#quick-actions .action-btn:hover .icon img,
+#quick-actions .action-btn:active .icon img {
+  /* Hover/active: brand blue tint to match text color */
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 0.8;
+}
+
 /* Disabled state: grey arrow/icon to indicate inactivity */
 #quick-actions .action-btn:disabled {
   background: transparent;
@@ -4169,12 +4327,12 @@ i.grip {
   opacity: 0.4;
 }
 
-/* Enabled quick action buttons: restore brand blue color */
-#quick-actions .action-btn:not(:disabled) {
-  color: var(--figma-color-border-brand);
+#quick-actions .action-btn:disabled .icon img {
+  opacity: 0.4;
 }
 
-#quick-actions .action-btn:not(:disabled) .icon {
+/* Enabled quick action buttons: restore brand blue color */
+#quick-actions .action-btn:not(:disabled) {
   color: var(--figma-color-border-brand);
 }
 
@@ -4189,6 +4347,7 @@ i.grip {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
   display: block;
+  /* Inherit base quick actions icon filter/opacity */
 }
 
 /* Back and forward buttons are now in the anchors header */
@@ -4215,6 +4374,7 @@ i.grip {
   width: 12px;
   height: 12px;
   display: block;
+  /* Inherit base quick actions icon filter/opacity */
 }
 
 #quick-actions #indent-title-btn:hover,
@@ -4231,7 +4391,7 @@ i.grip {
 
 /* Indent icon color behavior: white by default, blue on hover/press */
 #quick-actions #indent-title-btn {
-  color: var(--figma-color-bg-inverse);
+  color: var(--color-text-subtle);
 }
 
 #quick-actions #indent-title-btn:hover,
@@ -4241,7 +4401,7 @@ i.grip {
 
 /* Outdent icon color behavior: white by default, blue on hover/press */
 #quick-actions #outdent-title-btn {
-  color: var(--figma-color-bg-inverse);
+  color: var(--color-text-subtle);
 }
 
 #quick-actions #outdent-title-btn:hover,
@@ -4249,23 +4409,17 @@ i.grip {
   color: var(--figma-color-border-brand);
 }
 
-/* Improve indent/outdent visibility in light theme */
-[data-theme="figma-light"] #quick-actions #indent-title-btn,
-[data-theme="figma-light"] #quick-actions #outdent-title-btn {
-  color: var(--figma-color-border-brand);
-}
-
 /* Settings quick-action: transparent by default, white icon, larger icon size */
 #quick-actions #settings-btn {
   background: transparent;
-  color: var(--color-text-primary);
+  color: var(--color-text-subtle);
   font-size: var(--icon-size-lg);
 }
 
 #quick-actions #settings-btn .icon {
   font-size: var(--icon-size-lg);
   font-weight: var(--font-weight-normal);
-  color: var(--color-text-primary);
+  color: var(--color-text-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4275,6 +4429,7 @@ i.grip {
   width: 16px;
   height: 16px;
   display: block;
+  /* Inherit base quick actions icon filter/opacity */
 }
 
 /* Keep brand blue on hover/active */
@@ -4320,7 +4475,7 @@ i.grip {
   min-width: calc(var(--spacing-lg) * 3);
   min-height: calc(var(--spacing-lg) * 3);
   background: transparent;
-  color: var(--figma-color-border-brand);
+  color: var(--color-text-subtle);
 }
 
 #quick-actions #refresh-anchors .icon {
@@ -4328,13 +4483,27 @@ i.grip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--figma-color-border-brand);
+  color: var(--color-text-subtle);
 }
 
 #quick-actions #refresh-anchors .icon img {
   width: 16px;
   height: 16px;
   display: block;
+  /* Inherit base quick actions icon filter/opacity */
+}
+
+/* Dark theme adjustments for header/quick action icons */
+[data-theme="figma-dark"] .header-nav-btn .icon img,
+[data-theme="figma-dark"] .header-action-btn .icon img,
+[data-theme="figma-dark"] #quick-actions .action-btn .icon img,
+[data-theme="figma-dark"] #tags-header #clear-color .icon img,
+[data-theme="figma-dark"] #anchors-header #save-bookmark .icon img,
+[data-theme="figma-dark"] #controls-header #nav-delete .icon img,
+[data-theme="figma-dark"] #controls-header #nav-goto-component .icon img {
+  /* Use a lighter monochrome tint on dark backgrounds */
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.60;
 }
 
 #quick-actions #refresh-anchors:hover {
@@ -4850,7 +5019,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .header-right {
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xs);
   margin-left: auto;
 }
 
@@ -4917,11 +5086,14 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 /* Specific header styling */
 #tags-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  padding-right: 8px;
+  margin: 0 4px 4px 4px;
+  border-radius: var(--border-radius-md);
 }
 
 #anchors-header {
   border-top: var(--border-width) solid var(--color-border-accent);
+  margin: 0 4px 4px 4px;
+  border-radius: var(--border-radius-md);
 }
 
 /* Remove bottom border when headers are collapsed */
@@ -5567,6 +5739,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .nav-label {
+  display: none; /* Hide labels, show only icons */
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
   line-height: 1;

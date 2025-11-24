@@ -50,6 +50,11 @@
       <div class="header-center">
         <h2 class="header-title">Tags</h2>
       </div>
+      <div class="header-right">
+        <button id="clear-color" class="action-btn header-action-btn" aria-label="Remove color tags" onclick="event.stopPropagation();">
+          <span class="icon"><img src="./assets/ICO-removeTag.svg" alt=""></span>
+        </button>
+      </div>
     </header>
 
     <section id="color-section" class="collapsible-content" role="region" aria-labelledby="tags-header">
@@ -64,11 +69,6 @@
           </nav>
           <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
         </div>
-        <button id="clear-color" class="clear-action" aria-label="Clear color tags">
-          <!-- <span class="action-bracket">[ [</span> -->
-          <span class="action-text">Remove <img src="./assets/ICO-tags.svg" class="action-icon" alt=""></span>
-          <!-- <span class="action-bracket">] ]</span> -->
-        </button>
       </div>
     </section>
 
@@ -91,6 +91,9 @@
         <button id="refresh-anchors" class="action-btn header-action-btn" aria-label="Sync bookmarks across plugin windows" onclick="event.stopPropagation();">
           <span class="icon"><img src="./assets/ICO-anchorRefresh.svg" alt=""></span>
         </button>
+        <button id="save-bookmark" class="action-btn header-action-btn" aria-label="Drop anchor to save bookmark" onclick="event.stopPropagation();">
+          <span class="icon"><img src="./assets/ICO-anchors.svg" alt=""></span>
+        </button>
       </div>
     </header>
 
@@ -101,18 +104,23 @@
           <div class="null-state-icon">⚓️</div>
           <div class="null-state-description">Pick your target and drop an anchor to save your spot</div>
         </div>
-        <button id="save-bookmark" aria-label="Save bookmark">
-          <!-- <span class="action-bracket">[ [</span> -->
-          <span class="action-text">Drop <img src="./assets/ICO-anchors.svg" class="action-icon" alt=""></span>
-          <!-- <span class="action-bracket">] ]</span> -->
-        </button>
       </div>
     </section>
 
     <header id="controls-header" class="section-header collapsible" data-target="controls-section" role="button"
       tabindex="0" aria-expanded="true" aria-controls="controls-section">
+      <div class="header-left">
+        <button id="nav-goto-component" class="action-btn header-action-btn" aria-label="Go to main component" disabled onclick="event.stopPropagation();">
+          <span class="icon"><img src="./assets/ICO-component.svg" alt=""></span>
+        </button>
+      </div>
       <div class="header-center">
         <h2 class="header-title">Controls</h2>
+      </div>
+      <div class="header-right">
+        <button id="nav-delete" class="action-btn header-action-btn" aria-label="Delete selected nodes" disabled onclick="event.stopPropagation();">
+          <span class="icon"><img src="./assets/ICO-delete.svg" alt=""></span>
+        </button>
       </div>
     </header>
 
@@ -255,34 +263,6 @@
             </button>
           </div>
 
-          </div>
-        </div>
-
-        <!-- Actions Grid -->
-        <div class="tag-grid-container">
-          <span class="emoji-set-title">
-            <span class="set-name">Actions</span>
-          </span>
-          <div class="actions-grid" role="group" aria-label="Layer actions"
-            aria-describedby="actions-instructions">
-
-          <!-- Screen reader instructions -->
-          <div id="actions-instructions" class="sr-only">
-            Layer action buttons. Use Tab to navigate, Enter or Space to activate buttons.
-          </div>
-
-          <button id="nav-goto-component" class="nav-button nav-button-hierarchy"
-            aria-label="Go to main component" aria-describedby="nav-goto-component-desc" disabled>
-            <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-component.svg" alt=""></span>
-            <span class="nav-label">Component</span>
-            <span id="nav-goto-component-desc" class="sr-only">Navigate to the main component of selected instance</span>
-          </button>
-          <div class="nav-spacer"></div>
-          <button id="nav-delete" class="nav-button nav-button-action"
-            aria-label="Delete selected nodes" aria-describedby="nav-delete-desc" disabled>
-            <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-delete.svg" alt=""></span>
-            <span id="nav-delete-desc" class="sr-only">Delete currently selected nodes</span>
-          </button>
           </div>
         </div>
 
