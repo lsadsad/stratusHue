@@ -999,10 +999,10 @@ body {
   --theme-scrollbar-thumb-hover: #505050;
 
   /* Accent Colors */
-  --theme-accent-red: rgba(255, 107, 107, 0.15);
-  --theme-accent-green: rgba(110, 222, 110, 0.15);
-  --theme-accent-yellow: rgba(255, 193, 7, 0.15);
-  --theme-accent-blue: rgba(111, 176, 255, 0.08);
+  --theme-accent-red: rgba(255, 107, 107, 0.20);
+  --theme-accent-green: rgba(110, 222, 110, 0.20);
+  --theme-accent-yellow: rgba(255, 193, 7, 0.20);
+  --theme-accent-blue: rgba(111, 176, 255, 0.20);
   --theme-accent-pink: rgba(255, 105, 180, 0.4);
 
   /* Status Colors */
@@ -1071,7 +1071,7 @@ body {
   --theme-accent-red: rgba(255, 20, 147, 0.2);
   --theme-accent-green: rgba(0, 255, 127, 0.2);
   --theme-accent-yellow: rgba(255, 215, 0, 0.2);
-  --theme-accent-blue: rgba(0, 191, 255, 0.15);
+  --theme-accent-blue: rgba(0, 191, 255, 0.2);
   --theme-accent-pink: rgba(255, 0, 255, 0.3);
 
   /* Status Colors - Bright and electric */
@@ -1247,10 +1247,10 @@ body {
   --theme-scrollbar-thumb-hover: #9ca3af;
 
   /* Accent Colors - Figma brand colors adapted for light theme */
-  --theme-accent-red: rgba(239, 68, 68, 0.1);
-  --theme-accent-green: rgba(34, 197, 94, 0.1);
-  --theme-accent-yellow: rgba(245, 158, 11, 0.1);
-  --theme-accent-blue: rgba(24, 160, 251, 0.1);
+  --theme-accent-red: rgba(239, 68, 68, 0.2);
+  --theme-accent-green: rgba(34, 197, 94, 0.2);
+  --theme-accent-yellow: rgba(245, 158, 11, 0.2);
+  --theme-accent-blue: rgba(24, 160, 251, 0.2);
   --theme-accent-pink: rgba(236, 72, 153, 0.1);
 
   /* Status Colors - Light theme status indicators with WCAG AA compliance */
@@ -1390,23 +1390,48 @@ body {
   opacity: 1;
 }
 
-/* Emoji nav arrows in light mode - match Colors title color */
+/* Emoji nav arrows in light mode - match section header text color (dark) */
 [data-theme="figma-light"] #tags-header .emoji-nav-btn .nav-arrow,
 [data-theme="light"] #tags-header .emoji-nav-btn .nav-arrow {
-  filter: brightness(0) saturate(100%) invert(0);
-  opacity: 0.6;
+  filter: brightness(0);
+  opacity: 1;
 }
 
 [data-theme="figma-light"] #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow,
 [data-theme="light"] #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow {
-  filter: brightness(0) saturate(100%) invert(0);
-  opacity: 0.6;
+  filter: brightness(0);
+  opacity: 1;
 }
 
 [data-theme="figma-light"] #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow,
 [data-theme="light"] #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow {
-  filter: brightness(0) saturate(100%) invert(0);
-  opacity: 0.6;
+  filter: brightness(0);
+  opacity: 1;
+}
+
+/* Emoji nav arrows in dark themes - match section header text color (white) */
+[data-theme="figma-dark"] #tags-header .emoji-nav-btn .nav-arrow,
+[data-theme="dark"] #tags-header .emoji-nav-btn .nav-arrow,
+[data-theme="boilerplate"] #tags-header .emoji-nav-btn .nav-arrow,
+[data-theme="cybertron"] #tags-header .emoji-nav-btn .nav-arrow {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+
+[data-theme="figma-dark"] #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow,
+[data-theme="dark"] #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow,
+[data-theme="boilerplate"] #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow,
+[data-theme="cybertron"] #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+
+[data-theme="figma-dark"] #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow,
+[data-theme="dark"] #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow,
+[data-theme="boilerplate"] #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow,
+[data-theme="cybertron"] #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow {
+  filter: brightness(0) invert(1);
+  opacity: 1;
 }
 
 /* Figma light theme footer enhancements */
@@ -1478,7 +1503,7 @@ body {
   --theme-accent-red: rgba(239, 68, 68, 0.2);
   --theme-accent-green: rgba(34, 197, 94, 0.2);
   --theme-accent-yellow: rgba(245, 158, 11, 0.2);
-  --theme-accent-blue: rgba(24, 160, 251, 0.15);
+  --theme-accent-blue: rgba(24, 160, 251, 0.2);
   --theme-accent-pink: rgba(236, 72, 153, 0.2);
 
   /* Status Colors - Dark theme status indicators */
@@ -1545,10 +1570,10 @@ body {
   --theme-scrollbar-thumb-hover: var(--figma-color-border);
 
   /* Accent Colors - Use Figma's brand colors */
-  --theme-accent-red: rgba(255, 107, 107, 0.15);
-  --theme-accent-green: rgba(110, 222, 110, 0.15);
-  --theme-accent-yellow: rgba(255, 193, 7, 0.15);
-  --theme-accent-blue: var(--figma-color-bg-brand);
+  --theme-accent-red: rgba(255, 107, 107, 0.2);
+  --theme-accent-green: rgba(110, 222, 110, 0.2);
+  --theme-accent-yellow: rgba(255, 193, 7, 0.2);
+  --theme-accent-blue: rgba(111, 176, 255, 0.2);
   --theme-accent-pink: rgba(255, 105, 180, 0.4);
 
   /* Status Colors */
@@ -1614,10 +1639,10 @@ body {
   --theme-scrollbar-thumb-hover: #868e96;
 
   /* Accent Colors */
-  --theme-accent-red: rgba(220, 53, 69, 0.1);
-  --theme-accent-green: rgba(40, 167, 69, 0.1);
-  --theme-accent-yellow: rgba(255, 193, 7, 0.1);
-  --theme-accent-blue: rgba(13, 110, 253, 0.1);
+  --theme-accent-red: rgba(220, 53, 69, 0.2);
+  --theme-accent-green: rgba(40, 167, 69, 0.2);
+  --theme-accent-yellow: rgba(255, 193, 7, 0.2);
+  --theme-accent-blue: rgba(13, 110, 253, 0.2);
   --theme-accent-pink: rgba(214, 51, 132, 0.1);
 
   /* Status Colors */
@@ -1781,8 +1806,7 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xxl);
-  padding: var(--spacing-sm) var(--double-spacing-lg) calc(var(--spacing-xxl) * 2 - var(--spacing-lg)) var(--double-spacing-lg);
-  min-height: 120px;
+  padding: var(--spacing-sm) var(--spacing-xxl) calc(var(--spacing-lg) * 2) var(--spacing-xxl);
 }
 
 /* Boilerplate: use elevated background for Tags content section */
@@ -2070,6 +2094,7 @@ h3 {
   /* Specific properties */
   font-size: var(--icon-size-lg);
   width: 100%;
+  min-width: 0;
   padding: var(--spacing-md);
   border-radius: var(--border-radius-xl);
   background: transparent;
@@ -2079,12 +2104,12 @@ h3 {
 
 .emoji-button:hover {
   background: var(--color-interactive-hover);
-  transform: scale(1.1);
+  width: 100%;
 }
 
 .emoji-button:active {
   background: var(--color-interactive-active);
-  transform: scale(0.95);
+  width: 100%;
 }
 
 /* Emoji Navigation Buttons */
@@ -2164,7 +2189,8 @@ h3 {
 #tags-header .emoji-nav-btn .nav-arrow {
   width: 12px;
   height: 12px;
-  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  filter: brightness(0);
+  opacity: 1;
 }
 
 /* Apply .action-btn interaction model to Next/Prev Set */
@@ -2175,7 +2201,8 @@ h3 {
 }
 
 #tags-header .emoji-nav-btn:hover:not(:disabled) .nav-arrow {
-  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  filter: brightness(0);
+  opacity: 1;
 }
 
 #tags-header .emoji-nav-btn:active:not(:disabled) {
@@ -2184,7 +2211,8 @@ h3 {
 }
 
 #tags-header .emoji-nav-btn:active:not(:disabled) .nav-arrow {
-  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  filter: brightness(0);
+  opacity: 1;
 }
 
 #tags-header .emoji-nav-btn:disabled {
@@ -2486,14 +2514,14 @@ h3 {
 /* Tags Header */
 #tags-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  margin: 0 4px 4px 4px;
+  margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
 
 /* Anchors Header - match Tags header strokes */
 #anchors-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  margin: 0 4px 4px 4px;
+  margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
 
@@ -2629,8 +2657,9 @@ h3 {
   align-items: center;
   gap: 0;
   width: 100%;
+  min-width: 0;
   background: var(--color-background-elevated);
-  padding: calc(var(--spacing-lg) + var(--spacing-sm)) 12px;
+  padding: var(--spacing-lg) 12px;
   border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
@@ -2639,11 +2668,11 @@ h3 {
 
 .color-grid {
   display: grid;
-  grid-template-columns: repeat(4, auto);
+  grid-template-columns: repeat(4, 1fr);
   /* Default fallback */
   grid-gap: var(--spacing-xs);
-  width: auto;
-  justify-content: center;
+  width: 100%;
+  min-width: 0;
   transition: grid-template-columns var(--transition-normal), grid-gap var(--transition-normal);
 }
 
@@ -2835,7 +2864,7 @@ h3 {
   align-items: center;
   gap: 16px;
   background: var(--color-background-elevated);
-  padding: var(--spacing-sm) var(--double-spacing-lg) var(--double-spacing-lg) var(--double-spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-xxl) var(--double-spacing-lg) var(--spacing-xxl);
   border-radius: var(--border-radius-md);
 }
 
@@ -3030,8 +3059,8 @@ h3 {
 .nav-button.nav-button-arrow {
   /* Transparent border in default state, visible on hover */
   border-color: transparent !important;
-  /* Default fill 40% less than hover: rgba(110, 222, 110, 0.15) -> rgba(110, 222, 110, 0.09) */
-  background: rgba(110, 222, 110, 0.09) !important;
+  /* Default fill 12% opacity */
+  background: rgba(110, 222, 110, 0.12) !important;
 }
 
 .nav-button.nav-button-arrow:hover:not(:disabled) {
@@ -3054,8 +3083,8 @@ h3 {
 .nav-button.nav-button-zoom {
   /* Transparent border in default state, visible on hover */
   border-color: transparent !important;
-  /* Default fill 40% less than hover: rgba(111, 176, 255, 0.08) -> rgba(111, 176, 255, 0.048) */
-  background: rgba(111, 176, 255, 0.048) !important;
+  /* Default fill 12% opacity */
+  background: rgba(111, 176, 255, 0.12) !important;
 }
 
 .nav-button.nav-button-zoom:hover:not(:disabled) {
@@ -3078,8 +3107,8 @@ h3 {
 .nav-button.nav-button-hierarchy {
   /* Transparent border in default state, visible on hover */
   border-color: transparent !important;
-  /* Default fill 40% less than hover: rgba(255, 193, 7, 0.15) -> rgba(255, 193, 7, 0.09) */
-  background: rgba(255, 193, 7, 0.09) !important;
+  /* Default fill 12% opacity */
+  background: rgba(255, 193, 7, 0.12) !important;
 }
 
 .nav-button.nav-button-hierarchy:hover:not(:disabled) {
@@ -3103,7 +3132,8 @@ h3 {
   /* Delete button styling - red/danger color */
   /* Transparent border in default state, visible on hover */
   border-color: transparent !important;
-  background: rgba(255, 107, 107, 0.09) !important;
+  /* Default fill 12% opacity */
+  background: rgba(255, 107, 107, 0.12) !important;
 }
 
 .nav-button.nav-button-action:hover:not(:disabled) {
@@ -3125,7 +3155,7 @@ h3 {
 /* Controls Header - match other section headers */
 #controls-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  margin: 0 4px 4px 4px;
+  margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
 
@@ -3205,7 +3235,7 @@ h3 {
   align-items: center;
   gap: calc(var(--spacing-lg) * 2 - var(--spacing-sm));
   background: var(--color-background-elevated);
-  padding: 0 var(--double-spacing-lg) var(--double-spacing-lg) var(--double-spacing-lg);
+  padding: 0 var(--spacing-xxl) var(--double-spacing-lg) var(--spacing-xxl);
   border-radius: var(--border-radius-md);
 }
 
@@ -3276,6 +3306,7 @@ h3 {
   border-radius: 0;
   padding: var(--spacing-lg) var(--spacing-xl);
   /* Provide extra space on the right so content breathes near the remove affordance */
+  padding-left: var(--spacing-lg);
   padding-right: calc(var(--spacing-lg) + var(--spacing-xl));
   cursor: pointer;
   transition: all var(--transition-normal);
@@ -3306,19 +3337,29 @@ h3 {
 .bookmark-item.recent-history .recent-steps-icon {
   position: absolute;
   bottom: var(--spacing-md);
-  left: var(--spacing-xl);
+  left: calc(var(--spacing-xl) - 1px);
   width: 12px;
   height: 12px;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 1;
+  filter: brightness(0) saturate(0%) invert(1);
   z-index: 1;
 }
 
-/* Adjust icon color for light mode */
+/* Adjust icon color for light mode - black icon */
 [data-theme="figma-light"] .bookmark-item.recent-history .recent-steps-icon,
 [data-theme="light"] .bookmark-item.recent-history .recent-steps-icon {
-  filter: brightness(0);
-  opacity: 0.6;
+  filter: brightness(0) saturate(0%);
+  opacity: 1;
+}
+
+/* Dark mode - white icon */
+[data-theme="figma-dark"] .bookmark-item.recent-history .recent-steps-icon,
+[data-theme="dark"] .bookmark-item.recent-history .recent-steps-icon,
+[data-theme="boilerplate"] .bookmark-item.recent-history .recent-steps-icon,
+[data-theme="cybertron"] .bookmark-item.recent-history .recent-steps-icon {
+  filter: brightness(0) saturate(0%) invert(1);
+  opacity: 1;
 }
 
 .bookmark-item.current-anchor {
@@ -3389,7 +3430,7 @@ h3 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
   letter-spacing: 0.05em;
   /* Ensure truncation within parent width */
   max-width: 100%;
@@ -3720,10 +3761,9 @@ i.grip {
 
 /* Simplified responsive grid - two breakpoints only */
 .color-grid {
-  grid-template-columns: repeat(4, auto);
+  grid-template-columns: repeat(4, 1fr);
   grid-gap: var(--spacing-xs);
-  width: auto;
-  justify-content: center;
+  width: 100%;
 }
 
 .color-grid-container {
@@ -4076,6 +4116,20 @@ i.grip {
 .theme-option[aria-pressed="true"] .theme-status {
   color: var(--figma-color-text-brand);
   opacity: 1;
+}
+
+/* Light and Boilerplate theme options - dark text in light mode to match other options */
+#theme-light .theme-name,
+#theme-light .theme-description,
+#theme-boilerplate .theme-name,
+#theme-boilerplate .theme-description {
+  color: var(--color-text-primary);
+}
+
+/* Ensure Boilerplate has dark text when light theme is active */
+[data-theme="light"] #theme-boilerplate .theme-name,
+[data-theme="light"] #theme-boilerplate .theme-description {
+  color: var(--theme-text-primary) !important;
 }
 
 /* Theme groups */
@@ -4506,6 +4560,30 @@ i.grip {
   opacity: 0.60;
 }
 
+/* Cybertron theme: cyan-tinted icons to match theme aesthetic */
+[data-theme="cybertron"] .header-nav-btn .icon img,
+[data-theme="cybertron"] .header-action-btn .icon img,
+[data-theme="cybertron"] #quick-actions .action-btn .icon img,
+[data-theme="cybertron"] #tags-header #clear-color .icon img,
+[data-theme="cybertron"] #anchors-header #save-bookmark .icon img,
+[data-theme="cybertron"] #controls-header #nav-delete .icon img,
+[data-theme="cybertron"] #controls-header #nav-goto-component .icon img {
+  /* Cyan tint to match cybertron theme - invert to white then apply cyan filter */
+  filter: brightness(0) invert(1) sepia(100%) saturate(200%) hue-rotate(160deg) brightness(1.2);
+  opacity: 0.80;
+}
+
+/* Cybertron hover/active states: brighter cyan glow */
+[data-theme="cybertron"] .header-nav-btn:hover:not(:disabled) .icon img,
+[data-theme="cybertron"] .header-nav-btn:active:not(:disabled) .icon img,
+[data-theme="cybertron"] .header-action-btn:hover .icon img,
+[data-theme="cybertron"] .header-action-btn:active .icon img,
+[data-theme="cybertron"] #quick-actions .action-btn:hover .icon img,
+[data-theme="cybertron"] #quick-actions .action-btn:active .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(160deg) brightness(1.5);
+  opacity: 1;
+}
+
 #quick-actions #refresh-anchors:hover {
   background: transparent;
   color: var(--figma-color-border-brand);
@@ -4583,9 +4661,28 @@ i.grip {
   transform: scale(1.05);
 }
 
+/* Base nav arrow - dark themes use white */
+.emoji-nav-btn .nav-arrow {
+  filter: brightness(0) invert(1);
+}
+
+/* Light themes - dark arrows to match text */
+[data-theme="figma-light"] .emoji-nav-btn .nav-arrow,
+[data-theme="light"] .emoji-nav-btn .nav-arrow {
+  filter: brightness(0);
+  opacity: 1;
+}
+
 .emoji-nav-btn:hover .nav-arrow {
   opacity: 1;
   filter: brightness(0) invert(1);
+}
+
+/* Light themes - dark arrows to match text */
+[data-theme="figma-light"] .emoji-nav-btn:hover .nav-arrow,
+[data-theme="light"] .emoji-nav-btn:hover .nav-arrow {
+  filter: brightness(0);
+  opacity: 1;
 }
 
 .emoji-nav-btn:active {
@@ -4597,6 +4694,13 @@ i.grip {
 .emoji-nav-btn:active .nav-arrow {
   opacity: 1;
   filter: brightness(0) invert(1);
+}
+
+/* Light themes - dark arrows to match text */
+[data-theme="figma-light"] .emoji-nav-btn:active .nav-arrow,
+[data-theme="light"] .emoji-nav-btn:active .nav-arrow {
+  filter: brightness(0);
+  opacity: 1;
 }
 
 .emoji-nav-btn:disabled {
@@ -4934,7 +5038,7 @@ i.grip {
 .footer-controls .made-with a {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   height: 100%;
   color: inherit;
   text-decoration: none;
@@ -4954,7 +5058,7 @@ i.grip {
 }
 
 .footer-controls .made-text {
-  transform: translateY(2px);
+  transform: translateY(1px);
   display: inline-block;
 }
 
@@ -5086,13 +5190,13 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 /* Specific header styling */
 #tags-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  margin: 0 4px 4px 4px;
+  margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
 
 #anchors-header {
   border-top: var(--border-width) solid var(--color-border-accent);
-  margin: 0 4px 4px 4px;
+  margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
 

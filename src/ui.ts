@@ -199,6 +199,7 @@ function computeFitHeight(): number {
 
   // Calculate height by measuring visible content only
   let totalContentHeight = 0;
+  let previousMarginBottom = 0;
   
   // Get all direct children of main and measure only non-collapsed sections
   const children = Array.from(main.children) as HTMLElement[];
@@ -209,19 +210,32 @@ function computeFitHeight(): number {
       continue;
     } else {
       // For visible content, use offsetHeight which respects CSS layout
-      totalContentHeight += child.offsetHeight;
+      const childStyle = window.getComputedStyle(child);
+      const marginTop = parseInt(childStyle.marginTop, 10) || 0;
+      const marginBottom = parseInt(childStyle.marginBottom, 10) || 0;
+      
+      // Handle margin collapsing: only the larger of adjacent margins is used
+      const collapsedMargin = Math.max(previousMarginBottom, marginTop);
+      totalContentHeight += child.offsetHeight + collapsedMargin;
+      
+      previousMarginBottom = marginBottom;
     }
   }
   
-  // Add main's padding (top and bottom)
+  // Add the last element's bottom margin (doesn't collapse with padding)
+  totalContentHeight += previousMarginBottom;
+  
+  // Add main's padding and margins (top and bottom)
   const mainStyle = window.getComputedStyle(main);
   const mainPaddingTop = parseInt(mainStyle.paddingTop, 10) || 0;
   const mainPaddingBottom = parseInt(mainStyle.paddingBottom, 10) || 0;
+  const mainMarginTop = parseInt(mainStyle.marginTop, 10) || 0;
+  const mainMarginBottom = parseInt(mainStyle.marginBottom, 10) || 0;
   
   const footerHeight = footer.offsetHeight || 20;
   
-  // Total: visible content + padding + footer + small buffer
-  const totalHeight = totalContentHeight + mainPaddingTop + mainPaddingBottom + footerHeight + 2;
+  // Total: visible content + padding + margins + footer (no extra buffer needed with accurate calculation)
+  const totalHeight = totalContentHeight + mainPaddingTop + mainPaddingBottom + mainMarginTop + mainMarginBottom + footerHeight;
 
   // Only log detailed breakdown when height actually changes
   const collapsedCount = children.filter(c => c.classList.contains('collapsed')).length;
@@ -230,6 +244,8 @@ function computeFitHeight(): number {
       totalContentHeight,
       mainPaddingTop,
       mainPaddingBottom,
+      mainMarginTop,
+      mainMarginBottom,
       footerHeight,
       totalHeight,
       collapsedSections: collapsedCount
