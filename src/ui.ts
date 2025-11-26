@@ -1347,8 +1347,25 @@ function updateNavigationButtons(canGoBack: boolean, canGoForward: boolean): voi
 function updateLayoutSizingButtons(horizontal: string | undefined, vertical: string | undefined): void {
   const widthModeSpan = document.getElementById('width-mode');
   const heightModeSpan = document.getElementById('height-mode');
+  const widthIcon = document.getElementById('width-icon') as HTMLImageElement;
+  const heightIcon = document.getElementById('height-icon') as HTMLImageElement;
   const cycleWidthBtn = document.getElementById('cycle-width') as HTMLButtonElement;
   const cycleHeightBtn = document.getElementById('cycle-height') as HTMLButtonElement;
+
+  // Base64 data URIs for icons (matching the inlined assets in HTML)
+  const ICON_FIXED = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEgNlYxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNSA2VjEwIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEgOEgxNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
+  const ICON_HUG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYgNVYxMSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMCA1VjExIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEgOEg1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTMgMTBMNSA4TDMgNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNSA4SDExIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEzIDZMMTEgOEwxMyAxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
+  const ICON_FILL = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjY2NjcgOEgxNC42NjY3IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEyLjY2NjcgMTBMMTQuNjY2NyA4TDEyLjY2NjcgNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMS4zMzMzIDhIMS4zMzMyNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0zLjMzMzI1IDZMMS4zMzMyNSA4TDMuMzMzMjUgMTAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K';
+
+  // Helper function to get icon data URI based on mode
+  const getIconDataUri = (mode: string | undefined): string => {
+    if (!mode || mode === '—') return ICON_FIXED; // Default icon - show fixed when no hug/fill
+    const modeLower = mode.toLowerCase();
+    if (modeLower === 'hug') return ICON_HUG;
+    if (modeLower === 'fill') return ICON_FILL;
+    if (modeLower === 'fixed') return ICON_FIXED;
+    return ICON_FIXED; // Fallback - show fixed when no hug/fill
+  };
 
   // Update button labels
   if (widthModeSpan) {
@@ -1358,6 +1375,14 @@ function updateLayoutSizingButtons(horizontal: string | undefined, vertical: str
     heightModeSpan.textContent = vertical || '—';
   }
 
+  // Update icons based on current mode
+  if (widthIcon) {
+    widthIcon.src = getIconDataUri(horizontal);
+  }
+  if (heightIcon) {
+    heightIcon.src = getIconDataUri(vertical);
+  }
+
   // Enable/disable buttons based on whether we have valid layout properties
   const hasValidState = horizontal && horizontal !== '—';
   if (cycleWidthBtn) {
@@ -1365,6 +1390,16 @@ function updateLayoutSizingButtons(horizontal: string | undefined, vertical: str
   }
   if (cycleHeightBtn) {
     cycleHeightBtn.disabled = !hasValidState;
+  }
+
+  // When buttons are disabled, always reset icons to fixed (default state)
+  if (!hasValidState) {
+    if (widthIcon) {
+      widthIcon.src = ICON_FIXED;
+    }
+    if (heightIcon) {
+      heightIcon.src = ICON_FIXED;
+    }
   }
 }
 

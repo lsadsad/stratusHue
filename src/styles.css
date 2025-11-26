@@ -2234,7 +2234,7 @@ h3 {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0 4px;
+  padding: 0 var(--spacing-lg);
   background: var(--theme-bg-elevated);
   width: 100%;
   box-sizing: border-box;
@@ -2336,7 +2336,7 @@ h3 {
   border: none;
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-lg) 4px var(--spacing-lg) 4px;
+  padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
@@ -2908,6 +2908,17 @@ h3 {
 .actions-grid .nav-icon img {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
+}
+
+/* Rotate height icon 90 degrees for vertical sizing */
+#height-icon {
+  transform: rotate(90deg);
+}
+
+/* Override disabled opacity for sizing mode buttons to keep icons visible */
+#cycle-width:disabled,
+#cycle-height:disabled {
+  opacity: 1 !important;
 }
 
 /* Control rows for semantic structure */
@@ -3719,7 +3730,7 @@ i.grip {
   #quick-actions {
     flex-wrap: nowrap;
     gap: var(--spacing-xs);
-    padding: 0 var(--spacing-sm) 0 var(--spacing-sm);
+    padding: 0 var(--spacing-lg);
     /* Maintain fixed height to prevent resizing when width is toggled */
     height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
     min-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
@@ -5094,7 +5105,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   border: none;
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) 4px var(--spacing-xxl) 4px;
+  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
