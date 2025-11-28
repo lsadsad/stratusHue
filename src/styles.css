@@ -2241,7 +2241,8 @@ h3 {
   height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
   min-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
   max-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: calc(var(--z-footer) + 1);
 }
 

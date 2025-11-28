@@ -461,6 +461,9 @@ export class LayerNavigationHandler {
    */
   static enterContainer(node: SceneNode): NavigationResult {
     return withSyncErrorBoundary(() => {
+      // === DEBUG LOGGING FOR ENTER CONTAINER ===
+      console.log('=== ENTER CONTAINER DEBUG ===');
+      
       // Validate input node
       if (!validateSceneNode(node)) {
         const error = createError(
@@ -469,6 +472,8 @@ export class LayerNavigationHandler {
           { nodeId: (node as any)?.id, nodeType: (node as any)?.type }
         );
         handleError(error);
+        console.log('Result: Invalid node');
+        console.log('=== END ENTER CONTAINER DEBUG ===\n');
         return {
           success: false,
           message: 'Invalid selection for container entry',
@@ -482,8 +487,14 @@ export class LayerNavigationHandler {
         const nodeType = node.type;
         const nodeName = node.name;
         
+        console.log(`Entering container: "${nodeName}" (${nodeType})`);
+        console.log(`  - isContainer: ${LayerNavigationHandler.isContainer(node)}`);
+        console.log(`  - isExpandableContainer: ${LayerNavigationHandler.isExpandableContainer(node)}`);
+        
         // Check if node is a container type
         if (!LayerNavigationHandler.isContainer(node)) {
+          console.log(`Result: Not a container type`);
+          console.log('=== END ENTER CONTAINER DEBUG ===\n');
           return {
             success: false,
             message: `Cannot enter ${nodeType.toLowerCase()}: not a container (Section, Group, or Frame)`,
@@ -499,6 +510,8 @@ export class LayerNavigationHandler {
             { nodeId: node.id, nodeType: nodeType }
           );
           handleError(error);
+          console.log('Result: No children property');
+          console.log('=== END ENTER CONTAINER DEBUG ===\n');
           return {
             success: false,
             message: 'Container does not support child elements',
@@ -506,8 +519,12 @@ export class LayerNavigationHandler {
           };
         }
 
+        console.log(`  - Total children: ${node.children.length}`);
+
         // Check if container has any children
         if (node.children.length === 0) {
+          console.log('Result: Container is empty');
+          console.log('=== END ENTER CONTAINER DEBUG ===\n');
           return {
             success: false,
             message: `${nodeType.toLowerCase()} "${nodeName}" is empty`,
@@ -528,7 +545,14 @@ export class LayerNavigationHandler {
           }
         }
         
+        console.log(`  - Visible children: ${children.length}`);
+        children.forEach((child, i) => {
+          console.log(`    [${i}] "${child.name}" (${child.type})`);
+        });
+        
         if (children.length === 0) {
+          console.log('Result: No visible children');
+          console.log('=== END ENTER CONTAINER DEBUG ===\n');
           return {
             success: false,
             message: `${nodeType.toLowerCase()} "${nodeName}" has no visible children`,
@@ -557,6 +581,9 @@ export class LayerNavigationHandler {
           // History recording failure shouldn't prevent navigation
           console.warn('Failed to record navigation in history:', historyError);
         }
+
+        console.log(`Result: SUCCESS - selecting ${children.length} children`);
+        console.log('=== END ENTER CONTAINER DEBUG ===\n');
 
         return {
           success: true,
@@ -593,13 +620,30 @@ export class LayerNavigationHandler {
    */
   static enterMultipleContainers(nodes: readonly SceneNode[]): NavigationResult {
     return withSyncErrorBoundary(() => {
+      // === DEBUG LOGGING FOR ENTER MULTIPLE CONTAINERS ===
+      console.log('=== ENTER MULTIPLE CONTAINERS DEBUG ===');
+      console.log(`Nodes count: ${nodes.length}`);
+      
       if (nodes.length === 0) {
+        console.log('Result: No containers provided');
+        console.log('=== END ENTER MULTIPLE CONTAINERS DEBUG ===\n');
         return {
           success: false,
           message: 'No containers provided to expand',
           viewportUpdate: false
         };
       }
+
+      // Log each node
+      nodes.forEach((node, i) => {
+        const isContainer = LayerNavigationHandler.isContainer(node);
+        const hasExpanded = 'expanded' in node;
+        const expandedValue = hasExpanded ? (node as any).expanded : 'N/A';
+        console.log(`  [${i}] "${node.name}" (${node.type})`);
+        console.log(`      - isContainer: ${isContainer}`);
+        console.log(`      - hasExpandedProperty: ${hasExpanded}`);
+        console.log(`      - expanded value: ${expandedValue}`);
+      });
 
       // Validate nodes and filter for expandable containers
       const expandedContainers: SceneNode[] = [];
@@ -613,6 +657,7 @@ export class LayerNavigationHandler {
 
         try {
           // Check if node is an expandable container
+          // NOTE: SECTIONs don't have 'expanded' property in Figma Design
           if (LayerNavigationHandler.isContainer(node) && 'expanded' in node) {
             // Before expanding, capture state of nested containers (children)
             if ('children' in node) {
@@ -636,7 +681,11 @@ export class LayerNavigationHandler {
         }
       }
 
+      console.log(`Expanded count: ${expandedCount}`);
+
       if (expandedCount === 0) {
+        console.log('Result: No expandable containers (SECTIONs cannot be expanded in Figma Design)');
+        console.log('=== END ENTER MULTIPLE CONTAINERS DEBUG ===\n');
         return {
           success: false,
           message: 'No expandable containers selected',
@@ -657,6 +706,9 @@ export class LayerNavigationHandler {
       }
 
       // Keep the original selection (the containers themselves)
+      console.log(`Result: SUCCESS - expanded ${expandedCount} containers`);
+      console.log('=== END ENTER MULTIPLE CONTAINERS DEBUG ===\n');
+      
       return {
         success: true,
         message: `Expanded ${expandedCount} container${expandedCount > 1 ? 's' : ''} (first level only)`,
@@ -1181,12 +1233,15 @@ export class LayerNavigationHandler {
       }
 
       // Focus within the current selection instead of navigating outside it
+      // In Figma's array:
+      //   - Lower index = bottom-most in layers panel
+      //   - Higher index = top-most in layers panel
       let targetIndex: number;
       if (direction === 'next') {
-        // Next: Focus on the first item in the selection (top-most selected)
+        // Next/DOWN: Focus on the LOWEST index (bottom-most in panel)
         targetIndex = selectedIndices[0];
       } else {
-        // Prev: Focus on the last item in the selection (bottom-most selected)
+        // Prev/UP: Focus on the HIGHEST index (top-most in panel)
         targetIndex = selectedIndices[selectedIndices.length - 1];
       }
 
@@ -1259,8 +1314,14 @@ export class LayerNavigationHandler {
       // Use provided selection or current page selection
       const currentSelection = selection || figma.currentPage.selection;
       
+      // === DEBUG LOGGING FOR COLLAPSE ===
+      console.log('=== COLLAPSE DEBUG ===');
+      console.log(`Selection count: ${currentSelection.length}`);
+      
       // If no selection, fall back to top-level containers
       if (currentSelection.length === 0) {
+        console.log('No selection - collapsing top-level containers');
+        console.log('=== END COLLAPSE DEBUG ===\n');
         return LayerNavigationHandler.toggleTopLevelContainers(page);
       }
 
@@ -1280,8 +1341,24 @@ export class LayerNavigationHandler {
       }
 
       if (validNodes.length === 0) {
+        console.log('No valid nodes - collapsing top-level containers');
+        console.log('=== END COLLAPSE DEBUG ===\n');
         return LayerNavigationHandler.toggleTopLevelContainers(page);
       }
+
+      // Log selected nodes info
+      console.log('Valid nodes:');
+      validNodes.forEach((node, i) => {
+        const isContainer = LayerNavigationHandler.isExpandableContainer(node);
+        const parent = node.parent;
+        const parentName = parent && 'name' in parent ? parent.name : '[page/root]';
+        const parentType = parent ? parent.type : 'N/A';
+        const depth = LayerNavigationHandler.getNodeDepth(node);
+        console.log(`  [${i}] "${node.name}" (${node.type})`);
+        console.log(`      - isExpandableContainer: ${isContainer}`);
+        console.log(`      - parent: "${parentName}" (${parentType})`);
+        console.log(`      - hierarchy depth: ${depth}`);
+      });
 
       // Find containers to collapse - prioritize selected containers over siblings
       let containersToCollapse: SceneNode[] = [];
@@ -1291,15 +1368,42 @@ export class LayerNavigationHandler {
         LayerNavigationHandler.isExpandableContainer(node)
       );
       
-
+      console.log(`Selected expandable containers: ${selectedContainers.length}`);
       
       if (selectedContainers.length > 0) {
-        // If containers are selected, collapse those specific containers
-        containersToCollapse = selectedContainers;
+        // If containers are selected, collapse those containers AND their siblings at the same level
+        // This mimics Alt+L behavior - collapse all at the same hierarchy level
+        console.log('Mode: COLLAPSE SELECTED CONTAINERS + SIBLINGS');
+        
+        // Find all siblings of the selected containers (at the same parent level)
+        const siblingContainersSet = new Set<string>();
+        const allSiblingsToCollapse: SceneNode[] = [];
+        
+        for (const container of selectedContainers) {
+          const parent = container.parent;
+          if (parent && 'children' in parent) {
+            for (const sibling of parent.children) {
+              try {
+                if (LayerNavigationHandler.isExpandableContainer(sibling as SceneNode)) {
+                  if (!siblingContainersSet.has(sibling.id)) {
+                    siblingContainersSet.add(sibling.id);
+                    allSiblingsToCollapse.push(sibling as SceneNode);
+                  }
+                }
+              } catch (siblingError) {
+                // Skip inaccessible siblings
+              }
+            }
+          }
+        }
+        
+        containersToCollapse = allSiblingsToCollapse.length > 0 ? allSiblingsToCollapse : selectedContainers;
+        console.log(`  Found ${containersToCollapse.length} containers at same level (including siblings)`);
       } else {
         // If no containers are selected, fall back to sibling container logic
+        console.log('Mode: COLLAPSE SIBLING CONTAINERS (selected nodes are not containers)');
         try {
-          containersToCollapse = LayerNavigationHandler.findSiblingContainers(validNodes);
+          containersToCollapse = LayerNavigationHandler.findSiblingContainersWithLogging(validNodes);
         } catch (siblingError) {
           const error = createError(
             ErrorType.NAVIGATION_FAILED,
@@ -1307,6 +1411,7 @@ export class LayerNavigationHandler {
             { selectionLength: validNodes.length, error: siblingError }
           );
           handleError(error);
+          console.log('=== END COLLAPSE DEBUG ===\n');
           return {
             success: false,
             message: 'Cannot find containers to collapse',
@@ -1314,8 +1419,16 @@ export class LayerNavigationHandler {
           };
         }
       }
+      
+      console.log(`Containers to collapse: ${containersToCollapse.length}`);
+      containersToCollapse.forEach((c, i) => {
+        const expanded = 'expanded' in c ? (c as any).expanded : 'N/A';
+        console.log(`  [${i}] "${c.name}" (${c.type}) - expanded: ${expanded}`);
+      });
 
       if (containersToCollapse.length === 0) {
+        console.log('Result: No containers found to collapse');
+        console.log('=== END COLLAPSE DEBUG ===\n');
         return {
           success: false,
           message: 'No containers found to collapse',
@@ -1323,14 +1436,43 @@ export class LayerNavigationHandler {
         };
       }
 
-      // Collapse the identified containers
+      // Collapse the identified containers AND all their nested children (like Alt+L)
       let successCount = 0;
+      let childrenCollapsed = 0;
       let failureCount = 0;
+      
+      // Helper function to recursively collapse all child containers
+      const collapseRecursively = (node: SceneNode): number => {
+        let count = 0;
+        
+        // First, collapse all children recursively
+        if ('children' in node) {
+          for (const child of node.children) {
+            try {
+              if (LayerNavigationHandler.isExpandableContainer(child as SceneNode)) {
+                // Recursively collapse child's children first
+                count += collapseRecursively(child as SceneNode);
+                // Then collapse the child itself
+                (child as any).expanded = false;
+                count++;
+              }
+            } catch (childError) {
+              // Skip inaccessible children
+            }
+          }
+        }
+        
+        return count;
+      };
       
       for (const container of containersToCollapse) {
         try {
           if (LayerNavigationHandler.isExpandableContainer(container)) {
-            // All supported containers use expanded property (false = collapsed)
+            // First, recursively collapse all nested children (like Alt+L)
+            const nestedCount = collapseRecursively(container);
+            childrenCollapsed += nestedCount;
+            
+            // Then collapse the container itself
             (container as FrameNode | GroupNode | ComponentNode | ComponentSetNode | InstanceNode).expanded = false;
             successCount++;
           }
@@ -1339,6 +1481,9 @@ export class LayerNavigationHandler {
           console.warn('Failed to collapse container:', containerError);
         }
       }
+      
+      console.log(`  - Direct containers collapsed: ${successCount}`);
+      console.log(`  - Nested children collapsed: ${childrenCollapsed}`);
 
       if (successCount === 0) {
         const error = createError(
@@ -1347,6 +1492,8 @@ export class LayerNavigationHandler {
           { totalContainers: containersToCollapse.length, failures: failureCount }
         );
         handleError(error);
+        console.log('Result: Failed to collapse any containers');
+        console.log('=== END COLLAPSE DEBUG ===\n');
         return {
           success: false,
           message: 'Could not collapse any containers',
@@ -1355,6 +1502,11 @@ export class LayerNavigationHandler {
       }
 
       let message = `Collapsed ${successCount} container${successCount === 1 ? '' : 's'}`;
+      
+      // Include nested children in the message
+      if (childrenCollapsed > 0) {
+        message += ` + ${childrenCollapsed} nested`;
+      }
       
       if (failureCount > 0) {
         message += ` (${failureCount} failed)`;
@@ -1366,6 +1518,9 @@ export class LayerNavigationHandler {
       } else {
         message += ' from siblings';
       }
+
+      console.log(`Result: ${message}`);
+      console.log('=== END COLLAPSE DEBUG ===\n');
 
       return {
         success: true,
@@ -1387,7 +1542,29 @@ export class LayerNavigationHandler {
     return withSyncErrorBoundary(() => {
       const hasSelection = selection.length > 0;
       
-      // Get container count with error handling (use cached version for performance)
+      // PERFORMANCE OPTIMIZATION: Skip expensive container counting for page navigation
+      // Container count is only needed when layers are selected
+      if (!hasSelection) {
+        // When no layers are selected, enable page navigation and page entry
+        // This is a fast path - no expensive page scanning needed
+        const pages = figma.root.children.filter(child => child.type === 'PAGE');
+        const canNavigatePages = pages.length > 1;
+        // Use simple check for visible children without deep scanning
+        const hasLayersOnPage = figma.currentPage.children.length > 0;
+        
+        return {
+          hasSelection: false,
+          canEnter: hasLayersOnPage, // Enable entering page if it has layers
+          canExit: false,
+          canNavigateSiblings: canNavigatePages, // Enable for page navigation
+          containerCount: 0, // Skip expensive container counting for page mode
+          siblingContainerCount: 0,
+          hasCollapsibleSiblings: false,
+          hasComponentInstance: false
+        };
+      }
+      
+      // Get container count with error handling (only when layers are selected)
       let containerCount = 0;
       try {
         // Use cached container count to avoid expensive page scanning on every navigation
@@ -1396,24 +1573,6 @@ export class LayerNavigationHandler {
       } catch (containerError) {
         console.warn('Failed to count containers on current page:', containerError);
         // Continue with containerCount = 0
-      }
-      
-      if (!hasSelection) {
-        // When no layers are selected, enable page navigation and page entry
-        const pages = figma.root.children.filter(child => child.type === 'PAGE');
-        const canNavigatePages = pages.length > 1;
-        const hasLayersOnPage = figma.currentPage.children.some(child => 'visible' in child && child.visible);
-        
-        return {
-          hasSelection: false,
-          canEnter: hasLayersOnPage, // Enable entering page if it has layers
-          canExit: false,
-          canNavigateSiblings: canNavigatePages, // Enable for page navigation
-          containerCount,
-          siblingContainerCount: 0,
-          hasCollapsibleSiblings: false,
-          hasComponentInstance: false
-        };
       }
 
       // Validate selection nodes
@@ -1736,6 +1895,29 @@ export class LayerNavigationHandler {
       const startTime = performance.now();
       const hasSelection = selection.length > 0;
       
+      // PERFORMANCE OPTIMIZATION: Fast path for page navigation (no selection)
+      // Skip all expensive calculations when just navigating between pages
+      if (!hasSelection) {
+        const pages = figma.root.children.filter(child => child.type === 'PAGE');
+        const canNavigatePages = pages.length > 1;
+        const hasLayersOnPage = figma.currentPage.children.length > 0;
+        
+        const endTime = performance.now();
+        if (endTime - startTime > 10) {
+          console.log(`Navigation context calculation (empty): ${endTime - startTime}ms`);
+        }
+        return {
+          hasSelection: false,
+          canEnter: hasLayersOnPage,
+          canExit: false,
+          canNavigateSiblings: canNavigatePages,
+          containerCount: 0, // Skip expensive container counting
+          siblingContainerCount: 0,
+          hasCollapsibleSiblings: false,
+          hasComponentInstance: false
+        };
+      }
+      
       // Performance optimization: limit context calculation for very large selections
       const MAX_SELECTION_FOR_FULL_ANALYSIS = 20;
       let selectionToAnalyze = selection;
@@ -1745,28 +1927,13 @@ export class LayerNavigationHandler {
         selectionToAnalyze = selection.slice(0, MAX_SELECTION_FOR_FULL_ANALYSIS);
       }
       
-      // Get container count with caching
+      // Get container count with caching (only when layers are selected)
       let containerCount = 0;
       try {
         const containers = LayerNavigationHandler.findAllContainersOptimized(figma.currentPage);
         containerCount = containers.length;
       } catch (containerError) {
         console.warn('Failed to count containers on current page:', containerError);
-      }
-      
-      if (!hasSelection) {
-        const endTime = performance.now();
-        console.log(`Navigation context calculation (empty): ${endTime - startTime}ms`);
-        return {
-          hasSelection: false,
-          canEnter: false,
-          canExit: false,
-          canNavigateSiblings: false,
-          containerCount,
-          siblingContainerCount: 0,
-          hasCollapsibleSiblings: false,
-          hasComponentInstance: false
-        };
       }
 
       // Quick validation for performance
@@ -2802,18 +2969,29 @@ export class LayerNavigationHandler {
 
     let targetIndex: number;
     
-    // Intuitive direction: 'next' moves DOWN (toward bottom of panel), 'prev' moves UP (toward top)
+    // Figma's children array order:
+    //   - children[0] = BOTTOM-MOST layer (drawn first, visually behind)
+    //   - children[length-1] = TOP-MOST layer (drawn last, visually in front)
+    // 
+    // In the Layers Panel:
+    //   - TOP of panel = TOP-MOST layer = highest array index
+    //   - BOTTOM of panel = BOTTOM-MOST layer = lowest array index (0)
+    //
+    // Therefore:
+    //   - "next" (DOWN in panel) = move toward LOWER indices (toward bottom-most)
+    //   - "prev" (UP in panel) = move toward HIGHER indices (toward top-most)
+    
     if (direction === 'next') {
-      // Next/Tab moves DOWN in layers (toward bottom of panel = higher index in Figma)
-      targetIndex = currentIndex + 1;
-      if (wrap && targetIndex >= siblings.length) {
-        targetIndex = 0; // Wrap to first (top-most)
-      }
-    } else {
-      // Prev/Shift+Tab moves UP in layers (toward top of panel = lower index in Figma)  
+      // Next/DOWN moves toward bottom of layers panel = LOWER index in Figma
       targetIndex = currentIndex - 1;
       if (wrap && targetIndex < 0) {
-        targetIndex = siblings.length - 1; // Wrap to last (bottom-most)
+        targetIndex = siblings.length - 1; // Wrap to top-most (top of panel)
+      }
+    } else {
+      // Prev/UP moves toward top of layers panel = HIGHER index in Figma
+      targetIndex = currentIndex + 1;
+      if (wrap && targetIndex >= siblings.length) {
+        targetIndex = 0; // Wrap to bottom-most (bottom of panel)
       }
     }
 
@@ -2831,6 +3009,135 @@ export class LayerNavigationHandler {
    * Find sibling containers at the same hierarchy level as the selection
    * Returns containers that are siblings of the selected nodes or their parents
    */
+  /**
+   * Get hierarchy depth of a node
+   */
+  private static getNodeDepth(node: SceneNode): number {
+    let depth = 0;
+    let current: BaseNode | null = node;
+    while (current && current.type !== 'PAGE' && current.type !== 'DOCUMENT') {
+      depth++;
+      current = current.parent;
+    }
+    return depth;
+  }
+
+  /**
+   * Find sibling containers with debug logging
+   * Uses isExpandableContainer to only find containers that can actually be collapsed
+   */
+  private static findSiblingContainersWithLogging(selection: SceneNode[]): SceneNode[] {
+    if (selection.length === 0) {
+      console.log('  findSiblingContainers: Empty selection');
+      return [];
+    }
+
+    // For single selection, find sibling containers
+    if (selection.length === 1) {
+      const node = selection[0];
+      // Use isExpandableContainer - only find containers that can be collapsed
+      // (SECTIONs cannot be collapsed in Figma Design, only in FigJam)
+      const nodeIsExpandableContainer = LayerNavigationHandler.isExpandableContainer(node);
+      const nodeIsAnyContainer = LayerNavigationHandler.isContainer(node);
+      
+      console.log(`  findSiblingContainers: Single node "${node.name}" (${node.type})`);
+      console.log(`    - isContainer (any): ${nodeIsAnyContainer}`);
+      console.log(`    - isExpandableContainer (can collapse): ${nodeIsExpandableContainer}`);
+      
+      // If the selected node is itself an expandable container, find its expandable siblings
+      if (nodeIsExpandableContainer) {
+        const parent = node.parent;
+        const parentName = parent && 'name' in parent ? parent.name : '[page/root]';
+        console.log(`    - Strategy: Find EXPANDABLE sibling containers at SAME LEVEL`);
+        console.log(`    - Looking in parent: "${parentName}" (${parent?.type})`);
+        
+        if (!parent || !('children' in parent)) {
+          console.log('    - No parent or parent has no children');
+          return [];
+        }
+
+        const siblingContainers: SceneNode[] = [];
+        for (const child of parent.children) {
+          try {
+            // FIXED: Use isExpandableContainer instead of isContainer
+            if ('type' in child && LayerNavigationHandler.isExpandableContainer(child as SceneNode)) {
+              siblingContainers.push(child as SceneNode);
+            }
+          } catch (childError) {
+            console.warn('Skipping problematic sibling container:', childError);
+          }
+        }
+        
+        console.log(`    - Found ${siblingContainers.length} expandable sibling containers`);
+        return siblingContainers;
+      } else {
+        // If the selected node is not an expandable container
+        const parent = node.parent;
+        const parentName = parent && 'name' in parent ? parent.name : '[page/root]';
+        const parentIsExpandable = parent ? LayerNavigationHandler.isExpandableContainer(parent as SceneNode) : false;
+        
+        console.log(`    - Parent: "${parentName}" (${parent?.type})`);
+        console.log(`    - Parent is expandable container: ${parentIsExpandable}`);
+
+        if (!parent || !('children' in parent)) {
+          console.log('    - No parent or parent has no children');
+          return [];
+        }
+
+        // If the parent is an expandable container, find its expandable siblings (one level up)
+        if (parentIsExpandable) {
+          const grandParent = parent.parent;
+          const grandParentName = grandParent && 'name' in grandParent ? grandParent.name : '[page/root]';
+          console.log(`    - Strategy: Find EXPANDABLE sibling containers ONE LEVEL UP (grandparent)`);
+          console.log(`    - Looking in grandparent: "${grandParentName}" (${grandParent?.type})`);
+          
+          if (!grandParent || !('children' in grandParent)) {
+            console.log('    - No grandparent or grandparent has no children');
+            return [];
+          }
+
+          const siblingContainers: SceneNode[] = [];
+          for (const child of grandParent.children) {
+            try {
+              // FIXED: Use isExpandableContainer instead of isContainer
+              if ('type' in child && LayerNavigationHandler.isExpandableContainer(child as SceneNode)) {
+                siblingContainers.push(child as SceneNode);
+              }
+            } catch (childError) {
+              console.warn('Skipping problematic sibling container:', childError);
+            }
+          }
+          
+          console.log(`    - Found ${siblingContainers.length} expandable sibling containers`);
+          return siblingContainers;
+        } else {
+          // If parent is not an expandable container, find expandable containers at the same level
+          console.log(`    - Strategy: Find EXPANDABLE sibling containers at SAME LEVEL (parent not expandable)`);
+          console.log(`    - Looking in parent: "${parentName}"`);
+          
+          const siblingContainers: SceneNode[] = [];
+          for (const child of parent.children) {
+            try {
+              // FIXED: Use isExpandableContainer instead of isContainer
+              if ('type' in child && LayerNavigationHandler.isExpandableContainer(child as SceneNode)) {
+                siblingContainers.push(child as SceneNode);
+              }
+            } catch (childError) {
+              console.warn('Skipping problematic sibling container:', childError);
+            }
+          }
+          
+          console.log(`    - Found ${siblingContainers.length} expandable sibling containers`);
+          return siblingContainers;
+        }
+      }
+    }
+    
+    // Multiple selection - delegate to original function
+    console.log('  findSiblingContainers: Multiple selection - using original logic');
+    return LayerNavigationHandler.findSiblingContainers(selection);
+  }
+
   private static findSiblingContainers(selection: SceneNode[]): SceneNode[] {
     if (selection.length === 0) return [];
 
@@ -2838,15 +3145,16 @@ export class LayerNavigationHandler {
     if (selection.length === 1) {
       const node = selection[0];
       
-      // If the selected node is itself a container, find its siblings
-      if (LayerNavigationHandler.isContainer(node)) {
+      // FIXED: Use isExpandableContainer - only find containers that can actually be collapsed
+      // (SECTIONs cannot be collapsed in Figma Design, only in FigJam)
+      if (LayerNavigationHandler.isExpandableContainer(node)) {
         const parent = node.parent;
         if (!parent || !('children' in parent)) return [];
 
         const siblingContainers: SceneNode[] = [];
         for (const child of parent.children) {
           try {
-            if ('type' in child && LayerNavigationHandler.isContainer(child as SceneNode)) {
+            if ('type' in child && LayerNavigationHandler.isExpandableContainer(child as SceneNode)) {
               siblingContainers.push(child as SceneNode);
             }
           } catch (childError) {
@@ -2856,20 +3164,19 @@ export class LayerNavigationHandler {
         
         return siblingContainers;
       } else {
-        // If the selected node is not a container, find sibling containers of its parent
-        // This means we want to collapse containers at the same level as the parent
+        // If the selected node is not an expandable container
         const parent = node.parent;
         if (!parent || !('children' in parent)) return [];
 
-        // If the parent is a container, find its siblings
-        if (LayerNavigationHandler.isContainer(parent as SceneNode)) {
+        // If the parent is an expandable container, find its expandable siblings
+        if (LayerNavigationHandler.isExpandableContainer(parent as SceneNode)) {
           const grandParent = parent.parent;
           if (!grandParent || !('children' in grandParent)) return [];
 
           const siblingContainers: SceneNode[] = [];
           for (const child of grandParent.children) {
             try {
-              if ('type' in child && LayerNavigationHandler.isContainer(child as SceneNode)) {
+              if ('type' in child && LayerNavigationHandler.isExpandableContainer(child as SceneNode)) {
                 siblingContainers.push(child as SceneNode);
               }
             } catch (childError) {
@@ -2879,11 +3186,11 @@ export class LayerNavigationHandler {
           
           return siblingContainers;
         } else {
-          // If parent is not a container (e.g., page), find containers at the same level as the node
+          // If parent is not an expandable container, find expandable containers at the same level
           const siblingContainers: SceneNode[] = [];
           for (const child of parent.children) {
             try {
-              if ('type' in child && LayerNavigationHandler.isContainer(child as SceneNode)) {
+              if ('type' in child && LayerNavigationHandler.isExpandableContainer(child as SceneNode)) {
                 siblingContainers.push(child as SceneNode);
               }
             } catch (childError) {
@@ -2896,11 +3203,11 @@ export class LayerNavigationHandler {
       }
     }
 
-    // For multiple selections, find containers at the same level as the common parent
+    // For multiple selections, find expandable containers at the same level as the common parent
     try {
       const commonParent = LayerNavigationHandler.findCommonParentContainer(selection);
       if (!commonParent) {
-        // If no common parent container, try to find containers at the same level as the first node
+        // If no common parent container, try to find expandable containers at the same level as the first node
         const firstNode = selection[0];
         const parent = firstNode.parent;
         if (!parent || !('children' in parent)) return [];
@@ -2908,7 +3215,8 @@ export class LayerNavigationHandler {
         const siblingContainers: SceneNode[] = [];
         for (const child of parent.children) {
           try {
-            if ('type' in child && LayerNavigationHandler.isContainer(child as SceneNode)) {
+            // FIXED: Use isExpandableContainer to only find collapsible containers
+            if ('type' in child && LayerNavigationHandler.isExpandableContainer(child as SceneNode)) {
               siblingContainers.push(child as SceneNode);
             }
           } catch (childError) {
@@ -2919,7 +3227,7 @@ export class LayerNavigationHandler {
         return siblingContainers;
       }
 
-      // Find sibling containers of the common parent
+      // Find expandable sibling containers of the common parent
       if (!commonParent.parent || !('children' in commonParent.parent)) {
         return [];
       }
@@ -2927,7 +3235,8 @@ export class LayerNavigationHandler {
       const siblingContainers: SceneNode[] = [];
       for (const child of commonParent.parent.children) {
         try {
-          if ('type' in child && LayerNavigationHandler.isContainer(child as SceneNode)) {
+          // FIXED: Use isExpandableContainer to only find collapsible containers
+          if ('type' in child && LayerNavigationHandler.isExpandableContainer(child as SceneNode)) {
             siblingContainers.push(child as SceneNode);
           }
         } catch (childError) {
@@ -2949,9 +3258,10 @@ export class LayerNavigationHandler {
   private static toggleTopLevelContainers(page: PageNode): NavigationResult {
     let containers: SceneNode[] = [];
     try {
-      // Find only direct children containers of the page
+      // Find only direct children EXPANDABLE containers of the page
+      // (SECTIONs cannot be collapsed in Figma Design, only in FigJam)
       containers = page.children.filter(child => 
-        'type' in child && LayerNavigationHandler.isContainer(child as SceneNode)
+        'type' in child && LayerNavigationHandler.isExpandableContainer(child as SceneNode)
       ) as SceneNode[];
     } catch (containerError) {
       const error = createError(

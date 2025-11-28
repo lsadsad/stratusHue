@@ -377,9 +377,30 @@ const handleNudgeElements = withErrorBoundary(async (direction: 'up' | 'down' | 
 }, ErrorType.UNKNOWN);
 
 const handleZoom = withErrorBoundary(async (direction: 'in' | 'out' | '100') => {
+  const selection = figma.currentPage.selection;
   const currentZoom = figma.viewport.zoom;
   const zoomFactor = 1.2; // 20% zoom change
   
+  // If there are selected nodes, scroll to them first to prioritize them
+  if (selection.length > 0) {
+    // Filter to only visible, valid nodes
+    const validNodes = selection.filter(node => {
+      try {
+        return 'visible' in node && node.visible;
+      } catch {
+        return false;
+      }
+    }) as SceneNode[];
+    
+    if (validNodes.length > 0) {
+      // Scroll to center on selected nodes first
+      figma.viewport.scrollAndZoomIntoView(validNodes);
+      // Restore current zoom since scrollAndZoomIntoView may have changed it
+      figma.viewport.zoom = currentZoom;
+    }
+  }
+  
+  // Apply the zoom change (will zoom around current viewport center, which is now centered on selected nodes)
   if (direction === 'in') {
     figma.viewport.zoom = currentZoom * zoomFactor;
   } else if (direction === 'out') {

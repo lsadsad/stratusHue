@@ -3245,23 +3245,19 @@ function setupControls(): void {
 
   if (prevBtn) {
     prevBtn.addEventListener('click', () => {
-      // In layer mode, swap actions but keep labels
-      const isLayerMode = navigationContext.hasSelection;
-      const action = isLayerMode ? 'next-sibling' : 'prev-sibling';
-      console.log(`Navigation: ${isLayerMode ? 'Next sibling (swapped)' : 'Previous sibling'}`);
-      announceNavigationResult({ success: true, message: `Navigating to ${isLayerMode ? 'next' : 'previous'} sibling` });
-      sendMessage('navigation-action', { action });
+      // UP button: Navigate toward top of layers panel (higher Figma index)
+      console.log('Navigation: Previous sibling (UP in layers panel)');
+      announceNavigationResult({ success: true, message: 'Navigating to previous sibling' });
+      sendMessage('navigation-action', { action: 'prev-sibling' });
     });
   }
 
   if (nextBtn) {
     nextBtn.addEventListener('click', () => {
-      // In layer mode, swap actions but keep labels
-      const isLayerMode = navigationContext.hasSelection;
-      const action = isLayerMode ? 'prev-sibling' : 'next-sibling';
-      console.log(`Navigation: ${isLayerMode ? 'Previous sibling (swapped)' : 'Next sibling'}`);
-      announceNavigationResult({ success: true, message: `Navigating to ${isLayerMode ? 'previous' : 'next'} sibling` });
-      sendMessage('navigation-action', { action });
+      // DOWN button: Navigate toward bottom of layers panel (lower Figma index)
+      console.log('Navigation: Next sibling (DOWN in layers panel)');
+      announceNavigationResult({ success: true, message: 'Navigating to next sibling' });
+      sendMessage('navigation-action', { action: 'next-sibling' });
     });
   }
 
