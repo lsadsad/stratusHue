@@ -40,6 +40,29 @@ body {
   position: relative;
 }
 
+/* ===== STICKY HOVER FIX =====
+   Prevents hover states from "sticking" after touch/click interactions.
+   The body.touch-active class is added during interactions and removed on mouse move.
+*/
+body.touch-active *:hover {
+  /* Reset hover transforms to prevent stuck visual states */
+  transform: none !important;
+}
+
+body.touch-active .action-btn:hover,
+body.touch-active .nav-button:hover,
+body.touch-active .emoji-button:hover,
+body.touch-active .bookmark-item:hover,
+body.touch-active .footer-icon-btn:hover,
+body.touch-active .theme-option:hover,
+body.touch-active .toggle-button:hover,
+body.touch-active .header-nav-btn:hover,
+body.touch-active .kofi-button:hover {
+  /* Reset background to non-hover state */
+  background: inherit;
+  box-shadow: none !important;
+}
+
 /* Main scrollable content area */
 .scrollable-content {
   height: 100vh;
@@ -1128,7 +1151,6 @@ body {
 
 [data-theme="cybertron"] .bookmark-item:hover {
   box-shadow: var(--cybertron-glow);
-  border-left: 2px solid var(--theme-accent-blue);
 }
 
 [data-theme="cybertron"] .clear-action:hover,
@@ -1200,17 +1222,16 @@ body {
 /* Cybertron bookmark items */
 [data-theme="cybertron"] .bookmark-item {
   background: linear-gradient(90deg, rgba(20, 20, 32, 0.6) 0%, rgba(30, 30, 46, 0.8) 100%);
-  border: 1px solid rgba(0, 255, 255, 0.1);
+  border: none;
 }
 
 [data-theme="cybertron"] .bookmark-item.current-anchor {
-  border-left: 3px solid #00ffff;
   box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.1);
 }
 
 [data-theme="cybertron"] .bookmark-item.recent-history {
-  border-left: none;
-  box-shadow: inset 0 0 15px rgba(255, 0, 255, 0.1);
+  background: transparent;
+  box-shadow: none;
 }
 
 /* FIGMA LIGHT THEME - Uses Figma's native light theme colors for seamless integration */
@@ -1309,22 +1330,19 @@ body {
 /* Figma light theme bookmark items */
 [data-theme="figma-light"] .bookmark-item {
   background: var(--theme-bg-primary);
-  border: 1px solid var(--theme-border-primary);
+  border: none;
 }
 
 [data-theme="figma-light"] .bookmark-item:hover {
   background: var(--figma-light-enhanced-hover);
-  border-color: var(--figma-light-enhanced-border);
 }
 
 [data-theme="figma-light"] .bookmark-item.current-anchor {
-  border-left: 3px solid var(--theme-info);
   background: var(--theme-info-bg-strong);
 }
 
 [data-theme="figma-light"] .bookmark-item.recent-history {
-  border-left: none;
-  background: rgba(236, 72, 153, 0.05);
+  background: transparent;
 }
 
 /* Figma light theme action buttons */
@@ -1388,6 +1406,32 @@ body {
 [data-theme="light"] .nav-icon img {
   filter: brightness(0);
   opacity: 1;
+}
+
+/* Preserve color-enhanced icons in light themes */
+[data-theme="figma-light"] .nav-button.nav-button-arrow .nav-icon img,
+[data-theme="light"] .nav-button.nav-button-arrow .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75);
+}
+
+[data-theme="figma-light"] .nav-button.nav-button-zoom .nav-icon img,
+[data-theme="light"] .nav-button.nav-button-zoom .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75);
+}
+
+[data-theme="figma-light"] .nav-button.nav-button-hierarchy .nav-icon img,
+[data-theme="light"] .nav-button.nav-button-hierarchy .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(95%) saturate(650%) hue-rotate(15deg) brightness(0.7);
+}
+
+[data-theme="figma-light"] .nav-button.nav-button-action .nav-icon img,
+[data-theme="light"] .nav-button.nav-button-action .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(90%) saturate(700%) hue-rotate(335deg) brightness(0.8);
+}
+
+[data-theme="figma-light"] .nav-button.nav-button-layer .nav-icon img,
+[data-theme="light"] .nav-button.nav-button-layer .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(50%) sepia(90%) saturate(600%) hue-rotate(360deg) brightness(0.75);
 }
 
 /* Emoji nav arrows in light mode - match section header text color (dark) */
@@ -1802,11 +1846,12 @@ h3 {
   z-index: 0;
 }
 
+
 .tags-content-wrapper {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xxl);
-  padding: var(--spacing-sm) var(--spacing-xxl) calc(var(--spacing-lg) * 2) var(--spacing-xxl);
+  padding: var(--spacing-sm) var(--spacing-xxl) calc(var(--spacing-lg) * 2 + var(--spacing-xxl) - 8px) var(--spacing-xxl);
 }
 
 /* Boilerplate: use elevated background for Tags content section */
@@ -1822,6 +1867,7 @@ h3 {
   padding-bottom: 0;
   pointer-events: none;
   overflow: hidden;
+  border-bottom: none !important;
 }
 
 /* ===== TOOLTIP ===== */
@@ -2083,7 +2129,7 @@ h3 {
 /* Emoji Buttons */
 .emoji-button {
   /* Inherit from .btn-base */
-  border: none;
+  border: 1px solid transparent; /* Prevents layout shift on hover when border becomes visible */
   cursor: pointer;
   transition: all var(--transition-normal);
   font-family: var(--font-family);
@@ -2234,7 +2280,7 @@ h3 {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-md);
   background: var(--theme-bg-elevated);
   width: 100%;
   box-sizing: border-box;
@@ -2244,6 +2290,7 @@ h3 {
   position: sticky;
   top: 0;
   z-index: calc(var(--z-footer) + 1);
+  border-bottom: var(--border-width) solid var(--color-border-accent);
 }
 
 /* Quick actions uses same header layout pattern */
@@ -2335,9 +2382,10 @@ h3 {
   align-items: center;
   background: transparent;
   border: none;
+  border-top: var(--border-width) solid var(--color-border-primary);
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
@@ -2514,14 +2562,14 @@ h3 {
 
 /* Tags Header */
 #tags-header {
-  border-top: var(--border-width) solid var(--color-border-accent);
+  border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
 
 /* Anchors Header - match Tags header strokes */
 #anchors-header {
-  border-top: var(--border-width) solid var(--color-border-accent);
+  border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
@@ -2531,22 +2579,22 @@ h3 {
 }
 
 #anchors-header .header-right {
-  gap: var(--spacing-xs);
+  gap: 0;
 }
 
-/* Remove bottom border when headers are collapsed */
-#tags-header[aria-expanded="false"] {
-  border-bottom: none;
-}
-
-#anchors-header[aria-expanded="false"] {
-  border-bottom: none;
-}
 
 #tags-header .header-title {
-  font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
   letter-spacing: var(--letter-spacing-tight);
+}
+
+#anchors-header .header-title {
+  font-weight: var(--font-weight-medium);
+}
+
+#controls-header .header-title {
+  font-weight: var(--font-weight-medium);
 }
 
 #tags-header .header-subtitle {
@@ -2641,6 +2689,13 @@ h3 {
 
 .section-header[aria-expanded="false"] {
   font-weight: var(--font-weight-semibold);
+}
+
+/* Remove bottom margin when sections are collapsed */
+#tags-header[aria-expanded="false"],
+#anchors-header[aria-expanded="false"],
+#controls-header[aria-expanded="false"] {
+  margin-bottom: 0;
 }
 
 .header-right .top-badge {
@@ -2738,6 +2793,7 @@ h3 {
 
 /* Override clear-color, save-bookmark, nav-delete, and nav-goto-component styles when used as header action buttons */
 #tags-header #clear-color,
+#anchors-header #refresh-anchors,
 #anchors-header #save-bookmark,
 #controls-header #nav-delete,
 #controls-header #nav-goto-component {
@@ -2755,7 +2811,16 @@ h3 {
   transition: background var(--transition-normal), transform var(--transition-fast), color var(--transition-normal);
 }
 
+/* Resync button: match indent button size */
+#anchors-header #refresh-anchors {
+  width: 12px;
+  min-width: 12px;
+  height: calc(var(--spacing-lg) * 3);
+  min-height: calc(var(--spacing-lg) * 3);
+}
+
 #tags-header #clear-color .icon,
+#anchors-header #refresh-anchors .icon,
 #anchors-header #save-bookmark .icon,
 #controls-header #nav-delete .icon,
 #controls-header #nav-goto-component .icon {
@@ -2778,7 +2843,18 @@ h3 {
   opacity: 0.7;
 }
 
+/* Refresh-anchors icon: match indent icon size (12px) */
+#anchors-header #refresh-anchors .icon img {
+  width: 12px;
+  height: 12px;
+  display: block;
+  /* Default header action icons: subtle monochrome */
+  filter: brightness(0) saturate(0%);
+  opacity: 0.7;
+}
+
 #tags-header #clear-color:hover,
+#anchors-header #refresh-anchors:hover,
 #anchors-header #save-bookmark:hover,
 #controls-header #nav-delete:hover:not(:disabled),
 #controls-header #nav-goto-component:hover:not(:disabled) {
@@ -2789,6 +2865,7 @@ h3 {
 }
 
 #tags-header #clear-color:hover .icon,
+#anchors-header #refresh-anchors:hover .icon,
 #anchors-header #save-bookmark:hover .icon,
 #controls-header #nav-delete:hover:not(:disabled) .icon,
 #controls-header #nav-goto-component:hover:not(:disabled) .icon {
@@ -2797,6 +2874,8 @@ h3 {
 
 #tags-header #clear-color:hover .icon img,
 #tags-header #clear-color:active .icon img,
+#anchors-header #refresh-anchors:hover .icon img,
+#anchors-header #refresh-anchors:active .icon img,
 #anchors-header #save-bookmark:hover .icon img,
 #anchors-header #save-bookmark:active .icon img,
 #controls-header #nav-delete:hover:not(:disabled) .icon img,
@@ -2809,6 +2888,7 @@ h3 {
 }
 
 #tags-header #clear-color:active,
+#anchors-header #refresh-anchors:active,
 #anchors-header #save-bookmark:active,
 #controls-header #nav-delete:active:not(:disabled),
 #controls-header #nav-goto-component:active:not(:disabled) {
@@ -2818,6 +2898,7 @@ h3 {
 }
 
 #tags-header #clear-color:active .icon,
+#anchors-header #refresh-anchors:active .icon,
 #anchors-header #save-bookmark:active .icon,
 #controls-header #nav-delete:active:not(:disabled) .icon,
 #controls-header #nav-goto-component:active:not(:disabled) .icon {
@@ -2851,6 +2932,7 @@ h3 {
 
 #controls-section:not(.collapsed) {
   flex: 0 0 auto;
+  /* border-bottom: var(--border-width) solid var(--color-border-accent); */
 }
 
 /* Ensure collapsed state properly hides content and prevents scroll */
@@ -2865,7 +2947,7 @@ h3 {
   align-items: center;
   gap: 16px;
   background: var(--color-background-elevated);
-  padding: var(--spacing-sm) var(--spacing-xxl) var(--double-spacing-lg) var(--spacing-xxl);
+  padding: var(--spacing-sm) var(--spacing-xxl) calc(var(--double-spacing-lg) + var(--spacing-xxl) - 8px) var(--spacing-xxl);
   border-radius: var(--border-radius-md);
 }
 
@@ -3164,9 +3246,179 @@ h3 {
   opacity: 0.4;
 }
 
+/* Orange: Layer ordering buttons */
+.nav-button.nav-button-layer {
+  /* Transparent border in default state, visible on hover */
+  border-color: transparent !important;
+  /* Default fill 12% opacity */
+  background: rgba(255, 159, 64, 0.12) !important;
+}
+
+.nav-button.nav-button-layer:hover:not(:disabled) {
+  background: rgba(255, 159, 64, 0.25);
+  border-color: rgb(255, 159, 64) !important;
+  color: var(--theme-text-primary);
+}
+
+.nav-button.nav-button-layer:active:not(:disabled) {
+  background: rgb(255, 159, 64);
+  border-color: rgb(255, 159, 64) !important;
+}
+
+.nav-button.nav-button-layer:disabled {
+  border-color: transparent !important;
+  opacity: 0.4;
+}
+
+/* ===== COLOR-ENHANCED CONTROL ICONS ===== */
+/* Apply color tinting to icons based on their button category */
+
+/* Green icons for arrow/movement buttons */
+.nav-button.nav-button-arrow .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(85deg) brightness(0.85);
+}
+
+.nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7);
+}
+
+.nav-button.nav-button-arrow:active:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1);
+}
+
+/* Blue icons for zoom controls */
+.nav-button.nav-button-zoom .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(190deg) brightness(0.85);
+}
+
+.nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7);
+}
+
+.nav-button.nav-button-zoom:active:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1);
+}
+
+/* Yellow/Amber icons for hierarchy controls */
+.nav-button.nav-button-hierarchy .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(55%) sepia(90%) saturate(600%) hue-rotate(15deg) brightness(0.85);
+}
+
+.nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7);
+}
+
+.nav-button.nav-button-hierarchy:active:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1);
+}
+
+/* Red icons for action/delete buttons */
+.nav-button.nav-button-action .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(80%) saturate(600%) hue-rotate(330deg) brightness(0.9);
+}
+
+.nav-button.nav-button-action:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.75);
+}
+
+.nav-button.nav-button-action:active:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1);
+}
+
+/* Orange icons for layer ordering buttons */
+.nav-button.nav-button-layer .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(60%) sepia(80%) saturate(500%) hue-rotate(360deg) brightness(0.95);
+}
+
+.nav-button.nav-button-layer:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(55%) sepia(90%) saturate(600%) hue-rotate(360deg) brightness(0.85);
+}
+
+.nav-button.nav-button-layer:active:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1);
+}
+
+/* Disabled state: muted icons for all color-coded buttons */
+.nav-button.nav-button-arrow:disabled .nav-icon img,
+.nav-button.nav-button-zoom:disabled .nav-icon img,
+.nav-button.nav-button-hierarchy:disabled .nav-icon img,
+.nav-button.nav-button-action:disabled .nav-icon img,
+.nav-button.nav-button-layer:disabled .nav-icon img {
+  filter: brightness(0) saturate(0%);
+  opacity: 0.35;
+}
+
+/* ===== CYBERTRON THEME: BRIGHT CONTROL ICONS ===== */
+/* Override default dark icons with bright, glowing versions for dark background */
+
+/* Green icons - bright lime/neon green */
+[data-theme="cybertron"] .nav-button.nav-button-arrow .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1);
+  opacity: 0.9;
+}
+
+[data-theme="cybertron"] .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3);
+  opacity: 1;
+}
+
+/* Blue icons - bright cyan/electric blue */
+[data-theme="cybertron"] .nav-button.nav-button-zoom .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1);
+  opacity: 0.9;
+}
+
+[data-theme="cybertron"] .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(160deg) brightness(1.3);
+  opacity: 1;
+}
+
+/* Yellow icons - bright gold/amber */
+[data-theme="cybertron"] .nav-button.nav-button-hierarchy .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1);
+  opacity: 0.9;
+}
+
+[data-theme="cybertron"] .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(15deg) brightness(1.3);
+  opacity: 1;
+}
+
+/* Red icons - bright coral/neon red */
+[data-theme="cybertron"] .nav-button.nav-button-action .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1);
+  opacity: 0.9;
+}
+
+[data-theme="cybertron"] .nav-button.nav-button-action:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(320deg) brightness(1.3);
+  opacity: 1;
+}
+
+/* Orange icons - bright tangerine/neon orange */
+[data-theme="cybertron"] .nav-button.nav-button-layer .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(350deg) brightness(1.1);
+  opacity: 0.9;
+}
+
+[data-theme="cybertron"] .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(350deg) brightness(1.3);
+  opacity: 1;
+}
+
+/* Cybertron disabled state: dim cyan tint */
+[data-theme="cybertron"] .nav-button.nav-button-arrow:disabled .nav-icon img,
+[data-theme="cybertron"] .nav-button.nav-button-zoom:disabled .nav-icon img,
+[data-theme="cybertron"] .nav-button.nav-button-hierarchy:disabled .nav-icon img,
+[data-theme="cybertron"] .nav-button.nav-button-action:disabled .nav-icon img,
+[data-theme="cybertron"] .nav-button.nav-button-layer:disabled .nav-icon img {
+  filter: brightness(0) invert(1) saturate(50%);
+  opacity: 0.3;
+}
+
 /* Controls Header - match other section headers */
 #controls-header {
-  border-top: var(--border-width) solid var(--color-border-accent);
+  border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
@@ -3186,18 +3438,18 @@ h3 {
 }
 
 /* Theme-specific control button enhancements */
-[data-theme="boilerplate"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action) {
+[data-theme="boilerplate"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action):not(.nav-button-layer) {
   background: var(--theme-interactive-hover);
   border-color: var(--theme-border-accent);
 }
 
-[data-theme="cybertron"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action) {
+[data-theme="cybertron"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action):not(.nav-button-layer) {
   box-shadow: var(--cybertron-glow);
   color: var(--theme-text-primary);
   border-color: rgba(0, 255, 255, 0.3);
 }
 
-[data-theme="figma-light"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action) {
+[data-theme="figma-light"] .nav-button:hover:not(:disabled):not(.nav-button-arrow):not(.nav-button-zoom):not(.nav-button-hierarchy):not(.nav-button-action):not(.nav-button-layer) {
   background: var(--figma-light-enhanced-hover);
   border-color: var(--theme-info);
   color: var(--theme-info);
@@ -3233,6 +3485,7 @@ h3 {
 
 #anchors-section:not(.collapsed) {
   flex: 0 0 auto;
+  /* border-bottom: var(--border-width) solid var(--color-border-accent); */
 }
 
 /* Ensure collapsed state properly hides content and prevents scroll */
@@ -3247,7 +3500,7 @@ h3 {
   align-items: center;
   gap: calc(var(--spacing-lg) * 2 - var(--spacing-sm));
   background: var(--color-background-elevated);
-  padding: 0 var(--spacing-xxl) var(--double-spacing-lg) var(--spacing-xxl);
+  padding: 0 var(--spacing-xxl) calc(var(--double-spacing-lg) + var(--spacing-xxl) - 8px) var(--spacing-xxl);
   border-radius: var(--border-radius-md);
 }
 
@@ -3322,7 +3575,7 @@ h3 {
   padding-right: calc(var(--spacing-lg) + var(--spacing-xl));
   cursor: pointer;
   transition: all var(--transition-normal);
-  border: var(--border-width) solid transparent;
+  border: none;
   position: relative;
   overflow: hidden;
 }
@@ -3354,29 +3607,14 @@ h3 {
   height: 12px;
   pointer-events: none;
   opacity: 1;
-  filter: brightness(0) saturate(0%) invert(1);
+  /* Brand blue color to match current anchor bookmark name */
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   z-index: 1;
-}
-
-/* Adjust icon color for light mode - black icon */
-[data-theme="figma-light"] .bookmark-item.recent-history .recent-steps-icon,
-[data-theme="light"] .bookmark-item.recent-history .recent-steps-icon {
-  filter: brightness(0) saturate(0%);
-  opacity: 1;
-}
-
-/* Dark mode - white icon */
-[data-theme="figma-dark"] .bookmark-item.recent-history .recent-steps-icon,
-[data-theme="dark"] .bookmark-item.recent-history .recent-steps-icon,
-[data-theme="boilerplate"] .bookmark-item.recent-history .recent-steps-icon,
-[data-theme="cybertron"] .bookmark-item.recent-history .recent-steps-icon {
-  filter: brightness(0) saturate(0%) invert(1);
-  opacity: 1;
 }
 
 .bookmark-item.current-anchor {
   /* background: var(--theme-accent-blue); */
-  border: 1px solid var(--figma-color-border-brand);
+  border: none;
   border-radius: var(--border-radius-lg);
 }
 
@@ -3731,7 +3969,8 @@ i.grip {
   #quick-actions {
     flex-wrap: nowrap;
     gap: var(--spacing-xs);
-    padding: 0 var(--spacing-lg);
+    /* Use same padding as default state to prevent shift when toggling width */
+    padding: 0 var(--spacing-md);
     /* Maintain fixed height to prevent resizing when width is toggled */
     height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
     min-height: calc(var(--spacing-lg) * 3 + var(--spacing-sm));
@@ -4564,6 +4803,7 @@ i.grip {
 [data-theme="figma-dark"] .header-action-btn .icon img,
 [data-theme="figma-dark"] #quick-actions .action-btn .icon img,
 [data-theme="figma-dark"] #tags-header #clear-color .icon img,
+[data-theme="figma-dark"] #anchors-header #refresh-anchors .icon img,
 [data-theme="figma-dark"] #anchors-header #save-bookmark .icon img,
 [data-theme="figma-dark"] #controls-header #nav-delete .icon img,
 [data-theme="figma-dark"] #controls-header #nav-goto-component .icon img {
@@ -4572,11 +4812,52 @@ i.grip {
   opacity: 0.60;
 }
 
+/* Boilerplate theme: bottom border for quick actions bar */
+[data-theme="boilerplate"] #quick-actions {
+  border-bottom: var(--border-width) solid var(--color-border-primary);
+}
+
+/* Boilerplate theme: light monochrome icons for dark background */
+[data-theme="boilerplate"] .header-nav-btn .icon img,
+[data-theme="boilerplate"] .header-action-btn .icon img,
+[data-theme="boilerplate"] #quick-actions .action-btn .icon img,
+[data-theme="boilerplate"] #tags-header #clear-color .icon img,
+[data-theme="boilerplate"] #anchors-header #refresh-anchors .icon img,
+[data-theme="boilerplate"] #anchors-header #save-bookmark .icon img,
+[data-theme="boilerplate"] #controls-header #nav-delete .icon img,
+[data-theme="boilerplate"] #controls-header #nav-goto-component .icon img {
+  /* Use a lighter monochrome tint on dark backgrounds */
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.60;
+}
+
+/* Boilerplate hover/active states: brighter white icons */
+[data-theme="boilerplate"] .header-nav-btn:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] .header-nav-btn:active:not(:disabled) .icon img,
+[data-theme="boilerplate"] .header-action-btn:hover .icon img,
+[data-theme="boilerplate"] .header-action-btn:active .icon img,
+[data-theme="boilerplate"] #quick-actions .action-btn:hover .icon img,
+[data-theme="boilerplate"] #quick-actions .action-btn:active .icon img,
+[data-theme="boilerplate"] #tags-header #clear-color:hover .icon img,
+[data-theme="boilerplate"] #tags-header #clear-color:active .icon img,
+[data-theme="boilerplate"] #anchors-header #refresh-anchors:hover .icon img,
+[data-theme="boilerplate"] #anchors-header #refresh-anchors:active .icon img,
+[data-theme="boilerplate"] #anchors-header #save-bookmark:hover .icon img,
+[data-theme="boilerplate"] #anchors-header #save-bookmark:active .icon img,
+[data-theme="boilerplate"] #controls-header #nav-delete:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] #controls-header #nav-delete:active:not(:disabled) .icon img,
+[data-theme="boilerplate"] #controls-header #nav-goto-component:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] #controls-header #nav-goto-component:active:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.9;
+}
+
 /* Cybertron theme: cyan-tinted icons to match theme aesthetic */
 [data-theme="cybertron"] .header-nav-btn .icon img,
 [data-theme="cybertron"] .header-action-btn .icon img,
 [data-theme="cybertron"] #quick-actions .action-btn .icon img,
 [data-theme="cybertron"] #tags-header #clear-color .icon img,
+[data-theme="cybertron"] #anchors-header #refresh-anchors .icon img,
 [data-theme="cybertron"] #anchors-header #save-bookmark .icon img,
 [data-theme="cybertron"] #controls-header #nav-delete .icon img,
 [data-theme="cybertron"] #controls-header #nav-goto-component .icon img {
@@ -4894,7 +5175,7 @@ i.grip {
   right: 0;
   height: var(--footer-height);
   background: var(--color-background-elevated);
-  border-top: var(--border-width) solid var(--color-border-accent);
+  border-top: var(--border-width) solid var(--color-border-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -4934,7 +5215,7 @@ i.grip {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-md);
-  color: var(--color-text-muted);
+  color: var(--color-text-primary);
   cursor: ns-resize;
   user-select: none;
   outline: none;
@@ -4944,7 +5225,7 @@ i.grip {
 #footer-resize .grip {
   letter-spacing: var(--spacing-xs);
   font-size: var(--spacing-xl);
-  opacity: 0.7;
+  font-weight: 600;
 }
 
 #footer-resize:hover,
@@ -5106,7 +5387,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   border: none;
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) var(--spacing-lg) var(--spacing-xxl) var(--spacing-lg);
+  padding: var(--spacing-xxl) var(--spacing-xs) var(--spacing-xxl) var(--spacing-xs);
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
@@ -5201,25 +5482,17 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 /* Specific header styling */
 #tags-header {
-  border-top: var(--border-width) solid var(--color-border-accent);
+  border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
 
 #anchors-header {
-  border-top: var(--border-width) solid var(--color-border-accent);
+  border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 4px 0;
   border-radius: var(--border-radius-md);
 }
 
-/* Remove bottom border when headers are collapsed */
-#tags-header[aria-expanded="false"] {
-  border-bottom: none;
-}
-
-#anchors-header[aria-expanded="false"] {
-  border-bottom: none;
-}
 
 .header-right .top-badge {
   text-transform: none;

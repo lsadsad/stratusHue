@@ -143,8 +143,7 @@
           
           <!-- Screen reader instructions -->
           <div id="arrow-keys-instructions" class="sr-only">
-            Movement and zoom buttons arranged in 3 rows and 3 columns. Move selected elements on canvas by 1 pixel, or 8 pixels with Shift. Use arrow keys to navigate, Enter or Space to
-            activate buttons.
+            Movement and zoom buttons arranged in 3 rows and 3 columns. Move selected elements by 1 pixel, or 8 with Shift. Resize with Ctrl. Duplicate with Alt. Use arrow keys to navigate, Enter or Space to activate buttons.
           </div>
 
           <!-- Row 1 -->
@@ -157,23 +156,29 @@
               <span id="zoom-in-desc" class="sr-only">Zoom into canvas view</span>
             </button>
             <button id="arrow-up" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="2"
-              aria-label="Move up 1 pixel, or 8 with Shift" aria-describedby="arrow-up-desc" disabled data-grid-row="0"
+              aria-label="Move up. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-up-desc" disabled data-grid-row="0"
               data-grid-col="1" data-shortcut="↑">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowUp.svg" alt=""></span>
               <span class="nav-label">Up</span>
-              <span id="arrow-up-desc" class="sr-only">Move selected elements up by 1 pixel, or 8 pixels with Shift</span>
+              <span id="arrow-up-desc" class="sr-only">Move up 1px, 8px with Shift. Ctrl: decrease height. Alt: duplicate upward</span>
             </button>
-            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="0" data-grid-col="2"></div>
+            <button id="layer-up" class="nav-button nav-button-layer" role="gridcell" aria-colindex="3"
+              aria-label="Bring forward. Shift: bring to front" aria-describedby="layer-up-desc" disabled data-grid-row="0"
+              data-grid-col="2">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-layerUp.svg" alt=""></span>
+              <span class="nav-label">Forward</span>
+              <span id="layer-up-desc" class="sr-only">Bring layer forward in stack. Hold Shift to bring to front</span>
+            </button>
           </div>
 
           <!-- Row 2 -->
           <div role="row" aria-rowindex="2" class="nav-row">
             <button id="arrow-left" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="1"
-              aria-label="Move left 1 pixel, or 8 with Shift" aria-describedby="arrow-left-desc" disabled data-grid-row="1"
+              aria-label="Move left. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-left-desc" disabled data-grid-row="1"
               data-grid-col="0" data-shortcut="←">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowLeft.svg" alt=""></span>
               <span class="nav-label">Left</span>
-              <span id="arrow-left-desc" class="sr-only">Move selected elements left by 1 pixel, or 8 pixels with Shift</span>
+              <span id="arrow-left-desc" class="sr-only">Move left 1px, 8px with Shift. Ctrl: decrease width. Alt: duplicate leftward</span>
             </button>
             <button id="zoom-100" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="2"
               aria-label="Zoom to 100%" aria-describedby="zoom-100-desc" data-grid-row="1"
@@ -183,11 +188,11 @@
               <span id="zoom-100-desc" class="sr-only">Reset zoom to 100%</span>
             </button>
             <button id="arrow-right" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="3"
-              aria-label="Move right 1 pixel, or 8 with Shift" aria-describedby="arrow-right-desc" disabled data-grid-row="1"
+              aria-label="Move right. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-right-desc" disabled data-grid-row="1"
               data-grid-col="2" data-shortcut="→">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowRight.svg" alt=""></span>
               <span class="nav-label">Right</span>
-              <span id="arrow-right-desc" class="sr-only">Move selected elements right by 1 pixel, or 8 pixels with Shift</span>
+              <span id="arrow-right-desc" class="sr-only">Move right 1px, 8px with Shift. Ctrl: increase width. Alt: duplicate rightward</span>
             </button>
           </div>
 
@@ -201,13 +206,19 @@
               <span id="zoom-out-desc" class="sr-only">Zoom out of canvas view</span>
             </button>
             <button id="arrow-down" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="2"
-              aria-label="Move down 1 pixel, or 8 with Shift" aria-describedby="arrow-down-desc" disabled data-grid-row="2"
+              aria-label="Move down. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-down-desc" disabled data-grid-row="2"
               data-grid-col="1" data-shortcut="↓">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowDown.svg" alt=""></span>
               <span class="nav-label">Down</span>
-              <span id="arrow-down-desc" class="sr-only">Move selected elements down by 1 pixel, or 8 pixels with Shift</span>
+              <span id="arrow-down-desc" class="sr-only">Move down 1px, 8px with Shift. Ctrl: increase height. Alt: duplicate downward</span>
             </button>
-            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="2" data-grid-col="2"></div>
+            <button id="layer-down" class="nav-button nav-button-layer" role="gridcell" aria-colindex="3"
+              aria-label="Send backward. Shift: send to back" aria-describedby="layer-down-desc" disabled data-grid-row="2"
+              data-grid-col="2">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-layerDown.svg" alt=""></span>
+              <span class="nav-label">Backward</span>
+              <span id="layer-down-desc" class="sr-only">Send layer backward in stack. Hold Shift to send to back</span>
+            </button>
           </div>
           </div>
         </div>

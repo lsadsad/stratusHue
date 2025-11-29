@@ -205,6 +205,26 @@ figma.ui.onmessage = async (msg) => {
         }
         break;
 
+      case 'resize-elements':
+        if ('direction' in msg && 'amount' in msg && 
+            typeof msg.direction === 'string' && typeof msg.amount === 'number') {
+          await handleResizeElements(msg.direction as 'up' | 'down' | 'left' | 'right', msg.amount);
+        }
+        break;
+
+      case 'duplicate-elements':
+        if ('direction' in msg && 'amount' in msg && 
+            typeof msg.direction === 'string' && typeof msg.amount === 'number') {
+          await handleDuplicateElements(msg.direction as 'up' | 'down' | 'left' | 'right', msg.amount);
+        }
+        break;
+
+      case 'reorder-layer':
+        if ('direction' in msg && typeof msg.direction === 'string') {
+          await handleReorderLayer(msg.direction as 'up' | 'down' | 'front' | 'back');
+        }
+        break;
+
       case 'zoom':
         if ('direction' in msg && typeof msg.direction === 'string') {
           await handleZoom(msg.direction as 'in' | 'out' | '100');
@@ -373,6 +393,142 @@ const handleNudgeElements = withErrorBoundary(async (direction: 'up' | 'down' | 
           break;
       }
     }
+  }
+}, ErrorType.UNKNOWN);
+
+const handleResizeElements = withErrorBoundary(async (direction: 'up' | 'down' | 'left' | 'right', amount: number) => {
+  const selection = figma.currentPage.selection;
+  
+  if (selection.length === 0) {
+    return;
+  }
+
+  for (const node of selection) {
+    // Only resize nodes that have width and height properties and support resize
+    if ('resize' in node && typeof (node as any).resize === 'function') {
+      const resizableNode = node as SceneNode & { resize: (width: number, height: number) => void; width: number; height: number };
+      let newWidth = resizableNode.width;
+      let newHeight = resizableNode.height;
+
+      switch (direction) {
+        case 'up':
+          // Decrease height (minimum 1px)
+          newHeight = Math.max(1, newHeight - amount);
+          break;
+        case 'down':
+          // Increase height
+          newHeight = newHeight + amount;
+          break;
+        case 'left':
+          // Decrease width (minimum 1px)
+          newWidth = Math.max(1, newWidth - amount);
+          break;
+        case 'right':
+          // Increase width
+          newWidth = newWidth + amount;
+          break;
+      }
+
+      resizableNode.resize(newWidth, newHeight);
+    }
+  }
+}, ErrorType.UNKNOWN);
+
+const handleDuplicateElements = withErrorBoundary(async (direction: 'up' | 'down' | 'left' | 'right', amount: number) => {
+  const selection = figma.currentPage.selection;
+  
+  if (selection.length === 0) {
+    return;
+  }
+
+  const duplicatedNodes: SceneNode[] = [];
+
+  for (const node of selection) {
+    // Clone the node
+    const clone = node.clone();
+    
+    // Position the clone based on direction
+    if ('x' in clone && 'y' in clone) {
+      switch (direction) {
+        case 'up':
+          clone.y = node.y - amount;
+          break;
+        case 'down':
+          clone.y = node.y + amount;
+          break;
+        case 'left':
+          clone.x = node.x - amount;
+          break;
+        case 'right':
+          clone.x = node.x + amount;
+          break;
+      }
+    }
+    
+    duplicatedNodes.push(clone);
+  }
+
+  // Select the duplicated nodes
+  if (duplicatedNodes.length > 0) {
+    figma.currentPage.selection = duplicatedNodes;
+  }
+}, ErrorType.UNKNOWN);
+
+const handleReorderLayer = withErrorBoundary(async (direction: 'up' | 'down' | 'front' | 'back') => {
+  const selection = figma.currentPage.selection;
+  
+  if (selection.length === 0) {
+    return;
+  }
+
+  let movedCount = 0;
+
+  for (const node of selection) {
+    const parent = node.parent;
+    if (!parent || !('children' in parent)) continue;
+
+    const siblings = parent.children;
+    const currentIndex = siblings.indexOf(node);
+    
+    if (currentIndex === -1) continue;
+
+    switch (direction) {
+      case 'up':
+        // Bring forward (higher index = visually on top)
+        if (currentIndex < siblings.length - 1) {
+          parent.insertChild(currentIndex + 1, node);
+          movedCount++;
+        }
+        break;
+      case 'down':
+        // Send backward (lower index = visually behind)
+        if (currentIndex > 0) {
+          parent.insertChild(currentIndex - 1, node);
+          movedCount++;
+        }
+        break;
+      case 'front':
+        // Bring to front (highest index)
+        if (currentIndex < siblings.length - 1) {
+          parent.insertChild(siblings.length - 1, node);
+          movedCount++;
+        }
+        break;
+      case 'back':
+        // Send to back (index 0)
+        if (currentIndex > 0) {
+          parent.insertChild(0, node);
+          movedCount++;
+        }
+        break;
+    }
+  }
+
+  if (movedCount > 0) {
+    const actionName = direction === 'up' ? 'Brought forward' : 
+                       direction === 'down' ? 'Sent backward' :
+                       direction === 'front' ? 'Brought to front' : 'Sent to back';
+    figma.notify(`${actionName} ${movedCount} layer${movedCount === 1 ? '' : 's'}`);
   }
 }, ErrorType.UNKNOWN);
 

@@ -188,7 +188,7 @@ function handleToggleClick(mode: 'onPage' | 'onLayer'): void {
   }
 }
 
-// Compute natural content height respecting collapsed sections
+// Compute natural content height respecting collapsed sections and sticky elements
 function computeFitHeight(): number {
   const main = document.querySelector('main.scrollable-content') as HTMLElement | null;
   const footer = document.getElementById('footer');
@@ -200,6 +200,7 @@ function computeFitHeight(): number {
   // Calculate height by measuring visible content only
   let totalContentHeight = 0;
   let previousMarginBottom = 0;
+  let previousWasSticky = false;
   
   // Get all direct children of main and measure only non-collapsed sections
   const children = Array.from(main.children) as HTMLElement[];
@@ -209,16 +210,33 @@ function computeFitHeight(): number {
       // Collapsed sections contribute 0 height (they have max-height: 0)
       continue;
     } else {
-      // For visible content, use offsetHeight which respects CSS layout
       const childStyle = window.getComputedStyle(child);
+      const isSticky = childStyle.position === 'sticky';
       const marginTop = parseInt(childStyle.marginTop, 10) || 0;
       const marginBottom = parseInt(childStyle.marginBottom, 10) || 0;
       
-      // Handle margin collapsing: only the larger of adjacent margins is used
-      const collapsedMargin = Math.max(previousMarginBottom, marginTop);
-      totalContentHeight += child.offsetHeight + collapsedMargin;
+      // For sticky elements, use getBoundingClientRect for accurate height measurement
+      // as offsetHeight can be unreliable when element is in "stuck" state
+      const childHeight = isSticky 
+        ? child.getBoundingClientRect().height 
+        : child.offsetHeight;
+      
+      // Sticky positioned elements don't participate in normal margin collapsing:
+      // - When a sticky element follows another element, margins don't collapse
+      // - When an element follows a sticky element, margins don't collapse
+      let effectiveMargin: number;
+      if (isSticky || previousWasSticky) {
+        // No margin collapsing with sticky elements - add both margins
+        effectiveMargin = previousMarginBottom + marginTop;
+      } else {
+        // Normal margin collapsing: only the larger of adjacent margins is used
+        effectiveMargin = Math.max(previousMarginBottom, marginTop);
+      }
+      
+      totalContentHeight += childHeight + effectiveMargin;
       
       previousMarginBottom = marginBottom;
+      previousWasSticky = isSticky;
     }
   }
   
@@ -1044,82 +1062,66 @@ function setupEventListeners(): void {
 
 
 
-  // Setup footer button state management
-  setupFooterButtonStateManagement();
+  // Setup global hover state management to prevent stuck hover states
+  setupGlobalHoverStateManagement();
 
   // Initialize Figma-like tooltips for quick action buttons
   initializeQuickActionTooltips();
 }
 
-// Footer button state management to prevent stuck hover states
-function setupFooterButtonStateManagement(): void {
-  const footerButtons = document.querySelectorAll('.footer-icon-btn');
-
-  footerButtons.forEach((button) => {
-    const btn = button as HTMLElement;
-
-    // Add a global mouse move listener to detect when mouse is no longer over the button
-    let isMouseOver = false;
-
-    btn.addEventListener('mouseenter', () => {
-      isMouseOver = true;
-    });
-
-    btn.addEventListener('mouseleave', () => {
-      isMouseOver = false;
-      // Force reset styles
-      btn.style.removeProperty('background');
-      btn.style.removeProperty('color');
-      btn.style.removeProperty('transform');
-    });
-
-    // Handle focus/blur for keyboard navigation
-    btn.addEventListener('focus', () => {
-      // Focus styles are handled by CSS
-    });
-
-    btn.addEventListener('blur', () => {
-      if (!isMouseOver) {
-        // Force reset styles when losing focus and not hovered
-        btn.style.removeProperty('background');
-        btn.style.removeProperty('color');
-        btn.style.removeProperty('transform');
-      }
-    });
-
-    // Handle mouse up to reset active states
-    btn.addEventListener('mouseup', () => {
-      // Small delay to allow CSS transitions to complete
-      setTimeout(() => {
-        if (!isMouseOver) {
-          btn.style.removeProperty('background');
-          btn.style.removeProperty('color');
-          btn.style.removeProperty('transform');
-        }
-      }, 150);
-    });
-  });
-
-  // Global mouse move listener to catch edge cases
-  document.addEventListener('mousemove', (e) => {
-    footerButtons.forEach((button) => {
-      const btn = button as HTMLElement;
-      const rect = btn.getBoundingClientRect();
-      const isOver = (
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom
-      );
-
-      if (!isOver && !btn.matches(':focus')) {
-        // Mouse is not over this button and it's not focused
-        btn.style.removeProperty('background');
-        btn.style.removeProperty('color');
-        btn.style.removeProperty('transform');
-      }
-    });
-  });
+// Global interaction state management to prevent stuck hover states
+// This fixes the issue where hover states "stick" after click or drag interactions
+function setupGlobalHoverStateManagement(): void {
+  let touchActiveTimeout: number | null = null;
+  
+  // Add touch-active class on any mousedown/touchstart to suppress hover effects
+  const activateTouch = () => {
+    document.body.classList.add('touch-active');
+    // Clear any pending timeout
+    if (touchActiveTimeout) {
+      clearTimeout(touchActiveTimeout);
+      touchActiveTimeout = null;
+    }
+  };
+  
+  // Remove touch-active class after mouse movement (with small delay for stability)
+  const deactivateTouch = () => {
+    // Small delay to ensure the interaction has fully completed
+    if (touchActiveTimeout) {
+      clearTimeout(touchActiveTimeout);
+    }
+    touchActiveTimeout = window.setTimeout(() => {
+      document.body.classList.remove('touch-active');
+      touchActiveTimeout = null;
+    }, 100);
+  };
+  
+  // Activate on any pointer down event
+  document.addEventListener('mousedown', activateTouch, { passive: true });
+  document.addEventListener('touchstart', activateTouch, { passive: true });
+  
+  // Deactivate on mouse move (indicates user is using mouse, not touch)
+  document.addEventListener('mousemove', deactivateTouch, { passive: true });
+  
+  // Also deactivate on mouseup/touchend after a brief delay
+  document.addEventListener('mouseup', () => {
+    // Longer delay for mouseup to allow CSS transitions to complete
+    if (touchActiveTimeout) {
+      clearTimeout(touchActiveTimeout);
+    }
+    touchActiveTimeout = window.setTimeout(() => {
+      document.body.classList.remove('touch-active');
+      touchActiveTimeout = null;
+    }, 150);
+  }, { passive: true });
+  
+  document.addEventListener('touchend', deactivateTouch, { passive: true });
+  
+  // Handle drag end events
+  document.addEventListener('dragend', deactivateTouch, { passive: true });
+  
+  // Also clear on scroll (often happens after drag interactions)
+  document.addEventListener('scroll', deactivateTouch, { passive: true, capture: true });
 }
 
 // UI state update functions
@@ -3116,6 +3118,18 @@ function updateControlButtons(context: NavigationContext): void {
   if (arrowRightBtn) {
     arrowRightBtn.disabled = !hasSelection;
   }
+
+  // Update layer ordering buttons - enable when elements are selected
+  const layerUpBtn = document.getElementById('layer-up') as HTMLButtonElement;
+  const layerDownBtn = document.getElementById('layer-down') as HTMLButtonElement;
+
+  if (layerUpBtn) {
+    layerUpBtn.disabled = !hasSelection;
+  }
+
+  if (layerDownBtn) {
+    layerDownBtn.disabled = !hasSelection;
+  }
 }
 
 // Update controls section visibility based on setting
@@ -3286,35 +3300,73 @@ function setupControls(): void {
   }
 
   // Arrow key button event listeners - for nudging/moving elements on canvas
+  // Alt+Arrow: duplicate by 1px offset
+  // Shift+Alt+Arrow: duplicate by 8px offset
+  // Ctrl+Arrow: resize by 1px
+  // Shift+Ctrl+Arrow: resize by 8px
+  // Shift+Arrow: nudge by 8px
+  // Arrow: nudge by 1px
   if (arrowUpBtn) {
     arrowUpBtn.addEventListener('click', (e: MouseEvent) => {
       const amount = e.shiftKey ? 8 : 1;
-      console.log(`Arrow Move: Up (nudge ${amount}px)`);
-      sendMessage('nudge-elements', { direction: 'up', amount });
+      if (e.altKey) {
+        console.log(`Arrow Duplicate: Up (offset ${amount}px)`);
+        sendMessage('duplicate-elements', { direction: 'up', amount });
+      } else if (e.ctrlKey) {
+        console.log(`Arrow Resize: Up (decrease height by ${amount}px)`);
+        sendMessage('resize-elements', { direction: 'up', amount });
+      } else {
+        console.log(`Arrow Move: Up (nudge ${amount}px)`);
+        sendMessage('nudge-elements', { direction: 'up', amount });
+      }
     });
   }
 
   if (arrowDownBtn) {
     arrowDownBtn.addEventListener('click', (e: MouseEvent) => {
       const amount = e.shiftKey ? 8 : 1;
-      console.log(`Arrow Move: Down (nudge ${amount}px)`);
-      sendMessage('nudge-elements', { direction: 'down', amount });
+      if (e.altKey) {
+        console.log(`Arrow Duplicate: Down (offset ${amount}px)`);
+        sendMessage('duplicate-elements', { direction: 'down', amount });
+      } else if (e.ctrlKey) {
+        console.log(`Arrow Resize: Down (increase height by ${amount}px)`);
+        sendMessage('resize-elements', { direction: 'down', amount });
+      } else {
+        console.log(`Arrow Move: Down (nudge ${amount}px)`);
+        sendMessage('nudge-elements', { direction: 'down', amount });
+      }
     });
   }
 
   if (arrowLeftBtn) {
     arrowLeftBtn.addEventListener('click', (e: MouseEvent) => {
       const amount = e.shiftKey ? 8 : 1;
-      console.log(`Arrow Move: Left (nudge ${amount}px)`);
-      sendMessage('nudge-elements', { direction: 'left', amount });
+      if (e.altKey) {
+        console.log(`Arrow Duplicate: Left (offset ${amount}px)`);
+        sendMessage('duplicate-elements', { direction: 'left', amount });
+      } else if (e.ctrlKey) {
+        console.log(`Arrow Resize: Left (decrease width by ${amount}px)`);
+        sendMessage('resize-elements', { direction: 'left', amount });
+      } else {
+        console.log(`Arrow Move: Left (nudge ${amount}px)`);
+        sendMessage('nudge-elements', { direction: 'left', amount });
+      }
     });
   }
 
   if (arrowRightBtn) {
     arrowRightBtn.addEventListener('click', (e: MouseEvent) => {
       const amount = e.shiftKey ? 8 : 1;
-      console.log(`Arrow Move: Right (nudge ${amount}px)`);
-      sendMessage('nudge-elements', { direction: 'right', amount });
+      if (e.altKey) {
+        console.log(`Arrow Duplicate: Right (offset ${amount}px)`);
+        sendMessage('duplicate-elements', { direction: 'right', amount });
+      } else if (e.ctrlKey) {
+        console.log(`Arrow Resize: Right (increase width by ${amount}px)`);
+        sendMessage('resize-elements', { direction: 'right', amount });
+      } else {
+        console.log(`Arrow Move: Right (nudge ${amount}px)`);
+        sendMessage('nudge-elements', { direction: 'right', amount });
+      }
     });
   }
 
@@ -3337,6 +3389,34 @@ function setupControls(): void {
     zoom100Btn.addEventListener('click', () => {
       console.log('Zoom: 100%');
       sendMessage('zoom', { direction: '100' });
+    });
+  }
+
+  // Layer ordering buttons
+  const layerUpBtn = document.getElementById('layer-up');
+  const layerDownBtn = document.getElementById('layer-down');
+
+  if (layerUpBtn) {
+    layerUpBtn.addEventListener('click', (e: MouseEvent) => {
+      if (e.shiftKey) {
+        console.log('Layer Order: Bring to front');
+        sendMessage('reorder-layer', { direction: 'front' });
+      } else {
+        console.log('Layer Order: Bring forward');
+        sendMessage('reorder-layer', { direction: 'up' });
+      }
+    });
+  }
+
+  if (layerDownBtn) {
+    layerDownBtn.addEventListener('click', (e: MouseEvent) => {
+      if (e.shiftKey) {
+        console.log('Layer Order: Send to back');
+        sendMessage('reorder-layer', { direction: 'back' });
+      } else {
+        console.log('Layer Order: Send backward');
+        sendMessage('reorder-layer', { direction: 'down' });
+      }
     });
   }
 
