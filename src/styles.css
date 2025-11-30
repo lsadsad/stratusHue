@@ -1057,6 +1057,24 @@ body.touch-active .kofi-button:hover {
   --theme-warning-border-weak: rgba(255, 193, 7, 0.3);
 }
 
+/* Boilerplate theme bookmark items */
+[data-theme="boilerplate"] .bookmark-item {
+  background: transparent;
+  border: none;
+}
+
+[data-theme="boilerplate"] .bookmark-item:hover {
+  background: var(--theme-bg-hover);
+}
+
+[data-theme="boilerplate"] .bookmark-item.current-anchor {
+  background: var(--theme-info-bg-strong);
+}
+
+[data-theme="boilerplate"] .bookmark-item.recent-history {
+  background: transparent;
+}
+
 /* CYBERTRON THEME - Futuristic dark theme inspired by Transformers */
 [data-theme="cybertron"] {
   /* Base Colors - Cybertron inspired palette */
@@ -1366,6 +1384,24 @@ body.touch-active .kofi-button:hover {
   transform: scale(0.98);
 }
 
+/* Light theme bookmark items */
+[data-theme="light"] .bookmark-item {
+  background: var(--theme-bg-primary);
+  border: none;
+}
+
+[data-theme="light"] .bookmark-item:hover {
+  background: var(--theme-bg-hover);
+}
+
+[data-theme="light"] .bookmark-item.current-anchor {
+  background: var(--theme-info-bg-strong);
+}
+
+[data-theme="light"] .bookmark-item.recent-history {
+  background: transparent;
+}
+
 /* Light theme action buttons - default state matches hover */
 [data-theme="light"] .clear-action,
 [data-theme="light"] #save-bookmark {
@@ -1647,6 +1683,28 @@ body.touch-active .kofi-button:hover {
   --theme-shadow-inset-hairline: rgba(0, 0, 0, 0.45);
   --theme-warning-bg-weak: rgba(255, 193, 7, 0.2);
   --theme-warning-border-weak: rgba(255, 193, 7, 0.3);
+}
+
+/* Figma dark theme bookmark items */
+[data-theme="figma-dark"] .bookmark-item,
+[data-theme="figma"] .bookmark-item {
+  background: transparent;
+  border: none;
+}
+
+[data-theme="figma-dark"] .bookmark-item:hover,
+[data-theme="figma"] .bookmark-item:hover {
+  background: var(--theme-bg-hover);
+}
+
+[data-theme="figma-dark"] .bookmark-item.current-anchor,
+[data-theme="figma"] .bookmark-item.current-anchor {
+  background: var(--theme-info-bg-strong);
+}
+
+[data-theme="figma-dark"] .bookmark-item.recent-history,
+[data-theme="figma"] .bookmark-item.recent-history {
+  background: transparent;
 }
 
 /* LIGHT THEME - Light theme colors and variables */
@@ -2290,7 +2348,7 @@ h3 {
   position: sticky;
   top: 0;
   z-index: calc(var(--z-footer) + 1);
-  border-bottom: var(--border-width) solid var(--color-border-accent);
+  border-bottom: var(--border-width) solid var(--color-border-primary);
 }
 
 /* Quick actions uses same header layout pattern */
@@ -2327,7 +2385,7 @@ h3 {
 #quick-actions #page-actions-group {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0;
 }
 #quick-actions .action-btn {
   width: calc(var(--spacing-lg) * 3);
@@ -2385,7 +2443,7 @@ h3 {
   border-top: var(--border-width) solid var(--color-border-primary);
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-lg) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
+  padding: var(--spacing-lg) 2px var(--spacing-lg) 2px;
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
@@ -2715,7 +2773,7 @@ h3 {
   width: 100%;
   min-width: 0;
   background: var(--color-background-elevated);
-  padding: var(--spacing-lg) 12px;
+  padding: 16px 12px;
   border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
@@ -2813,6 +2871,7 @@ h3 {
 
 /* Resync button: match indent button size */
 #anchors-header #refresh-anchors {
+  display: none;
   width: 12px;
   min-width: 12px;
   height: calc(var(--spacing-lg) * 3);
@@ -3607,8 +3666,8 @@ h3 {
   height: 12px;
   pointer-events: none;
   opacity: 1;
-  /* Brand blue color to match current anchor bookmark name */
-  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  /* Brand blue color (#18a0fb) to match current anchor bookmark name */
+  filter: brightness(0) saturate(100%) invert(52%) sepia(98%) saturate(1752%) hue-rotate(186deg) brightness(104%) contrast(101%);
   z-index: 1;
 }
 
@@ -5387,7 +5446,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   border: none;
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
-  padding: var(--spacing-xxl) var(--spacing-xs) var(--spacing-xxl) var(--spacing-xs);
+  padding: var(--spacing-xxl) 2px var(--spacing-xxl) 2px;
   gap: var(--spacing-lg);
   align-self: stretch;
   box-sizing: border-box;
