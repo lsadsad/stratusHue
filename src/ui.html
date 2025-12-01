@@ -12,26 +12,25 @@
   <main class="scrollable-content">
     <nav id="quick-actions" role="toolbar" aria-label="Quick actions">
       <div class="header-left">
+        <nav class="header-nav-group" role="group" aria-label="Navigation history">
+          <button id="back-btn" class="header-nav-btn" aria-label="Go back" disabled>
+            <span class="icon"><img src="./assets/ICO-navBack.svg" alt=""></span>
+          </button>
+          <button id="forward-btn" class="header-nav-btn" aria-label="Go forward" disabled>
+            <span class="icon"><img src="./assets/ICO-navForward.svg" alt=""></span>
+          </button>
+        </nav>
+      </div>
+      <div class="header-center">
+        <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
+          <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span><span class="label">Outdent</span>
+        </button>
         <button id="new-page-btn" class="action-btn" aria-label="Create new page">
           <span class="icon"><img src="./assets/ICO-addPage.svg" alt=""></span><span class="label">New Page</span>
         </button>
-        <div id="page-actions-group" role="group" aria-label="Page actions">
-          <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
-            <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span><span class="label">Outdent</span>
-          </button>
-          <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
-            <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span><span class="label">Indent</span>
-          </button>
-        </div>
-      </div>
-      <div class="header-center">
-        <div class="toggle-container">
-          <button id="toggle-mode" class="toggle-button" aria-label="Toggle between page and layer mode">
-            <span class="toggle-indicator" aria-hidden="true"></span>
-            <span class="toggle-option" data-mode="onPage">onPage</span>
-            <span class="toggle-option" data-mode="onLayer">onLayer</span>
-          </button>
-        </div>
+        <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
+          <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span><span class="label">Indent</span>
+        </button>
       </div>
       <div class="header-right">
         <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
@@ -61,6 +60,7 @@
       <div class="tags-content-wrapper">
         <div class="tag-grid-container">
           <span id="emoji-set-indicator" class="emoji-set-title">
+            <span class="mode-affordance">PAGE</span>
             <span class="set-name">Colors</span>
           </span>
           <nav class="emoji-nav-container">
@@ -75,14 +75,6 @@
     <header id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button"
       tabindex="0" aria-expanded="true" aria-controls="anchors-section">
       <div class="header-left">
-        <nav class="header-nav-group" role="group" aria-label="Navigation history">
-          <button id="back-btn" class="header-nav-btn" aria-label="Go back" disabled onclick="event.stopPropagation();">
-            <span class="icon"><img src="./assets/ICO-navBack.svg" alt=""></span>
-          </button>
-          <button id="forward-btn" class="header-nav-btn" aria-label="Go forward" disabled onclick="event.stopPropagation();">
-            <span class="icon"><img src="./assets/ICO-navForward.svg" alt=""></span>
-          </button>
-        </nav>
       </div>
       <div class="header-center">
         <h2 class="header-title">Anchors</h2>
@@ -110,7 +102,7 @@
     <header id="controls-header" class="section-header collapsible" data-target="controls-section" role="button"
       tabindex="0" aria-expanded="true" aria-controls="controls-section">
       <div class="header-left">
-        <button id="nav-goto-component" class="action-btn header-action-btn" aria-label="Go to main component" disabled onclick="event.stopPropagation();">
+        <button id="nav-goto-component" class="action-btn header-action-btn" aria-label="Go to main component" data-tooltip="Go to Main Component" data-tooltip-delay="600" disabled onclick="event.stopPropagation();">
           <span class="icon"><img src="./assets/ICO-component.svg" alt=""></span>
         </button>
       </div>
@@ -118,7 +110,7 @@
         <h2 class="header-title">Controls</h2>
       </div>
       <div class="header-right">
-        <button id="nav-delete" class="action-btn header-action-btn" aria-label="Delete selected nodes" disabled onclick="event.stopPropagation();">
+        <button id="nav-delete" class="action-btn header-action-btn" aria-label="Delete selected nodes" data-tooltip="Delete Selected" data-tooltip-delay="600" disabled onclick="event.stopPropagation();">
           <span class="icon"><img src="./assets/ICO-delete.svg" alt=""></span>
         </button>
       </div>
@@ -149,46 +141,40 @@
           <!-- Row 1 -->
           <div role="row" aria-rowindex="1" class="nav-row">
             <button id="zoom-in" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="1"
-              aria-label="Zoom in" aria-describedby="zoom-in-desc" data-grid-row="0"
+              aria-label="Zoom in" aria-describedby="zoom-in-desc" data-tooltip="Zoom In" data-tooltip-delay="600" data-grid-row="0"
               data-grid-col="0">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-zoomIn.svg" alt=""></span>
               <span class="nav-label">Zoom In</span>
               <span id="zoom-in-desc" class="sr-only">Zoom into canvas view</span>
             </button>
             <button id="arrow-up" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="2"
-              aria-label="Move up. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-up-desc" disabled data-grid-row="0"
+              aria-label="Move up. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-up-desc" data-tooltip="Move Up · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-delay="600" disabled data-grid-row="0"
               data-grid-col="1" data-shortcut="↑">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowUp.svg" alt=""></span>
               <span class="nav-label">Up</span>
               <span id="arrow-up-desc" class="sr-only">Move up 1px, 8px with Shift. Ctrl: decrease height. Alt: duplicate upward</span>
             </button>
-            <button id="layer-up" class="nav-button nav-button-layer" role="gridcell" aria-colindex="3"
-              aria-label="Bring forward. Shift: bring to front" aria-describedby="layer-up-desc" disabled data-grid-row="0"
-              data-grid-col="2">
-              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-layerUp.svg" alt=""></span>
-              <span class="nav-label">Forward</span>
-              <span id="layer-up-desc" class="sr-only">Bring layer forward in stack. Hold Shift to bring to front</span>
-            </button>
+            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="0" data-grid-col="2"></div>
           </div>
 
           <!-- Row 2 -->
           <div role="row" aria-rowindex="2" class="nav-row">
             <button id="arrow-left" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="1"
-              aria-label="Move left. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-left-desc" disabled data-grid-row="1"
+              aria-label="Move left. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-left-desc" data-tooltip="Move Left · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-delay="600" disabled data-grid-row="1"
               data-grid-col="0" data-shortcut="←">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowLeft.svg" alt=""></span>
               <span class="nav-label">Left</span>
               <span id="arrow-left-desc" class="sr-only">Move left 1px, 8px with Shift. Ctrl: decrease width. Alt: duplicate leftward</span>
             </button>
             <button id="zoom-100" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="2"
-              aria-label="Zoom to 100%" aria-describedby="zoom-100-desc" data-grid-row="1"
+              aria-label="Zoom to 100%" aria-describedby="zoom-100-desc" data-tooltip="Zoom to 100%" data-tooltip-delay="600" data-grid-row="1"
               data-grid-col="1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-zoom100.svg" alt=""></span>
               <span class="nav-label">100%</span>
               <span id="zoom-100-desc" class="sr-only">Reset zoom to 100%</span>
             </button>
             <button id="arrow-right" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="3"
-              aria-label="Move right. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-right-desc" disabled data-grid-row="1"
+              aria-label="Move right. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-right-desc" data-tooltip="Move Right · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-delay="600" disabled data-grid-row="1"
               data-grid-col="2" data-shortcut="→">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowRight.svg" alt=""></span>
               <span class="nav-label">Right</span>
@@ -199,32 +185,27 @@
           <!-- Row 3 -->
           <div role="row" aria-rowindex="3" class="nav-row">
             <button id="zoom-out" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="1"
-              aria-label="Zoom out" aria-describedby="zoom-out-desc" data-grid-row="2"
+              aria-label="Zoom out" aria-describedby="zoom-out-desc" data-tooltip="Zoom Out" data-tooltip-delay="600" data-grid-row="2"
               data-grid-col="0">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-zoomOut.svg" alt=""></span>
               <span class="nav-label">Zoom Out</span>
               <span id="zoom-out-desc" class="sr-only">Zoom out of canvas view</span>
             </button>
             <button id="arrow-down" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="2"
-              aria-label="Move down. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-down-desc" disabled data-grid-row="2"
+              aria-label="Move down. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-down-desc" data-tooltip="Move Down · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-delay="600" disabled data-grid-row="2"
               data-grid-col="1" data-shortcut="↓">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowDown.svg" alt=""></span>
               <span class="nav-label">Down</span>
               <span id="arrow-down-desc" class="sr-only">Move down 1px, 8px with Shift. Ctrl: increase height. Alt: duplicate downward</span>
             </button>
-            <button id="layer-down" class="nav-button nav-button-layer" role="gridcell" aria-colindex="3"
-              aria-label="Send backward. Shift: send to back" aria-describedby="layer-down-desc" disabled data-grid-row="2"
-              data-grid-col="2">
-              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-layerDown.svg" alt=""></span>
-              <span class="nav-label">Backward</span>
-              <span id="layer-down-desc" class="sr-only">Send layer backward in stack. Hold Shift to send to back</span>
-            </button>
+            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="2" data-grid-col="2"></div>
           </div>
           </div>
         </div>
 
         <div class="tag-grid-container">
-          <span class="emoji-set-title">
+          <span id="hierarchy-set-indicator" class="emoji-set-title">
+            <span class="mode-affordance">PAGE</span>
             <span class="set-name">Hierarchy</span>
           </span>
           <div class="controls-grid" role="grid" aria-label="Layer hierarchy controls"
@@ -232,46 +213,65 @@
 
           <!-- Screen reader instructions -->
           <div id="hierarchy-instructions" class="sr-only">
-            Grid of hierarchy buttons arranged in 2 rows and 3 columns. Use arrow keys to navigate, Enter or Space to
+            Grid of hierarchy buttons arranged in 3 rows and 3 columns. Use arrow keys to navigate, Enter or Space to
             activate buttons.
           </div>
 
           <!-- Row 1 -->
           <div role="row" aria-rowindex="1" class="nav-row">
             <button id="nav-exit" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="1"
-              aria-label="Exit container (Shift+Enter)" aria-describedby="nav-exit-desc" disabled data-grid-row="0"
+              aria-label="Exit container (Shift+Enter)" aria-describedby="nav-exit-desc" data-tooltip="Exit Container (⇧Enter)" data-tooltip-delay="600" disabled data-grid-row="0"
               data-grid-col="0" data-shortcut="Shift+Enter">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderExit.svg" alt=""></span>
               <span id="nav-exit-desc" class="sr-only">Move selection up one level in hierarchy</span>
             </button>
             <button id="nav-prev" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="2"
-              aria-label="Previous sibling (Shift+Tab)" aria-describedby="nav-prev-desc" disabled data-grid-row="0"
+              aria-label="Previous sibling (Shift+Tab)" aria-describedby="nav-prev-desc" data-tooltip="Previous Sibling (⇧Tab)" data-tooltip-delay="600" disabled data-grid-row="0"
               data-grid-col="1" data-shortcut="Shift+Tab">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderUp.svg" alt=""></span>
               <span id="nav-prev-desc" class="sr-only">Select previous sibling layer (up in layers panel)</span>
             </button>
-            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="0" data-grid-col="2"></div>
+            <button id="layer-up" class="nav-button nav-button-layer" role="gridcell" aria-colindex="3"
+              aria-label="Bring forward. Shift: bring to front" aria-describedby="layer-up-desc" data-tooltip="Bring Forward · ⇧Front" data-tooltip-delay="600" disabled data-grid-row="0"
+              data-grid-col="2">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-layerUp.svg" alt=""></span>
+              <span class="nav-label">Forward</span>
+              <span id="layer-up-desc" class="sr-only">Bring layer forward in stack. Hold Shift to bring to front</span>
+            </button>
           </div>
 
           <!-- Row 2 -->
           <div role="row" aria-rowindex="2" class="nav-row">
-            <button id="nav-collapse" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="1"
-              aria-label="Collapse selected and sibling containers (Alt+L)" aria-describedby="nav-collapse-desc"
-              disabled data-grid-row="1" data-grid-col="0" data-shortcut="Alt+L">
-              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-foldeCollapse.svg" alt=""></span>
-              <span id="nav-collapse-desc" class="sr-only">Collapse selected container and sibling containers</span>
-            </button>
-            <button id="nav-next" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="2" aria-label="Next sibling (Tab)"
-              aria-describedby="nav-next-desc" disabled data-grid-row="1" data-grid-col="1" data-shortcut="Tab">
-              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderDown.svg" alt=""></span>
-              <span id="nav-next-desc" class="sr-only">Select next sibling layer (down in layers panel)</span>
-            </button>
-            <button id="nav-enter" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="3"
-              aria-label="Expand container (Enter)" aria-describedby="nav-enter-desc" disabled data-grid-row="1"
-              data-grid-col="2" data-shortcut="Enter">
+            <button id="nav-enter" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="1"
+              aria-label="Expand container (Enter)" aria-describedby="nav-enter-desc" data-tooltip="Enter Container (Enter)" data-tooltip-delay="600" disabled data-grid-row="1"
+              data-grid-col="0" data-shortcut="Enter">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderEnter.svg" alt=""></span>
               <span id="nav-enter-desc" class="sr-only">Select all children of container and focus view</span>
             </button>
+            <button id="nav-next" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="2" aria-label="Next sibling (Tab)"
+              aria-describedby="nav-next-desc" data-tooltip="Next Sibling (Tab)" data-tooltip-delay="600" disabled data-grid-row="1" data-grid-col="1" data-shortcut="Tab">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderDown.svg" alt=""></span>
+              <span id="nav-next-desc" class="sr-only">Select next sibling layer (down in layers panel)</span>
+            </button>
+            <button id="layer-down" class="nav-button nav-button-layer" role="gridcell" aria-colindex="3"
+              aria-label="Send backward. Shift: send to back" aria-describedby="layer-down-desc" data-tooltip="Send Backward · ⇧Back" data-tooltip-delay="600" disabled data-grid-row="1"
+              data-grid-col="2">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-layerDown.svg" alt=""></span>
+              <span class="nav-label">Backward</span>
+              <span id="layer-down-desc" class="sr-only">Send layer backward in stack. Hold Shift to send to back</span>
+            </button>
+          </div>
+
+          <!-- Row 3 -->
+          <div role="row" aria-rowindex="3" class="nav-row">
+            <button id="nav-collapse" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="1"
+              aria-label="Collapse selected and sibling containers (Alt+L)" aria-describedby="nav-collapse-desc"
+              data-tooltip="Collapse Containers (⌥L)" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="0" data-shortcut="Alt+L">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-foldeCollapse.svg" alt=""></span>
+              <span id="nav-collapse-desc" class="sr-only">Collapse selected container and sibling containers</span>
+            </button>
+            <div class="nav-spacer" role="gridcell" aria-colindex="2" data-grid-row="2" data-grid-col="1"></div>
+            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="2" data-grid-col="2"></div>
           </div>
 
           </div>
@@ -289,13 +289,13 @@
             </div>
 
             <button id="cycle-width" class="nav-button nav-button-hierarchy"
-              aria-label="Cycle width sizing (Hug → Fill → Fixed)" aria-describedby="cycle-width-desc" disabled>
+              aria-label="Cycle width sizing (Hug → Fill → Fixed)" aria-describedby="cycle-width-desc" data-tooltip="Cycle Width (Hug → Fill → Fixed)" data-tooltip-delay="600" disabled>
               <span class="nav-icon" aria-hidden="true"><img id="width-icon" src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="width-mode">—</span></span>
               <span id="cycle-width-desc" class="sr-only">Cycle horizontal sizing mode between Hug, Fill, and Fixed</span>
             </button>
             <button id="cycle-height" class="nav-button nav-button-hierarchy"
-              aria-label="Cycle height sizing (Hug → Fill → Fixed)" aria-describedby="cycle-height-desc" disabled>
+              aria-label="Cycle height sizing (Hug → Fill → Fixed)" aria-describedby="cycle-height-desc" data-tooltip="Cycle Height (Hug → Fill → Fixed)" data-tooltip-delay="600" disabled>
               <span class="nav-icon" aria-hidden="true"><img id="height-icon" src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="height-mode">—</span></span>
               <span id="cycle-height-desc" class="sr-only">Cycle vertical sizing mode between Hug, Fill, and Fixed</span>

@@ -45,9 +45,8 @@ let uiSectionStatesFromPlugin: UISectionState = {};
 
 
 
-// Toggle state management
+// Mode state management (driven by selection)
 let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
-let hasPreviousSelection = false;
 
 // Auto-fit state management
 let isAutoFitEnabled = true; // Default to enabled
@@ -72,11 +71,8 @@ function handlePluginMessage(event: MessageEvent): void {
       if (emojis) {
         updateEmojiButtons(emojis);
       }
-      // Update toggle state based on selection
+      // Update mode state based on selection
       updateToggleState(message.hasLayerSelected);
-      // Update previous selection state
-      hasPreviousSelection = message.hasPreviousSelection || false;
-      updateToggleUI();
       break;
     case 'bookmarks':
       updateBookmarksList(
@@ -131,62 +127,47 @@ function updateToggleState(hasLayerSelected: boolean): void {
   }
 }
 
-// Update toggle UI to reflect current state
+// Update mode affordance UI to reflect current state
 function updateToggleUI(): void {
-  const toggleButton = document.getElementById('toggle-mode');
-  if (!toggleButton) return;
-
-  const onPageOption = toggleButton.querySelector('[data-mode="onPage"]');
-  const onLayerOption = toggleButton.querySelector('[data-mode="onLayer"]');
-
-  if (onPageOption && onLayerOption) {
-    onPageOption.classList.toggle('active', currentToggleMode === 'onPage');
-    onLayerOption.classList.toggle('active', currentToggleMode === 'onLayer');
-
-    // Reflect active on root for CSS-driven indicator
-    toggleButton.setAttribute('data-active', currentToggleMode);
-
-    // Handle disabled state for onLayer option
-    if (currentToggleMode === 'onPage' && !hasPreviousSelection) {
-      onLayerOption.classList.add('disabled');
-      toggleButton.setAttribute('aria-label', 'Toggle between page and layer mode (layer mode unavailable - no previous selection)');
-    } else {
-      onLayerOption.classList.remove('disabled');
-      toggleButton.setAttribute('aria-label', 'Toggle between page and layer mode');
-    }
-  }
+  // Update mode affordance badges on section titles
+  const modeAffordances = document.querySelectorAll('.mode-affordance');
+  const modeLabel = currentToggleMode === 'onPage' ? 'PAGE' : 'LAYER';
+  modeAffordances.forEach((affordance) => {
+    affordance.textContent = modeLabel;
+    affordance.setAttribute('data-mode', currentToggleMode);
+  });
 
   // Ensure page-only actions are visible only in onPage mode
   const pageActionsGroup = document.getElementById('page-actions-group');
   if (pageActionsGroup) {
     pageActionsGroup.style.display = currentToggleMode === 'onPage' ? 'inline-flex' : 'none';
   }
+
+  // Swap hierarchy control icons based on mode
+  // Base64 data URIs for dynamic icon swapping (required for Figma plugin sandbox)
+  const ICON_PAGE_UP = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgMi41QzIgMS4zOTU0MyAyLjg5NTQzIDAuNSA0IDAuNUg5LjIzMDA5QzkuNzI1NjQgMC41IDEwLjIwMzUgMC42ODM5NjkgMTAuNTcxMiAxLjAxNjI1TDEzLjM0MTEgMy41MTk4MkMxMy43NjA2IDMuODk5MDEgMTQgNC40MzgwNyAxNCA1LjAwMzU3VjEzLjVDMTQgMTQuNjA0NiAxMy4xMDQ2IDE1LjUgMTIgMTUuNUg0QzIuODk1NDMgMTUuNSAyIDE0LjYwNDYgMiAxMy41VjIuNVoiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOS41IDFWNEM5LjUgNC41NTIyOCA5Ljk0NzcyIDUgMTAuNSA1SDEzLjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCA3LjY2NjVWMTEuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDkuNjY2NUw4IDcuNjY2NUwxMCA5LjY2NjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=';
+  const ICON_PAGE_DOWN = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgMi41QzIgMS4zOTU0MyAyLjg5NTQzIDAuNSA0IDAuNUg5LjIzMDA5QzkuNzI1NjQgMC41IDEwLjIwMzUgMC42ODM5NjkgMTAuNTcxMiAxLjAxNjI1TDEzLjM0MTEgMy41MTk4MkMxMy43NjA2IDMuODk5MDEgMTQgNC40MzgwNyAxNCA1LjAwMzU3VjEzLjVDMTQgMTQuNjA0NiAxMy4xMDQ2IDE1LjUgMTIgMTUuNUg0QzIuODk1NDMgMTUuNSAyIDE0LjYwNDYgMiAxMy41VjIuNVoiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOS41IDFWNEM5LjUgNC41NTIyOCA5Ljk0NzcyIDUgMTAuNSA1SDEzLjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCAxMS42NjY1VjcuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDkuNjY2NUw4IDExLjY2NjVMMTAgOS42NjY1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+';
+  const ICON_PAGE_ENTER = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgN1YyLjVDMiAxLjM5NTQzIDIuODk1NDMgMC41IDQgMC41SDkuMjMwMDlDOS43MjU2NCAwLjUgMTAuMjAzNSAwLjY4Mzk2OSAxMC41NzEyIDEuMDE2MjVMMTMuMzQxMSAzLjUxOTgyQzEzLjc2MDYgMy44OTkwMSAxNCA0LjQzODA3IDE0IDUuMDAzNTdWMTMuNUMxNCAxNC42MDQ2IDEzLjEwNDYgMTUuNSAxMiAxNS41SDRDMS44OTU0MyAxNS41IDIgMTQuNjA0NiAyIDEzLjVWMTIuNzUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOS41IDFWNEM5LjUgNC41NTIyOCA5Ljk0NzcyIDUgMTAuNSA1SDEzLjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOSAxMEwyIDEwIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTcgOEw5IDEwTDcgMTIiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=';
+  const ICON_FOLDER_UP = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzLjMzMzMgMTMuMzMzM0MxMy42ODY5IDEzLjMzMzMgMTQuMDI2IDEzLjE5MjkgMTQuMjc2MSAxMi45NDI4QzE0LjUyNjEgMTIuNjkyOCAxNC42NjY2IDEyLjM1MzYgMTQuNjY2NiAxMlY1LjMzMzMzQzE0LjY2NjYgNC45Nzk3MSAxNC41MjYxIDQuNjQwNTcgMTQuMjc2MSA0LjM5MDUzQzE0LjAyNiA0LjE0MDQ4IDEzLjY4NjkgNCAxMy4zMzMzIDRIOC4wNjY1OUM3Ljg0MzYgNC4wMDIxOSA3LjYyMzYyIDMuOTQ4NDEgNy40MjY3OSAzLjg0MzU5QzcuMjI5OTYgMy43Mzg3NyA3LjA2MjU2IDMuNTg2MjUgNi45Mzk5MiAzLjRMNi4zOTk5MiAyLjZDNi4yNzg1MSAyLjQxNTY1IDYuMTEzMjQgMi4yNjQzMiA1LjkxODkyIDIuMTU5NkM1LjcyNDYgMi4wNTQ4OCA1LjUwNzMzIDIuMDAwMDQgNS4yODY1OSAySDIuNjY2NTlDMi4zMTI5NiAyIDEuOTczODIgMi4xNDA0OCAxLjcyMzc4IDIuMzkwNTJDMS40NzM3MyAyLjY0MDU3IDEuMzMzMjUgMi45Nzk3MSAxLjMzMzI1IDMuMzMzMzNWMTJDMS4zMzMyNSAxMi4zNTM2IDEuNDczNzMgMTIuNjkyOCAxLjcyMzc4IDEyLjk0MjhDMS45NzM4MiAxMy4xOTI5IDIuMzEyOTYgMTMuMzMzMyAyLjY2NjU5IDEzLjMzMzNIMTMuMzMzM1oiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCA2LjY2NjVWMTAuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDguNjY2NUw4IDYuNjY2NUwxMCA4LjY2NjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=';
+  const ICON_FOLDER_DOWN = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzLjMzMzMgMTMuMzMzM0MxMy42ODY5IDEzLjMzMzMgMTQuMDI2IDEzLjE5MjkgMTQuMjc2MSAxMi45NDI4QzE0LjUyNjEgMTIuNjkyOCAxNC42NjY2IDEyLjM1MzYgMTQuNjY2NiAxMlY1LjMzMzMzQzE0LjY2NjYgNC45Nzk3MSAxNC41MjYxIDQuNjQwNTcgMTQuMjc2MSA0LjM5MDUzQzE0LjAyNiA0LjE0MDQ4IDEzLjY4NjkgNCAxMy4zMzMzIDRIOC4wNjY1OUM3Ljg0MzYgNC4wMDIxOSA3LjYyMzYyIDMuOTQ4NDEgNy40MjY3OSAzLjg0MzU5QzcuMjI5OTYgMy43Mzg3NyA3LjA2MjU2IDMuNTg2MjUgNi45Mzk5MiAzLjRMNi4zOTk5MiAyLjZDNi4yNzg1MSAyLjQxNTY1IDYuMTEzMjQgMi4yNjQzMiA1LjkxODkyIDIuMTU5NkM1LjcyNDYgMi4wNTQ4OCA1LjUwNzMzIDIuMDAwMDQgNS4yODY1OSAySDIuNjY2NTlDMi4zMTI5NiAyIDEuOTczODIgMi4xNDA0OCAxLjcyMzc4IDIuMzkwNTJDMS40NzM3MyAyLjY0MDU3IDEuMzMzMjUgMi45Nzk3MSAxLjMzMzI1IDMuMzMzMzNWMTJDMS4zMzMyNSAxMi4zNTM2IDEuNDczNzMgMTIuNjkyOCAxLjcyMzc4IDEyLjk0MjhDMS45NzM4MiAxMy4xOTI5IDIuMzEyOTYgMTMuMzMzMyAyLjY2NjU5IDEzLjMzMzNIMTMuMzMzM1oiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCAxMC42NjY1VjYuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMCA4LjY2NjVMOCAxMC42NjY1TDYgOC42NjY1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+';
+  const ICON_FOLDER_ENTER = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuMzMzMjUgNS4wMDAwNlYzLjMzMzRDMS4zMzMyNSAyLjk3OTc4IDEuNDczNzMgMi42NDA2NCAxLjcyMzc4IDIuMzkwNTlDMS45NzM4MiAyLjE0MDU0IDIuMzEyOTYgMi4wMDAwNiAyLjY2NjU5IDIuMDAwMDZINS4yNjY1OUM1LjQ4OTU4IDEuOTk3ODggNS43MDk1NiAyLjA1MTY2IDUuOTA2MzkgMi4xNTY0OEM2LjEwMzIyIDIuMjYxMyA2LjI3MDYxIDIuNDEzODEgNi4zOTMyNSAyLjYwMDA2TDYuOTMzMjUgMy40MDAwNkM3LjA1NDY2IDMuNTg0NDIgNy4yMTk5NCAzLjczNTc0IDcuNDE0MjUgMy44NDA0N0M3LjYwODU3IDMuOTQ1MTkgNy44MjU4NSA0LjAwMDAzIDguMDQ2NTkgNC4wMDAwNkgxMy4zMzMzQzEzLjY4NjkgNC4wMDAwNiAxNC4wMjYgNC4xNDA1NCAxNC4yNzYxIDQuMzkwNTlDMTQuNTI2MSA0LjY0MDY0IDE0LjY2NjYgNC45Nzk3OCAxNC42NjY2IDUuMzMzNFYxMi4wMDAxQzE0LjY2NjYgMTIuMzUzNyAxNC41MjYxIDEyLjY5MjggMTQuMjc2MSAxMi45NDI5QzE0LjAyNiAxMy4xOTI5IDEzLjY4NjkgMTMuMzMzNCAxMy4zMzMzIDEzLjMzMzRIMi42NjY1OUMyLjM2MzggMTMuMzQzIDIuMDY2NzcgMTMuMjQ5MiAxLjgyNDQyIDEzLjA2NzRDMS41ODIwNyAxMi44ODU2IDEuNDA4ODQgMTIuNjI2OCAxLjMzMzI1IDEyLjMzMzQiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCA4LjY2NjVIMS4zMzMzMyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDYuNjY2NUw4IDguNjY2NUw2IDEwLjY2NjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=';
+
+  const iconSwaps: Array<{ buttonId: string; pageIcon: string; layerIcon: string }> = [
+    { buttonId: 'nav-prev', pageIcon: ICON_PAGE_UP, layerIcon: ICON_FOLDER_UP },
+    { buttonId: 'nav-next', pageIcon: ICON_PAGE_DOWN, layerIcon: ICON_FOLDER_DOWN },
+    { buttonId: 'nav-enter', pageIcon: ICON_PAGE_ENTER, layerIcon: ICON_FOLDER_ENTER }
+  ];
+
+  iconSwaps.forEach(({ buttonId, pageIcon, layerIcon }) => {
+    const button = document.getElementById(buttonId);
+    const iconImg = button?.querySelector('.nav-icon img') as HTMLImageElement | null;
+    if (iconImg) {
+      iconImg.src = currentToggleMode === 'onPage' ? pageIcon : layerIcon;
+    }
+  });
 }
 
-// Handle toggle click
-function handleToggleClick(mode: 'onPage' | 'onLayer'): void {
-  if (currentToggleMode === mode) return;
-
-  // Prevent switching to onLayer if no previous selection is available
-  if (mode === 'onLayer' && !hasPreviousSelection) {
-    console.log('Cannot switch to layer mode - no previous selection available');
-    return;
-  }
-
-  currentToggleMode = mode;
-  updateToggleUI();
-
-  if (mode === 'onPage') {
-    // Deselect all layers to switch to page mode
-    console.log('Switching to page mode - deselecting layers');
-    sendMessage('deselect');
-  } else {
-    // For layer mode, we need to ensure there's a selection
-    // This will be handled by the plugin's selection state
-    console.log('Switching to layer mode');
-    sendMessage('toggle-mode', { mode: 'onLayer' });
-  }
-}
+// Note: Manual toggle removed - mode is now controlled by selection state only
 
 // Compute natural content height respecting collapsed sections and sticky elements
 function computeFitHeight(): number {
@@ -409,7 +390,10 @@ function showTooltip(target: HTMLElement, immediate = false): void {
   if (immediate) {
     doShow();
   } else {
-    tooltipState.showTimer = window.setTimeout(doShow, 200);
+    // Check for custom delay via data attribute, default to 200ms
+    const customDelay = target.getAttribute('data-tooltip-delay');
+    const delay = customDelay ? parseInt(customDelay, 10) : 200;
+    tooltipState.showTimer = window.setTimeout(doShow, delay);
   }
 }
 
@@ -448,6 +432,10 @@ function initializeQuickActionTooltips(): void {
   // Also attach to footer icon buttons for consistency
   const footerTargets = document.querySelectorAll('.footer-icon-btn');
   footerTargets.forEach((el) => attachTooltip(el as HTMLElement));
+
+  // Attach to Controls section nav buttons
+  const navButtons = document.querySelectorAll('.nav-button');
+  navButtons.forEach((el) => attachTooltip(el as HTMLElement));
 
   // Global dismissal handlers
   window.addEventListener('scroll', () => hideTooltip(true));
@@ -700,7 +688,6 @@ function setupEventListeners(): void {
   const fitBtn = document.getElementById('footer-fit');
   const resizeHandle = document.getElementById('footer-resize');
   const collapsibleHeaders = Array.from(document.querySelectorAll<HTMLElement>('.section-header.collapsible'));
-  const toggleModeBtn = document.getElementById('toggle-mode');
 
   if (backBtn) {
     backBtn.addEventListener('click', () => {
@@ -1026,25 +1013,7 @@ function setupEventListeners(): void {
     });
   }
 
-  // Toggle mode button
-  if (toggleModeBtn) {
-    toggleModeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const target = e.currentTarget as HTMLElement;
-      const onPageOption = target.querySelector('[data-mode="onPage"]');
-      const onLayerOption = target.querySelector('[data-mode="onLayer"]');
-
-      if (onPageOption && onLayerOption) {
-        if (onPageOption.classList.contains('active')) {
-          handleToggleClick('onLayer');
-        } else {
-          handleToggleClick('onPage');
-        }
-      }
-      // Update visibility after toggle
-      setTimeout(() => updatePageActionsVisibility(), 0);
-    });
-  }
+  // Note: Toggle mode button removed - mode controlled by selection state
 
   // Theme switching
   setupThemeSwitching();
