@@ -129,13 +129,15 @@ async function build() {
       const jsBundlePath = 'dist/ui.js';
       if (fs.existsSync(jsBundlePath)) {
         const jsContent = fs.readFileSync(jsBundlePath, 'utf8');
+        // Escape $ characters to prevent special replacement patterns ($&, $`, $', $1, etc.)
+        const escapedJsContent = jsContent.replace(/\$/g, '$$$$');
         // Inline JS: replace an external script tag or any inline script, or append before </body>
         if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
-          htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
+          htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${escapedJsContent}<\/script>`);
         } else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
-          htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${jsContent}<\/script>`);
+          htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${escapedJsContent}<\/script>`);
         } else {
-          htmlContent = htmlContent.replace('</body>', `<script>${jsContent}<\/script>\n</body>`);
+          htmlContent = htmlContent.replace('</body>', `<script>${escapedJsContent}<\/script>\n</body>`);
         }
       }
     }
@@ -201,12 +203,13 @@ if (process.argv.includes('--watch')) {
 				if (fs.existsSync(jsBundlePath)) {
 					const jsContent = readUtf8OrNull(jsBundlePath);
 					if (jsContent) {
+						const escapedJsContent = jsContent.replace(/\$/g, '$$$$');
 						if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
-							htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
+							htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${escapedJsContent}<\/script>`);
 						} else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
-							htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${jsContent}<\/script>`);
+							htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${escapedJsContent}<\/script>`);
 						} else {
-							htmlContent = htmlContent.replace('</body>', `<script>${jsContent}<\/script>\n</body>`);
+							htmlContent = htmlContent.replace('</body>', `<script>${escapedJsContent}<\/script>\n</body>`);
 						}
 					}
 				}
@@ -229,12 +232,13 @@ if (process.argv.includes('--watch')) {
 				if (fs.existsSync(jsBundlePath)) {
 					const jsContent = readUtf8OrNull(jsBundlePath);
 					if (jsContent) {
+						const escapedJsContent = jsContent.replace(/\$/g, '$$$$');
 						if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
-							htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
+							htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${escapedJsContent}<\/script>`);
 						} else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
-							htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${jsContent}<\/script>`);
+							htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${escapedJsContent}<\/script>`);
 						} else {
-							htmlContent = htmlContent.replace('</body>', `<script>${jsContent}<\/script>\n</body>`);
+							htmlContent = htmlContent.replace('</body>', `<script>${escapedJsContent}<\/script>\n</body>`);
 						}
 					}
 				}
@@ -261,12 +265,13 @@ if (process.argv.includes('--watch')) {
       if (fs.existsSync(jsBundlePath)) {
         const jsContent = readUtf8OrNull(jsBundlePath);
         if (!jsContent) return;
+        const escapedJsContent = jsContent.replace(/\$/g, '$$$$');
         if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
-          htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
+          htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${escapedJsContent}<\/script>`);
         } else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
-          htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${jsContent}<\/script>`);
+          htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${escapedJsContent}<\/script>`);
         } else {
-          htmlContent = htmlContent.replace('</body>', `<script>${jsContent}<\/script>\n</body>`);
+          htmlContent = htmlContent.replace('</body>', `<script>${escapedJsContent}<\/script>\n</body>`);
         }
       }
     }
@@ -289,12 +294,13 @@ if (process.argv.includes('--watch')) {
       if (fs.existsSync(jsBundlePath)) {
         const jsContent = readUtf8OrNull(jsBundlePath);
         if (!jsContent) return;
+        const escapedJsContent = jsContent.replace(/\$/g, '$$$$');
         if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
-          htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
+          htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${escapedJsContent}<\/script>`);
         } else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
-          htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${jsContent}<\/script>`);
+          htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${escapedJsContent}<\/script>`);
         } else {
-          htmlContent = htmlContent.replace('</body>', `<script>${jsContent}<\/script>\n</body>`);
+          htmlContent = htmlContent.replace('</body>', `<script>${escapedJsContent}<\/script>\n</body>`);
         }
       }
     }
@@ -315,12 +321,13 @@ if (process.argv.includes('--watch')) {
     );
     const jsContent = readUtf8OrNull('dist/ui.js');
     if (!jsContent) return;
+    const escapedJsContent = jsContent.replace(/\$/g, '$$$$');
     if (/<script\s+src=\"ui\.js\"\s*><\/script>/.test(htmlContent)) {
-      htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${jsContent}<\/script>`);
+      htmlContent = htmlContent.replace(/<script\s+src=\"ui\.js\"\s*><\/script>/, `<script>${escapedJsContent}<\/script>`);
     } else if (/<script>[\s\S]*<\/script>/.test(htmlContent)) {
-      htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${jsContent}<\/script>`);
+      htmlContent = htmlContent.replace(/<script>[\s\S]*<\/script>/, `<script>${escapedJsContent}<\/script>`);
     } else {
-      htmlContent = htmlContent.replace('</body>', `<script>${jsContent}<\/script>\n</body>`);
+      htmlContent = htmlContent.replace('</body>', `<script>${escapedJsContent}<\/script>\n</body>`);
     }
     htmlContent = inlineAssetDataUris(htmlContent);
     fs.writeFileSync('dist/ui.html', htmlContent);
