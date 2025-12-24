@@ -22,15 +22,6 @@
         </nav>
       </div>
       <div class="header-center">
-        <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
-          <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span><span class="label">Outdent</span>
-        </button>
-        <button id="new-page-btn" class="action-btn" aria-label="Create new page">
-          <span class="icon"><img src="./assets/ICO-addPage.svg" alt=""></span><span class="label">New Page</span>
-        </button>
-        <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
-          <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span><span class="label">Indent</span>
-        </button>
       </div>
       <div class="header-right">
         <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
@@ -42,17 +33,11 @@
     <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="0"
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
-        <button id="date-btn" class="action-btn header-action-btn" aria-label="Add date tag" onclick="event.stopPropagation();">
-          <span class="icon"><img src="./assets/ICO-addDate.svg" alt=""></span>
-        </button>
       </div>
       <div class="header-center">
         <h2 class="header-title">Tags</h2>
       </div>
       <div class="header-right">
-        <button id="clear-color" class="action-btn header-action-btn" aria-label="Remove color tags" onclick="event.stopPropagation();">
-          <span class="icon"><img src="./assets/ICO-removeTag.svg" alt=""></span>
-        </button>
       </div>
     </header>
 
@@ -63,11 +48,28 @@
             <span class="mode-affordance">PAGE</span>
             <span class="set-name">Colors</span>
           </span>
+          <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
           <nav class="emoji-nav-container">
             <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set"><img src="./assets/ICO-menuPrev.svg" class="nav-arrow" alt=""></button>
             <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set"><img src="./assets/ICO-menuNext.svg" class="nav-arrow" alt=""></button>
           </nav>
-          <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
+        </div>
+        <div class="color-grid" role="group" aria-label="Page actions">
+          <button id="new-page-btn" class="action-btn" aria-label="Create new page">
+            <span class="icon"><img src="./assets/ICO-addPage.svg" alt=""></span><span class="label">New Page</span>
+          </button>
+          <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
+            <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span><span class="label">Indent</span>
+          </button>
+          <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
+            <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span><span class="label">Outdent</span>
+          </button>
+          <button id="date-btn" class="action-btn" aria-label="Add date tag">
+            <span class="icon"><img src="./assets/ICO-addDate.svg" alt=""></span><span class="label">Date</span>
+          </button>
+          <button id="clear-color" class="action-btn" aria-label="Remove color tags">
+            <span class="icon"><img src="./assets/ICO-removeTag.svg" alt=""></span><span class="label">Remove Tag</span>
+          </button>
         </div>
       </div>
     </section>
@@ -91,8 +93,37 @@
 
     <section id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
       <div class="anchors-container">
-        <ul id="bookmark-list" role="list" aria-label="Bookmarks"></ul>
-        <div id="anchors-null-state" class="null-state" role="status" aria-hidden="true">
+        <ul id="bookmark-list" role="list" aria-label="Bookmarks">
+          <li class="bookmark-item" draggable="true" data-id="mock-1">
+            <div class="bookmark-content">
+              <div class="bookmark-name">⭐ 8bit Assets</div>
+              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
+            </div>
+            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
+          </li>
+          <li class="bookmark-item" draggable="true" data-id="mock-2">
+            <div class="bookmark-content">
+              <div class="bookmark-name">✅ icon</div>
+              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
+            </div>
+            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
+          </li>
+          <li class="bookmark-item" draggable="true" data-id="mock-3">
+            <div class="bookmark-content">
+              <div class="bookmark-name">🎨 icons</div>
+              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
+            </div>
+            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
+          </li>
+          <li class="bookmark-item" draggable="true" data-id="mock-4">
+            <div class="bookmark-content">
+              <div class="bookmark-name">🎯 relay</div>
+              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
+            </div>
+            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
+          </li>
+        </ul>
+        <div id="anchors-null-state" class="null-state" role="status" aria-hidden="true" style="display: none;">
           <div class="null-state-icon">⚓️</div>
           <div class="null-state-description">Pick your target and drop an anchor to save your spot</div>
         </div>
@@ -102,9 +133,6 @@
     <header id="controls-header" class="section-header collapsible" data-target="controls-section" role="button"
       tabindex="0" aria-expanded="true" aria-controls="controls-section">
       <div class="header-left">
-        <button id="nav-goto-component" class="action-btn header-action-btn" aria-label="Go to main component" data-tooltip="Go to Main Component" data-tooltip-delay="600" disabled onclick="event.stopPropagation();">
-          <span class="icon"><img src="./assets/ICO-component.svg" alt=""></span>
-        </button>
       </div>
       <div class="header-center">
         <h2 class="header-title">Controls</h2>
@@ -300,6 +328,8 @@
               <span class="nav-label"><span id="height-mode">—</span></span>
               <span id="cycle-height-desc" class="sr-only">Cycle vertical sizing mode between Hug, Fill, and Fixed</span>
             </button>
+            <div id="width-caption" class="nav-caption" aria-hidden="true">Width</div>
+            <div id="height-caption" class="nav-caption" aria-hidden="true">Height</div>
           </div>
         </div>
       </div>

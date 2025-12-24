@@ -196,7 +196,7 @@ body.touch-active .kofi-button:hover {
   /* Responsive Grid Breakpoints */
   --breakpoint-narrow: 200px;
   --breakpoint-wide: 280px;
-  
+
   /* Navigation Grid Responsive */
   --nav-grid-narrow: repeat(3, 1fr);
   --nav-grid-wide: repeat(3, 1fr);
@@ -837,30 +837,31 @@ body.touch-active .kofi-button:hover {
 
 /* Additional Windows High Contrast Mode Support */
 @media (forced-colors: active) {
+
   /* Ensure navigation section is properly outlined */
   #controls-section {
     border: 2px solid WindowText;
     background: Window;
   }
-  
+
   /* Controls header in high contrast */
   #controls-header {
     background: ButtonFace;
     color: ButtonText;
     border-color: ButtonBorder;
   }
-  
+
   #controls-header:hover {
     background: Highlight;
     color: HighlightText;
   }
-  
+
   /* Controls container */
   .controls-container {
     background: Window;
     border: 1px solid WindowText;
   }
-  
+
   /* Enhanced button states for Windows High Contrast */
   .nav-button:focus-visible {
     outline: 3px solid Highlight;
@@ -868,7 +869,7 @@ body.touch-active .kofi-button:hover {
     background: ButtonFace;
     color: ButtonText;
   }
-  
+
   .nav-button:hover:focus-visible {
     background: Highlight;
     color: HighlightText;
@@ -877,6 +878,7 @@ body.touch-active .kofi-button:hover {
 
 /* Enhanced contrast validation for WCAG AAA compliance */
 @media (prefers-contrast: high) {
+
   /* Ensure all control elements meet 7:1 contrast ratio */
   .nav-button {
     /* Enhanced contrast colors */
@@ -884,14 +886,14 @@ body.touch-active .kofi-button:hover {
     background: var(--theme-bg-primary);
     border-color: var(--theme-border-contrast);
   }
-  
+
   .nav-button:hover:not(:disabled) {
     /* Maintain high contrast in hover state */
     color: var(--theme-text-primary);
     background: var(--theme-interactive-hover);
     border-color: var(--theme-border-contrast);
   }
-  
+
   .nav-button:disabled {
     /* Ensure disabled state meets 3:1 contrast minimum */
     color: var(--theme-text-disabled);
@@ -899,7 +901,7 @@ body.touch-active .kofi-button:hover {
     border-color: var(--theme-border-secondary);
     opacity: 1;
   }
-  
+
   /* Enhanced focus indicators for AAA compliance */
   .nav-button:focus,
   .nav-button:focus-visible {
@@ -911,6 +913,7 @@ body.touch-active .kofi-button:hover {
 
 /* Comprehensive reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+
   /* Override all potential motion in controls */
   .nav-button,
   .nav-button *,
@@ -922,20 +925,20 @@ body.touch-active .kofi-button:hover {
     animation: none !important;
     transform: none !important;
   }
-  
+
   /* Provide alternative feedback without motion */
   .nav-button:hover:not(:disabled) {
     /* Use border and background changes instead of transforms */
     border-width: 2px;
     background: var(--theme-interactive-hover);
   }
-  
+
   .nav-button:active:not(:disabled) {
     /* Immediate visual feedback */
     background: var(--theme-interactive-active);
     border-width: 3px;
   }
-  
+
   .nav-button:focus,
   .nav-button:focus-visible {
     /* Enhanced focus without motion */
@@ -2187,7 +2190,8 @@ h3 {
 /* Emoji Buttons */
 .emoji-button {
   /* Inherit from .btn-base */
-  border: 1px solid transparent; /* Prevents layout shift on hover when border becomes visible */
+  border: 1px solid transparent;
+  /* Prevents layout shift on hover when border becomes visible */
   cursor: pointer;
   transition: all var(--transition-normal);
   font-family: var(--font-family);
@@ -2373,7 +2377,7 @@ h3 {
   gap: var(--spacing-sm);
 }
 
-#quick-actions .header-center > * {
+#quick-actions .header-center>* {
   pointer-events: auto;
 }
 
@@ -2390,6 +2394,7 @@ h3 {
   align-items: center;
   gap: 0;
 }
+
 #quick-actions .action-btn {
   width: calc(var(--spacing-lg) * 3);
   min-width: calc(var(--spacing-lg) * 3);
@@ -2439,13 +2444,14 @@ h3 {
   user-select: none;
   transition: all var(--transition-normal);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   background: transparent;
   border: none;
   border-top: var(--border-width) solid var(--color-border-primary);
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
+  width: 100%;
   padding: var(--spacing-lg) 6px var(--spacing-lg) 6px;
   gap: var(--spacing-lg);
   align-self: stretch;
@@ -2463,7 +2469,7 @@ h3 {
   color: var(--figma-color-border-brand);
 }
 
-/* Header layout patterns - center-aligned design */
+/* Header layout patterns - left-aligned design */
 .header-left,
 .header-right,
 .header-center {
@@ -2477,14 +2483,13 @@ h3 {
 }
 
 .header-center {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   gap: 0;
   pointer-events: none;
+  width: fit-content;
+  height: fit-content;
 }
 
-.header-center > * {
+.header-center>* {
   pointer-events: auto;
 }
 
@@ -2662,6 +2667,11 @@ h3 {
   font-weight: var(--font-weight-medium);
 }
 
+#controls-header {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
 #tags-header .header-subtitle {
   color: var(--color-text-muted);
   font-weight: var(--font-weight-light);
@@ -2699,7 +2709,8 @@ h3 {
 /* Header Title Styling */
 .header-title {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: flex-start;
   gap: var(--spacing-xs);
   margin: 0;
   font-size: inherit;
@@ -2788,18 +2799,32 @@ h3 {
   margin-top: var(--spacing-lg);
 }
 
+#controls-section .tag-grid-container {
+  padding: 12px var(--spacing-lg) var(--spacing-lg);
+}
+
 .color-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  /* Default fallback */
-  grid-gap: var(--spacing-xs);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-lg);
   width: 100%;
+  height: fit-content;
   min-width: 0;
-  transition: grid-template-columns var(--transition-normal), grid-gap var(--transition-normal);
+  transition: var(--transition-normal);
+  background: transparent;
 }
 
 #color-emoji-buttons {
   opacity: 0.8;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  height: fit-content;
+  width: 100%;
+  row-gap: 0px;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 
 /* Clear Action & Save Bookmark Buttons (merged) */
@@ -2857,17 +2882,16 @@ h3 {
   /* No transform for Drop button */
 }
 
-/* Override clear-color, save-bookmark, nav-delete, and nav-goto-component styles when used as header action buttons */
+/* Override clear-color, save-bookmark, and nav-delete styles when used as header action buttons */
 #tags-header #clear-color,
 #anchors-header #refresh-anchors,
 #anchors-header #save-bookmark,
-#controls-header #nav-delete,
-#controls-header #nav-goto-component {
+#controls-header #nav-delete {
   /* Reset to header action button dimensions */
   width: calc(var(--spacing-lg) * 3);
   height: calc(var(--spacing-lg) * 3);
   padding: 0;
-  
+
   /* Reset to header action button styling */
   background: transparent;
   border: none;
@@ -2889,8 +2913,7 @@ h3 {
 #tags-header #clear-color .icon,
 #anchors-header #refresh-anchors .icon,
 #anchors-header #save-bookmark .icon,
-#controls-header #nav-delete .icon,
-#controls-header #nav-goto-component .icon {
+#controls-header #nav-delete .icon {
   font-size: var(--icon-size-md);
   color: var(--color-text-subtle);
   display: flex;
@@ -2900,8 +2923,7 @@ h3 {
 
 #tags-header #clear-color .icon img,
 #anchors-header #save-bookmark .icon img,
-#controls-header #nav-delete .icon img,
-#controls-header #nav-goto-component .icon img {
+#controls-header #nav-delete .icon img {
   width: 16px;
   height: 16px;
   display: block;
@@ -2923,8 +2945,7 @@ h3 {
 #tags-header #clear-color:hover,
 #anchors-header #refresh-anchors:hover,
 #anchors-header #save-bookmark:hover,
-#controls-header #nav-delete:hover:not(:disabled),
-#controls-header #nav-goto-component:hover:not(:disabled) {
+#controls-header #nav-delete:hover:not(:disabled) {
   background: var(--color-background-secondary);
   color: var(--figma-color-border-brand);
   transform: scale(1.1);
@@ -2934,8 +2955,7 @@ h3 {
 #tags-header #clear-color:hover .icon,
 #anchors-header #refresh-anchors:hover .icon,
 #anchors-header #save-bookmark:hover .icon,
-#controls-header #nav-delete:hover:not(:disabled) .icon,
-#controls-header #nav-goto-component:hover:not(:disabled) .icon {
+#controls-header #nav-delete:hover:not(:disabled) .icon {
   color: var(--figma-color-border-brand);
 }
 
@@ -2946,9 +2966,7 @@ h3 {
 #anchors-header #save-bookmark:hover .icon img,
 #anchors-header #save-bookmark:active .icon img,
 #controls-header #nav-delete:hover:not(:disabled) .icon img,
-#controls-header #nav-delete:active:not(:disabled) .icon img,
-#controls-header #nav-goto-component:hover:not(:disabled) .icon img,
-#controls-header #nav-goto-component:active:not(:disabled) .icon img {
+#controls-header #nav-delete:active:not(:disabled) .icon img {
   /* Hover/active: brand blue tint to match text color */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
@@ -2957,8 +2975,7 @@ h3 {
 #tags-header #clear-color:active,
 #anchors-header #refresh-anchors:active,
 #anchors-header #save-bookmark:active,
-#controls-header #nav-delete:active:not(:disabled),
-#controls-header #nav-goto-component:active:not(:disabled) {
+#controls-header #nav-delete:active:not(:disabled) {
   background: var(--color-background-secondary);
   color: var(--figma-color-border-brand);
   transform: scale(0.95);
@@ -2968,21 +2985,18 @@ h3 {
 #tags-header #clear-color:active .icon,
 #anchors-header #refresh-anchors:active .icon,
 #anchors-header #save-bookmark:active .icon,
-#controls-header #nav-delete:active:not(:disabled) .icon,
-#controls-header #nav-goto-component:active:not(:disabled) .icon {
+#controls-header #nav-delete:active:not(:disabled) .icon {
   color: var(--figma-color-border-brand);
 }
 
-/* Disabled state for nav-delete and nav-goto-component in header */
-#controls-header #nav-delete:disabled,
-#controls-header #nav-goto-component:disabled {
+/* Disabled state for nav-delete in header */
+#controls-header #nav-delete:disabled {
   opacity: 0.4;
   cursor: not-allowed;
   background: transparent;
 }
 
-#controls-header #nav-delete:disabled .icon img,
-#controls-header #nav-goto-component:disabled .icon img {
+#controls-header #nav-delete:disabled .icon img {
   opacity: 0.4;
 }
 
@@ -3013,9 +3027,9 @@ h3 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 4px;
   background: var(--color-background-elevated);
-  padding: 0 var(--spacing-xxl) calc(var(--double-spacing-lg) + var(--spacing-xxl) - 8px) var(--spacing-xxl);
+  padding: 0 var(--spacing-xxl) var(--spacing-xxl) var(--spacing-xxl);
   border-radius: var(--border-radius-md);
 }
 
@@ -3050,9 +3064,28 @@ h3 {
 /* Actions Grid - separate section for component and delete buttons */
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-sm);
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  column-gap: var(--spacing-sm);
+  row-gap: var(--spacing-xs);
+  height: 48px;
   width: 100%;
+}
+
+/* Show labels for sizing mode buttons so users can see the current mode text (Hug/Fill/Fixed) */
+.actions-grid .nav-label {
+  display: block;
+}
+
+.actions-grid .nav-caption {
+  text-align: center;
+  margin-top: var(--spacing-xs);
+  font-size: 8px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--theme-text-secondary);
+  line-height: 1.1;
+  letter-spacing: var(--letter-spacing-tight);
+  height: fit-content;
 }
 
 /* Actions Grid Icons - 16x16 equivalent token */
@@ -3129,7 +3162,7 @@ h3 {
   --nav-text-contrast: var(--theme-text-primary);
   --nav-bg-contrast: var(--theme-bg-primary);
   --nav-border-contrast: var(--theme-border-primary);
-  
+
   /* Ensure text meets WCAG AA contrast requirements */
   color: var(--nav-text-contrast);
   background: var(--nav-bg-contrast);
@@ -3140,21 +3173,24 @@ h3 {
 /* Color contrast validation for different themes */
 [data-theme="boilerplate"] .nav-button {
   /* Dark theme: ensure white text on dark background meets 4.5:1 ratio */
-  --nav-text-contrast: #ffffff; /* Contrast ratio: 21:1 with #0f0f0f */
+  --nav-text-contrast: #ffffff;
+  /* Contrast ratio: 21:1 with #0f0f0f */
   --nav-bg-contrast: #0f0f0f;
   --nav-border-contrast: #2a2a2a;
 }
 
 [data-theme="cybertron"] .nav-button {
   /* Cybertron theme: ensure cyan text meets contrast requirements */
-  --nav-text-contrast: #00ffff; /* Contrast ratio: 8.2:1 with #0a0a0f */
+  --nav-text-contrast: #00ffff;
+  /* Contrast ratio: 8.2:1 with #0a0a0f */
   --nav-bg-contrast: #0a0a0f;
   --nav-border-contrast: #00ccff;
 }
 
 [data-theme="figma-light"] .nav-button {
   /* Light theme: ensure dark text on light background meets 4.5:1 ratio */
-  --nav-text-contrast: #1e1e1e; /* Contrast ratio: 16.1:1 with #ffffff */
+  --nav-text-contrast: #1e1e1e;
+  /* Contrast ratio: 16.1:1 with #ffffff */
   --nav-bg-contrast: #ffffff;
   --nav-border-contrast: #e6e7e9;
 }
@@ -3204,7 +3240,8 @@ h3 {
 
 /* Control Button Labels */
 .nav-label {
-  display: none; /* Hide labels, show only icons */
+  display: none;
+  /* Hide labels, show only icons */
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
   letter-spacing: 0.05em;
@@ -3623,7 +3660,7 @@ h3 {
 
 /* Controls section theme transitions */
 .nav-button {
-  transition: 
+  transition:
     background-color var(--theme-transition-duration) var(--theme-transition-easing),
     border-color var(--theme-transition-duration) var(--theme-transition-easing),
     color var(--theme-transition-duration) var(--theme-transition-easing),
@@ -3666,7 +3703,7 @@ h3 {
   align-items: center;
   gap: calc(var(--spacing-lg) * 2 - var(--spacing-sm));
   background: var(--color-background-elevated);
-  padding: 0 var(--spacing-xxl) calc(var(--double-spacing-lg) + var(--spacing-xxl) - 8px) var(--spacing-xxl);
+  padding: 0 var(--spacing-xxl) var(--spacing-xxl) var(--spacing-xxl);
   border-radius: var(--border-radius-md);
 }
 
@@ -4178,9 +4215,13 @@ i.grip {
 
 /* Simplified responsive grid - two breakpoints only */
 .color-grid {
-  grid-template-columns: repeat(4, 1fr);
-  grid-gap: var(--spacing-xs);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-lg);
   width: 100%;
+  height: fit-content;
+  background: transparent;
 }
 
 .color-grid-container {
@@ -4190,8 +4231,7 @@ i.grip {
 /* Larger screens - more spacing and bigger elements */
 @media (min-width: 280px) {
   .color-grid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: var(--spacing-md);
+    gap: 12px;
     width: 100%;
   }
 
@@ -4905,8 +4945,7 @@ i.grip {
 [data-theme="figma-dark"] #tags-header #clear-color .icon img,
 [data-theme="figma-dark"] #anchors-header #refresh-anchors .icon img,
 [data-theme="figma-dark"] #anchors-header #save-bookmark .icon img,
-[data-theme="figma-dark"] #controls-header #nav-delete .icon img,
-[data-theme="figma-dark"] #controls-header #nav-goto-component .icon img {
+[data-theme="figma-dark"] #controls-header #nav-delete .icon img {
   /* Use a lighter monochrome tint on dark backgrounds */
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 0.60;
@@ -4924,8 +4963,7 @@ i.grip {
 [data-theme="boilerplate"] #tags-header #clear-color .icon img,
 [data-theme="boilerplate"] #anchors-header #refresh-anchors .icon img,
 [data-theme="boilerplate"] #anchors-header #save-bookmark .icon img,
-[data-theme="boilerplate"] #controls-header #nav-delete .icon img,
-[data-theme="boilerplate"] #controls-header #nav-goto-component .icon img {
+[data-theme="boilerplate"] #controls-header #nav-delete .icon img {
   /* Use a lighter monochrome tint on dark backgrounds */
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 0.60;
@@ -4945,9 +4983,7 @@ i.grip {
 [data-theme="boilerplate"] #anchors-header #save-bookmark:hover .icon img,
 [data-theme="boilerplate"] #anchors-header #save-bookmark:active .icon img,
 [data-theme="boilerplate"] #controls-header #nav-delete:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #controls-header #nav-delete:active:not(:disabled) .icon img,
-[data-theme="boilerplate"] #controls-header #nav-goto-component:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #controls-header #nav-goto-component:active:not(:disabled) .icon img {
+[data-theme="boilerplate"] #controls-header #nav-delete:active:not(:disabled) .icon img {
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 1;
 }
@@ -4959,8 +4995,7 @@ i.grip {
 [data-theme="cybertron"] #tags-header #clear-color .icon img,
 [data-theme="cybertron"] #anchors-header #refresh-anchors .icon img,
 [data-theme="cybertron"] #anchors-header #save-bookmark .icon img,
-[data-theme="cybertron"] #controls-header #nav-delete .icon img,
-[data-theme="cybertron"] #controls-header #nav-goto-component .icon img {
+[data-theme="cybertron"] #controls-header #nav-delete .icon img {
   /* Cyan tint to match cybertron theme - invert to white then apply cyan filter */
   filter: brightness(0) invert(1) sepia(100%) saturate(200%) hue-rotate(160deg) brightness(1.2);
   opacity: 0.80;
@@ -5506,12 +5541,13 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   user-select: none;
   transition: all var(--transition-normal);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   background: transparent;
   border: none;
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
+  width: 100%;
   padding: var(--spacing-xxl) 6px var(--spacing-xxl) 6px;
   gap: var(--spacing-lg);
   align-self: stretch;
@@ -5591,7 +5627,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 /* Header Title Styling */
 .header-title {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: flex-start;
   gap: var(--spacing-xs);
   margin: 0;
   font-size: inherit;
@@ -5892,30 +5929,32 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   outline: 2px solid var(--theme-info);
   outline-offset: 2px;
 }
+
 /*
  ===== RESPONSIVE CONTROLS SECTION ===== */
 
 /* Narrow viewport adjustments for controls */
 @media (max-width: 240px) {
+
   .controls-grid,
   .arrow-keys-grid {
     grid-template-columns: var(--nav-grid-narrow);
     grid-gap: var(--spacing-sm);
   }
-  
+
   .nav-button {
     padding: var(--spacing-md) var(--spacing-md);
   }
-  
+
   .nav-icon {
     font-size: var(--icon-size-md);
   }
-  
+
   .nav-icon img {
     width: var(--icon-size-md);
     height: var(--icon-size-md);
   }
-  
+
   .nav-label {
     font-size: var(--font-size-xs);
   }
@@ -5923,6 +5962,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 /* Wide viewport enhancements for controls */
 @media (min-width: 280px) {
+
   .controls-grid,
   .arrow-keys-grid {
     grid-template-columns: var(--nav-grid-wide);
@@ -5937,69 +5977,70 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     color: ButtonText;
     forced-color-adjust: none;
   }
-  
+
   .nav-button:hover:not(:disabled) {
     border-color: Highlight;
     background: ButtonFace;
     color: ButtonText;
   }
-  
+
   .nav-button:focus,
   .nav-button:focus-visible {
     outline: 3px solid Highlight;
     outline-offset: 2px;
     border-color: Highlight;
   }
-  
+
   .nav-button:active:not(:disabled) {
     background: Highlight;
     color: HighlightText;
     border-color: Highlight;
   }
-  
+
   .nav-button:disabled {
     border-color: GrayText;
     background: ButtonFace;
     color: GrayText;
-    opacity: 1; /* Override opacity in high contrast */
+    opacity: 1;
+    /* Override opacity in high contrast */
   }
-  
+
   .nav-icon,
   .nav-label {
     color: inherit;
   }
-  
+
   /* Ensure controls grid has proper contrast */
   .controls-grid,
   .arrow-keys-grid {
     border: 1px solid ButtonBorder;
     background: Canvas;
   }
-  
+
   /* Screen reader content should remain hidden in high contrast */
   .sr-only {
     forced-color-adjust: none;
   }
-  
+
   /* Enhanced controls grid contrast in forced colors mode */
   .controls-container {
     background: Canvas;
     border: 2px solid WindowText;
   }
-  
+
   /* Ensure controls section header is visible */
   #controls-header {
     border-color: WindowText;
     background: Canvas;
     color: WindowText;
   }
-  
+
   /* Control icons need to be clearly visible */
   .nav-icon {
     color: ButtonText;
     font-weight: bold;
   }
-  
+
   .nav-label {
     color: ButtonText;
     font-weight: bold;
@@ -6016,7 +6057,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     --nav-contrast-text: var(--theme-text-primary);
     --nav-contrast-border: var(--theme-border-contrast);
   }
-  
+
   .nav-button:focus,
   .nav-button:focus-visible {
     outline-width: 3px;
@@ -6025,33 +6066,33 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     outline-color: var(--theme-info);
     box-shadow: 0 0 0 1px var(--theme-info);
   }
-  
+
   .nav-button:hover:not(:disabled) {
     /* Stronger hover indication for high contrast */
     border-width: 3px;
     font-weight: var(--font-weight-bold);
   }
-  
+
   .nav-button:disabled {
     /* Ensure disabled state is clearly distinguishable */
     opacity: 1;
     border-style: dashed;
     border-width: 2px;
   }
-  
+
   .nav-icon {
     font-weight: bold;
     font-size: calc(var(--icon-size-md) + 2px);
     /* Ensure icons have sufficient contrast */
     text-shadow: 0 0 1px currentColor;
   }
-  
+
   .nav-label {
     font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
-  
+
   /* Enhanced grid visibility in high contrast */
   .controls-grid,
   .arrow-keys-grid {
@@ -6070,21 +6111,21 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     --transition-duration-fast: 0.01ms;
     --transition-duration-medium: 0.01ms;
   }
-  
+
   .nav-button:hover:not(:disabled) {
     transform: none !important;
     /* Use color/border changes instead of transform for hover feedback */
     background: var(--theme-interactive-hover);
     border-color: var(--theme-border-accent);
   }
-  
+
   .nav-button:active:not(:disabled) {
     transform: none !important;
     /* Provide immediate visual feedback without motion */
     background: var(--theme-interactive-active);
     border-width: 2px;
   }
-  
+
   /* Ensure focus changes are still visible without motion */
   .nav-button:focus,
   .nav-button:focus-visible {
@@ -6094,28 +6135,28 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     /* Add immediate background change for focus */
     background: var(--theme-bg-hover);
   }
-  
+
   /* Remove any potential animations from theme transitions */
   .theme-transitioning .nav-button,
   .theme-previewing .nav-button {
     transition: none !important;
     animation: none !important;
   }
-  
+
   /* Disable any hover animations or transforms */
   .nav-button * {
     transition: none !important;
     animation: none !important;
     transform: none !important;
   }
-  
+
   /* Ensure controls grid doesn't have motion effects */
   .controls-grid,
   .arrow-keys-grid {
     transition: none !important;
     animation: none !important;
   }
-  
+
   /* Override theme-specific motion effects */
   [data-theme="cybertron"] .nav-button:hover:not(:disabled) {
     box-shadow: none !important;
@@ -6177,13 +6218,17 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 /* Actions Grid Layout - component and delete buttons */
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-sm);
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  column-gap: var(--spacing-sm);
+  row-gap: var(--spacing-xs);
+  height: 48px;
   width: 100%;
 }
 
 .nav-row {
-  display: contents; /* Allow grid items to participate in parent grid */
+  display: contents;
+  /* Allow grid items to participate in parent grid */
 }
 
 /* Control Buttons */
@@ -6210,7 +6255,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
   position: relative;
-  min-width: 0; /* Allow text to truncate */
+  min-width: 0;
+  /* Allow text to truncate */
 }
 
 .nav-button:hover:not(:disabled) {
@@ -6253,7 +6299,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .nav-label {
-  display: none; /* Hide labels, show only icons */
+  display: none;
+  /* Hide labels, show only icons */
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
   line-height: 1;
@@ -6286,24 +6333,25 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 240px) {
+
   .controls-grid,
   .arrow-keys-grid {
     gap: var(--spacing-xs);
   }
-  
+
   .nav-button {
     padding: var(--spacing-md) var(--spacing-md);
   }
-  
+
   .nav-icon {
     font-size: var(--icon-size-sm);
   }
-  
+
   .nav-icon img {
     width: var(--icon-size-sm);
     height: var(--icon-size-sm);
   }
-  
+
   .nav-label {
     font-size: calc(var(--font-size-xs) - 1px);
   }
@@ -6314,7 +6362,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   .nav-button {
     border-width: 2px;
   }
-  
+
   .nav-button:focus-visible {
     outline-width: 3px;
   }
@@ -6325,11 +6373,11 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   .nav-button {
     transition: none;
   }
-  
+
   .nav-button:hover:not(:disabled) {
     transform: none;
   }
-  
+
   .nav-button:active:not(:disabled) {
     transform: none;
   }

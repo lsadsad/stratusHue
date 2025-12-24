@@ -618,6 +618,31 @@ function initializePlugin(): void {
   // Request and restore UI section states
   requestUISectionStates();
 
+  // Check if running in browser (no Figma API) and populate mock data
+  if (typeof (window as any).figma === 'undefined') {
+    console.log('🎭 Running in browser mode - loading mock emoji data');
+    setTimeout(() => {
+      // Import constants
+      const PAGE_EMOJI_SETS = [
+        { name: 'Colors', emojis: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'] },
+        { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
+        { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🪦', '⭐', '📱'] }
+      ];
+      
+      // Load first emoji set
+      updateEmojiButtons(PAGE_EMOJI_SETS[0].emojis);
+      
+      // Update UI indicators
+      const emojiIndicator = document.getElementById('emoji-set-indicator');
+      if (emojiIndicator) {
+        const setName = emojiIndicator.querySelector('.set-name');
+        if (setName) setName.textContent = PAGE_EMOJI_SETS[0].name;
+      }
+      
+      console.log('✅ Mock emoji data loaded for browser preview');
+    }, 100);
+  }
+
   console.log('✅ Plugin initialization complete - waiting for emoji data from plugin');
 }
 
@@ -1322,6 +1347,8 @@ function updateLayoutSizingButtons(horizontal: string | undefined, vertical: str
   const heightIcon = document.getElementById('height-icon') as HTMLImageElement;
   const cycleWidthBtn = document.getElementById('cycle-width') as HTMLButtonElement;
   const cycleHeightBtn = document.getElementById('cycle-height') as HTMLButtonElement;
+  const widthCaption = document.getElementById('width-caption');
+  const heightCaption = document.getElementById('height-caption');
 
   // Base64 data URIs for icons (matching the inlined assets in HTML)
   const ICON_FIXED = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEgNlYxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNSA2VjEwIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEgOEgxNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
@@ -1361,6 +1388,24 @@ function updateLayoutSizingButtons(horizontal: string | undefined, vertical: str
   }
   if (cycleHeightBtn) {
     cycleHeightBtn.disabled = !hasValidState;
+  }
+
+  // Update caption labels: show "Width"/"Height" when disabled, show mode when enabled
+  if (widthCaption) {
+    if (!hasValidState) {
+      widthCaption.textContent = 'Width';
+    } else {
+      const widthMode = horizontal && horizontal !== '—' ? horizontal : 'Fixed';
+      widthCaption.textContent = widthMode.charAt(0).toUpperCase() + widthMode.slice(1).toLowerCase();
+    }
+  }
+  if (heightCaption) {
+    if (!hasValidState) {
+      heightCaption.textContent = 'Height';
+    } else {
+      const heightMode = vertical && vertical !== '—' ? vertical : 'Fixed';
+      heightCaption.textContent = heightMode.charAt(0).toUpperCase() + heightMode.slice(1).toLowerCase();
+    }
   }
 
   // When buttons are disabled, always reset icons to fixed (default state)
@@ -2861,7 +2906,7 @@ function updateControlButtons(context: NavigationContext): void {
   const prevBtn = document.getElementById('nav-prev') as HTMLButtonElement;
   const nextBtn = document.getElementById('nav-next') as HTMLButtonElement;
   const collapseBtn = document.getElementById('nav-collapse') as HTMLButtonElement;
-  const gotoComponentBtn = document.getElementById('nav-goto-component') as HTMLButtonElement;
+  // const gotoComponentBtn = document.getElementById('nav-goto-component') as HTMLButtonElement; // Button removed from UI
 
   if (enterBtn) {
     const canEnter = context.canEnter;
@@ -3026,6 +3071,7 @@ function updateControlButtons(context: NavigationContext): void {
     }
   }
 
+  /* Button removed from UI
   if (gotoComponentBtn) {
     // Check if current selection contains component instances
     // This will be determined by the plugin and sent via context
@@ -3044,6 +3090,7 @@ function updateControlButtons(context: NavigationContext): void {
         'Select a component instance to navigate to its main component';
     }
   }
+  */
 
   // Update delete button - enable when elements are selected
   const deleteBtn = document.getElementById('nav-delete') as HTMLButtonElement;
@@ -3195,7 +3242,7 @@ function setupControls(): void {
   const prevBtn = document.getElementById('nav-prev');
   const nextBtn = document.getElementById('nav-next');
   const collapseBtn = document.getElementById('nav-collapse');
-  const gotoComponentBtn = document.getElementById('nav-goto-component');
+  // const gotoComponentBtn = document.getElementById('nav-goto-component'); // Button removed from UI
   const deleteBtn = document.getElementById('nav-delete');
   const controlsGrid = document.querySelector('.controls-grid');
 
@@ -3252,6 +3299,7 @@ function setupControls(): void {
     });
   }
 
+  /* Button removed from UI
   if (gotoComponentBtn) {
     gotoComponentBtn.addEventListener('click', () => {
       console.log('Navigation: Go to main component');
@@ -3259,6 +3307,7 @@ function setupControls(): void {
       sendMessage('navigation-action', { action: 'goto-main-component' });
     });
   }
+  */
 
   if (deleteBtn) {
     deleteBtn.addEventListener('click', () => {
@@ -3617,12 +3666,14 @@ function announceButtonState(button: HTMLButtonElement): void {
         'Current page contains no Groups, Sections, or Frames' :
         'Will collapse selected containers, or sibling containers if none selected') : '';
       break;
+    /* Button removed from UI
     case 'nav-goto-component':
       contextInfo = isDisabled ? 'No component instance selected' : 'Component instance selected';
       detailedInfo = enhanced ? (isDisabled ?
         'Select a component instance to navigate to its main component' :
         'Will navigate to the main component definition') : '';
       break;
+    */
   }
 
   // Create a comprehensive announcement
