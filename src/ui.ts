@@ -52,6 +52,9 @@ let currentToggleMode: 'onPage' | 'onLayer' = 'onPage';
 let isAutoFitEnabled = true; // Default to enabled
 let lastAutoFitHeight = 0;
 
+// Width toggle state management
+let isWidthCompact = false; // Track if width is in compact mode
+
 // Helper function to send messages to plugin sandbox
 function sendMessage(type: string, data: Record<string, any> = {}): void {
   parent.postMessage({ pluginMessage: { type, ...data } }, '*');
@@ -73,6 +76,8 @@ function handlePluginMessage(event: MessageEvent): void {
       }
       // Update mode state based on selection
       updateToggleState(message.hasLayerSelected);
+      // Update anatomy section with current page/layer info
+      updateAnatomySection(message.hasLayerSelected, message.pageName, message.selectedLayerName);
       break;
     case 'bookmarks':
       updateBookmarksList(
@@ -141,6 +146,18 @@ function updateToggleUI(): void {
   const pageActionsGroup = document.getElementById('page-actions-group');
   if (pageActionsGroup) {
     pageActionsGroup.style.display = currentToggleMode === 'onPage' ? 'inline-flex' : 'none';
+  }
+
+  // Show indent/outdent buttons only in onPage mode
+  const buttonsRight = document.querySelector('.buttons-right') as HTMLElement;
+  if (buttonsRight) {
+    buttonsRight.style.display = currentToggleMode === 'onPage' ? 'flex' : 'none';
+  }
+
+  // Show anatomy-prefix only in onPage mode
+  const anatomyPrefix = document.querySelector('.anatomy-prefix') as HTMLElement;
+  if (anatomyPrefix) {
+    anatomyPrefix.style.display = currentToggleMode === 'onPage' ? 'inline-flex' : 'none';
   }
 
   // Swap hierarchy control icons based on mode
@@ -450,6 +467,8 @@ function updateEmojiButtons(emojis: string[]): void {
   const container = document.getElementById('color-emoji-buttons');
   if (!container) return;
 
+  const anatomyEmoji = document.querySelector('.anatomy-emoji');
+
   container.innerHTML = '';
   emojis.forEach(emoji => {
     const button = document.createElement('button');
@@ -461,11 +480,185 @@ function updateEmojiButtons(emojis: string[]): void {
       sendMessage('add-emoji', { emoji });
     });
 
+    // Update anatomy-emoji on hover to show preview
+    button.addEventListener('mouseenter', () => {
+      if (anatomyEmoji) {
+        anatomyEmoji.textContent = emoji;
+        anatomyEmoji.style.display = 'inline-flex';
+        anatomyEmoji.style.opacity = '1';
+        anatomyEmoji.classList.add('preview-mode');
+      }
+    });
+
+    // Reset anatomy-emoji when hover ends
+    button.addEventListener('mouseleave', () => {
+      if (anatomyEmoji) {
+        if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+          // Show actual emoji if it exists
+          anatomyEmoji.textContent = currentAnatomyState.emoji;
+          anatomyEmoji.style.display = 'inline-flex';
+          anatomyEmoji.style.opacity = '1';
+        } else {
+          // Hide emoji if none exists
+          anatomyEmoji.textContent = '';
+          anatomyEmoji.style.display = 'none';
+        }
+        anatomyEmoji.classList.remove('preview-mode');
+      }
+    });
+
     container.appendChild(button);
   });
 
   // Update scroll behavior after content changes
   setTimeout(updateScrollBehavior, 50);
+}
+
+// ===== ANATOMY SECTION UTILITIES =====
+// Store current anatomy state for hover previews
+let currentAnatomyState = {
+  emoji: '',
+  date: '12.29',
+  hasDate: false,
+  hasPrefix: false,
+  isLayerMode: false
+};
+
+// Parse page title to extract emoji, date, and prefix
+function parsePageTitle(name: string): { emoji: string | null; date: string | null; hasPrefix: boolean } {
+  if (!name) return { emoji: null, date: null, hasPrefix: false };
+  
+  // Check if page has the "↳" prefix
+  const hasPrefix = name.includes('↳');
+  
+  // Extract date (MM.DD format before colon)
+  const colonIndex = name.indexOf(':');
+  const beforeColon = colonIndex >= 0 ? name.slice(0, colonIndex) : name;
+  const dateMatch = beforeColon.match(/\b(\d{2}\.\d{2})\b/);
+  const date = dateMatch ? dateMatch[1] : null;
+  
+  // Extract emoji - comprehensive list from all emoji sets
+  // Page Colors: circles
+  // Layer Colors: squares  
+  // Tools and Status emojis
+  const allEmojis = [
+    '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️',  // Page circles
+    '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜',  // Layer squares
+    '🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨',  // Tools
+    '🚧', '✅', '👀', '🚀', '🚫', '🪦', '📱'          // Status
+  ];
+  
+  let emoji: string | null = null;
+  for (const e of allEmojis) {
+    // Check both with and without variation selector
+    const emojiVariants = [e, e.replace(/\uFE0F/g, ''), e + '\uFE0F'];
+    for (const variant of emojiVariants) {
+      if (beforeColon.includes(variant)) {
+        emoji = e;
+        break;
+      }
+    }
+    if (emoji) break;
+  }
+  
+  return { emoji, date, hasPrefix };
+}
+
+// Parse layer name to extract emoji and date
+function parseLayerName(name: string): { emoji: string | null; date: string | null } {
+  if (!name) return { emoji: null, date: null };
+  
+  // Extract date (MM.DD : format at start or after emoji)
+  const dateMatch = name.match(/\b(\d{2}\.\d{2})\s*:/);
+  const date = dateMatch ? dateMatch[1] : null;
+  
+  // Extract leading emoji - comprehensive list from all emoji sets
+  const allEmojis = [
+    '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜',  // Layer squares
+    '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️',  // Page circles (can be used on layers too)
+    '🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨',  // Tools
+    '🚧', '✅', '👀', '🚀', '🚫', '🪦', '📱'          // Status
+  ];
+  
+  let emoji: string | null = null;
+  for (const e of allEmojis) {
+    // Check both with and without variation selector
+    const emojiVariants = [e, e.replace(/\uFE0F/g, ''), e + '\uFE0F'];
+    for (const variant of emojiVariants) {
+      if (name.startsWith(variant + ' ') || name.startsWith(variant)) {
+        emoji = e;
+        break;
+      }
+    }
+    if (emoji) break;
+  }
+  
+  return { emoji, date };
+}
+
+// Get today's date in MM.DD format
+function getTodayDate(): string {
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  return `${mm}.${dd}`;
+}
+
+// Update anatomy section with current page/layer information
+function updateAnatomySection(isLayerMode: boolean, pageName: string | null, layerName: string | null): void {
+  const anatomyEmoji = document.querySelector('.anatomy-emoji') as HTMLElement;
+  const anatomyDate = document.querySelector('.anatomy-date') as HTMLElement;
+  const anatomyPrefix = document.querySelector('.anatomy-prefix') as HTMLElement;
+  
+  if (!anatomyEmoji || !anatomyDate || !anatomyPrefix) return;
+  
+  // Parse the appropriate name based on mode
+  const parsed = isLayerMode && layerName 
+    ? parseLayerName(layerName)
+    : parsePageTitle(pageName || '');
+  
+  // Update state
+  currentAnatomyState.emoji = parsed.emoji || '';
+  currentAnatomyState.date = parsed.date || getTodayDate();
+  currentAnatomyState.hasDate = parsed.date !== null;
+  currentAnatomyState.hasPrefix = 'hasPrefix' in parsed ? parsed.hasPrefix : false;
+  currentAnatomyState.isLayerMode = isLayerMode;
+  
+  // Update prefix display - only show in page mode if prefix exists in page title
+  if (isLayerMode) {
+    // Always hide prefix in layer mode
+    anatomyPrefix.style.display = 'none';
+  } else if (currentAnatomyState.hasPrefix) {
+    // Show prefix if it exists in page title
+    anatomyPrefix.style.display = 'inline-flex';
+    anatomyPrefix.style.opacity = '0.6';
+  } else {
+    // Hide prefix until indent/outdent buttons are hovered
+    anatomyPrefix.style.display = 'none';
+  }
+  
+  // Update emoji display - show if emoji exists, hide otherwise
+  if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+    anatomyEmoji.textContent = currentAnatomyState.emoji;
+    anatomyEmoji.style.display = 'inline-flex';
+    anatomyEmoji.style.opacity = '1';
+  } else {
+    anatomyEmoji.textContent = '';
+    anatomyEmoji.style.display = 'none';
+    anatomyEmoji.style.opacity = '1';
+  }
+  
+  // Update date display - hide if no date exists
+  if (currentAnatomyState.hasDate) {
+    // Show existing date with colon
+    anatomyDate.textContent = `${currentAnatomyState.date} :`;
+    anatomyDate.style.display = 'flex';
+    anatomyDate.style.opacity = '0.6';
+  } else {
+    // Hide date until addDate button is hovered
+    anatomyDate.textContent = '';
+    anatomyDate.style.display = 'none';
+  }
 }
 
 // Lottie Animation Utilities
@@ -710,7 +903,6 @@ function setupEventListeners(): void {
   const emojiNavRight = document.getElementById('emoji-nav-right');
   const refreshAnchorsBtn = document.getElementById('refresh-anchors');
   const widthToggleBtn = document.getElementById('footer-width-toggle');
-  const fitBtn = document.getElementById('footer-fit');
   const resizeHandle = document.getElementById('footer-resize');
   const collapsibleHeaders = Array.from(document.querySelectorAll<HTMLElement>('.section-header.collapsible'));
 
@@ -748,6 +940,35 @@ function setupEventListeners(): void {
       console.log('Date button clicked');
       sendMessage('add-date');
     });
+    
+    // Add hover preview for date button
+    dateBtn.addEventListener('mouseenter', () => {
+      const anatomyDate = document.querySelector('.anatomy-date') as HTMLElement;
+      if (anatomyDate) {
+        const today = getTodayDate();
+        anatomyDate.textContent = `${today} :`;
+        anatomyDate.style.display = 'flex';
+        anatomyDate.style.opacity = '1';
+        anatomyDate.classList.add('preview-mode');
+      }
+    });
+    
+    dateBtn.addEventListener('mouseleave', () => {
+      const anatomyDate = document.querySelector('.anatomy-date') as HTMLElement;
+      if (anatomyDate) {
+        if (currentAnatomyState.hasDate) {
+          // Show actual date if it exists
+          anatomyDate.textContent = `${currentAnatomyState.date} :`;
+          anatomyDate.style.display = 'flex';
+          anatomyDate.style.opacity = '0.6';
+        } else {
+          // Hide date if none exists
+          anatomyDate.textContent = '';
+          anatomyDate.style.display = 'none';
+        }
+        anatomyDate.classList.remove('preview-mode');
+      }
+    });
   }
 
   // New Page: request plugin to create a new dated page
@@ -764,6 +985,31 @@ function setupEventListeners(): void {
       console.log('Indent title clicked');
       sendMessage('indent-title');
     });
+    
+    // Add hover preview for indent button - show prefix
+    indentTitleBtn.addEventListener('mouseenter', () => {
+      const anatomyPrefix = document.querySelector('.anatomy-prefix') as HTMLElement;
+      if (anatomyPrefix && currentToggleMode === 'onPage') {
+        anatomyPrefix.style.display = 'inline-flex';
+        anatomyPrefix.style.opacity = '1';
+        anatomyPrefix.classList.add('preview-mode');
+      }
+    });
+    
+    indentTitleBtn.addEventListener('mouseleave', () => {
+      const anatomyPrefix = document.querySelector('.anatomy-prefix') as HTMLElement;
+      if (anatomyPrefix && currentToggleMode === 'onPage') {
+        if (currentAnatomyState.hasPrefix) {
+          // Show actual prefix if it exists
+          anatomyPrefix.style.display = 'inline-flex';
+          anatomyPrefix.style.opacity = '0.6';
+        } else {
+          // Hide prefix if it doesn't exist
+          anatomyPrefix.style.display = 'none';
+        }
+        anatomyPrefix.classList.remove('preview-mode');
+      }
+    });
   }
 
   // Outdent page title: remove 4 leading spaces (if present) before arrow/emoji
@@ -771,6 +1017,31 @@ function setupEventListeners(): void {
     outdentTitleBtn.addEventListener('click', () => {
       console.log('Outdent title clicked');
       sendMessage('outdent-title');
+    });
+    
+    // Add hover preview for outdent button - show prefix
+    outdentTitleBtn.addEventListener('mouseenter', () => {
+      const anatomyPrefix = document.querySelector('.anatomy-prefix') as HTMLElement;
+      if (anatomyPrefix && currentToggleMode === 'onPage') {
+        anatomyPrefix.style.display = 'inline-flex';
+        anatomyPrefix.style.opacity = '1';
+        anatomyPrefix.classList.add('preview-mode');
+      }
+    });
+    
+    outdentTitleBtn.addEventListener('mouseleave', () => {
+      const anatomyPrefix = document.querySelector('.anatomy-prefix') as HTMLElement;
+      if (anatomyPrefix && currentToggleMode === 'onPage') {
+        if (currentAnatomyState.hasPrefix) {
+          // Show actual prefix if it exists
+          anatomyPrefix.style.display = 'inline-flex';
+          anatomyPrefix.style.opacity = '0.6';
+        } else {
+          // Hide prefix if it doesn't exist
+          anatomyPrefix.style.display = 'none';
+        }
+        anatomyPrefix.classList.remove('preview-mode');
+      }
     });
   }
 
@@ -830,6 +1101,24 @@ function setupEventListeners(): void {
     }
   });
 
+  // Data migration buttons
+  const exportDataBtn = document.getElementById('export-data-btn');
+  const importDataBtn = document.getElementById('import-data-btn');
+
+  if (exportDataBtn) {
+    exportDataBtn.addEventListener('click', () => {
+      console.log('Export data clicked');
+      sendMessage('export-plugin-data');
+    });
+  }
+
+  if (importDataBtn) {
+    importDataBtn.addEventListener('click', () => {
+      console.log('Import data clicked');
+      sendMessage('import-plugin-data');
+    });
+  }
+
   // Emoji set navigation
   if (emojiNavLeft) {
     emojiNavLeft.addEventListener('click', (e) => {
@@ -859,6 +1148,22 @@ function setupEventListeners(): void {
   if (widthToggleBtn) {
     widthToggleBtn.addEventListener('click', () => {
       console.log('Toggle width');
+      
+      // Toggle the state
+      isWidthCompact = !isWidthCompact;
+      
+      // Toggle the compact-mode class on scrollable-content
+      const scrollableContent = document.querySelector('.scrollable-content');
+      if (scrollableContent) {
+        if (isWidthCompact) {
+          scrollableContent.classList.add('compact-mode');
+          widthToggleBtn.classList.add('active');
+        } else {
+          scrollableContent.classList.remove('compact-mode');
+          widthToggleBtn.classList.remove('active');
+        }
+      }
+      
       sendMessage('toggle-width');
     });
 
@@ -882,9 +1187,10 @@ function setupEventListeners(): void {
     });
   }
 
-  // Fit height to content - toggle auto-fit mode
-  if (fitBtn) {
-    fitBtn.addEventListener('click', () => {
+  // Drag to resize height
+  if (resizeHandle) {
+    // Double-click to toggle auto-fit mode
+    resizeHandle.addEventListener('dblclick', () => {
       isAutoFitEnabled = !isAutoFitEnabled;
       updateAutoFitButtonState();
 
@@ -899,28 +1205,6 @@ function setupEventListeners(): void {
       }
     });
 
-    // Add hover state management to prevent stuck states
-    fitBtn.addEventListener('mouseenter', () => {
-      fitBtn.classList.add('hover-active');
-    });
-
-    fitBtn.addEventListener('mouseleave', () => {
-      fitBtn.classList.remove('hover-active');
-      // Force style reset
-      fitBtn.style.removeProperty('background');
-      fitBtn.style.removeProperty('color');
-    });
-
-    fitBtn.addEventListener('blur', () => {
-      fitBtn.classList.remove('hover-active');
-      // Force style reset
-      fitBtn.style.removeProperty('background');
-      fitBtn.style.removeProperty('color');
-    });
-  }
-
-  // Drag to resize height
-  if (resizeHandle) {
     let isDragging = false;
     let startY = 0;
     let startHeight = 0;
@@ -1438,19 +1722,19 @@ function disableAutoFit(reason?: string): void {
   }
 }
 
-// Update auto-fit button visual state
+// Update auto-fit visual state on resize handle
 function updateAutoFitButtonState(): void {
-  const fitBtn = document.getElementById('footer-fit');
-  if (!fitBtn) return;
+  const resizeHandle = document.getElementById('footer-resize');
+  if (!resizeHandle) return;
 
   if (isAutoFitEnabled) {
-    fitBtn.classList.add('active');
-    fitBtn.setAttribute('aria-label', 'Auto-fit enabled - click to disable');
-    fitBtn.setAttribute('title', 'Auto-fit: ON');
+    resizeHandle.classList.add('auto-fit-active');
+    resizeHandle.setAttribute('aria-label', 'Resize panel (double-click to disable auto-fit) - Auto-fit: ON');
+    resizeHandle.setAttribute('title', 'Auto-fit: ON - Double-click to disable');
   } else {
-    fitBtn.classList.remove('active');
-    fitBtn.setAttribute('aria-label', 'Auto-fit disabled - click to enable');
-    fitBtn.setAttribute('title', 'Auto-fit: OFF');
+    resizeHandle.classList.remove('auto-fit-active');
+    resizeHandle.setAttribute('aria-label', 'Resize panel (double-click to enable auto-fit) - Auto-fit: OFF');
+    resizeHandle.setAttribute('title', 'Auto-fit: OFF - Double-click to enable');
   }
 }
 
@@ -1547,7 +1831,7 @@ function initializeSystemThemeDetection(): void {
 
   // Apply system theme immediately as fallback before loading preferences
   const systemTheme = themeManager.currentSystemTheme;
-  const fallbackEffectiveTheme = systemTheme === 'dark' ? 'figma-dark' : 'figma-light';
+  const fallbackEffectiveTheme = 'figma-light'; // Force light theme for browser preview
 
   console.log(`🔍 System theme detected: ${systemTheme}, applying fallback: ${fallbackEffectiveTheme}`);
 
@@ -2400,8 +2684,8 @@ function handleDOMReady(): void {
     if (!msg) return;
     if (msg.type === 'theme-preference') {
       if (themeManager && isThemeInitialized) {
-        // Handle both new ThemePreference objects and legacy string themes
-        const themeData = msg.theme;
+        // Force dark theme for browser preview
+        const themeData = typeof (window as any).figma === 'undefined' ? { mode: 'dark' } : msg.theme;
 
         console.log('📥 Received theme preference from backend:', themeData);
 

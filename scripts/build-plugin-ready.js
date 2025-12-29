@@ -50,14 +50,17 @@ if (fs.existsSync('dist/assets')) {
 // Create production manifest (without source maps references)
 const manifest = {
     "name": "stratusHue",
-    "id": "1525275589707623280",
+    "id": "1586934885538203561",
     "api": "1.0.0",
     "main": "code.js",
     "ui": "ui.html",
     "capabilities": [],
     "enableProposedApi": false,
     "editorType": ["figma", "figjam"],
-    "documentAccess": "dynamic-page"
+    "documentAccess": "dynamic-page",
+    "networkAccess": {
+        "allowedDomains": ["none"]
+    }
 };
 
 fs.writeFileSync('plugin-ready/manifest.json', JSON.stringify(manifest, null, 2));

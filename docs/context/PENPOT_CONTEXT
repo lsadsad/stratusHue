@@ -1,0 +1,486 @@
+# Penpot Design Context
+
+> **Purpose**: This document provides context for AI assistants (Claude, or other MCP-compatible AI agents) to understand the design system goals, technical requirements, and integration capabilities for projects using **Penpot**. Include this file when starting new AI sessions for Penpot design work.
+
+---
+
+## Platform Overview
+
+**What is Penpot**: An open-source, web-based design and prototyping platform for cross-functional teams. Unlike proprietary tools, Penpot uses open web standards (SVG, CSS) and can be self-hosted.
+
+**Official Website**: [penpot.app](https://penpot.app)
+
+**Key Differentiators**:
+- 100% open source (MPL 2.0 license)
+- Web-based (runs in browser, no installation required)
+- Self-hostable for enterprise/privacy needs
+- SVG-native (exports clean, standards-compliant SVG)
+- CSS-native layouts (Flex Layout uses real CSS Flexbox)
+
+**Runtime**: Browser-based (works on any OS with modern browser)
+
+---
+
+## Core Design Features
+
+### Design Elements
+
+| Element | Description |
+|---------|-------------|
+| **Frames (Boards)** | Container elements that act as artboards; can be nested |
+| **Components** | Reusable design elements with main/instance relationship |
+| **Shapes** | Rectangles, ellipses, polygons, paths, and boolean operations |
+| **Text** | Rich text with typography controls |
+| **Images** | Raster image support with masking capabilities |
+| **Groups** | Non-semantic grouping of elements |
+
+### Layout System
+
+Penpot uses **CSS Flexbox** for layouts (called "Flex Layout"):
+
+| Property | Options |
+|----------|---------|
+| **Direction** | Row, Column, Row Reverse, Column Reverse |
+| **Alignment** | Start, Center, End, Space Between, Space Around, Space Evenly |
+| **Wrap** | Wrap, No Wrap |
+| **Gap** | Row gap, Column gap (pixel values) |
+| **Padding** | Top, Right, Bottom, Left (individual or uniform) |
+
+### Design Systems Support
+
+| Feature | Description |
+|---------|-------------|
+| **Shared Libraries** | Reusable assets shared across projects |
+| **Components** | Main components with overridable instances |
+| **Colors** | Color palettes and swatches |
+| **Typography** | Text styles with font, size, weight, etc. |
+| **Assets** | Organized asset panels for quick access |
+
+### Prototyping
+
+| Feature | Description |
+|---------|-------------|
+| **Flows** | Define starting frames and user journeys |
+| **Interactions** | Click, hover, and other triggers |
+| **Transitions** | Dissolve, slide, push animations |
+| **Overlays** | Modal and popup prototyping |
+| **Navigation** | Navigate to frame, previous, external URL |
+
+---
+
+## MCP Integration (Model Context Protocol)
+
+### What is Penpot MCP?
+
+The Penpot MCP Server enables AI language models to interact directly with Penpot design projects. This integration allows AI assistants to programmatically access, analyze, and modify design files.
+
+**GitHub Repository**: [github.com/penpot/penpot-mcp](https://github.com/penpot/penpot-mcp)
+
+### Key Capabilities
+
+| Capability | Description |
+|------------|-------------|
+| **Design Analysis** | AI can analyze UI/UX designs, provide feedback, suggest improvements |
+| **Automated Workflows** | Streamline repetitive design tasks through automation |
+| **Intelligent Search** | Find components and patterns using natural language |
+| **Design System Management** | Document and maintain design systems with AI |
+| **Component Analysis** | AI-powered examination of layouts and structure |
+| **Export Automation** | Programmatic export of assets in multiple formats |
+| **Design Validation** | Automated compliance checking with design standards |
+
+### Architecture Overview
+
+```
+Penpot MCP Integration
+├── Common Types (common/)
+│   └── Shared TypeScript definitions for request/response protocols
+├── MCP Server (mcp-server/)
+│   ├── Provides MCP tools to AI clients
+│   ├── WebSocket server for plugin connections
+│   ├── Task management with unique IDs
+│   └── Error handling and timeouts
+├── Penpot Plugin (penpot-plugin/)
+│   ├── Connects to MCP server via WebSocket
+│   ├── Executes tasks using Penpot Plugin API
+│   └── Returns structured responses
+└── Helper Scripts (python-scripts/)
+    └── Data preparation utilities for development
+```
+
+### Setup Requirements
+
+**Prerequisites**:
+- Node.js (v22 recommended)
+- npm and npx
+
+**Installation Steps**:
+
+```bash
+# Clone the repository
+git clone https://github.com/penpot/penpot-mcp.git
+cd penpot-mcp
+
+# Install dependencies
+npm install
+
+# Build and start all components
+npm run bootstrap
+```
+
+### Connecting to Penpot
+
+1. **Open Penpot** in your browser
+2. **Navigate** to a design file
+3. **Open** the Plugins menu
+4. **Load plugin** using: `http://localhost:4400/manifest.json`
+5. **Open** the plugin UI
+6. **Click** "Connect to MCP server"
+7. **Verify** status shows "Connected to MCP server"
+
+> **Note**: Keep the plugin UI open during use. Closing it terminates the connection.
+
+### Server Endpoints
+
+| Endpoint Type | URL | Description |
+|---------------|-----|-------------|
+| **Streamable HTTP** | `http://localhost:4401/mcp` | Modern MCP endpoint |
+| **SSE (Legacy)** | `http://localhost:4401/sse` | Server-Sent Events endpoint |
+
+---
+
+## AI Client Configuration
+
+### Cursor IDE Integration
+
+Add to your Cursor MCP configuration (`~/.cursor/mcp.json` or project `.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "penpot": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:4401/sse", "--allow-http"]
+    }
+  }
+}
+```
+
+**Alternative (Python SDK)**:
+
+```bash
+pip install penpot-mcp
+```
+
+Create `.env` in project root:
+
+```
+PENPOT_API_URL=https://design.penpot.app/api
+PENPOT_USERNAME=your_username
+PENPOT_PASSWORD=your_password
+```
+
+Start the server:
+
+```bash
+penpot-mcp
+```
+
+### Claude Desktop Integration
+
+Locate configuration file:
+- **Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+Add Penpot MCP server:
+
+```json
+{
+  "mcpServers": {
+    "penpot": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:4401/sse", "--allow-http"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop completely for changes to take effect.
+
+---
+
+## AI Capabilities via MCP
+
+### Design Operations
+
+| Capability | Description |
+|------------|-------------|
+| **Read Design Structure** | Access frame hierarchy, layers, and components |
+| **Analyze Layouts** | Understand flex layouts, spacing, alignment |
+| **Query Components** | Find and inspect reusable components |
+| **Access Styles** | Read color palettes, typography styles |
+| **Export Assets** | Programmatic export in various formats |
+
+### Analysis Features
+
+| Feature | Description |
+|---------|-------------|
+| **Visual Component Recognition** | AI interprets design elements |
+| **Design Context Sharing** | Provide context to AI for better responses |
+| **Natural Language Queries** | Ask about designs in plain English |
+| **Layout Analysis** | Understand spacing, alignment, hierarchy |
+| **Accessibility Review** | Check for accessibility concerns |
+
+### Workflow Automation
+
+| Workflow | Description |
+|----------|-------------|
+| **Batch Operations** | Apply changes across multiple elements |
+| **Design Documentation** | Auto-generate specs and documentation |
+| **Component Audit** | Analyze component usage across projects |
+| **Style Consistency** | Check for design system compliance |
+| **Asset Organization** | Help organize and name assets |
+
+---
+
+## Developer Tools
+
+### Command-Line Utilities
+
+The Penpot MCP package provides CLI tools for:
+- Design file analysis and validation
+- Batch processing of design assets
+- Design system documentation generation
+
+### Python SDK
+
+Comprehensive Python library for custom integrations:
+
+```python
+from penpot_mcp import PenpotClient
+
+client = PenpotClient()
+project = client.get_project("project-id")
+frames = project.get_frames()
+```
+
+### REST API
+
+HTTP endpoints for web application integration:
+- Query design data
+- Export assets programmatically
+- Integrate with CI/CD pipelines
+
+---
+
+## Design Philosophy for ShortHand
+
+When using Penpot for the ShortHand project, follow these principles:
+
+### Component Organization
+
+```
+Shared Library: shorthand-design-system
+├── Components/
+│   ├── Buttons/
+│   │   ├── IconButton (main)
+│   │   ├── TextButton (main)
+│   │   └── ComboButton (main)
+│   ├── Panels/
+│   │   ├── MainPanel (main)
+│   │   ├── SettingsPanel (main)
+│   │   └── RadialMenu (main)
+│   └── Controls/
+│       ├── Toggle (main)
+│       └── Slider (main)
+├── Colors/
+│   ├── Primary
+│   ├── Secondary
+│   ├── Surface
+│   └── Accent
+└── Typography/
+    ├── Heading
+    ├── Body
+    └── Label
+```
+
+### Color Palette (Dark Theme)
+
+| Element | Color | Hex |
+|---------|-------|-----|
+| Panel background | Near-black | `#1A1A1A` @ 90% |
+| Button default | Dark gray | `#2D2D2D` |
+| Button hover | Lighter gray | `#3D3D3D` |
+| Button active | Accent blue | `#4A9EFF` |
+| Text primary | Off-white | `#E5E5E5` |
+| Text secondary | Gray | `#888888` |
+| Accent | Blue | `#4A9EFF` |
+| Warning | Orange | `#FF9F43` |
+| Success | Green | `#26DE81` |
+
+### Naming Conventions
+
+| Element Type | Convention | Example |
+|--------------|------------|---------|
+| Frames | PascalCase | `MainPanel`, `SettingsView` |
+| Components | PascalCase | `IconButton`, `RadialMenu` |
+| Layers | kebab-case | `button-container`, `icon-wrapper` |
+| Colors | Descriptive | `Primary/500`, `Surface/Dark` |
+| Typography | Descriptive | `Heading/Large`, `Body/Regular` |
+
+---
+
+## Workflow Integration
+
+### Recommended AI-Assisted Workflow
+
+1. **Design Phase** - Use AI for initial scaffolding
+   - "Analyze my current panel layout"
+   - "Suggest improvements for button spacing"
+
+2. **Review Phase** - AI-assisted design review
+   - "Check this design for accessibility issues"
+   - "Compare this to our design system standards"
+
+3. **Documentation Phase** - Auto-generate specs
+   - "Document all components in this frame"
+   - "Generate a color palette summary"
+
+4. **Handoff Phase** - Developer handoff assistance
+   - "Export CSS for this component"
+   - "Generate specifications for implementation"
+
+### When to Use MCP vs. Manual Editing
+
+| Use MCP For | Use Manual Editing For |
+|-------------|------------------------|
+| Design analysis and feedback | Creative exploration |
+| Component documentation | Fine visual adjustments |
+| Batch operations | Prototyping interactions |
+| Design system audits | Detailed illustrations |
+| Asset organization | Animation timing |
+
+---
+
+## Handoff Checklist for AI Sessions
+
+When starting a new AI session for Penpot work, provide:
+
+- [ ] This file (`PENPOT_CONTEXT.md`)
+- [ ] Project roadmap or current phase
+- [ ] Link to Penpot project (if using cloud)
+- [ ] Screenshots of current design state
+- [ ] Specific task or feature to work on
+- [ ] Design system constraints or guidelines
+
+### Example Prompts for MCP-Enabled Sessions
+
+**Design Analysis**:
+```
+@PENPOT_CONTEXT.md I have the Penpot MCP plugin connected.
+
+Please analyze the current page and:
+1. List all frames and their hierarchy
+2. Identify any components that aren't from our shared library
+3. Check for consistent spacing (should be 8px grid)
+4. Suggest any accessibility improvements
+```
+
+**Component Creation**:
+```
+@PENPOT_CONTEXT.md Using the Penpot MCP connection:
+
+Help me create a new button component that:
+- Has hover, pressed, and disabled states
+- Uses our color system (see PENPOT_CONTEXT.md)
+- Follows 8px grid spacing
+- Includes an icon slot and text label
+```
+
+**Design System Audit**:
+```
+@PENPOT_CONTEXT.md MCP server is connected to my Penpot project.
+
+Please audit this page for design system compliance:
+- Check all text uses our typography styles
+- Verify colors match our palette
+- Identify any orphaned (non-component) elements
+- List any layout inconsistencies
+```
+
+---
+
+## Troubleshooting
+
+### Connection Issues
+
+| Problem | Solution |
+|---------|----------|
+| Plugin won't load | Check localhost isn't blocked by browser |
+| "Not connected" status | Ensure MCP server is running on port 4401 |
+| Server disconnects | Keep plugin UI open; don't minimize |
+| Timeout errors | Check network connectivity |
+
+### MCP Debugging
+
+1. Verify Penpot is open with a design file
+2. Check MCP server is running (`npm run bootstrap`)
+3. Ensure plugin shows "Connected" status
+4. Check browser console for errors
+5. Restart Cursor/Claude Desktop if server was just started
+
+### Common Issues
+
+- **Browser restrictions**: Some browsers block localhost connections from web apps
+- **Port conflicts**: Ensure ports 4400 and 4401 are available
+- **Plugin crashes**: Reload the plugin from the Plugins menu
+
+---
+
+## Resources
+
+### Official Documentation
+- [Penpot User Guide](https://help.penpot.app/user-guide/)
+- [Penpot Plugins & Integrations](https://help.penpot.dev/user-guide/plugins-integrations/)
+- [Creating Penpot Plugins](https://help.penpot.app/plugins/create-a-plugin/)
+
+### MCP Resources
+- [Penpot MCP Repository](https://github.com/penpot/penpot-mcp)
+- [Penpot MCP on PyPI](https://pypi.org/project/penpot-mcp/)
+- [Model Context Protocol Spec](https://modelcontextprotocol.io/)
+
+### Community
+- [Penpot Community Forum](https://community.penpot.app/)
+- [Penpot GitHub](https://github.com/penpot/penpot)
+
+---
+
+## Comparison with Other Tools
+
+### Penpot vs. Figma
+
+| Aspect | Penpot | Figma |
+|--------|--------|-------|
+| License | Open Source (MPL 2.0) | Proprietary |
+| Hosting | Self-hostable or Cloud | Cloud only |
+| File Format | SVG-native | Proprietary |
+| Layout System | CSS Flexbox | Auto Layout |
+| Pricing | Free | Free tier + paid |
+| MCP Support | Official plugin | Third-party |
+
+### Penpot vs. Rive
+
+| Aspect | Penpot | Rive |
+|--------|--------|------|
+| Primary Use | UI/UX Design | Animation |
+| Output | SVG, CSS | .riv files |
+| Interactivity | Prototyping | State machines |
+| Best For | Static designs, layouts | Interactive animations |
+| ShortHand Use | UI mockups, specs | Button animations |
+
+---
+
+*Last updated: December 2024*
+*For use with: Claude, Cursor, or other MCP-compatible AI assistants*
+*MCP documentation based on Penpot MCP server (features may evolve)*
+

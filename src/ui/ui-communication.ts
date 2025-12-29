@@ -28,12 +28,18 @@ export function sendSelectionStateToUI(): void {
   const currentEmojiSet = getCurrentEmojiSet(hasLayerSelected);
   const hasPreviousSelection = hasAnySelectionEntry();
 
+  // Get current page name and selected layer name for anatomy display
+  const pageName = figma.currentPage.name;
+  const selectedLayerName = hasLayerSelected && selectedLayers[0] ? (selectedLayers[0] as any).name : null;
+
   figma.ui.postMessage({
     type: 'selection-state',
     hasLayerSelected,
     hasPreviousSelection,
     layerEmojis: hasLayerSelected ? currentEmojiSet.emojis : getCurrentEmojiSet(true).emojis,
-    pageEmojis: !hasLayerSelected ? currentEmojiSet.emojis : getCurrentEmojiSet(false).emojis
+    pageEmojis: !hasLayerSelected ? currentEmojiSet.emojis : getCurrentEmojiSet(false).emojis,
+    pageName,
+    selectedLayerName
   });
 
   // Send emoji navigation state

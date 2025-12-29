@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "penpot": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:4401/sse", "--allow-http"]
+    }
+  }
+}
+

@@ -75,6 +75,67 @@ body.touch-active .kofi-button:hover {
   padding-bottom: var(--spacing-md);
 }
 
+/* Compact mode - adjustments to prevent content breaking */
+
+/* Reduce spacing in the page actions grid */
+.scrollable-content.compact-mode .page-actions-grid {
+  gap: 4px;
+  padding: 0 4px;
+}
+
+/* Make buttons on left and right more compact visually, but keep hit states */
+.scrollable-content.compact-mode .buttons-left,
+.scrollable-content.compact-mode .buttons-right {
+  gap: 0px;
+}
+
+/* Use negative margins to bring buttons closer without changing hit state */
+.scrollable-content.compact-mode .buttons-right button {
+  margin-left: -4px;
+}
+
+.scrollable-content.compact-mode .buttons-right button:first-child {
+  margin-left: 0;
+}
+
+/* Scale down only the visual icons, not the button size */
+.scrollable-content.compact-mode .color-grid #date-btn .icon img {
+  width: 14px;
+  height: 14px;
+}
+
+.scrollable-content.compact-mode .color-grid #outdent-title-btn .icon img,
+.scrollable-content.compact-mode .color-grid #indent-title-btn .icon img {
+  width: 12px;
+  height: 12px;
+}
+
+/* Scale down the anatomy section */
+.scrollable-content.compact-mode .anatomy-section {
+  transform: scale(0.9);
+  transform-origin: center center;
+  gap: 1px;
+  padding: 0 4px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.scrollable-content.compact-mode .anatomy-prefix,
+.scrollable-content.compact-mode .anatomy-date {
+  font-size: 9px;
+  letter-spacing: 0.3px;
+}
+
+.scrollable-content.compact-mode .anatomy-emoji {
+  font-size: 10px;
+}
+
+.scrollable-content.compact-mode .anatomy-section .mode-affordance {
+  padding: 1px 3px;
+  font-size: 7px;
+  letter-spacing: 0.28px;
+}
+
 /* Scrollbar styling */
 .scrollable-content::-webkit-scrollbar {
   width: var(--scrollbar-width);
@@ -1911,8 +1972,9 @@ h3 {
 .tags-content-wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xxl);
+  gap: 16px;
   padding: 0 var(--spacing-xxl) calc(var(--spacing-lg) * 2 + var(--spacing-xxl) - 8px) var(--spacing-xxl);
+  padding-bottom: 12px;
 }
 
 /* Boilerplate: use elevated background for Tags content section */
@@ -2122,33 +2184,21 @@ h3 {
 }
 
 /* Action button hover variants */
-#new-page-btn:hover {
-  background: var(--theme-accent-red);
-}
+/* Note: #new-page-btn hover is now handled by .color-grid .action-btn:hover */
 
 #deselect-btn:hover {
   background: var(--theme-accent-green);
 }
 
+/* Back and forward buttons now match new-page-btn styling */
 #back-btn,
 #forward-btn {
-  color: var(--color-text-primary) !important;
+  color: var(--color-text-primary);
 }
 
 #back-btn .icon,
 #forward-btn .icon {
-  color: var(--color-text-primary) !important;
-}
-
-#back-btn:hover,
-#forward-btn:hover {
-  background: var(--theme-accent-yellow);
-  color: var(--color-text-primary) !important;
-}
-
-#back-btn:hover .icon,
-#forward-btn:hover .icon {
-  color: var(--color-text-primary) !important;
+  color: var(--color-text-primary);
 }
 
 /* Settings button - prevent movement on hover */
@@ -2169,14 +2219,40 @@ h3 {
 /* Emoji Navigation Container */
 .emoji-nav-container {
   display: flex;
-  gap: 0;
+  gap: var(--spacing-lg);
   position: absolute;
-  top: calc(var(--spacing-xl) * -1);
-  right: var(--spacing-sm);
+  bottom: calc(var(--spacing-sm) - 12px);
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1;
   background: var(--color-background-elevated);
   border-radius: var(--border-radius-sm);
-  padding: var(--spacing-xxs);
+  padding: var(--spacing-xs);
+  align-items: center;
+  justify-content: center;
+}
+
+/* emoji-nav-container icons match emoji-set-title muted color */
+.emoji-nav-container .emoji-nav-btn .nav-arrow {
+  filter: brightness(0) invert(1);
+  opacity: 0.5;
+}
+
+/* Light theme - darker muted arrows */
+[data-theme="figma-light"] .emoji-nav-container .emoji-nav-btn .nav-arrow,
+[data-theme="light"] .emoji-nav-container .emoji-nav-btn .nav-arrow {
+  filter: brightness(0);
+  opacity: 0.5;
+}
+
+/* Hover state - slightly more visible */
+.emoji-nav-container .emoji-nav-btn:hover:not(:disabled) .nav-arrow {
+  opacity: 0.7;
+}
+
+/* Disabled state */
+.emoji-nav-container .emoji-nav-btn:disabled .nav-arrow {
+  opacity: 0.2;
 }
 
 .emoji-nav-list {
@@ -2231,20 +2307,23 @@ h3 {
   align-items: center;
   justify-content: center;
 
-  /* Specific properties */
-  width: 20px;
-  height: 20px;
+  /* Specific properties - match icon size for tighter spacing */
+  width: 12px;
+  height: 12px;
   padding: 0;
-  font-size: var(--icon-size-md);
-  border-radius: var(--border-radius-sm);
-  background: var(--color-background-main);
+  font-size: var(--icon-size-sm);
+  border-radius: 0;
+  background: transparent;
   color: var(--figma-color-border-brand);
   font-weight: var(--font-weight-light);
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .nav-arrow {
-  font-size: var(--icon-size-md);
+  width: 12px;
+  height: 12px;
+  font-size: var(--icon-size-sm);
   font-weight: inherit;
   display: flex;
   align-items: center;
@@ -2252,21 +2331,21 @@ h3 {
 }
 
 .emoji-nav-btn:hover:not(:disabled) {
-  background: var(--color-background-main);
+  background: transparent;
   color: var(--figma-color-border-brand);
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .emoji-nav-btn:active:not(:disabled) {
-  background: var(--color-background-main);
+  background: transparent;
   color: var(--figma-color-border-brand);
-  transform: scale(0.95);
+  transform: scale(0.9);
 }
 
 .emoji-nav-btn:disabled {
-  opacity: 0.1;
+  opacity: 0.2;
   cursor: not-allowed;
-  background: var(--color-background-main);
+  background: transparent;
 }
 
 /* Header Action Buttons */
@@ -2280,10 +2359,10 @@ h3 {
   font-size: var(--icon-size-lg);
 }
 
-/* Tags Header Emoji Nav Buttons */
+/* Tags Header Emoji Nav Buttons - override for clickability */
 #tags-header .emoji-nav-btn {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   /* Align visuals with header refresh .action-btn styling */
   background: transparent;
   border-radius: var(--border-radius-sm);
@@ -2354,7 +2433,7 @@ h3 {
   position: sticky;
   top: 0;
   z-index: calc(var(--z-footer) + 1);
-  border-bottom: var(--border-width) solid var(--color-border-primary);
+  border-bottom: none;
 }
 
 /* Quick actions uses same header layout pattern */
@@ -2374,11 +2453,17 @@ h3 {
   z-index: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-sm);
 }
 
 #quick-actions .header-center>* {
   pointer-events: auto;
+}
+
+#quick-actions .header-center .header-nav-group {
+  display: flex;
+  gap: var(--spacing-xs);
 }
 
 #quick-actions .header-right {
@@ -2516,7 +2601,7 @@ h3 {
   padding: 0;
   background: transparent;
   border: none;
-  border-radius: var(--border-radius-md);
+  border-radius: 4px;
   cursor: pointer;
   color: var(--color-text-primary);
   transition: all var(--transition-fast);
@@ -2554,8 +2639,8 @@ h3 {
   width: 16px;
   height: 16px;
   display: block;
-  /* Default header nav icons: subtle monochrome */
-  filter: brightness(0) saturate(0%);
+  /* Default header nav icons: subtle white/light grey to match new-page-btn */
+  filter: brightness(0) saturate(0%) invert(100%);
   opacity: 0.7;
 }
 
@@ -2632,16 +2717,18 @@ h3 {
 
 /* Tags Header */
 #tags-header {
+  background-color: var(--color-background-elevated);
   border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 0 0;
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
 }
 
 /* Anchors Header - match Tags header strokes */
 #anchors-header {
+  background-color: var(--color-background-elevated);
   border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 0 0;
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
 }
 
 #anchors-header .header-left {
@@ -2668,6 +2755,7 @@ h3 {
 }
 
 #controls-header {
+  background-color: var(--color-background-elevated);
   padding-left: 6px;
   padding-right: 6px;
 }
@@ -2813,6 +2901,448 @@ h3 {
   min-width: 0;
   transition: var(--transition-normal);
   background: transparent;
+}
+
+/* Color grid item wrapper - contains button and label */
+.color-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+/* Color grid buttons - match header-nav-btn styling */
+.color-grid .action-btn {
+  width: calc(var(--spacing-lg) * 3);
+  height: calc(var(--spacing-lg) * 3);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-primary);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-grid .action-btn:hover:not(:disabled) {
+  background: var(--color-background-secondary);
+  color: var(--figma-color-border-brand);
+  transform: translateY(calc(var(--elevation-nudge) * -1));
+  border: none;
+}
+
+.color-grid .action-btn:active:not(:disabled) {
+  background: var(--color-background-secondary);
+  transform: translateY(0);
+  border: none;
+}
+
+.color-grid .action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+.color-grid .action-btn .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--icon-size-md);
+  color: var(--color-text-subtle);
+}
+
+.color-grid .action-btn .icon img {
+  width: 16px;
+  height: 16px;
+  display: block;
+  /* Default color grid icons: subtle white/light grey */
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.7;
+}
+
+.color-grid .action-btn:hover:not(:disabled) .icon img,
+.color-grid .action-btn:active:not(:disabled) .icon img {
+  /* Hover/active: brand blue tint to match text color */
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 1;
+}
+
+.color-grid .action-btn:disabled .icon img {
+  opacity: 0.4;
+}
+
+/* Labels for color-grid buttons - positioned below button, outside hit area */
+.color-grid-item .label {
+  display: none;
+  font-size: var(--icon-size-sm);
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+  line-height: 1.2;
+}
+
+/* Visual Hierarchy: Date button - match quick-actions styling */
+.color-grid #date-btn {
+  width: fit-content;
+  height: calc(var(--spacing-lg) * 4);
+  padding-left: 4px;
+  padding-right: 4px;
+  background: transparent;
+  border: none;
+  color: var(--figma-color-border-brand);
+}
+
+.color-grid #date-btn .icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  /* Default: subtle white/light grey for visibility on dark background */
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.7;
+}
+
+.color-grid #date-btn:hover:not(:disabled) {
+  background: transparent;
+  color: var(--figma-color-border-brand);
+  transform: translateY(calc(var(--elevation-nudge) * -1));
+}
+
+.color-grid #date-btn:active:not(:disabled) {
+  background: transparent;
+  color: var(--figma-color-border-brand);
+  transform: translateY(0);
+}
+
+.color-grid #date-btn:hover:not(:disabled) .icon img,
+.color-grid #date-btn:active:not(:disabled) .icon img {
+  /* Hover/active: brand blue tint to match quick-actions */
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 1;
+}
+
+.color-grid #date-btn:disabled {
+  background: transparent;
+  color: var(--color-text-disabled);
+}
+
+.color-grid #date-btn:disabled .icon img {
+  opacity: 0.4;
+}
+
+/* Visual Hierarchy: New Page button (primary action) - more prominent */
+.color-grid #new-page-btn {
+  width: calc(var(--spacing-lg) * 4);
+  height: calc(var(--spacing-lg) * 4);
+  background: var(--color-background-secondary);
+  border: var(--border-width) solid var(--figma-color-border);
+}
+
+.color-grid #new-page-btn .icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  opacity: 0.85;
+}
+
+.color-grid #new-page-btn:hover:not(:disabled) {
+  background: var(--color-background-accent);
+  border-color: var(--figma-color-border-brand);
+  transform: translateY(calc(var(--elevation-nudge) * -1));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.color-grid #new-page-btn:active:not(:disabled) {
+  background: var(--color-background-accent);
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.color-grid #new-page-btn:hover:not(:disabled) .icon img,
+.color-grid #new-page-btn:active:not(:disabled) .icon img {
+  opacity: 1;
+}
+.color-grid #new-page-btn {
+  width: calc(var(--spacing-lg) * 4);
+  height: calc(var(--spacing-lg) * 4);
+  background: var(--color-background-secondary);
+  border: var(--border-width) solid var(--figma-color-border);
+}
+
+.color-grid #new-page-btn .icon img {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  opacity: 0.85;
+}
+
+.color-grid #new-page-btn:hover:not(:disabled) {
+  background: var(--color-background-accent);
+  border-color: var(--figma-color-border-brand);
+  transform: translateY(calc(var(--elevation-nudge) * -1));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.color-grid #new-page-btn:active:not(:disabled) {
+  background: var(--color-background-accent);
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.color-grid #new-page-btn:hover:not(:disabled) .icon img,
+.color-grid #new-page-btn:active:not(:disabled) .icon img {
+  opacity: 1;
+}
+
+/* Visual Hierarchy: Outdent and Indent buttons - match quick-actions styling */
+.color-grid #outdent-title-btn,
+.color-grid #indent-title-btn {
+  width: fit-content;
+  height: fit-content;
+  background: transparent;
+  color: var(--figma-color-border-brand);
+}
+
+.color-grid #outdent-title-btn .icon img,
+.color-grid #indent-title-btn .icon img {
+  width: var(--icon-size-md-plus);
+  height: var(--icon-size-md-plus);
+  /* Default: subtle white/light grey for visibility on dark background */
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.7;
+}
+
+.color-grid #outdent-title-btn:hover:not(:disabled),
+.color-grid #indent-title-btn:hover:not(:disabled) {
+  background: transparent;
+  color: var(--figma-color-border-brand);
+  transform: translateY(calc(var(--elevation-nudge) * -1));
+}
+
+.color-grid #outdent-title-btn:active:not(:disabled),
+.color-grid #indent-title-btn:active:not(:disabled) {
+  background: transparent;
+  color: var(--figma-color-border-brand);
+  transform: translateY(0);
+}
+
+.color-grid #outdent-title-btn:hover:not(:disabled) .icon img,
+.color-grid #indent-title-btn:hover:not(:disabled) .icon img,
+.color-grid #outdent-title-btn:active:not(:disabled) .icon img,
+.color-grid #indent-title-btn:active:not(:disabled) .icon img {
+  /* Hover/active: brand blue tint to match quick-actions */
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 1;
+}
+
+.color-grid #outdent-title-btn:disabled,
+.color-grid #indent-title-btn:disabled {
+  background: transparent;
+  color: var(--color-text-disabled);
+}
+
+.color-grid #outdent-title-btn:disabled .icon img,
+.color-grid #indent-title-btn:disabled .icon img {
+  opacity: 0.4;
+}
+
+/* Page Actions Grid - New anatomy-based design */
+.page-actions-grid {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 0;
+  gap: 8px;
+}
+
+/* Remove padding and set full width from color-grid when used as page-actions-grid */
+.color-grid.page-actions-grid {
+  padding: 0;
+  width: 100%;
+}
+
+/* Buttons containers - left and right sections */
+.buttons-left,
+.buttons-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.buttons-left {
+  width: fit-content;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.buttons-right {
+  width: fit-content;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Anatomy section - centered display with page context */
+.anatomy-section {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 0 0;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.anatomy-prefix {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  letter-spacing: 0.4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.anatomy-prefix.preview-mode {
+  opacity: 1 !important;
+  color: var(--figma-color-border-brand);
+}
+
+.anatomy-emoji {
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.anatomy-emoji.preview-mode {
+  opacity: 1 !important;
+  transform: scale(1.1);
+}
+
+.anatomy-date {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  letter-spacing: 0.4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.anatomy-date.preview-mode {
+  opacity: 1 !important;
+  color: var(--figma-color-border-brand);
+}
+
+/* Mode affordance in anatomy section */
+.anatomy-section .mode-affordance {
+  position: static;
+  margin: 0;
+  padding: 2px 4px;
+  font-size: 8px;
+  font-weight: 500;
+  color: #0182cc;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  letter-spacing: 0.32px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  z-index: auto;
+}
+
+/* Buttons in buttons-left and buttons-right containers */
+.buttons-left .action-btn,
+.buttons-right .action-btn {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.buttons-left .action-btn:hover:not(:disabled),
+.buttons-right .action-btn:hover:not(:disabled) {
+  background: var(--color-background-secondary);
+  transform: translateY(-1px);
+}
+
+.buttons-left .action-btn:active:not(:disabled),
+.buttons-right .action-btn:active:not(:disabled) {
+  background: var(--color-background-secondary);
+  transform: translateY(0);
+}
+
+.buttons-left #date-btn .icon,
+.buttons-right .action-btn .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.buttons-left #date-btn .icon img {
+  width: 16px;
+  height: 16px;
+  display: block;
+  /* Default: subtle white/light grey to match quick-actions */
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.7;
+}
+
+.buttons-right #outdent-title-btn .icon img,
+.buttons-right #indent-title-btn .icon img {
+  width: 12px;
+  height: 12px;
+  display: block;
+  /* Default: subtle white/light grey to match quick-actions */
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.7;
+}
+
+.buttons-left .action-btn:hover:not(:disabled) .icon img,
+.buttons-right .action-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 1;
+}
+
+/* Stacked indent/outdent control group */
+.indent-control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.indent-control-group #outdent-title-btn {
+  margin-bottom: 0;
+}
+
+.indent-control-group #indent-title-btn {
+  margin-top: 0;
 }
 
 #color-emoji-buttons {
@@ -3623,7 +4153,7 @@ h3 {
 #controls-header {
   border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 0 0;
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
 }
 
 #controls-header .header-left {
@@ -4307,7 +4837,7 @@ i.grip {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.5px;
 }
 
@@ -4331,6 +4861,51 @@ i.grip {
 
 
 
+
+/* Migration section */
+.settings-help-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.4;
+}
+
+.migration-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.migration-btn {
+  /* Inherit from .btn-base - match clear-action and save-bookmark */
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-pill);
+  background: var(--figma-color-bg-hover);
+  color: var(--figma-color-text);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
+  height: var(--button-height-md);
+  box-sizing: border-box;
+  transition: all 150ms ease;
+}
+
+.migration-btn:hover {
+  background: var(--figma-color-bg-hover);
+  border: var(--border-width) solid var(--figma-color-border-brand);
+  color: var(--figma-color-border-brand);
+}
+
+.migration-btn:active {
+  background: var(--figma-color-bg-selected);
+  transform: scale(0.98);
+}
 
 /* Support section */
 .support-section {
@@ -4738,8 +5313,8 @@ i.grip {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
   display: block;
-  /* Default quick actions icons: subtle monochrome */
-  filter: brightness(0) saturate(0%);
+  /* Default quick actions icons: subtle white/light grey */
+  filter: brightness(0) saturate(0%) invert(100%);
   opacity: 0.7;
 }
 
@@ -4781,18 +5356,68 @@ i.grip {
   color: var(--figma-color-border-brand);
 }
 
-/* Page button icons */
-#quick-actions #new-page-btn .icon {
-  display: inline-flex;
+/* New page button in quick actions - styled like nav buttons */
+#quick-actions #new-page-btn {
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: calc(var(--spacing-lg) * 3);
+  height: calc(var(--spacing-lg) * 3);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+#quick-actions #new-page-btn:hover:not(:disabled) {
+  background: var(--color-background-secondary);
+  color: var(--figma-color-border-brand);
+  transform: translateY(calc(var(--elevation-nudge) * -1));
+  border: none;
+}
+
+#quick-actions #new-page-btn:active:not(:disabled) {
+  background: var(--color-background-secondary);
+  transform: translateY(0);
+  border: none;
+}
+
+#quick-actions #new-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+#quick-actions #new-page-btn .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--icon-size-md);
+  color: var(--color-text-subtle);
 }
 
 #quick-actions #new-page-btn .icon img {
-  width: var(--icon-size-lg);
-  height: var(--icon-size-lg);
+  width: 16px;
+  height: 16px;
   display: block;
-  /* Inherit base quick actions icon filter/opacity */
+  /* Default header nav icons: subtle white/light grey */
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.7;
+}
+
+#quick-actions #new-page-btn:hover:not(:disabled) .icon img,
+#quick-actions #new-page-btn:active:not(:disabled) .icon img {
+  /* Hover/active: brand blue tint to match text color */
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 1;
+}
+
+#quick-actions #new-page-btn:disabled .icon img {
+  opacity: 0.4;
 }
 
 /* Back and forward buttons are now in the anchors header */
@@ -4859,6 +5484,7 @@ i.grip {
   background: transparent;
   color: var(--color-text-subtle);
   font-size: var(--icon-size-lg);
+  border-radius: 4px;
 }
 
 #quick-actions #settings-btn .icon {
@@ -4898,7 +5524,6 @@ i.grip {
 }
 
 /* Remove backplates on quick action button hover states */
-#quick-actions #new-page-btn:hover,
 #quick-actions #deselect-btn:hover {
   background: transparent;
 }
@@ -4938,10 +5563,54 @@ i.grip {
   /* Inherit base quick actions icon filter/opacity */
 }
 
+/* Light theme adjustments for header/quick action icons */
+[data-theme="figma-light"] .header-nav-btn .icon img,
+[data-theme="figma-light"] .header-action-btn .icon img,
+[data-theme="figma-light"] #quick-actions .action-btn .icon img,
+[data-theme="figma-light"] #quick-actions #new-page-btn .icon img,
+[data-theme="figma-light"] .color-grid .action-btn .icon img,
+[data-theme="figma-light"] .color-grid #date-btn .icon img,
+[data-theme="figma-light"] .buttons-left #date-btn .icon img,
+[data-theme="figma-light"] .color-grid #indent-title-btn .icon img,
+[data-theme="figma-light"] .color-grid #outdent-title-btn .icon img,
+[data-theme="figma-light"] .buttons-right #indent-title-btn .icon img,
+[data-theme="figma-light"] .buttons-right #outdent-title-btn .icon img,
+[data-theme="figma-light"] #tags-header #clear-color .icon img,
+[data-theme="figma-light"] #anchors-header #refresh-anchors .icon img,
+[data-theme="figma-light"] #anchors-header #save-bookmark .icon img,
+[data-theme="figma-light"] #controls-header #nav-delete .icon img,
+[data-theme="light"] .header-nav-btn .icon img,
+[data-theme="light"] .header-action-btn .icon img,
+[data-theme="light"] #quick-actions .action-btn .icon img,
+[data-theme="light"] #quick-actions #new-page-btn .icon img,
+[data-theme="light"] .color-grid .action-btn .icon img,
+[data-theme="light"] .color-grid #date-btn .icon img,
+[data-theme="light"] .buttons-left #date-btn .icon img,
+[data-theme="light"] .color-grid #indent-title-btn .icon img,
+[data-theme="light"] .color-grid #outdent-title-btn .icon img,
+[data-theme="light"] .buttons-right #indent-title-btn .icon img,
+[data-theme="light"] .buttons-right #outdent-title-btn .icon img,
+[data-theme="light"] #tags-header #clear-color .icon img,
+[data-theme="light"] #anchors-header #refresh-anchors .icon img,
+[data-theme="light"] #anchors-header #save-bookmark .icon img,
+[data-theme="light"] #controls-header #nav-delete .icon img {
+  /* Use black icons on light backgrounds */
+  filter: brightness(0) saturate(0%);
+  opacity: 0.60;
+}
+
 /* Dark theme adjustments for header/quick action icons */
 [data-theme="figma-dark"] .header-nav-btn .icon img,
 [data-theme="figma-dark"] .header-action-btn .icon img,
 [data-theme="figma-dark"] #quick-actions .action-btn .icon img,
+[data-theme="figma-dark"] #quick-actions #new-page-btn .icon img,
+[data-theme="figma-dark"] .color-grid .action-btn .icon img,
+[data-theme="figma-dark"] .color-grid #date-btn .icon img,
+[data-theme="figma-dark"] .buttons-left #date-btn .icon img,
+[data-theme="figma-dark"] .color-grid #indent-title-btn .icon img,
+[data-theme="figma-dark"] .color-grid #outdent-title-btn .icon img,
+[data-theme="figma-dark"] .buttons-right #indent-title-btn .icon img,
+[data-theme="figma-dark"] .buttons-right #outdent-title-btn .icon img,
 [data-theme="figma-dark"] #tags-header #clear-color .icon img,
 [data-theme="figma-dark"] #anchors-header #refresh-anchors .icon img,
 [data-theme="figma-dark"] #anchors-header #save-bookmark .icon img,
@@ -4953,13 +5622,21 @@ i.grip {
 
 /* Boilerplate theme: bottom border for quick actions bar */
 [data-theme="boilerplate"] #quick-actions {
-  border-bottom: var(--border-width) solid var(--color-border-primary);
+  border-bottom: none;
 }
 
 /* Boilerplate theme: light monochrome icons for dark background */
 [data-theme="boilerplate"] .header-nav-btn .icon img,
 [data-theme="boilerplate"] .header-action-btn .icon img,
 [data-theme="boilerplate"] #quick-actions .action-btn .icon img,
+[data-theme="boilerplate"] #quick-actions #new-page-btn .icon img,
+[data-theme="boilerplate"] .color-grid .action-btn .icon img,
+[data-theme="boilerplate"] .color-grid #date-btn .icon img,
+[data-theme="boilerplate"] .buttons-left #date-btn .icon img,
+[data-theme="boilerplate"] .color-grid #indent-title-btn .icon img,
+[data-theme="boilerplate"] .color-grid #outdent-title-btn .icon img,
+[data-theme="boilerplate"] .buttons-right #indent-title-btn .icon img,
+[data-theme="boilerplate"] .buttons-right #outdent-title-btn .icon img,
 [data-theme="boilerplate"] #tags-header #clear-color .icon img,
 [data-theme="boilerplate"] #anchors-header #refresh-anchors .icon img,
 [data-theme="boilerplate"] #anchors-header #save-bookmark .icon img,
@@ -4976,6 +5653,10 @@ i.grip {
 [data-theme="boilerplate"] .header-action-btn:active .icon img,
 [data-theme="boilerplate"] #quick-actions .action-btn:hover .icon img,
 [data-theme="boilerplate"] #quick-actions .action-btn:active .icon img,
+[data-theme="boilerplate"] #quick-actions #new-page-btn:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] #quick-actions #new-page-btn:active:not(:disabled) .icon img,
+[data-theme="boilerplate"] .color-grid .action-btn:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] .color-grid .action-btn:active:not(:disabled) .icon img,
 [data-theme="boilerplate"] #tags-header #clear-color:hover .icon img,
 [data-theme="boilerplate"] #tags-header #clear-color:active .icon img,
 [data-theme="boilerplate"] #anchors-header #refresh-anchors:hover .icon img,
@@ -4992,6 +5673,14 @@ i.grip {
 [data-theme="cybertron"] .header-nav-btn .icon img,
 [data-theme="cybertron"] .header-action-btn .icon img,
 [data-theme="cybertron"] #quick-actions .action-btn .icon img,
+[data-theme="cybertron"] #quick-actions #new-page-btn .icon img,
+[data-theme="cybertron"] .color-grid .action-btn .icon img,
+[data-theme="cybertron"] .color-grid #date-btn .icon img,
+[data-theme="cybertron"] .buttons-left #date-btn .icon img,
+[data-theme="cybertron"] .color-grid #indent-title-btn .icon img,
+[data-theme="cybertron"] .color-grid #outdent-title-btn .icon img,
+[data-theme="cybertron"] .buttons-right #indent-title-btn .icon img,
+[data-theme="cybertron"] .buttons-right #outdent-title-btn .icon img,
 [data-theme="cybertron"] #tags-header #clear-color .icon img,
 [data-theme="cybertron"] #anchors-header #refresh-anchors .icon img,
 [data-theme="cybertron"] #anchors-header #save-bookmark .icon img,
@@ -5007,7 +5696,11 @@ i.grip {
 [data-theme="cybertron"] .header-action-btn:hover .icon img,
 [data-theme="cybertron"] .header-action-btn:active .icon img,
 [data-theme="cybertron"] #quick-actions .action-btn:hover .icon img,
-[data-theme="cybertron"] #quick-actions .action-btn:active .icon img {
+[data-theme="cybertron"] #quick-actions .action-btn:active .icon img,
+[data-theme="cybertron"] #quick-actions #new-page-btn:hover:not(:disabled) .icon img,
+[data-theme="cybertron"] #quick-actions #new-page-btn:active:not(:disabled) .icon img,
+[data-theme="cybertron"] .color-grid .action-btn:hover:not(:disabled) .icon img,
+[data-theme="cybertron"] .color-grid .action-btn:active:not(:disabled) .icon img {
   filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(160deg) brightness(1.5);
   opacity: 1;
 }
@@ -5065,18 +5758,28 @@ i.grip {
   display: inline-flex;
   align-items: center;
   margin-right: var(--spacing-xs);
-  padding: 0 4px;
+  padding: 2px 4px;
   font-size: 8px;
-  font-weight: var(--font-weight-normal);
-  color: var(--figma-color-border-brand);
+  font-weight: 500;
+  color: #0182cc;
   background: transparent;
-  border: var(--border-width) solid var(--theme-border-translucent);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   text-transform: none;
-  letter-spacing: var(--letter-spacing-normal);
-  line-height: 1.4;
+  letter-spacing: 0.32px;
+  line-height: 1;
   white-space: nowrap;
   transition: all var(--transition-normal);
+}
+
+/* Mode affordance when floated to the right (direct child of tag-grid-container) */
+.tag-grid-container > .mode-affordance {
+  position: absolute;
+  top: calc(var(--border-width) * -1 - var(--spacing-lg) + 2px);
+  right: calc(var(--spacing-sm) + 4px);
+  margin-right: 0;
+  background: var(--color-background-elevated);
+  z-index: 1;
 }
 
 /* Mode affordance state variations */
@@ -5086,32 +5789,17 @@ i.grip {
   background: var(--theme-background-subtle);
 }
 
+/* Maintain background color for tag-grid-container affordances when mode changes */
+.tag-grid-container > .mode-affordance[data-mode="onLayer"] {
+  background: var(--color-background-elevated);
+}
+
 .emoji-nav-list {
   display: flex;
   gap: var(--spacing-xs);
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-.emoji-nav-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  background: var(--color-background-main);
-  color: var(--theme-text-muted);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  position: relative;
-  z-index: 1;
-}
-
-.emoji-nav-btn:hover {
-  background: var(--color-background-main);
-  color: var(--theme-text-muted);
-  transform: scale(1.05);
 }
 
 /* Base nav arrow - dark themes use white */
@@ -5139,7 +5827,7 @@ i.grip {
 }
 
 .emoji-nav-btn:active {
-  background: var(--color-background-main);
+  background: var(--color-background-elevated);
   color: var(--theme-text-muted);
   transform: scale(1);
 }
@@ -5159,7 +5847,7 @@ i.grip {
 .emoji-nav-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: var(--color-background-main);
+  background: var(--color-background-elevated);
 }
 
 .nav-arrow {
@@ -5394,6 +6082,16 @@ i.grip {
   background: var(--theme-overlay-xweak);
 }
 
+#footer-resize.auto-fit-active {
+  color: var(--color-text-primary);
+}
+
+#footer-resize.auto-fit-active:hover,
+#footer-resize.auto-fit-active:focus {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+}
+
 /* Footer icon buttons */
 .footer-icon-btn {
   position: absolute;
@@ -5413,10 +6111,6 @@ i.grip {
   border-radius: var(--border-radius-sm);
 }
 
-#footer-fit.footer-icon-btn {
-  left: calc(var(--footer-height) + var(--spacing-sm));
-}
-
 #footer-width-toggle.footer-icon-btn {
   left: 0;
 }
@@ -5431,6 +6125,12 @@ i.grip {
   color: var(--figma-color-border-brand, #18a0fb);
   background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.2));
   transform: scale(0.95);
+}
+
+/* Active state when compact mode is enabled */
+#footer-width-toggle.footer-icon-btn.active {
+  color: var(--figma-color-border-brand, #18a0fb);
+  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.2));
 }
 
 /* Footer button hover states */
@@ -5646,13 +6346,13 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 #tags-header {
   border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 0 0;
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
 }
 
 #anchors-header {
   border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 0 0;
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
 }
 
 
@@ -5663,7 +6363,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 /* THEME OPTION STYLING - Settings panel theme selection */
 .theme-option {
-  display: block;
+  display: flex;
   margin-bottom: var(--spacing-md);
   cursor: pointer;
 }
@@ -5851,7 +6551,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 /* THEME OPTION STYLING - Base styles for theme selection */
 .theme-option {
-  display: block;
+  display: flex;
   cursor: pointer;
 }
 

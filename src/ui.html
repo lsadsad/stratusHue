@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="figma-light">
 
 <head>
   <meta charset="UTF-8">
@@ -12,6 +12,11 @@
   <main class="scrollable-content">
     <nav id="quick-actions" role="toolbar" aria-label="Quick actions">
       <div class="header-left">
+        <button id="new-page-btn" class="header-nav-btn" aria-label="Create new page">
+          <span class="icon"><img src="./assets/ICO-addPage.svg" alt=""></span>
+        </button>
+      </div>
+      <div class="header-center">
         <nav class="header-nav-group" role="group" aria-label="Navigation history">
           <button id="back-btn" class="header-nav-btn" aria-label="Go back" disabled>
             <span class="icon"><img src="./assets/ICO-navBack.svg" alt=""></span>
@@ -20,8 +25,6 @@
             <span class="icon"><img src="./assets/ICO-navForward.svg" alt=""></span>
           </button>
         </nav>
-      </div>
-      <div class="header-center">
       </div>
       <div class="header-right">
         <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
@@ -38,6 +41,9 @@
         <h2 class="header-title">Tags</h2>
       </div>
       <div class="header-right">
+        <button id="clear-color" class="action-btn header-action-btn" aria-label="Remove color tags" onclick="event.stopPropagation();">
+          <span class="icon"><img src="./assets/ICO-removeTag.svg" alt=""></span>
+        </button>
       </div>
     </header>
 
@@ -45,7 +51,6 @@
       <div class="tags-content-wrapper">
         <div class="tag-grid-container">
           <span id="emoji-set-indicator" class="emoji-set-title">
-            <span class="mode-affordance">PAGE</span>
             <span class="set-name">Colors</span>
           </span>
           <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
@@ -54,22 +59,26 @@
             <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set"><img src="./assets/ICO-menuNext.svg" class="nav-arrow" alt=""></button>
           </nav>
         </div>
-        <div class="color-grid" role="group" aria-label="Page actions">
-          <button id="new-page-btn" class="action-btn" aria-label="Create new page">
-            <span class="icon"><img src="./assets/ICO-addPage.svg" alt=""></span><span class="label">New Page</span>
-          </button>
-          <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
-            <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span><span class="label">Indent</span>
-          </button>
-          <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
-            <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span><span class="label">Outdent</span>
-          </button>
-          <button id="date-btn" class="action-btn" aria-label="Add date tag">
-            <span class="icon"><img src="./assets/ICO-addDate.svg" alt=""></span><span class="label">Date</span>
-          </button>
-          <button id="clear-color" class="action-btn" aria-label="Remove color tags">
-            <span class="icon"><img src="./assets/ICO-removeTag.svg" alt=""></span><span class="label">Remove Tag</span>
-          </button>
+        <div class="color-grid page-actions-grid" role="group" aria-label="Page actions">
+          <div class="buttons-left">
+            <button id="date-btn" class="action-btn" aria-label="Add or update date (hover to preview)">
+              <span class="icon"><img src="./assets/ICO-addDate.svg" alt=""></span>
+            </button>
+          </div>
+          <div class="anatomy-section">
+            <span class="anatomy-prefix" style="display: none;">↳</span>
+            <span class="anatomy-emoji" style="display: none;"></span>
+            <span class="anatomy-date" style="display: none;"></span>
+            <span class="mode-affordance" data-mode="onPage">PAGE</span>
+          </div>
+          <div class="buttons-right">
+            <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
+              <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span>
+            </button>
+            <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
+              <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span>
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -232,8 +241,8 @@
         </div>
 
         <div class="tag-grid-container">
+          <span class="mode-affordance">PAGE</span>
           <span id="hierarchy-set-indicator" class="emoji-set-title">
-            <span class="mode-affordance">PAGE</span>
             <span class="set-name">Hierarchy</span>
           </span>
           <div class="controls-grid" role="grid" aria-label="Layer hierarchy controls"
@@ -405,6 +414,20 @@
           </div>
         </div>
 
+        <!-- Data Migration Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">💾 Data Migration</h3>
+          <p class="settings-help-text">Use these tools when updating the plugin ID. Export data with the old ID, then import with the new ID.</p>
+          <div class="setting-item migration-buttons">
+            <button id="export-data-btn" class="migration-btn" aria-label="Export plugin data">
+              <span class="action-text">📤 Export Data</span>
+            </button>
+            <button id="import-data-btn" class="migration-btn" aria-label="Import plugin data">
+              <span class="action-text">📥 Import Data</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Support Section -->
         <div class="settings-section">
           <div class="support-section">
@@ -427,18 +450,13 @@
         <button id="footer-width-toggle" class="footer-icon-btn" aria-label="Toggle width" title="Width">↔</button>
       </li>
       <li>
-        <button id="footer-fit" class="footer-icon-btn active" aria-label="Auto-fit enabled - click to disable"
-          title="Auto-fit: ON" data-tooltip="Toggle auto-height">↕</button>
-      </li>
-      <li>
-        <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel" tabindex="0">
+        <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel (double-click to toggle auto-fit)" tabindex="0">
           <i class="grip">: : :</i>
         </div>
       </li>
       <li>
         <span class="made-with">
-          <a href="https://levinsadsad.com" target="_blank" rel="noopener noreferrer"><span class="made-text">made w/</span> <img src="./assets/LOGO-L3Vi_dsgn-dark.svg" alt="L3Vi Design" class="logo-svg logo-dark">
-          <img src="./assets/LOGO-L3Vi_dsgn-light.svg" alt="L3Vi Design" class="logo-svg logo-light"></a>
+          <a href="https://levinsadsad.com" target="_blank" rel="noopener noreferrer"><span class="made-text">made w/</span> <img src="./assets/LOGO-L3Vi_dsgn-dark.svg" alt="L3Vi Design" class="logo-svg logo-dark"><img src="./assets/LOGO-L3Vi_dsgn-light.svg" alt="L3Vi Design" class="logo-svg logo-light"></a>
         </span>
       </li>
     </ul>

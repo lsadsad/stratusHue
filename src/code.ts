@@ -193,6 +193,14 @@ figma.ui.onmessage = async (msg) => {
         }
         break;
 
+      case 'export-plugin-data':
+        await handleExportPluginData();
+        break;
+
+      case 'import-plugin-data':
+        await handleImportPluginData();
+        break;
+
       case 'deselect':
         figma.currentPage.selection = [];
         sendSelectionStateToUI();
@@ -671,6 +679,19 @@ const handleRefreshAnchors = withErrorBoundary(async () => {
   sendNavigationStateToUI();
   sendSelectionStateToUI();
 }, ErrorType.UNKNOWN);
+
+const handleExportPluginData = withErrorBoundary(async () => {
+  await (await import('./core/migration')).exportPluginDataToShared();
+  await sendInitialUIState();
+}, ErrorType.STORAGE_ERROR);
+
+const handleImportPluginData = withErrorBoundary(async () => {
+  await (await import('./core/migration')).importPluginDataFromShared();
+  // Reload all states after import
+  await loadAnchorState();
+  await loadUISectionStates();
+  await sendInitialUIState();
+}, ErrorType.STORAGE_ERROR);
 
 const handleAddDate = withErrorBoundary(async () => {
   const selection = figma.currentPage.selection;
