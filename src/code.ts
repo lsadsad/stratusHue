@@ -235,7 +235,7 @@ figma.ui.onmessage = async (msg) => {
 
       case 'zoom':
         if ('direction' in msg && typeof msg.direction === 'string') {
-          await handleZoom(msg.direction as 'in' | 'out' | '100');
+          await handleZoom(msg.direction as 'in' | 'out' | '100' | 'selection');
         }
         break;
 
@@ -540,10 +540,50 @@ const handleReorderLayer = withErrorBoundary(async (direction: 'up' | 'down' | '
   }
 }, ErrorType.UNKNOWN);
 
-const handleZoom = withErrorBoundary(async (direction: 'in' | 'out' | '100') => {
+const handleZoom = withErrorBoundary(async (direction: 'in' | 'out' | '100' | 'selection') => {
   const selection = figma.currentPage.selection;
   const currentZoom = figma.viewport.zoom;
   const zoomFactor = 1.2; // 20% zoom change
+  
+  // Handle zoom to selection (mimics Shift+2)
+  if (direction === 'selection') {
+    if (selection.length === 0) {
+      // When nothing is selected, zoom to all content on the page (like Shift+2)
+      const allNodes = figma.currentPage.children.filter(node => {
+        try {
+          return 'visible' in node && node.visible;
+        } catch {
+          return false;
+        }
+      }) as SceneNode[];
+      
+      if (allNodes.length > 0) {
+        figma.viewport.scrollAndZoomIntoView(allNodes);
+        figma.notify('Zoomed to fit all page content');
+      } else {
+        figma.notify('No visible content on page');
+      }
+      return;
+    }
+    
+    // Filter to only visible, valid nodes
+    const validNodes = selection.filter(node => {
+      try {
+        return 'visible' in node && node.visible;
+      } catch {
+        return false;
+      }
+    }) as SceneNode[];
+    
+    if (validNodes.length > 0) {
+      // Zoom to fit selected nodes in view
+      figma.viewport.scrollAndZoomIntoView(validNodes);
+      figma.notify(`Zoomed to ${validNodes.length} selected element${validNodes.length === 1 ? '' : 's'}`);
+    } else {
+      figma.notify('Selected elements are not visible');
+    }
+    return;
+  }
   
   // If there are selected nodes, scroll to them first to prioritize them
   if (selection.length > 0) {

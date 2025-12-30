@@ -101,6 +101,8 @@ function handlePluginMessage(event: MessageEvent): void {
       break;
     case 'ui-section-states':
       uiSectionStatesFromPlugin = message.states || {};
+      // Restore the saved states to the UI
+      restoreUISectionStates();
       break;
     case 'navigation-context-update':
       navigationContext = message.context;
@@ -1146,7 +1148,19 @@ function setupEventListeners(): void {
 
   // Toggle compact/full width
   if (widthToggleBtn) {
+    // #region agent log
+    widthToggleBtn.addEventListener('mousedown', () => {
+      const computed = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1148-mousedown',message:'mousedown event fired',data:{classList:Array.from(widthToggleBtn.classList),bgColor:computed.backgroundColor,color:computed.color,hasFocus:document.activeElement===widthToggleBtn},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H5'})}).catch(()=>{});
+    });
+    // #endregion
+
     widthToggleBtn.addEventListener('click', () => {
+      // #region agent log
+      const computedBefore = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1149-click-before',message:'click event - before state change',data:{isWidthCompactBefore:isWidthCompact,classListBefore:Array.from(widthToggleBtn.classList),bgColorBefore:computedBefore.backgroundColor,colorBefore:computedBefore.color,hasFocusBefore:document.activeElement===widthToggleBtn},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2,H3'})}).catch(()=>{});
+      // #endregion
+      
       console.log('Toggle width');
       
       // Toggle the state
@@ -1164,26 +1178,68 @@ function setupEventListeners(): void {
         }
       }
       
+      // #region agent log
+      const computedAfter = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1167-click-after',message:'click event - after state change',data:{isWidthCompactAfter:isWidthCompact,classListAfter:Array.from(widthToggleBtn.classList),bgColorAfter:computedAfter.backgroundColor,colorAfter:computedAfter.color,hasFocusAfter:document.activeElement===widthToggleBtn},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2,H3,H4'})}).catch(()=>{});
+      // #endregion
+      
       sendMessage('toggle-width');
     });
 
+    // #region agent log
+    widthToggleBtn.addEventListener('mouseup', () => {
+      const computed = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1168-mouseup',message:'mouseup event fired',data:{classList:Array.from(widthToggleBtn.classList),bgColor:computed.backgroundColor,color:computed.color,hasFocus:document.activeElement===widthToggleBtn},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
+    });
+    // #endregion
+
     // Add hover state management to prevent stuck states
     widthToggleBtn.addEventListener('mouseenter', () => {
+      // #region agent log
+      const computedBefore = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1171-mouseenter-before',message:'mouseenter - before adding hover-active',data:{classListBefore:Array.from(widthToggleBtn.classList),bgColorBefore:computedBefore.backgroundColor},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+      // #endregion
+      
       widthToggleBtn.classList.add('hover-active');
+      
+      // #region agent log
+      const computedAfter = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1172-mouseenter-after',message:'mouseenter - after adding hover-active',data:{classListAfter:Array.from(widthToggleBtn.classList),bgColorAfter:computedAfter.backgroundColor},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+      // #endregion
     });
 
     widthToggleBtn.addEventListener('mouseleave', () => {
+      // #region agent log
+      const computedBefore = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1175-mouseleave-before',message:'mouseleave - before cleanup',data:{classListBefore:Array.from(widthToggleBtn.classList),bgColorBefore:computedBefore.backgroundColor,colorBefore:computedBefore.color},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3,H4'})}).catch(()=>{});
+      // #endregion
+      
       widthToggleBtn.classList.remove('hover-active');
       // Force style reset
       widthToggleBtn.style.removeProperty('background');
       widthToggleBtn.style.removeProperty('color');
+      
+      // #region agent log
+      const computedAfter = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1180-mouseleave-after',message:'mouseleave - after cleanup',data:{classListAfter:Array.from(widthToggleBtn.classList),bgColorAfter:computedAfter.backgroundColor,colorAfter:computedAfter.color},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3,H4'})}).catch(()=>{});
+      // #endregion
     });
 
     widthToggleBtn.addEventListener('blur', () => {
+      // #region agent log
+      const computedBefore = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1182-blur-before',message:'blur - before cleanup',data:{classListBefore:Array.from(widthToggleBtn.classList),bgColorBefore:computedBefore.backgroundColor,colorBefore:computedBefore.color},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
+      // #endregion
+      
       widthToggleBtn.classList.remove('hover-active');
       // Force style reset
       widthToggleBtn.style.removeProperty('background');
       widthToggleBtn.style.removeProperty('color');
+      
+      // #region agent log
+      const computedAfter = window.getComputedStyle(widthToggleBtn);
+      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1187-blur-after',message:'blur - after cleanup',data:{classListAfter:Array.from(widthToggleBtn.classList),bgColorAfter:computedAfter.backgroundColor,colorAfter:computedAfter.color},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
+      // #endregion
     });
   }
 
@@ -1829,18 +1885,45 @@ function initializeSystemThemeDetection(): void {
   // Initialize accessibility listeners
   initializeAccessibilityListeners();
 
-  // Apply system theme immediately as fallback before loading preferences
-  const systemTheme = themeManager.currentSystemTheme;
-  const fallbackEffectiveTheme = 'figma-light'; // Force light theme for browser preview
+  // Try to load saved theme preference from localStorage first to avoid flash
+  let initialTheme: EffectiveTheme;
+  try {
+    const stored = localStorage.getItem('themePreference');
+    if (stored) {
+      const themePreference = JSON.parse(stored);
+      console.log('🔍 Found saved theme preference:', themePreference);
+      
+      // Resolve the saved preference to an effective theme
+      if (themePreference.mode === 'system') {
+        initialTheme = themeManager.currentSystemTheme === 'dark' ? 'figma-dark' : 'figma-light';
+      } else if (themePreference.mode === 'light') {
+        initialTheme = 'figma-light';
+      } else if (themePreference.mode === 'dark') {
+        initialTheme = 'figma-dark';
+      } else {
+        initialTheme = themePreference.mode as EffectiveTheme;
+      }
+    } else {
+      // No saved preference, use system theme
+      const systemTheme = themeManager.currentSystemTheme;
+      initialTheme = systemTheme === 'dark' ? 'figma-dark' : 'figma-light';
+      console.log(`🔍 No saved preference, using system theme: ${systemTheme}`);
+    }
+  } catch (error) {
+    // Fallback to system theme if localStorage fails
+    const systemTheme = themeManager.currentSystemTheme;
+    initialTheme = systemTheme === 'dark' ? 'figma-dark' : 'figma-light';
+    console.warn('⚠️ Failed to load theme preference, using system theme:', error);
+  }
 
-  console.log(`🔍 System theme detected: ${systemTheme}, applying fallback: ${fallbackEffectiveTheme}`);
+  console.log(`🎨 Applying initial theme: ${initialTheme}`);
 
   // Additional debugging for system theme detection
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   console.log(`🔍 Media query '(prefers-color-scheme: dark)' matches: ${mediaQuery.matches}`);
   console.log(`🔍 Expected system theme: ${mediaQuery.matches ? 'dark' : 'light'}`);
 
-  applyTheme(fallbackEffectiveTheme);
+  applyTheme(initialTheme);
 
   // Set up theme change listeners for system changes and user preferences
   themeManager.onThemeChange((effectiveTheme) => {
@@ -2684,8 +2767,8 @@ function handleDOMReady(): void {
     if (!msg) return;
     if (msg.type === 'theme-preference') {
       if (themeManager && isThemeInitialized) {
-        // Force dark theme for browser preview
-        const themeData = typeof (window as any).figma === 'undefined' ? { mode: 'dark' } : msg.theme;
+        // Use the theme data directly from the backend
+        const themeData = msg.theme;
 
         console.log('📥 Received theme preference from backend:', themeData);
 
@@ -3419,6 +3502,12 @@ function updateControlButtons(context: NavigationContext): void {
     arrowRightBtn.disabled = !hasSelection;
   }
 
+  // Zoom to selection button is always enabled - zooms to selection or all page content
+  const zoomSelectionBtn = document.getElementById('zoom-selection') as HTMLButtonElement;
+  if (zoomSelectionBtn) {
+    zoomSelectionBtn.disabled = false;
+  }
+
   // Update layer ordering buttons - enable when elements are selected
   const layerUpBtn = document.getElementById('layer-up') as HTMLButtonElement;
   const layerDownBtn = document.getElementById('layer-down') as HTMLButtonElement;
@@ -3538,6 +3627,7 @@ function setupControls(): void {
   const zoomInBtn = document.getElementById('zoom-in');
   const zoomOutBtn = document.getElementById('zoom-out');
   const zoom100Btn = document.getElementById('zoom-100');
+  const zoomSelectionBtn = document.getElementById('zoom-selection');
   const arrowKeysGrid = document.querySelector('.arrow-keys-grid');
 
   // Add click event listeners with screen reader announcements
@@ -3691,6 +3781,13 @@ function setupControls(): void {
     zoom100Btn.addEventListener('click', () => {
       console.log('Zoom: 100%');
       sendMessage('zoom', { direction: '100' });
+    });
+  }
+
+  if (zoomSelectionBtn) {
+    zoomSelectionBtn.addEventListener('click', () => {
+      console.log('Zoom: Zoom to selection');
+      sendMessage('zoom', { direction: 'selection' });
     });
   }
 

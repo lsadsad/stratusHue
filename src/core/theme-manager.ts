@@ -199,6 +199,7 @@ export class ThemeManager {
   async setTheme(mode: ThemeMode): Promise<void> {
     // Early return if theme hasn't changed
     if (this.currentThemeMode === mode) {
+      console.log('[DEBUG-H1] Early return - theme unchanged');
       return;
     }
     
@@ -307,10 +308,12 @@ export class ThemeManager {
       } else {
         themePreference = preference;
       }
+      console.log('[DEBUG-H2,H3] Using provided preference:', themePreference);
     } else {
       // Load from enhanced storage system
       try {
         const stored = localStorage.getItem('themePreference');
+        console.log('[DEBUG-H2,H3] localStorage.getItem result:', stored);
         if (stored) {
           themePreference = JSON.parse(stored);
         } else {
@@ -332,6 +335,12 @@ export class ThemeManager {
       this.systemTheme = currentSystemTheme;
       this.invalidateEffectiveThemeCache();
     }
+    
+    // #region agent log
+    const effectiveTheme = this.getEffectiveTheme();
+    console.log('[DEBUG-H2,H3] Calling notifyThemeChange, currentMode:', this.currentThemeMode, 'effectiveTheme:', effectiveTheme);
+    fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'theme-manager.ts:337',message:'Calling notifyThemeChange',data:{currentMode:this.currentThemeMode,effectiveTheme:effectiveTheme},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2,H3'})}).catch(()=>{});
+    // #endregion
     
     // Apply the theme immediately
     this.notifyThemeChange();

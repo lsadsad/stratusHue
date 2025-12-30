@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="figma-light">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
@@ -235,7 +235,13 @@
               <span class="nav-label">Down</span>
               <span id="arrow-down-desc" class="sr-only">Move down 1px, 8px with Shift. Ctrl: increase height. Alt: duplicate downward</span>
             </button>
-            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="2" data-grid-col="2"></div>
+            <button id="zoom-selection" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="3"
+              aria-label="Zoom to selection (Shift+2)" aria-describedby="zoom-selection-desc" data-tooltip="Zoom to Selection (⇧2)" data-tooltip-delay="600" data-grid-row="2"
+              data-grid-col="2">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-zoomSelection.svg" alt=""></span>
+              <span class="nav-label">Fit</span>
+              <span id="zoom-selection-desc" class="sr-only">Zoom and center view to fit selected elements, or all page content if nothing is selected</span>
+            </button>
           </div>
           </div>
         </div>

@@ -80,7 +80,6 @@ body.touch-active .kofi-button:hover {
 /* Reduce spacing in the page actions grid */
 .scrollable-content.compact-mode .page-actions-grid {
   gap: 4px;
-  padding: 0 4px;
 }
 
 /* Make buttons on left and right more compact visually, but keep hit states */
@@ -98,25 +97,11 @@ body.touch-active .kofi-button:hover {
   margin-left: 0;
 }
 
-/* Scale down only the visual icons, not the button size */
-.scrollable-content.compact-mode .color-grid #date-btn .icon img {
-  width: 14px;
-  height: 14px;
-}
-
-.scrollable-content.compact-mode .color-grid #outdent-title-btn .icon img,
-.scrollable-content.compact-mode .color-grid #indent-title-btn .icon img {
-  width: 12px;
-  height: 12px;
-}
-
 /* Scale down the anatomy section */
 .scrollable-content.compact-mode .anatomy-section {
-  transform: scale(0.9);
+  /* transform: scale(0.9); */
   transform-origin: center center;
-  gap: 1px;
-  padding: 0 4px;
-  height: 28px;
+  gap: 4px;
   border-radius: 8px;
 }
 
@@ -3159,6 +3144,7 @@ h3 {
 .color-grid.page-actions-grid {
   padding: 0;
   width: 100%;
+  gap: 0px;
 }
 
 /* Buttons containers - left and right sections */
@@ -3195,7 +3181,7 @@ h3 {
   align-items: center;
   gap: 4px;
   padding: 0 0;
-  background: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
   border-radius: 10px;
 }
 
@@ -6127,10 +6113,9 @@ i.grip {
   transform: scale(0.95);
 }
 
-/* Active state when compact mode is enabled */
+/* Active state when compact mode is enabled - removed persistent blue styling */
 #footer-width-toggle.footer-icon-btn.active {
-  color: var(--figma-color-border-brand, #18a0fb);
-  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.2));
+  /* No persistent styling - user only wants to see blue while actively pressing */
 }
 
 /* Footer button hover states */
