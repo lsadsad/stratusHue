@@ -1893,7 +1893,6 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  padding-bottom: var(--footer-height);
   box-sizing: border-box;
 }
 
@@ -3144,7 +3143,7 @@ h3 {
 .color-grid.page-actions-grid {
   padding: 0;
   width: 100%;
-  gap: 0px;
+  gap: 4px;
 }
 
 /* Buttons containers - left and right sections */
@@ -3181,7 +3180,11 @@ h3 {
   align-items: center;
   gap: 4px;
   padding: 0 0;
-  background-color: rgba(0, 0, 0, 0.05);
+  background: unset;
+  border-style: dashed;
+  border-width: 1px;
+  border-color: var(--theme-border-translucent);
+  border-image: none;
   border-radius: 10px;
 }
 

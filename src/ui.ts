@@ -448,6 +448,14 @@ function initializeQuickActionTooltips(): void {
   const targets = document.querySelectorAll('.action-btn');
   targets.forEach((el) => attachTooltip(el as HTMLElement));
 
+  // Attach to header nav buttons (new page, back, forward)
+  const headerNavBtns = document.querySelectorAll('.header-nav-btn');
+  headerNavBtns.forEach((el) => attachTooltip(el as HTMLElement));
+
+  // Attach to emoji nav buttons (previous/next set)
+  const emojiNavBtns = document.querySelectorAll('.emoji-nav-btn');
+  emojiNavBtns.forEach((el) => attachTooltip(el as HTMLElement));
+
   // Also attach to footer icon buttons for consistency
   const footerTargets = document.querySelectorAll('.footer-icon-btn');
   footerTargets.forEach((el) => attachTooltip(el as HTMLElement));
@@ -461,6 +469,12 @@ function initializeQuickActionTooltips(): void {
   window.addEventListener('resize', () => hideTooltip(true));
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') hideTooltip(true);
+  });
+  // Dismiss tooltip on any button press to reduce visual noise
+  document.addEventListener('mousedown', (e) => {
+    if ((e.target as HTMLElement).closest('button')) {
+      hideTooltip(true);
+    }
   });
 }
 

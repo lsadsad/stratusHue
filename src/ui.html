@@ -41,7 +41,7 @@
         <h2 class="header-title">Tags</h2>
       </div>
       <div class="header-right">
-        <button id="clear-color" class="action-btn header-action-btn" aria-label="Remove color tags" onclick="event.stopPropagation();">
+        <button id="clear-color" class="action-btn header-action-btn" aria-label="Remove tag" onclick="event.stopPropagation();">
           <span class="icon"><img src="./assets/ICO-removeTag.svg" alt=""></span>
         </button>
       </div>
@@ -55,13 +55,13 @@
           </span>
           <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
           <nav class="emoji-nav-container">
-            <button id="emoji-nav-left" class="emoji-nav-btn" aria-label="Previous emoji set"><img src="./assets/ICO-menuPrev.svg" class="nav-arrow" alt=""></button>
-            <button id="emoji-nav-right" class="emoji-nav-btn" aria-label="Next emoji set"><img src="./assets/ICO-menuNext.svg" class="nav-arrow" alt=""></button>
+            <button id="emoji-nav-left" class="emoji-nav-btn"><img src="./assets/ICO-menuPrev.svg" class="nav-arrow" alt="Previous set"></button>
+            <button id="emoji-nav-right" class="emoji-nav-btn"><img src="./assets/ICO-menuNext.svg" class="nav-arrow" alt="Next set"></button>
           </nav>
         </div>
         <div class="color-grid page-actions-grid" role="group" aria-label="Page actions">
           <div class="buttons-left">
-            <button id="date-btn" class="action-btn" aria-label="Add or update date (hover to preview)">
+            <button id="date-btn" class="action-btn" aria-label="Add/update date">
               <span class="icon"><img src="./assets/ICO-addDate.svg" alt=""></span>
             </button>
           </div>
@@ -72,10 +72,10 @@
             <span class="mode-affordance" data-mode="onPage">PAGE</span>
           </div>
           <div class="buttons-right">
-            <button id="outdent-title-btn" class="action-btn" aria-label="Outdent page title">
+            <button id="outdent-title-btn" class="action-btn" aria-label="Outdent title">
               <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span>
             </button>
-            <button id="indent-title-btn" class="action-btn" aria-label="Indent page title">
+            <button id="indent-title-btn" class="action-btn" aria-label="Indent title">
               <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span>
             </button>
           </div>
@@ -94,7 +94,7 @@
         <button id="refresh-anchors" class="action-btn header-action-btn" aria-label="Sync bookmarks across plugin windows" onclick="event.stopPropagation();">
           <span class="icon"><img src="./assets/ICO-anchorRefresh.svg" alt=""></span>
         </button>
-        <button id="save-bookmark" class="action-btn header-action-btn" aria-label="Drop anchor to save bookmark" onclick="event.stopPropagation();">
+        <button id="save-bookmark" class="action-btn header-action-btn" aria-label="Save bookmark" onclick="event.stopPropagation();">
           <span class="icon"><img src="./assets/ICO-anchors.svg" alt=""></span>
         </button>
       </div>
@@ -147,7 +147,7 @@
         <h2 class="header-title">Controls</h2>
       </div>
       <div class="header-right">
-        <button id="nav-delete" class="action-btn header-action-btn" aria-label="Delete selected nodes" data-tooltip="Delete Selected" data-tooltip-delay="600" disabled onclick="event.stopPropagation();">
+        <button id="nav-delete" class="action-btn header-action-btn" aria-label="Delete selected nodes" data-tooltip="Delete selected" data-tooltip-delay="600" disabled onclick="event.stopPropagation();">
           <span class="icon"><img src="./assets/ICO-delete.svg" alt=""></span>
         </button>
       </div>
@@ -236,7 +236,7 @@
               <span id="arrow-down-desc" class="sr-only">Move down 1px, 8px with Shift. Ctrl: increase height. Alt: duplicate downward</span>
             </button>
             <button id="zoom-selection" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="3"
-              aria-label="Zoom to selection (Shift+2)" aria-describedby="zoom-selection-desc" data-tooltip="Zoom to Selection (⇧2)" data-tooltip-delay="600" data-grid-row="2"
+              aria-label="Zoom to selection (Shift+2)" aria-describedby="zoom-selection-desc" data-tooltip="Zoom to selection" data-tooltip-delay="600" data-grid-row="2"
               data-grid-col="2">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-zoomSelection.svg" alt=""></span>
               <span class="nav-label">Fit</span>
@@ -415,12 +415,13 @@
           <div class="setting-item">
             <label class="setting-label-small">
               <input type="checkbox" id="controls-toggle" checked>
-              <span class="checkbox-description">Enable layer hierarchy navigation, element movement, zoom, and actions</span>
+              <span class="checkbox-description">Enable layer navigation, element movement, zoom, and actions</span>
             </label>
           </div>
         </div>
 
         <!-- Data Migration Section -->
+        <!-- COMMENTED OUT: Data Migration Feature
         <div class="settings-section">
           <h3 class="settings-section-title">💾 Data Migration</h3>
           <p class="settings-help-text">Use these tools when updating the plugin ID. Export data with the old ID, then import with the new ID.</p>
@@ -433,6 +434,7 @@
             </button>
           </div>
         </div>
+        -->
 
         <!-- Support Section -->
         <div class="settings-section">
