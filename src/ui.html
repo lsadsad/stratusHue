@@ -33,7 +33,7 @@
       </div>
     </nav>
 
-    <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="0"
+    <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="-1"
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
       </div>
@@ -84,7 +84,7 @@
     </section>
 
     <header id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button"
-      tabindex="0" aria-expanded="true" aria-controls="anchors-section">
+      tabindex="-1" aria-expanded="true" aria-controls="anchors-section">
       <div class="header-left">
       </div>
       <div class="header-center">
@@ -140,7 +140,7 @@
     </section>
 
     <header id="controls-header" class="section-header collapsible" data-target="controls-section" role="button"
-      tabindex="0" aria-expanded="true" aria-controls="controls-section">
+      tabindex="-1" aria-expanded="true" aria-controls="controls-section">
       <div class="header-left">
       </div>
       <div class="header-center">
@@ -269,8 +269,8 @@
               <span id="nav-exit-desc" class="sr-only">Move selection up one level in hierarchy</span>
             </button>
             <button id="nav-prev" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="2"
-              aria-label="Previous sibling (Shift+Tab)" aria-describedby="nav-prev-desc" data-tooltip="Previous Sibling (⇧Tab)" data-tooltip-delay="600" disabled data-grid-row="0"
-              data-grid-col="1" data-shortcut="Shift+Tab">
+              aria-label="Previous sibling" aria-describedby="nav-prev-desc" data-tooltip="Previous Sibling" data-tooltip-delay="600" disabled data-grid-row="0"
+              data-grid-col="1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderUp.svg" alt=""></span>
               <span id="nav-prev-desc" class="sr-only">Select previous sibling layer (up in layers panel)</span>
             </button>
@@ -291,8 +291,8 @@
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderEnter.svg" alt=""></span>
               <span id="nav-enter-desc" class="sr-only">Select all children of container and focus view</span>
             </button>
-            <button id="nav-next" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="2" aria-label="Next sibling (Tab)"
-              aria-describedby="nav-next-desc" data-tooltip="Next Sibling (Tab)" data-tooltip-delay="600" disabled data-grid-row="1" data-grid-col="1" data-shortcut="Tab">
+            <button id="nav-next" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="2" aria-label="Next sibling"
+              aria-describedby="nav-next-desc" data-tooltip="Next Sibling" data-tooltip-delay="600" disabled data-grid-row="1" data-grid-col="1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderDown.svg" alt=""></span>
               <span id="nav-next-desc" class="sr-only">Select next sibling layer (down in layers panel)</span>
             </button>
@@ -328,16 +328,16 @@
             aria-describedby="layout-instructions">
             <!-- Screen reader instructions -->
             <div id="layout-instructions" class="sr-only">
-              Cycle through auto layout sizing modes. Use Tab to navigate, Enter or Space to activate buttons.
+              Cycle through auto layout sizing modes. Use Enter or Space to activate buttons.
             </div>
 
-            <button id="cycle-width" class="nav-button nav-button-hierarchy"
+            <button id="cycle-width" class="nav-button nav-button-sizing"
               aria-label="Cycle width sizing (Hug → Fill → Fixed)" aria-describedby="cycle-width-desc" data-tooltip="Cycle Width (Hug → Fill → Fixed)" data-tooltip-delay="600" disabled>
               <span class="nav-icon" aria-hidden="true"><img id="width-icon" src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="width-mode">—</span></span>
               <span id="cycle-width-desc" class="sr-only">Cycle horizontal sizing mode between Hug, Fill, and Fixed</span>
             </button>
-            <button id="cycle-height" class="nav-button nav-button-hierarchy"
+            <button id="cycle-height" class="nav-button nav-button-sizing"
               aria-label="Cycle height sizing (Hug → Fill → Fixed)" aria-describedby="cycle-height-desc" data-tooltip="Cycle Height (Hug → Fill → Fixed)" data-tooltip-delay="600" disabled>
               <span class="nav-icon" aria-hidden="true"><img id="height-icon" src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="height-mode">—</span></span>
@@ -357,7 +357,7 @@
         <h2 class="settings-title">SETTINGS</h2>
         <button id="settings-close" class="action-btn" aria-label="Close settings">✕</button>
       </header>
-      <div class="settings-content" tabindex="0">
+      <div class="settings-content" tabindex="-1">
 
         <!-- Theme Section -->
         <div class="settings-section">
@@ -458,7 +458,7 @@
         <button id="footer-width-toggle" class="footer-icon-btn" aria-label="Toggle width" title="Width">↔</button>
       </li>
       <li>
-        <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel (double-click to toggle auto-fit)" tabindex="0">
+        <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel (double-click to toggle auto-fit)" tabindex="-1">
           <i class="grip">: : :</i>
         </div>
       </li>

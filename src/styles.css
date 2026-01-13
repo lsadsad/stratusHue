@@ -1075,6 +1075,7 @@ body.touch-active .kofi-button:hover {
   --theme-accent-green: rgba(110, 222, 110, 0.20);
   --theme-accent-yellow: rgba(255, 193, 7, 0.20);
   --theme-accent-blue: rgba(111, 176, 255, 0.20);
+  --theme-accent-purple: rgba(180, 120, 255, 0.20);
   --theme-accent-pink: rgba(255, 105, 180, 0.4);
 
   /* Status Colors */
@@ -1082,6 +1083,7 @@ body.touch-active .kofi-button:hover {
   --theme-warning: rgba(255, 193, 7, 0.9);
   --theme-error: #ff6b6b;
   --theme-info: rgba(111, 176, 255, 0.9);
+  --theme-purple: #b478ff;
 
   /* Shadow Colors */
   --theme-shadow-light: rgba(0, 0, 0, 0.32);
@@ -1162,6 +1164,7 @@ body.touch-active .kofi-button:hover {
   --theme-accent-green: rgba(0, 255, 127, 0.2);
   --theme-accent-yellow: rgba(255, 215, 0, 0.2);
   --theme-accent-blue: rgba(0, 191, 255, 0.2);
+  --theme-accent-purple: rgba(200, 100, 255, 0.2);
   --theme-accent-pink: rgba(255, 0, 255, 0.3);
 
   /* Status Colors - Bright and electric */
@@ -1169,6 +1172,7 @@ body.touch-active .kofi-button:hover {
   --theme-warning: #ffd700;
   --theme-error: #ff1493;
   --theme-info: #00bfff;
+  --theme-purple: #c864ff;
 
   /* Shadow Colors - Glowing effects */
   --theme-shadow-light: rgba(0, 255, 255, 0.2);
@@ -1339,6 +1343,7 @@ body.touch-active .kofi-button:hover {
   --theme-accent-green: rgba(34, 197, 94, 0.2);
   --theme-accent-yellow: rgba(245, 158, 11, 0.2);
   --theme-accent-blue: rgba(24, 160, 251, 0.2);
+  --theme-accent-purple: rgba(147, 51, 234, 0.2);
   --theme-accent-pink: rgba(236, 72, 153, 0.1);
 
   /* Status Colors - Light theme status indicators with WCAG AA compliance */
@@ -1346,6 +1351,7 @@ body.touch-active .kofi-button:hover {
   --theme-warning: #b45309;
   --theme-error: #dc2626;
   --theme-info: #1d4ed8;
+  --theme-purple: #7c3aed;
 
   /* Shadow Colors - Light theme shadows */
   --theme-shadow-light: rgba(0, 0, 0, 0.08);
@@ -1519,6 +1525,11 @@ body.touch-active .kofi-button:hover {
   filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75);
 }
 
+[data-theme="figma-light"] .nav-button.nav-button-sizing .nav-icon img,
+[data-theme="light"] .nav-button.nav-button-sizing .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.75);
+}
+
 /* Emoji nav arrows in light mode - match section header text color (dark) */
 [data-theme="figma-light"] #tags-header .emoji-nav-btn .nav-arrow,
 [data-theme="light"] #tags-header .emoji-nav-btn .nav-arrow {
@@ -1633,6 +1644,7 @@ body.touch-active .kofi-button:hover {
   --theme-accent-green: rgba(34, 197, 94, 0.2);
   --theme-accent-yellow: rgba(245, 158, 11, 0.2);
   --theme-accent-blue: rgba(24, 160, 251, 0.2);
+  --theme-accent-purple: rgba(167, 139, 250, 0.2);
   --theme-accent-pink: rgba(236, 72, 153, 0.2);
 
   /* Status Colors - Dark theme status indicators */
@@ -1640,6 +1652,7 @@ body.touch-active .kofi-button:hover {
   --theme-warning: #fbbf24;
   --theme-error: #f87171;
   --theme-info: #60a5fa;
+  --theme-purple: #a78bfa;
 
   /* Shadow Colors - Dark theme shadows */
   --theme-shadow-light: rgba(0, 0, 0, 0.4);
@@ -1794,6 +1807,7 @@ body.touch-active .kofi-button:hover {
   --theme-accent-green: rgba(40, 167, 69, 0.2);
   --theme-accent-yellow: rgba(255, 193, 7, 0.2);
   --theme-accent-blue: rgba(13, 110, 253, 0.2);
+  --theme-accent-purple: rgba(139, 92, 246, 0.2);
   --theme-accent-pink: rgba(214, 51, 132, 0.1);
 
   /* Status Colors */
@@ -1801,6 +1815,7 @@ body.touch-active .kofi-button:hover {
   --theme-warning: #fd7e14;
   --theme-error: #dc3545;
   --theme-info: #0dcaf0;
+  --theme-purple: #8b5cf6;
 
   /* Shadow Colors */
   --theme-shadow-light: rgba(0, 0, 0, 0.1);
@@ -2102,11 +2117,11 @@ h3 {
 .btn-interactive:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: var(--color-background-secondary);
+  background: var(--theme-interactive-disabled);
 }
 
 .btn-interactive:disabled:hover {
-  background: var(--color-background-secondary);
+  background: var(--theme-interactive-disabled);
   transform: none;
 }
 
@@ -2151,11 +2166,11 @@ h3 {
 .action-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: var(--color-background-secondary);
+  background: var(--theme-interactive-disabled);
 }
 
 .action-btn:disabled:hover {
-  background: var(--color-background-secondary);
+  background: var(--theme-interactive-disabled);
   transform: none;
 }
 
@@ -2329,7 +2344,7 @@ h3 {
 .emoji-nav-btn:disabled {
   opacity: 0.2;
   cursor: not-allowed;
-  background: transparent;
+  background: var(--theme-interactive-disabled);
 }
 
 /* Header Action Buttons */
@@ -2391,11 +2406,11 @@ h3 {
 #tags-header .emoji-nav-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: transparent;
+  background: var(--theme-interactive-disabled);
 }
 
 #tags-header .emoji-nav-btn:disabled:hover {
-  background: transparent;
+  background: var(--theme-interactive-disabled);
   transform: none;
 }
 
@@ -2608,7 +2623,7 @@ h3 {
 .header-nav-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: transparent;
+  background: var(--theme-interactive-disabled);
 }
 
 .header-nav-btn .icon {
@@ -2928,7 +2943,7 @@ h3 {
 .color-grid .action-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: transparent;
+  background: var(--theme-interactive-disabled);
 }
 
 .color-grid .action-btn .icon {
@@ -3009,8 +3024,8 @@ h3 {
 }
 
 .color-grid #date-btn:disabled {
-  background: transparent;
-  color: var(--color-text-disabled);
+  background: var(--theme-interactive-disabled);
+  color: var(--theme-text-disabled);
 }
 
 .color-grid #date-btn:disabled .icon img {
@@ -3122,8 +3137,8 @@ h3 {
 
 .color-grid #outdent-title-btn:disabled,
 .color-grid #indent-title-btn:disabled {
-  background: transparent;
-  color: var(--color-text-disabled);
+  background: var(--theme-interactive-disabled);
+  color: var(--theme-text-disabled);
 }
 
 .color-grid #outdent-title-btn:disabled .icon img,
@@ -3512,7 +3527,7 @@ h3 {
 #controls-header #nav-delete:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: transparent;
+  background: var(--theme-interactive-disabled);
 }
 
 #controls-header #nav-delete:disabled .icon img {
@@ -3718,7 +3733,7 @@ h3 {
   /* Maintain 3:1 contrast ratio for disabled state */
   opacity: 0.6;
   color: var(--theme-text-disabled);
-  background: var(--theme-interactive-disabled);
+  background: var(--theme-interactive-disabled) !important;
   border-color: transparent;
 }
 
@@ -3730,13 +3745,13 @@ h3 {
 .nav-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: var(--theme-interactive-disabled);
+  background: var(--theme-interactive-disabled) !important;
   color: var(--theme-text-disabled);
   border-color: transparent;
 }
 
 .nav-button:disabled:hover {
-  background: var(--theme-interactive-disabled);
+  background: var(--theme-interactive-disabled) !important;
   color: var(--theme-text-disabled);
   border-color: transparent;
   transform: none;
@@ -3795,6 +3810,7 @@ h3 {
 .nav-button.nav-button-arrow:disabled {
   border-color: transparent !important;
   opacity: 0.4;
+  background: var(--theme-interactive-disabled) !important;
 }
 
 /* Blue: Zoom controls */
@@ -3819,6 +3835,7 @@ h3 {
 .nav-button.nav-button-zoom:disabled {
   border-color: transparent !important;
   opacity: 0.4;
+  background: var(--theme-interactive-disabled) !important;
 }
 
 /* Yellow: Hierarchy control buttons */
@@ -3843,6 +3860,7 @@ h3 {
 .nav-button.nav-button-hierarchy:disabled {
   border-color: transparent !important;
   opacity: 0.4;
+  background: var(--theme-interactive-disabled) !important;
 }
 
 /* Red: History/undo-redo buttons */
@@ -3868,6 +3886,7 @@ h3 {
 .nav-button.nav-button-action:disabled {
   border-color: transparent !important;
   opacity: 0.4;
+  background: var(--theme-interactive-disabled) !important;
 }
 
 /* Green: Layer ordering buttons (matching arrow keys) */
@@ -3892,6 +3911,32 @@ h3 {
 .nav-button.nav-button-layer:disabled {
   border-color: transparent !important;
   opacity: 0.4;
+  background: var(--theme-interactive-disabled) !important;
+}
+
+/* Purple: Sizing mode buttons (properties/transform) */
+.nav-button.nav-button-sizing {
+  /* Transparent border in default state, visible on hover */
+  border-color: transparent !important;
+  /* Default fill 12% opacity */
+  background: rgba(180, 120, 255, 0.12) !important;
+}
+
+.nav-button.nav-button-sizing:hover:not(:disabled) {
+  background: var(--theme-accent-purple);
+  border-color: var(--theme-purple) !important;
+  color: var(--theme-text-primary);
+}
+
+.nav-button.nav-button-sizing:active:not(:disabled) {
+  background: var(--theme-purple);
+  border-color: var(--theme-purple) !important;
+}
+
+.nav-button.nav-button-sizing:disabled {
+  border-color: transparent !important;
+  opacity: 0.4;
+  background: var(--theme-interactive-disabled) !important;
 }
 
 /* ===== COLOR-ENHANCED CONTROL ICONS ===== */
@@ -3962,14 +4007,27 @@ h3 {
   filter: brightness(0) invert(1);
 }
 
+/* Purple icons for sizing mode buttons */
+.nav-button.nav-button-sizing .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(240deg) brightness(0.85);
+}
+
+.nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.7);
+}
+
+.nav-button.nav-button-sizing:active:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1);
+}
+
 /* Disabled state: muted icons for all color-coded buttons */
 .nav-button.nav-button-arrow:disabled .nav-icon img,
 .nav-button.nav-button-zoom:disabled .nav-icon img,
 .nav-button.nav-button-hierarchy:disabled .nav-icon img,
 .nav-button.nav-button-action:disabled .nav-icon img,
-.nav-button.nav-button-layer:disabled .nav-icon img {
-  filter: brightness(0) saturate(0%);
-  opacity: 0.35;
+.nav-button.nav-button-layer:disabled .nav-icon img,
+.nav-button.nav-button-sizing:disabled .nav-icon img {
+  opacity: 0.4;
 }
 
 /* ===== CYBERTRON THEME: BRIGHT CONTROL ICONS ===== */
@@ -4030,13 +4088,24 @@ h3 {
   opacity: 1;
 }
 
-/* Cybertron disabled state: dim cyan tint */
+/* Purple icons - bright violet/magenta */
+[data-theme="cybertron"] .nav-button.nav-button-sizing .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1);
+  opacity: 0.9;
+}
+
+[data-theme="cybertron"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(260deg) brightness(1.3);
+  opacity: 1;
+}
+
+/* Cybertron disabled state: muted */
 [data-theme="cybertron"] .nav-button.nav-button-arrow:disabled .nav-icon img,
 [data-theme="cybertron"] .nav-button.nav-button-zoom:disabled .nav-icon img,
 [data-theme="cybertron"] .nav-button.nav-button-hierarchy:disabled .nav-icon img,
 [data-theme="cybertron"] .nav-button.nav-button-action:disabled .nav-icon img,
-[data-theme="cybertron"] .nav-button.nav-button-layer:disabled .nav-icon img {
-  filter: brightness(0) invert(1) saturate(50%);
+[data-theme="cybertron"] .nav-button.nav-button-layer:disabled .nav-icon img,
+[data-theme="cybertron"] .nav-button.nav-button-sizing:disabled .nav-icon img {
   opacity: 0.3;
 }
 
@@ -4118,23 +4187,40 @@ h3 {
   opacity: 1;
 }
 
-/* Figma-dark disabled state: dim desaturated icons */
+/* Purple icons - bright violet for sizing mode buttons */
+[data-theme="figma-dark"] .nav-button.nav-button-sizing .nav-icon img,
+[data-theme="dark"] .nav-button.nav-button-sizing .nav-icon img,
+[data-theme="boilerplate"] .nav-button.nav-button-sizing .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1);
+  opacity: 0.85;
+}
+
+[data-theme="figma-dark"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img,
+[data-theme="dark"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img,
+[data-theme="boilerplate"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(260deg) brightness(1.3);
+  opacity: 1;
+}
+
+/* Figma-dark disabled state: muted */
 [data-theme="figma-dark"] .nav-button.nav-button-arrow:disabled .nav-icon img,
 [data-theme="figma-dark"] .nav-button.nav-button-zoom:disabled .nav-icon img,
 [data-theme="figma-dark"] .nav-button.nav-button-hierarchy:disabled .nav-icon img,
 [data-theme="figma-dark"] .nav-button.nav-button-action:disabled .nav-icon img,
 [data-theme="figma-dark"] .nav-button.nav-button-layer:disabled .nav-icon img,
+[data-theme="figma-dark"] .nav-button.nav-button-sizing:disabled .nav-icon img,
 [data-theme="dark"] .nav-button.nav-button-arrow:disabled .nav-icon img,
 [data-theme="dark"] .nav-button.nav-button-zoom:disabled .nav-icon img,
 [data-theme="dark"] .nav-button.nav-button-hierarchy:disabled .nav-icon img,
 [data-theme="dark"] .nav-button.nav-button-action:disabled .nav-icon img,
 [data-theme="dark"] .nav-button.nav-button-layer:disabled .nav-icon img,
+[data-theme="dark"] .nav-button.nav-button-sizing:disabled .nav-icon img,
 [data-theme="boilerplate"] .nav-button.nav-button-arrow:disabled .nav-icon img,
 [data-theme="boilerplate"] .nav-button.nav-button-zoom:disabled .nav-icon img,
 [data-theme="boilerplate"] .nav-button.nav-button-hierarchy:disabled .nav-icon img,
 [data-theme="boilerplate"] .nav-button.nav-button-action:disabled .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-layer:disabled .nav-icon img {
-  filter: brightness(0) invert(1) saturate(50%);
+[data-theme="boilerplate"] .nav-button.nav-button-layer:disabled .nav-icon img,
+[data-theme="boilerplate"] .nav-button.nav-button-sizing:disabled .nav-icon img {
   opacity: 0.3;
 }
 
@@ -5327,12 +5413,12 @@ i.grip {
 
 /* Disabled state: grey arrow/icon to indicate inactivity */
 #quick-actions .action-btn:disabled {
-  background: transparent;
-  color: var(--color-text-disabled);
+  background: var(--theme-interactive-disabled);
+  color: var(--theme-text-disabled);
 }
 
 #quick-actions .action-btn:disabled .icon {
-  color: var(--figma-color-icon-disabled);
+  color: var(--theme-text-disabled);
   opacity: 0.4;
 }
 
@@ -5378,7 +5464,7 @@ i.grip {
 #quick-actions #new-page-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: transparent;
+  background: var(--theme-interactive-disabled);
 }
 
 #quick-actions #new-page-btn .icon {
@@ -5694,6 +5780,388 @@ i.grip {
   opacity: 1;
 }
 
+/* ===== COLOR-CODED QUICK ACTION BUTTONS ===== */
+/* DISABLED: Color-coding for quick action buttons - see docs/features/COLOR_CODED_BUTTONS.md */
+/* To enable, remove the opening comment below and closing comment at end of section */
+/*
+#new-page-btn .icon img {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(85deg) brightness(0.85) !important;
+}
+
+#new-page-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7) !important;
+}
+
+#new-page-btn:active:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Blue: Navigation/history actions (Back, Forward) */
+#back-btn .icon img,
+#forward-btn .icon img {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(190deg) brightness(0.85) !important;
+}
+
+#back-btn:hover:not(:disabled) .icon img,
+#forward-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7) !important;
+}
+
+#back-btn:active:not(:disabled) .icon img,
+#forward-btn:active:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) !important;
+}
+
+#back-btn:disabled .icon img,
+#forward-btn:disabled .icon img {
+  opacity: 0.4 !important;
+}
+
+/* Neutral/Gray: Utility actions (Settings) */
+#settings-btn .icon img {
+  filter: brightness(0) saturate(0%) invert(60%) brightness(0.85) !important;
+}
+
+#settings-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(0%) invert(50%) brightness(0.7) !important;
+}
+
+#settings-btn:active:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Orange/Yellow: Warning actions (Remove Tag) */
+#clear-color .icon img {
+  filter: brightness(0) saturate(100%) invert(55%) sepia(90%) saturate(600%) hue-rotate(15deg) brightness(0.85) !important;
+}
+
+#clear-color:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7) !important;
+}
+
+#clear-color:active:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Cyan/Blue: Informational/metadata actions (Add Date, Save Bookmark, Refresh Anchors) */
+#date-btn .icon img,
+#save-bookmark .icon img,
+#refresh-anchors .icon img {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(190deg) brightness(0.85) !important;
+}
+
+#date-btn:hover:not(:disabled) .icon img,
+#save-bookmark:hover:not(:disabled) .icon img,
+#refresh-anchors:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7) !important;
+}
+
+#date-btn:active:not(:disabled) .icon img,
+#save-bookmark:active:not(:disabled) .icon img,
+#refresh-anchors:active:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Purple: Organization/hierarchy actions (Indent, Outdent) */
+#indent-title-btn .icon img,
+#outdent-title-btn .icon img {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(240deg) brightness(0.85) !important;
+}
+
+#indent-title-btn:hover:not(:disabled) .icon img,
+#outdent-title-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.7) !important;
+}
+
+#indent-title-btn:active:not(:disabled) .icon img,
+#outdent-title-btn:active:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Red: Destructive actions (Delete) */
+#nav-delete .icon img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(80%) saturate(600%) hue-rotate(330deg) brightness(0.9) !important;
+}
+
+#nav-delete:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.75) !important;
+}
+
+#nav-delete:active:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) !important;
+}
+
+#nav-delete:disabled .icon img {
+  opacity: 0.4 !important;
+}
+
+/* ===== LIGHT THEME ADJUSTMENTS FOR QUICK ACTION BUTTONS ===== */
+/* Adjust colors for better visibility on light backgrounds */
+
+[data-theme="figma-light"] #new-page-btn .icon img,
+[data-theme="light"] #new-page-btn .icon img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75) !important;
+}
+
+[data-theme="figma-light"] #back-btn .icon img,
+[data-theme="figma-light"] #forward-btn .icon img,
+[data-theme="light"] #back-btn .icon img,
+[data-theme="light"] #forward-btn .icon img {
+  filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75) !important;
+}
+
+[data-theme="figma-light"] #settings-btn .icon img,
+[data-theme="light"] #settings-btn .icon img {
+  filter: brightness(0) saturate(0%) invert(40%) brightness(0.75) !important;
+}
+
+[data-theme="figma-light"] #clear-color .icon img,
+[data-theme="light"] #clear-color .icon img {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(95%) saturate(650%) hue-rotate(15deg) brightness(0.7) !important;
+}
+
+[data-theme="figma-light"] #date-btn .icon img,
+[data-theme="figma-light"] #save-bookmark .icon img,
+[data-theme="figma-light"] #refresh-anchors .icon img,
+[data-theme="light"] #date-btn .icon img,
+[data-theme="light"] #save-bookmark .icon img,
+[data-theme="light"] #refresh-anchors .icon img {
+  filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75) !important;
+}
+
+[data-theme="figma-light"] #indent-title-btn .icon img,
+[data-theme="figma-light"] #outdent-title-btn .icon img,
+[data-theme="light"] #indent-title-btn .icon img,
+[data-theme="light"] #outdent-title-btn .icon img {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.75) !important;
+}
+
+[data-theme="figma-light"] #nav-delete .icon img,
+[data-theme="light"] #nav-delete .icon img {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(90%) saturate(700%) hue-rotate(335deg) brightness(0.8) !important;
+}
+
+/* ===== CYBERTRON THEME: BRIGHT QUICK ACTION ICONS ===== */
+/* Bright, glowing versions for dark cyberpunk background */
+
+[data-theme="cybertron"] #new-page-btn .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
+  opacity: 0.9 !important;
+}
+
+[data-theme="cybertron"] #new-page-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="cybertron"] #back-btn .icon img,
+[data-theme="cybertron"] #forward-btn .icon img,
+[data-theme="cybertron"] #date-btn .icon img,
+[data-theme="cybertron"] #save-bookmark .icon img,
+[data-theme="cybertron"] #refresh-anchors .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1) !important;
+  opacity: 0.9 !important;
+}
+
+[data-theme="cybertron"] #back-btn:hover:not(:disabled) .icon img,
+[data-theme="cybertron"] #forward-btn:hover:not(:disabled) .icon img,
+[data-theme="cybertron"] #date-btn:hover:not(:disabled) .icon img,
+[data-theme="cybertron"] #save-bookmark:hover:not(:disabled) .icon img,
+[data-theme="cybertron"] #refresh-anchors:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(160deg) brightness(1.3) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="cybertron"] #indent-title-btn .icon img,
+[data-theme="cybertron"] #outdent-title-btn .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1) !important;
+  opacity: 0.9 !important;
+}
+
+[data-theme="cybertron"] #indent-title-btn:hover:not(:disabled) .icon img,
+[data-theme="cybertron"] #outdent-title-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(260deg) brightness(1.3) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="cybertron"] #settings-btn .icon img {
+  filter: brightness(0) invert(1) saturate(0%) brightness(0.8) !important;
+  opacity: 0.7 !important;
+}
+
+[data-theme="cybertron"] #settings-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) saturate(0%) brightness(1.0) !important;
+  opacity: 0.9 !important;
+}
+
+[data-theme="cybertron"] #clear-color .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1) !important;
+  opacity: 0.9 !important;
+}
+
+[data-theme="cybertron"] #clear-color:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(15deg) brightness(1.3) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="cybertron"] #nav-delete .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
+  opacity: 0.9 !important;
+}
+
+[data-theme="cybertron"] #nav-delete:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(320deg) brightness(1.3) !important;
+  opacity: 1 !important;
+}
+
+/* ===== FIGMA-DARK THEME: BRIGHT QUICK ACTION ICONS ===== */
+/* Visible versions for Figma's dark theme */
+
+[data-theme="figma-dark"] #new-page-btn .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(70deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="figma-dark"] #new-page-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="figma-dark"] #back-btn .icon img,
+[data-theme="figma-dark"] #forward-btn .icon img,
+[data-theme="figma-dark"] #date-btn .icon img,
+[data-theme="figma-dark"] #save-bookmark .icon img,
+[data-theme="figma-dark"] #refresh-anchors .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(160deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="figma-dark"] #back-btn:hover:not(:disabled) .icon img,
+[data-theme="figma-dark"] #forward-btn:hover:not(:disabled) .icon img,
+[data-theme="figma-dark"] #date-btn:hover:not(:disabled) .icon img,
+[data-theme="figma-dark"] #save-bookmark:hover:not(:disabled) .icon img,
+[data-theme="figma-dark"] #refresh-anchors:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="figma-dark"] #indent-title-btn .icon img,
+[data-theme="figma-dark"] #outdent-title-btn .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(260deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="figma-dark"] #indent-title-btn:hover:not(:disabled) .icon img,
+[data-theme="figma-dark"] #outdent-title-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="figma-dark"] #settings-btn .icon img {
+  filter: brightness(0) invert(1) saturate(0%) brightness(0.7) !important;
+  opacity: 0.7 !important;
+}
+
+[data-theme="figma-dark"] #settings-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) saturate(0%) brightness(0.9) !important;
+  opacity: 0.9 !important;
+}
+
+[data-theme="figma-dark"] #clear-color .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(15deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="figma-dark"] #clear-color:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(15deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="figma-dark"] #nav-delete .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(320deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="figma-dark"] #nav-delete:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+
+/* ===== BOILERPLATE THEME: COLOR-CODED QUICK ACTION ICONS ===== */
+/* Maintain color-coding for boilerplate theme */
+
+[data-theme="boilerplate"] #new-page-btn .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(70deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="boilerplate"] #new-page-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="boilerplate"] #back-btn .icon img,
+[data-theme="boilerplate"] #forward-btn .icon img,
+[data-theme="boilerplate"] #date-btn .icon img,
+[data-theme="boilerplate"] #save-bookmark .icon img,
+[data-theme="boilerplate"] #refresh-anchors .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(160deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="boilerplate"] #back-btn:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] #forward-btn:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] #date-btn:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] #save-bookmark:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] #refresh-anchors:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="boilerplate"] #indent-title-btn .icon img,
+[data-theme="boilerplate"] #outdent-title-btn .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(260deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="boilerplate"] #indent-title-btn:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] #outdent-title-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="boilerplate"] #settings-btn .icon img {
+  filter: brightness(0) invert(1) saturate(0%) brightness(0.7) !important;
+  opacity: 0.7 !important;
+}
+
+[data-theme="boilerplate"] #settings-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) saturate(0%) brightness(0.9) !important;
+  opacity: 0.9 !important;
+}
+
+[data-theme="boilerplate"] #clear-color .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(15deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="boilerplate"] #clear-color:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(15deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="boilerplate"] #nav-delete .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(320deg) brightness(0.95) !important;
+  opacity: 0.85 !important;
+}
+
+[data-theme="boilerplate"] #nav-delete:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
+  opacity: 1 !important;
+}
+*/
+/* END COLOR-CODED QUICK ACTION BUTTONS */
+
 #quick-actions #refresh-anchors:hover {
   background: transparent;
   color: var(--figma-color-border-brand);
@@ -5836,7 +6304,7 @@ i.grip {
 .emoji-nav-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: var(--color-background-elevated);
+  background: var(--theme-interactive-disabled);
 }
 
 .nav-arrow {

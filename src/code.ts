@@ -309,6 +309,15 @@ figma.ui.onmessage = async (msg) => {
         }
         break;
 
+      case 'clear-theme-storage': {
+        const { ThemeStorage } = await import('./core/theme-storage');
+        await ThemeStorage.clearThemeStorage();
+        figma.ui.postMessage({
+          type: 'theme-storage-cleared'
+        });
+        break;
+      }
+
       case 'add-date':
         await handleAddDate();
         break;
