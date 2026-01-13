@@ -476,6 +476,13 @@ function initializeQuickActionTooltips(): void {
       hideTooltip(true);
     }
   });
+
+  // Disable Tab navigation throughout the plugin
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+    }
+  });
 }
 
 // Simple emoji button updater
@@ -556,12 +563,13 @@ function parsePageTitle(name: string): { emoji: string | null; date: string | nu
   // Extract emoji - comprehensive list from all emoji sets
   // Page Colors: circles
   // Layer Colors: squares  
-  // Tools and Status emojis
+  // Tools, Status, and Hands emojis
   const allEmojis = [
     '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️',  // Page circles
     '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜',  // Layer squares
     '🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨',  // Tools
-    '🚧', '✅', '👀', '🚀', '🚫', '🪦', '📱'          // Status
+    '🚧', '✅', '👀', '🚀', '🚫', '🪦', '📱',         // Status
+    '👆', '👇', '👈', '👉', '☝️', '👍', '👎', '✋'   // Hands
   ];
   
   let emoji: string | null = null;
@@ -593,7 +601,8 @@ function parseLayerName(name: string): { emoji: string | null; date: string | nu
     '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬛', '⬜',  // Layer squares
     '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️',  // Page circles (can be used on layers too)
     '🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨',  // Tools
-    '🚧', '✅', '👀', '🚀', '🚫', '🪦', '📱'          // Status
+    '🚧', '✅', '👀', '🚀', '🚫', '🪦', '📱',         // Status
+    '👆', '👇', '👈', '👉', '☝️', '👍', '👎', '✋'   // Hands
   ];
   
   let emoji: string | null = null;
@@ -796,6 +805,10 @@ function initializePlugin(): void {
   console.log('📤 Sending ui-ready message');
   sendMessage('ui-ready');
 
+  // Request saved theme preference from code.ts (uses clientStorage)
+  console.log('📤 Requesting theme preference from plugin');
+  sendMessage('get-theme-preference');
+
   // Initialize toggle state
   updateToggleUI();
 
@@ -835,7 +848,8 @@ function initializePlugin(): void {
       const PAGE_EMOJI_SETS = [
         { name: 'Colors', emojis: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫️', '⚪️'] },
         { name: 'Tools', emojis: ['🏷️', '📌', '🎯', '💡', '⭐', '🔥', '💎', '🎨'] },
-        { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🪦', '⭐', '📱'] }
+        { name: 'Status', emojis: ['🚧', '✅', '👀', '🚀', '🚫', '🪦', '⭐', '📱'] },
+        { name: 'Hands', emojis: ['👆', '👇', '👈', '👉', '☝️', '👍', '👎', '✋'] }
       ];
       
       // Load first emoji set
@@ -1162,19 +1176,7 @@ function setupEventListeners(): void {
 
   // Toggle compact/full width
   if (widthToggleBtn) {
-    // #region agent log
-    widthToggleBtn.addEventListener('mousedown', () => {
-      const computed = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1148-mousedown',message:'mousedown event fired',data:{classList:Array.from(widthToggleBtn.classList),bgColor:computed.backgroundColor,color:computed.color,hasFocus:document.activeElement===widthToggleBtn},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H5'})}).catch(()=>{});
-    });
-    // #endregion
-
     widthToggleBtn.addEventListener('click', () => {
-      // #region agent log
-      const computedBefore = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1149-click-before',message:'click event - before state change',data:{isWidthCompactBefore:isWidthCompact,classListBefore:Array.from(widthToggleBtn.classList),bgColorBefore:computedBefore.backgroundColor,colorBefore:computedBefore.color,hasFocusBefore:document.activeElement===widthToggleBtn},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2,H3'})}).catch(()=>{});
-      // #endregion
-      
       console.log('Toggle width');
       
       // Toggle the state
@@ -1192,68 +1194,26 @@ function setupEventListeners(): void {
         }
       }
       
-      // #region agent log
-      const computedAfter = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1167-click-after',message:'click event - after state change',data:{isWidthCompactAfter:isWidthCompact,classListAfter:Array.from(widthToggleBtn.classList),bgColorAfter:computedAfter.backgroundColor,colorAfter:computedAfter.color,hasFocusAfter:document.activeElement===widthToggleBtn},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2,H3,H4'})}).catch(()=>{});
-      // #endregion
-      
       sendMessage('toggle-width');
     });
 
-    // #region agent log
-    widthToggleBtn.addEventListener('mouseup', () => {
-      const computed = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1168-mouseup',message:'mouseup event fired',data:{classList:Array.from(widthToggleBtn.classList),bgColor:computed.backgroundColor,color:computed.color,hasFocus:document.activeElement===widthToggleBtn},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
-    });
-    // #endregion
-
     // Add hover state management to prevent stuck states
     widthToggleBtn.addEventListener('mouseenter', () => {
-      // #region agent log
-      const computedBefore = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1171-mouseenter-before',message:'mouseenter - before adding hover-active',data:{classListBefore:Array.from(widthToggleBtn.classList),bgColorBefore:computedBefore.backgroundColor},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-      // #endregion
-      
       widthToggleBtn.classList.add('hover-active');
-      
-      // #region agent log
-      const computedAfter = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1172-mouseenter-after',message:'mouseenter - after adding hover-active',data:{classListAfter:Array.from(widthToggleBtn.classList),bgColorAfter:computedAfter.backgroundColor},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-      // #endregion
     });
 
     widthToggleBtn.addEventListener('mouseleave', () => {
-      // #region agent log
-      const computedBefore = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1175-mouseleave-before',message:'mouseleave - before cleanup',data:{classListBefore:Array.from(widthToggleBtn.classList),bgColorBefore:computedBefore.backgroundColor,colorBefore:computedBefore.color},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3,H4'})}).catch(()=>{});
-      // #endregion
-      
       widthToggleBtn.classList.remove('hover-active');
       // Force style reset
       widthToggleBtn.style.removeProperty('background');
       widthToggleBtn.style.removeProperty('color');
-      
-      // #region agent log
-      const computedAfter = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1180-mouseleave-after',message:'mouseleave - after cleanup',data:{classListAfter:Array.from(widthToggleBtn.classList),bgColorAfter:computedAfter.backgroundColor,colorAfter:computedAfter.color},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3,H4'})}).catch(()=>{});
-      // #endregion
     });
 
     widthToggleBtn.addEventListener('blur', () => {
-      // #region agent log
-      const computedBefore = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1182-blur-before',message:'blur - before cleanup',data:{classListBefore:Array.from(widthToggleBtn.classList),bgColorBefore:computedBefore.backgroundColor,colorBefore:computedBefore.color},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
-      // #endregion
-      
       widthToggleBtn.classList.remove('hover-active');
       // Force style reset
       widthToggleBtn.style.removeProperty('background');
       widthToggleBtn.style.removeProperty('color');
-      
-      // #region agent log
-      const computedAfter = window.getComputedStyle(widthToggleBtn);
-      fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui.ts:1187-blur-after',message:'blur - after cleanup',data:{classListAfter:Array.from(widthToggleBtn.classList),bgColorAfter:computedAfter.backgroundColor,colorAfter:computedAfter.color},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
-      // #endregion
     });
   }
 
@@ -1899,36 +1859,10 @@ function initializeSystemThemeDetection(): void {
   // Initialize accessibility listeners
   initializeAccessibilityListeners();
 
-  // Try to load saved theme preference from localStorage first to avoid flash
-  let initialTheme: EffectiveTheme;
-  try {
-    const stored = localStorage.getItem('themePreference');
-    if (stored) {
-      const themePreference = JSON.parse(stored);
-      console.log('🔍 Found saved theme preference:', themePreference);
-      
-      // Resolve the saved preference to an effective theme
-      if (themePreference.mode === 'system') {
-        initialTheme = themeManager.currentSystemTheme === 'dark' ? 'figma-dark' : 'figma-light';
-      } else if (themePreference.mode === 'light') {
-        initialTheme = 'figma-light';
-      } else if (themePreference.mode === 'dark') {
-        initialTheme = 'figma-dark';
-      } else {
-        initialTheme = themePreference.mode as EffectiveTheme;
-      }
-    } else {
-      // No saved preference, use system theme
-      const systemTheme = themeManager.currentSystemTheme;
-      initialTheme = systemTheme === 'dark' ? 'figma-dark' : 'figma-light';
-      console.log(`🔍 No saved preference, using system theme: ${systemTheme}`);
-    }
-  } catch (error) {
-    // Fallback to system theme if localStorage fails
-    const systemTheme = themeManager.currentSystemTheme;
-    initialTheme = systemTheme === 'dark' ? 'figma-dark' : 'figma-light';
-    console.warn('⚠️ Failed to load theme preference, using system theme:', error);
-  }
+  // Use system theme as initial theme - actual saved preference will be loaded from code.ts
+  const systemTheme = themeManager.currentSystemTheme;
+  const initialTheme: EffectiveTheme = systemTheme === 'dark' ? 'figma-dark' : 'figma-light';
+  console.log(`🔍 Using initial system theme: ${systemTheme} (${initialTheme})`);
 
   console.log(`🎨 Applying initial theme: ${initialTheme}`);
 
@@ -3374,21 +3308,21 @@ function updateControlButtons(context: NavigationContext): void {
 
     if (isPageMode && canNavigate) {
       // Page navigation mode
-      prevBtn.setAttribute('aria-label', 'Previous page (Shift+Tab)');
+      prevBtn.setAttribute('aria-label', 'Previous page');
       const descElement = document.getElementById('nav-prev-desc');
       if (descElement) {
         descElement.textContent = 'Navigate to previous page';
       }
     } else if (!isPageMode && canNavigate) {
       // Layer navigation mode
-      prevBtn.setAttribute('aria-label', 'Previous sibling (Shift+Tab)');
+      prevBtn.setAttribute('aria-label', 'Previous sibling');
       const descElement = document.getElementById('nav-prev-desc');
       if (descElement) {
         descElement.textContent = 'Select previous sibling layer (up in layers panel)';
       }
     } else {
       // Disabled state
-      const disabledLabel = isPageMode ? 'Previous page (Shift+Tab) - only one page' : 'Previous sibling (Shift+Tab) - no siblings available';
+      const disabledLabel = isPageMode ? 'Previous page - only one page' : 'Previous sibling - no siblings available';
       prevBtn.setAttribute('aria-label', disabledLabel);
       const descElement = document.getElementById('nav-prev-desc');
       if (descElement) {
@@ -3411,21 +3345,21 @@ function updateControlButtons(context: NavigationContext): void {
 
     if (isPageMode && canNavigate) {
       // Page navigation mode
-      nextBtn.setAttribute('aria-label', 'Next page (Tab)');
+      nextBtn.setAttribute('aria-label', 'Next page');
       const descElement = document.getElementById('nav-next-desc');
       if (descElement) {
         descElement.textContent = 'Navigate to next page';
       }
     } else if (!isPageMode && canNavigate) {
       // Layer navigation mode
-      nextBtn.setAttribute('aria-label', 'Next sibling (Tab)');
+      nextBtn.setAttribute('aria-label', 'Next sibling');
       const descElement = document.getElementById('nav-next-desc');
       if (descElement) {
         descElement.textContent = 'Select next sibling layer (down in layers panel)';
       }
     } else {
       // Disabled state
-      const disabledLabel = isPageMode ? 'Next page (Tab) - only one page' : 'Next sibling (Tab) - no siblings available';
+      const disabledLabel = isPageMode ? 'Next page - only one page' : 'Next sibling - no siblings available';
       nextBtn.setAttribute('aria-label', disabledLabel);
       const descElement = document.getElementById('nav-next-desc');
       if (descElement) {
@@ -4435,14 +4369,6 @@ function testKeyboardNavigation(): void {
     return;
   }
 
-  // Test tab order
-  const tabOrder: number[] = [];
-  navButtons.forEach((button, index) => {
-    const tabIndex = button.tabIndex;
-    tabOrder.push(tabIndex);
-    console.log(`Button ${index + 1} tab index: ${tabIndex}`);
-  });
-
   // Test ARIA attributes
   navButtons.forEach((button, index) => {
     const ariaLabel = button.getAttribute('aria-label');
@@ -4506,9 +4432,8 @@ function runAccessibilityTests(): void {
   console.log('\n5. Testing focus management...');
   navButtons.forEach((button, index) => {
     const btn = button as HTMLButtonElement;
-    const tabIndex = btn.tabIndex;
-    const focusable = !btn.disabled && tabIndex >= 0;
-    console.log(`Button ${index + 1} - Focusable: ${focusable ? '✅' : '❌'}, TabIndex: ${tabIndex}`);
+    const focusable = !btn.disabled;
+    console.log(`Button ${index + 1} - Focusable: ${focusable ? '✅' : '❌'}`);
   });
 
   // Test 6: Screen reader content

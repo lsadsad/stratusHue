@@ -208,25 +208,18 @@ export class ThemeManager {
     // Invalidate cache immediately for responsive UI
     this.invalidateEffectiveThemeCache();
     
-    // Persist the preference using enhanced storage (non-blocking)
+    // Persist the preference via code.ts (uses Figma's clientStorage)
     const preference: ThemePreference = {
       mode,
       lastSystemTheme: this.systemTheme,
       migrationVersion: 1
     };
     
-    // Don't await storage to avoid blocking UI updates
-    try {
-      localStorage.setItem('themePreference', JSON.stringify(preference));
-    } catch (error) {
-      console.warn('Theme preference save failed:', error);
-    }
-    
-    // Also send to code.ts for backward compatibility (non-blocking)
+    // Send to code.ts to save via clientStorage (non-blocking)
     try {
       this.sendMessage('set-theme-preference', { theme: preference });
     } catch (error) {
-      console.warn('Theme message send error:', error);
+      console.warn('Theme preference save failed:', error);
     }
     
     // Notify listeners of the effective theme change
@@ -310,19 +303,9 @@ export class ThemeManager {
       }
       console.log('[DEBUG-H2,H3] Using provided preference:', themePreference);
     } else {
-      // Load from enhanced storage system
-      try {
-        const stored = localStorage.getItem('themePreference');
-        console.log('[DEBUG-H2,H3] localStorage.getItem result:', stored);
-        if (stored) {
-          themePreference = JSON.parse(stored);
-        } else {
-          themePreference = { mode: 'system' as ThemeMode };
-        }
-      } catch (error) {
-        console.warn('Theme preference load failed:', error);
-        themePreference = { mode: 'system' as ThemeMode };
-      }
+      // Default to system theme - actual preference will be loaded via message from code.ts
+      console.log('[DEBUG-H2,H3] No preference provided, defaulting to system theme');
+      themePreference = { mode: 'system' as ThemeMode };
     }
     
     this.currentThemeMode = themePreference.mode;
@@ -335,12 +318,6 @@ export class ThemeManager {
       this.systemTheme = currentSystemTheme;
       this.invalidateEffectiveThemeCache();
     }
-    
-    // #region agent log
-    const effectiveTheme = this.getEffectiveTheme();
-    console.log('[DEBUG-H2,H3] Calling notifyThemeChange, currentMode:', this.currentThemeMode, 'effectiveTheme:', effectiveTheme);
-    fetch('http://127.0.0.1:7245/ingest/47e43598-3706-4e15-9a59-bf789e29e47f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'theme-manager.ts:337',message:'Calling notifyThemeChange',data:{currentMode:this.currentThemeMode,effectiveTheme:effectiveTheme},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2,H3'})}).catch(()=>{});
-    // #endregion
     
     // Apply the theme immediately
     this.notifyThemeChange();
@@ -410,8 +387,9 @@ export class ThemeManager {
   }
 
   async clearThemeStorage(): Promise<{success: boolean; error?: string}> {
+    // Request code.ts to clear theme storage from clientStorage
     try {
-      localStorage.removeItem('themePreference');
+      this.sendMessage('clear-theme-storage');
       return { success: true };
     } catch (error) {
       return { success: false, error: String(error) };

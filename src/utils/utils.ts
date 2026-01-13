@@ -95,14 +95,18 @@ export function parsePageTitleParts(rawName: string): PageTitleParts {
   const beforeColon = colonIndex >= 0 ? name.slice(0, colonIndex) : name;
   const afterColon = colonIndex >= 0 ? name.slice(colonIndex + 1) : '';
 
-  // Extract date anywhere before colon
-  const dateMatch = beforeColon.match(/\b(\d{2}\.\d{2})\b/);
-  const date = dateMatch ? dateMatch[1] : null;
-
   // Extract emoji from page emoji sets anywhere before colon, tolerant of VS16 differences
   const allPageEmojis = PAGE_EMOJI_SETS.flatMap(set => set.emojis);
   const normalizedBefore = stripVariationSelectors(beforeColon);
   const emoji = allPageEmojis.find(e => normalizedBefore.includes(stripVariationSelectors(e))) || null;
+
+  // Only extract date if there's a colon separator (indicating structured format)
+  // This prevents misidentifying version numbers or other MM.DD patterns in unstructured titles
+  let date: string | null = null;
+  if (colonIndex >= 0) {
+    const dateMatch = beforeColon.match(/\b(\d{2}\.\d{2})\b/);
+    date = dateMatch ? dateMatch[1] : null;
+  }
 
   // Title is everything after the colon, trimmed of only leading spaces
   const title = afterColon.length > 0 ? afterColon.replace(/^\s+/, '') : name.replace(/^(\s*↳\s*)/, '');
