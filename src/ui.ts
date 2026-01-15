@@ -1448,6 +1448,18 @@ function updateBookmarksList(
   const nullState = document.getElementById('anchors-null-state');
   if (!bookmarkList || !nullState) return;
 
+  // Prevent list-level drag listeners from accumulating across re-renders.
+  // These listeners close over render-specific variables, so we must remove old ones.
+  const bookmarkListAny = bookmarkList as any;
+  if (bookmarkListAny._bookmarksListDragOverHandler) {
+    bookmarkList.removeEventListener('dragover', bookmarkListAny._bookmarksListDragOverHandler);
+    bookmarkListAny._bookmarksListDragOverHandler = null;
+  }
+  if (bookmarkListAny._bookmarksListDropHandler) {
+    bookmarkList.removeEventListener('drop', bookmarkListAny._bookmarksListDropHandler);
+    bookmarkListAny._bookmarksListDropHandler = null;
+  }
+
   bookmarkList.innerHTML = '';
 
   // Show/hide null state based on bookmarks
@@ -1528,21 +1540,37 @@ function updateBookmarksList(
         li.classList.add('recent-history');
       }
 
-      // Inner content
-      const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId
-        ? '<img src="./assets/ICO-recentSteps.svg" alt="" class="recent-steps-icon">'
-        : '';
-      
-      li.innerHTML = `
-        <div class="bookmark-content">
-          <div class="bookmark-name">${bookmark.name}</div>
-          <div class="bookmark-page">${bookmark.pageName}</div>
-        </div>
-        ${recentHistoryIcon}
-        <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">
-          ✕
-        </button>
-      `;
+      // Inner content (avoid innerHTML to prevent HTML injection via user-controlled names)
+      const content = document.createElement('div');
+      content.className = 'bookmark-content';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'bookmark-name';
+      nameEl.textContent = String(bookmark.name ?? '');
+
+      const pageEl = document.createElement('div');
+      pageEl.className = 'bookmark-page';
+      pageEl.textContent = String(bookmark.pageName ?? '');
+
+      content.appendChild(nameEl);
+      content.appendChild(pageEl);
+      li.appendChild(content);
+
+      if (previousBookmarkId && bookmark.id === previousBookmarkId) {
+        const icon = document.createElement('img');
+        icon.src = './assets/ICO-recentSteps.svg';
+        icon.alt = '';
+        icon.className = 'recent-steps-icon';
+        li.appendChild(icon);
+      }
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'bookmark-remove';
+      removeBtn.type = 'button';
+      removeBtn.setAttribute('aria-label', 'Remove anchor');
+      removeBtn.title = 'Remove';
+      removeBtn.textContent = '✕';
+      li.appendChild(removeBtn);
 
       // Navigate on item click
       li.addEventListener('click', () => {
@@ -1551,16 +1579,13 @@ function updateBookmarksList(
       });
 
       // Remove button behavior
-      const removeBtn = li.querySelector('.bookmark-remove');
-      if (removeBtn) {
-        removeBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          sendMessage('remove-bookmark', { id: bookmark.id });
-        });
-        // Ensure remove button doesn't initiate drag
-        removeBtn.addEventListener('mousedown', (e) => e.stopPropagation());
-        removeBtn.addEventListener('dragstart', (e) => e.stopPropagation());
-      }
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sendMessage('remove-bookmark', { id: bookmark.id });
+      });
+      // Ensure remove button doesn't initiate drag
+      removeBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+      removeBtn.addEventListener('dragstart', (e) => e.stopPropagation());
 
       // Drag-and-drop handlers
       li.addEventListener('dragstart', (e) => {
@@ -1621,7 +1646,7 @@ function updateBookmarksList(
     });
 
     // Handle dragging over empty space to position indicator at the end
-    bookmarkList.addEventListener('dragover', (e) => {
+    const listDragOverHandler = (e: DragEvent) => {
       if (!isDragging) return;
       e.preventDefault();
       const items = getItems();
@@ -1635,11 +1660,16 @@ function updateBookmarksList(
         dropIndicator.style.top = `${lastRect.bottom - listRect.top}px`;
         dropIndicator.classList.add('visible');
       }
-    });
+    };
 
-    bookmarkList.addEventListener('drop', () => {
+    const listDropHandler = () => {
       dropIndicator.classList.remove('visible');
-    });
+    };
+
+    bookmarkList.addEventListener('dragover', listDragOverHandler);
+    bookmarkList.addEventListener('drop', listDropHandler);
+    bookmarkListAny._bookmarksListDragOverHandler = listDragOverHandler;
+    bookmarkListAny._bookmarksListDropHandler = listDropHandler;
   }
 
   // Update scroll behavior after content changes

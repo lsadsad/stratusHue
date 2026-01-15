@@ -140,13 +140,6 @@ export class TokenParser {
       return 'typography';
     }
     
-    if (name.includes('color') || name.includes('bg') || name.includes('border') || 
-        name.includes('text') || name.includes('theme') || name.includes('accent') ||
-        name.includes('success') || name.includes('warning') || name.includes('error') || 
-        name.includes('info') || name.includes('shadow')) {
-      return 'color';
-    }
-    
     if (name.includes('width') || name.includes('height') || name.includes('size') || 
         name.includes('button') || name.includes('icon') || name.includes('container')) {
       return 'sizing';
@@ -158,6 +151,13 @@ export class TokenParser {
     
     if (name.includes('shadow') || name.includes('elevation')) {
       return 'shadow';
+    }
+    
+    if (name.includes('color') || name.includes('bg') ||
+        name.includes('text') || name.includes('theme') || name.includes('accent') ||
+        name.includes('success') || name.includes('warning') || name.includes('error') ||
+        name.includes('info')) {
+      return 'color';
     }
     
     if (name.includes('transition') || name.includes('duration') || name.includes('timing')) {

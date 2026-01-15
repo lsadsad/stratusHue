@@ -20,6 +20,9 @@ const sampleCSS = `
   --font-size-base: 12px;
   --font-weight-normal: 400;
   
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.15);
+  
   /* Colors */
   --theme-bg-primary: #0f0f0f;
   --theme-text-primary: #f5f5f5;
@@ -73,6 +76,14 @@ describe('TokenParser', () => {
     // Check that color tokens are categorized correctly
     const colorTokens = result.categories.color;
     expect(colorTokens.some(token => token.name === 'theme-bg-primary')).toBe(true);
+    
+    // Check that border tokens are categorized correctly
+    const borderTokens = result.categories.border;
+    expect(borderTokens.some(token => token.name === 'theme-border-primary')).toBe(true);
+    
+    // Check that shadow tokens are categorized correctly
+    const shadowTokens = result.categories.shadow;
+    expect(shadowTokens.some(token => token.name === 'shadow-sm')).toBe(true);
     
     // Check that sizing tokens are categorized correctly
     const sizingTokens = result.categories.sizing;
