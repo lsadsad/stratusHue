@@ -43,7 +43,8 @@ import {
 } from './ui/ui-communication';
 import {
   triggerValidationOnSelectionChange,
-  triggerValidationOnPageChange
+  triggerValidationOnPageChange,
+  handleDocumentChange
 } from './utils/validation';
 import {
   handleError,
@@ -52,10 +53,79 @@ import {
   ErrorType
 } from './core/error-handling';
 
+// ===== VIEWPORT ANIMATION =====
+/**
+ * Smoothly lerp the viewport to center on target nodes
+ * @param nodes - The nodes to center on
+ * @param duration - Animation duration in ms (default 200ms)
+ */
+function lerpViewportToNodes(nodes: readonly SceneNode[], duration = 200): void {
+  if (nodes.length === 0) return;
+
+  // Calculate the bounding box of all target nodes
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const node of nodes) {
+    if ('absoluteBoundingBox' in node && node.absoluteBoundingBox) {
+      const bounds = node.absoluteBoundingBox;
+      minX = Math.min(minX, bounds.x);
+      minY = Math.min(minY, bounds.y);
+      maxX = Math.max(maxX, bounds.x + bounds.width);
+      maxY = Math.max(maxY, bounds.y + bounds.height);
+    }
+  }
+
+  if (minX === Infinity) return; // No valid bounds found
+
+  // Target center point
+  const targetX = (minX + maxX) / 2;
+  const targetY = (minY + maxY) / 2;
+
+  // Current viewport center
+  const startX = figma.viewport.center.x;
+  const startY = figma.viewport.center.y;
+
+  // Animation parameters
+  const startTime = Date.now();
+  const fps = 60;
+  const frameInterval = 1000 / fps;
+
+  function animate() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    // Ease-out cubic for smooth deceleration
+    const eased = 1 - Math.pow(1 - progress, 3);
+
+    // Interpolate position
+    const currentX = startX + (targetX - startX) * eased;
+    const currentY = startY + (targetY - startY) * eased;
+
+    figma.viewport.center = { x: currentX, y: currentY };
+
+    if (progress < 1) {
+      setTimeout(animate, frameInterval);
+    }
+  }
+
+  animate();
+}
+
 // ===== PLUGIN INITIALIZATION =====
 figma.showUI(__html__, { width: currentUiWidth, height: lastUiHeight });
 
+// Track if documentchange handler is registered
+let documentChangeRegistered = false;
+
 const initializePlugin = withErrorBoundary(async () => {
+  // Load all pages first - required for documentchange event listener
+  await figma.loadAllPagesAsync();
+  
+  // Register documentchange handler once after pages are loaded
+  if (!documentChangeRegistered) {
+    figma.on('documentchange', handleDocumentChange);
+    documentChangeRegistered = true;
+  }
+  
   await loadAnchorState();
   await loadUISectionStates();
   await validateRecentHistory();
@@ -243,6 +313,14 @@ figma.ui.onmessage = async (msg) => {
         await handleDeleteNodes();
         break;
 
+      case 'toggle-visibility':
+        await handleToggleVisibility();
+        break;
+
+      case 'toggle-lock':
+        await handleToggleLock();
+        break;
+
       case 'toggle-mode':
         if ('mode' in msg && msg.mode === 'onLayer') {
           await handleToggleToLayerMode();
@@ -352,6 +430,16 @@ figma.ui.onmessage = async (msg) => {
         await handleGetControlsSetting();
         break;
 
+      case 'set-nudge-settings':
+        if ('smallNudge' in msg && 'bigNudge' in msg) {
+          await handleSetNudgeSettings(msg.smallNudge as number, msg.bigNudge as number);
+        }
+        break;
+
+      case 'get-nudge-settings':
+        await handleGetNudgeSettings();
+        break;
+
       case 'cycle-layout-sizing':
         if ('axis' in msg && (msg.axis === 'horizontal' || msg.axis === 'vertical')) {
           await handleCycleLayoutSizing(msg.axis as 'horizontal' | 'vertical');
@@ -387,13 +475,102 @@ const handleClearEmoji = withErrorBoundary(async () => {
 
 const handleNudgeElements = withErrorBoundary(async (direction: 'up' | 'down' | 'left' | 'right', amount: number) => {
   const selection = figma.currentPage.selection;
-  
+
   if (selection.length === 0) {
     return;
   }
 
+  // Separate nodes into auto-layout children and regular nodes
+  const autoLayoutNodes: { node: SceneNode; parent: FrameNode | ComponentNode | InstanceNode; layoutMode: 'HORIZONTAL' | 'VERTICAL' }[] = [];
+  const regularNodes: SceneNode[] = [];
+
   for (const node of selection) {
-    // Only move nodes that have x and y properties (excludes pages, document, etc.)
+    const parent = node.parent;
+    // Check if parent is an auto-layout frame
+    if (parent && 'layoutMode' in parent && (parent.layoutMode === 'HORIZONTAL' || parent.layoutMode === 'VERTICAL')) {
+      autoLayoutNodes.push({
+        node,
+        parent: parent as FrameNode | ComponentNode | InstanceNode,
+        layoutMode: parent.layoutMode
+      });
+    } else if ('x' in node && 'y' in node) {
+      regularNodes.push(node);
+    }
+  }
+
+  // Handle auto-layout nodes: reorder within parent
+  if (autoLayoutNodes.length > 0) {
+    // Group by parent to handle multi-selection correctly
+    const nodesByParent = new Map<BaseNode, typeof autoLayoutNodes>();
+    for (const item of autoLayoutNodes) {
+      if (!nodesByParent.has(item.parent)) {
+        nodesByParent.set(item.parent, []);
+      }
+      nodesByParent.get(item.parent)!.push(item);
+    }
+
+    let movedCount = 0;
+
+    for (const [parent, items] of nodesByParent) {
+      const containerParent = parent as ChildrenMixin;
+      const layoutMode = items[0].layoutMode;
+
+      // Determine if the direction matches the layout axis
+      // Horizontal layout: left/right moves within the layout
+      // Vertical layout: up/down moves within the layout
+      const isAlongAxis = (layoutMode === 'HORIZONTAL' && (direction === 'left' || direction === 'right')) ||
+                          (layoutMode === 'VERTICAL' && (direction === 'up' || direction === 'down'));
+
+      if (!isAlongAxis) {
+        // Direction doesn't match layout axis - skip these nodes
+        continue;
+      }
+
+      // Determine if moving forward or backward in the children array
+      // In Figma auto-layout:
+      // - Horizontal: index 0 is leftmost, higher index is rightmost
+      // - Vertical: index 0 is topmost, higher index is bottommost
+      const moveForward = direction === 'right' || direction === 'down';
+
+      // Sort nodes by current index
+      // When moving forward: process from highest index first
+      // When moving backward: process from lowest index first
+      const sortedItems = [...items].sort((a, b) => {
+        const indexA = containerParent.children.indexOf(a.node);
+        const indexB = containerParent.children.indexOf(b.node);
+        return moveForward ? indexB - indexA : indexA - indexB;
+      });
+
+      for (const item of sortedItems) {
+        const currentIndex = containerParent.children.indexOf(item.node);
+        if (currentIndex === -1) continue;
+
+        const siblingCount = containerParent.children.length;
+
+        if (moveForward) {
+          // Move to higher index (right/down in the layout)
+          if (currentIndex < siblingCount - 1) {
+            containerParent.insertChild(currentIndex + 2, item.node);
+            movedCount++;
+          }
+        } else {
+          // Move to lower index (left/up in the layout)
+          if (currentIndex > 0) {
+            containerParent.insertChild(currentIndex - 1, item.node);
+            movedCount++;
+          }
+        }
+      }
+    }
+
+    if (movedCount > 0) {
+      const directionName = direction === 'up' ? 'up' : direction === 'down' ? 'down' : direction === 'left' ? 'left' : 'right';
+      figma.notify(`Moved ${movedCount} layer${movedCount === 1 ? '' : 's'} ${directionName} in auto-layout`);
+    }
+  }
+
+  // Handle regular nodes: nudge position
+  for (const node of regularNodes) {
     if ('x' in node && 'y' in node) {
       switch (direction) {
         case 'up':
@@ -493,56 +670,84 @@ const handleDuplicateElements = withErrorBoundary(async (direction: 'up' | 'down
 
 const handleReorderLayer = withErrorBoundary(async (direction: 'up' | 'down' | 'front' | 'back') => {
   const selection = figma.currentPage.selection;
-  
+
   if (selection.length === 0) {
     return;
   }
 
   let movedCount = 0;
 
+  // Group nodes by parent to handle multi-selection correctly
+  const nodesByParent = new Map<BaseNode, SceneNode[]>();
   for (const node of selection) {
     const parent = node.parent;
     if (!parent || !('children' in parent)) continue;
 
-    const siblings = parent.children;
-    const currentIndex = siblings.indexOf(node);
-    
-    if (currentIndex === -1) continue;
+    if (!nodesByParent.has(parent)) {
+      nodesByParent.set(parent, []);
+    }
+    nodesByParent.get(parent)!.push(node);
+  }
 
-    switch (direction) {
-      case 'up':
-        // Bring forward (higher index = visually on top)
-        if (currentIndex < siblings.length - 1) {
-          parent.insertChild(currentIndex + 1, node);
-          movedCount++;
-        }
-        break;
-      case 'down':
-        // Send backward (lower index = visually behind)
-        if (currentIndex > 0) {
-          parent.insertChild(currentIndex - 1, node);
-          movedCount++;
-        }
-        break;
-      case 'front':
-        // Bring to front (highest index)
-        if (currentIndex < siblings.length - 1) {
-          parent.insertChild(siblings.length - 1, node);
-          movedCount++;
-        }
-        break;
-      case 'back':
-        // Send to back (index 0)
-        if (currentIndex > 0) {
-          parent.insertChild(0, node);
-          movedCount++;
-        }
-        break;
+  // Process each parent's nodes
+  for (const [parent, nodes] of nodesByParent) {
+    const containerParent = parent as ChildrenMixin;
+
+    // Sort nodes by their current index in the parent
+    // For 'up' and 'front': process from highest index to lowest (so earlier moves don't affect later ones)
+    // For 'down' and 'back': process from lowest index to highest
+    const sortedNodes = [...nodes].sort((a, b) => {
+      const indexA = containerParent.children.indexOf(a);
+      const indexB = containerParent.children.indexOf(b);
+      if (direction === 'up' || direction === 'front') {
+        return indexB - indexA; // Highest index first
+      } else {
+        return indexA - indexB; // Lowest index first
+      }
+    });
+
+    for (const node of sortedNodes) {
+      // Re-fetch current index since array may have changed
+      const currentIndex = containerParent.children.indexOf(node);
+      if (currentIndex === -1) continue;
+
+      const siblingCount = containerParent.children.length;
+
+      switch (direction) {
+        case 'up':
+          // Bring forward (higher index = visually on top)
+          if (currentIndex < siblingCount - 1) {
+            containerParent.insertChild(currentIndex + 2, node);
+            movedCount++;
+          }
+          break;
+        case 'down':
+          // Send backward (lower index = visually behind)
+          if (currentIndex > 0) {
+            containerParent.insertChild(currentIndex - 1, node);
+            movedCount++;
+          }
+          break;
+        case 'front':
+          // Bring to front (highest index)
+          if (currentIndex < siblingCount - 1) {
+            containerParent.insertChild(siblingCount, node);
+            movedCount++;
+          }
+          break;
+        case 'back':
+          // Send to back (index 0)
+          if (currentIndex > 0) {
+            containerParent.insertChild(0, node);
+            movedCount++;
+          }
+          break;
+      }
     }
   }
 
   if (movedCount > 0) {
-    const actionName = direction === 'up' ? 'Brought forward' : 
+    const actionName = direction === 'up' ? 'Brought forward' :
                        direction === 'down' ? 'Sent backward' :
                        direction === 'front' ? 'Brought to front' : 'Sent to back';
     figma.notify(`${actionName} ${movedCount} layer${movedCount === 1 ? '' : 's'}`);
@@ -646,6 +851,74 @@ const handleDeleteNodes = withErrorBoundary(async () => {
   // Update UI state
   sendSelectionStateToUI();
   sendNavigationStateToUI();
+}, ErrorType.UNKNOWN);
+
+const handleToggleVisibility = withErrorBoundary(async () => {
+  const selection = figma.currentPage.selection;
+
+  if (selection.length === 0) {
+    figma.notify('Please select at least one layer');
+    return;
+  }
+
+  let hiddenCount = 0;
+  let shownCount = 0;
+
+  for (const node of selection) {
+    if ('visible' in node) {
+      if (node.visible) {
+        node.visible = false;
+        hiddenCount++;
+      } else {
+        node.visible = true;
+        shownCount++;
+      }
+    }
+  }
+
+  if (hiddenCount > 0 && shownCount > 0) {
+    figma.notify(`Toggled visibility: ${hiddenCount} hidden, ${shownCount} shown`);
+  } else if (hiddenCount > 0) {
+    figma.notify(`Hidden ${hiddenCount} layer${hiddenCount === 1 ? '' : 's'}`);
+  } else if (shownCount > 0) {
+    figma.notify(`Shown ${shownCount} layer${shownCount === 1 ? '' : 's'}`);
+  }
+
+  sendSelectionStateToUI();
+}, ErrorType.UNKNOWN);
+
+const handleToggleLock = withErrorBoundary(async () => {
+  const selection = figma.currentPage.selection;
+
+  if (selection.length === 0) {
+    figma.notify('Please select at least one layer');
+    return;
+  }
+
+  let lockedCount = 0;
+  let unlockedCount = 0;
+
+  for (const node of selection) {
+    if ('locked' in node) {
+      if (node.locked) {
+        node.locked = false;
+        unlockedCount++;
+      } else {
+        node.locked = true;
+        lockedCount++;
+      }
+    }
+  }
+
+  if (lockedCount > 0 && unlockedCount > 0) {
+    figma.notify(`Toggled lock: ${lockedCount} locked, ${unlockedCount} unlocked`);
+  } else if (lockedCount > 0) {
+    figma.notify(`Locked ${lockedCount} layer${lockedCount === 1 ? '' : 's'}`);
+  } else if (unlockedCount > 0) {
+    figma.notify(`Unlocked ${unlockedCount} layer${unlockedCount === 1 ? '' : 's'}`);
+  }
+
+  sendSelectionStateToUI();
 }, ErrorType.UNKNOWN);
 
 const handleNavigateEmojiSet = withErrorBoundary(async (direction: 'prev' | 'next') => {
@@ -1030,16 +1303,11 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
       }
     }
 
+    // Only move the camera for sibling navigation actions (with smooth lerp)
     if (result.viewportUpdate && result.newSelection && result.newSelection.length > 0) {
-      // Always scroll to show selected layer for better UX
-      const isEnterAction = action === 'enter';
-
-      if (isEnterAction) {
-        // Enter action: only scroll to first child
-        figma.viewport.scrollAndZoomIntoView([result.newSelection[0]] as SceneNode[]);
-      } else {
-        // All other actions: scroll to show selected layer(s)
-        figma.viewport.scrollAndZoomIntoView(result.newSelection as SceneNode[]);
+      const isSiblingNavigation = action === 'prev-sibling' || action === 'next-sibling';
+      if (isSiblingNavigation) {
+        lerpViewportToNodes(result.newSelection as SceneNode[], 150);
       }
     }
 
@@ -1088,6 +1356,47 @@ const handleGetControlsSetting = withErrorBoundary(async () => {
     figma.ui.postMessage({
       type: 'controls-setting',
       enabled: true
+    });
+  }
+}, ErrorType.STORAGE_ERROR);
+
+const handleSetNudgeSettings = withErrorBoundary(async (smallNudge: number, bigNudge: number) => {
+  try {
+    // Validate and clamp values
+    const validSmall = Math.max(1, Math.min(100, Math.round(smallNudge)));
+    const validBig = Math.max(1, Math.min(100, Math.round(bigNudge)));
+
+    await figma.clientStorage.setAsync('nudgeSettings', { smallNudge: validSmall, bigNudge: validBig });
+
+    // Send updated settings to UI
+    figma.ui.postMessage({
+      type: 'nudge-settings',
+      smallNudge: validSmall,
+      bigNudge: validBig
+    });
+  } catch (error) {
+    console.error('Failed to save nudge settings:', error);
+    figma.notify('Failed to save nudge settings');
+  }
+}, ErrorType.STORAGE_ERROR);
+
+const handleGetNudgeSettings = withErrorBoundary(async () => {
+  try {
+    const settings = await figma.clientStorage.getAsync('nudgeSettings') as { smallNudge: number; bigNudge: number } | undefined;
+
+    // Send current settings to UI (default: 1 and 8)
+    figma.ui.postMessage({
+      type: 'nudge-settings',
+      smallNudge: settings?.smallNudge ?? 1,
+      bigNudge: settings?.bigNudge ?? 8
+    });
+  } catch (error) {
+    console.error('Failed to load nudge settings:', error);
+    // Default values
+    figma.ui.postMessage({
+      type: 'nudge-settings',
+      smallNudge: 1,
+      bigNudge: 8
     });
   }
 }, ErrorType.STORAGE_ERROR);

@@ -307,14 +307,24 @@
 
           <!-- Row 3 -->
           <div role="row" aria-rowindex="3" class="nav-row">
-            <button id="nav-collapse" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="1"
+            <button id="nav-collapse" class="nav-button nav-button-sizing" role="gridcell" aria-colindex="1"
               aria-label="Collapse selected and sibling containers (Alt+L)" aria-describedby="nav-collapse-desc"
               data-tooltip="Collapse Containers (⌥L)" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="0" data-shortcut="Alt+L">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-foldeCollapse.svg" alt=""></span>
               <span id="nav-collapse-desc" class="sr-only">Collapse selected container and sibling containers</span>
             </button>
-            <div class="nav-spacer" role="gridcell" aria-colindex="2" data-grid-row="2" data-grid-col="1"></div>
-            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="2" data-grid-col="2"></div>
+            <button id="nav-hide" class="nav-button nav-button-sizing" role="gridcell" aria-colindex="2"
+              aria-label="Toggle visibility (Cmd/Ctrl+Shift+H)" aria-describedby="nav-hide-desc"
+              data-tooltip="Hide/Show (⌘⇧H)" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="1">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-eyeOpen.svg" alt=""></span>
+              <span id="nav-hide-desc" class="sr-only">Toggle visibility of selected layers</span>
+            </button>
+            <button id="nav-lock" class="nav-button nav-button-sizing" role="gridcell" aria-colindex="3"
+              aria-label="Toggle lock (Cmd/Ctrl+Shift+L)" aria-describedby="nav-lock-desc"
+              data-tooltip="Lock/Unlock (⌘⇧L)" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="2">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-lockOpen.svg" alt=""></span>
+              <span id="nav-lock-desc" class="sr-only">Toggle lock state of selected layers</span>
+            </button>
           </div>
 
           </div>
@@ -418,6 +428,22 @@
               <span class="checkbox-description">Enable layer navigation, element movement, zoom, and actions</span>
             </label>
           </div>
+        </div>
+
+        <!-- Nudge Settings Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">↔️ Nudge Amount</h3>
+          <div class="setting-item nudge-settings">
+            <div class="nudge-input-group">
+              <label for="small-nudge-input" class="nudge-label">Small nudge</label>
+              <input type="number" id="small-nudge-input" class="nudge-input" min="1" max="100" value="1" aria-describedby="small-nudge-desc">
+            </div>
+            <div class="nudge-input-group">
+              <label for="big-nudge-input" class="nudge-label">Big nudge</label>
+              <input type="number" id="big-nudge-input" class="nudge-input" min="1" max="100" value="8" aria-describedby="big-nudge-desc">
+            </div>
+          </div>
+          <p class="settings-help-text" id="small-nudge-desc">Used with Arrow keys. <span id="big-nudge-desc">Hold Shift for big nudge.</span></p>
         </div>
 
         <!-- Data Migration Section -->
