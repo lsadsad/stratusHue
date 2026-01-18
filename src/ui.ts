@@ -7,6 +7,12 @@ import type { NavigationContext } from './types';
 // UI should not import plugin-side storage (which uses `figma`).
 // We request and persist UI section states via postMessage to the plugin.
 
+// Icon data URIs for lock/hide controls
+const ICON_EYE_OPEN = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuMzMzMjUgOC4wMDAwNkMxLjMzMzI1IDguMDAwMDYgMy4zMzMyNSAzLjMzMzM5IDcuOTk5OTIgMy4zMzMzOUMxMi42NjY2IDMuMzMzMzkgMTQuNjY2NiA4LjAwMDA2IDE0LjY2NjYgOC4wMDAwNkMxNC42NjY2IDguMDAwMDYgMTIuNjY2NiAxMi42NjY3IDcuOTk5OTIgMTIuNjY2N0MzLjMzMzI1IDEyLjY2NjcgMS4zMzMyNSA4LjAwMDA2IDEuMzMzMjUgOC4wMDAwNloiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSIyIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K';
+const ICON_EYE_CLOSED = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkuNDEzMjUgOS40MTMzOUM5LjIzMDA3IDkuNjA5OTkgOS4wMDkzNSA5Ljc2NzQzIDguNzY0MDUgOS44NzY1OEM4LjUxODc1IDkuOTg1NzIgOC4yNTM5MSAxMC4wNDQ0IDcuOTg1MzkgMTAuMDQ5MkM3LjcxNjg3IDEwLjA1NCA3LjQ1MDA5IDEwLjAwNDkgNy4yMDEwMyA5LjkwNDczQzYuOTUxOTcgOS44MDQ1OCA2LjcyNTc2IDkuNjU1MzQgNi41MzUyMSA5LjQ2NDc5QzYuMzQ0NjYgOS4yNzQyNCA2LjE5NTQyIDkuMDQ4MDMgNi4wOTUyNyA4Ljc5ODk3QzUuOTk1MTIgOC41NDk5MSA1Ljk0NTk2IDguMjgzMTMgNS45NTA3NiA4LjAxNDYxQzUuOTU1NTYgNy43NDYwOSA2LjAxNDI4IDcuNDgxMjUgNi4xMjM0MiA3LjIzNTk1QzYuMjMyNTcgNi45OTA2NSA2LjM5MDAxIDYuNzY5OTMgNi41ODY1OSA2LjU4NjczTTExLjk1OTkgMTEuOTYwMUMxMC44MjAzIDEyLjgyODcgOS40MzI2NyAxMy4zMDk5IDcuOTk5OTIgMTMuMzMzNEMzLjMzMzI1IDEzLjMzMzQgMS4zMzMyNSA4LjAwMDA2IDEuMzMzMjUgOC4wMDAwNkMyLjE2MzYzIDYuNDU0NjcgMy4zMTQwOCA1LjEwNDQ3IDQuNzA2NTkgNC4wNDAwNkwxMS45NTk5IDExLjk2MDFaTTYuNTk5OTIgMi44MjY3M0M3LjA1ODgxIDIuNzE5MzYgNy41Mjg2MyAyLjY2NTY0IDcuOTk5OTIgMi42NjY3M0MxMi42NjY2IDIuNjY2NzMgMTQuNjY2NiA4LjAwMDA2IDE0LjY2NjYgOC4wMDAwNkMxNC4yNjAzIDguNzU3MTMgMTMuNzY0MyA5LjQ2OTg5IDEzLjE4NjYgMTAuMTIwMUw2LjU5OTkyIDIuODI2NzNaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMS4zMzMyNSAxLjMzMzM5TDE0LjY2NjYgMTQuNjY2NyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==';
+const ICON_LOCK_OPEN = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjY2NjcgNy4zMzM1SDMuMzMzMzNDMi41OTY5NSA3LjMzMzUgMiA3LjkzMDQ1IDIgOC42NjY4M1YxMy4zMzM1QzIgMTQuMDY5OSAyLjU5Njk1IDE0LjY2NjggMy4zMzMzMyAxNC42NjY4SDEyLjY2NjdDMTMuNDAzIDE0LjY2NjggMTQgMTQuMDY5OSAxNCAxMy4zMzM1VjguNjY2ODNDMTQgNy45MzA0NSAxMy40MDMgNy4zMzM1IDEyLjY2NjcgNy4zMzM1WiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik00LjY2Njc1IDcuMzMzNVY0LjY2NjgzQzQuNjY2NzUgMy43ODI3NyA1LjAxNzk0IDIuOTM0OTMgNS42NDMwNiAyLjMwOTgxQzYuMjY4MTggMS42ODQ2OSA3LjExNjAzIDEuMzMzNSA4LjAwMDA4IDEuMzMzNUM4Ljg4NDE0IDEuMzMzNSA5LjczMTk4IDEuNjg0NjkgMTAuMzU3MSAyLjMwOTgxQzEwLjk4MjIgMi45MzQ5MyAxMS4zMzM0IDMuNzgyNzcgMTEuMzMzNCA0LjY2NjgzVjcuMzMzNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
+const ICON_LOCK_CLOSED = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjY2NjcgNy4zMzM1SDMuMzMzMzNDMi41OTY5NSA3LjMzMzUgMiA3LjkzMDQ1IDIgOC42NjY4M1YxMy4zMzM1QzIgMTQuMDY5OSAyLjU5Njk1IDE0LjY2NjggMy4zMzMzMyAxNC42NjY4SDEyLjY2NjdDMTMuNDAzIDE0LjY2NjggMTQgMTQuMDY5OSAxNCAxMy4zMzM1VjguNjY2ODNDMTQgNy45MzA0NSAxMy40MDMgNy4zMzM1IDEyLjY2NjcgNy4zMzM1WiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik00LjY2Njc1IDcuMzMzNDRWNC42NjY3N0M0LjY2NTkyIDMuODQwMTMgNC45NzIyNyAzLjA0MjY4IDUuNTI2MzMgMi40MjkyMUM2LjA4MDM5IDEuODE1NzUgNi44NDI2NCAxLjQzMDA0IDcuNjY1MDkgMS4zNDY5NkM4LjQ4NzU0IDEuMjYzODkgOS4zMTE1MSAxLjQ4OTM3IDkuOTc3MDcgMS45Nzk2NEMxMC42NDI2IDIuNDY5OTIgMTEuMTAyMyAzLjE5IDExLjI2NjcgNC4wMDAxIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==';
+
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
 // Global error handlers to catch unexpected issues
@@ -78,6 +84,8 @@ function handlePluginMessage(event: MessageEvent): void {
       updateToggleState(message.hasLayerSelected);
       // Update anatomy section with current page/layer info
       updateAnatomySection(message.hasLayerSelected, message.pageName, message.selectedLayerName);
+      // Update visibility and lock button icons based on selection state
+      updateVisibilityLockIcons(message.selectionVisible, message.selectionLocked);
       break;
     case 'bookmarks':
       updateBookmarksList(
@@ -111,6 +119,9 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'controls-setting':
       controlsEnabled = message.enabled;
       updateControlsVisibility(controlsEnabled);
+      break;
+    case 'nudge-settings':
+      updateNudgeSettingsUI(message.smallNudge, message.bigNudge);
       break;
     case 'navigation-action-result':
       // Announce the actual navigation result to screen readers
@@ -683,6 +694,47 @@ function updateAnatomySection(isLayerMode: boolean, pageName: string | null, lay
     // Hide date until addDate button is hovered
     anatomyDate.textContent = '';
     anatomyDate.style.display = 'none';
+  }
+}
+
+// Update visibility and lock button icons based on selection state
+function updateVisibilityLockIcons(
+  selectionVisible: boolean | 'mixed' | null,
+  selectionLocked: boolean | 'mixed' | null
+): void {
+  const hideBtn = document.getElementById('nav-hide');
+  const lockBtn = document.getElementById('nav-lock');
+
+  if (hideBtn) {
+    const iconImg = hideBtn.querySelector('.nav-icon img') as HTMLImageElement;
+    if (iconImg) {
+      // Show closed eye if all layers are hidden, open eye otherwise (including mixed state)
+      if (selectionVisible === false) {
+        iconImg.src = ICON_EYE_CLOSED;
+        hideBtn.setAttribute('aria-label', 'Show layers (Cmd/Ctrl+Shift+H)');
+        hideBtn.setAttribute('data-tooltip', 'Show (⌘⇧H)');
+      } else {
+        iconImg.src = ICON_EYE_OPEN;
+        hideBtn.setAttribute('aria-label', 'Hide layers (Cmd/Ctrl+Shift+H)');
+        hideBtn.setAttribute('data-tooltip', 'Hide (⌘⇧H)');
+      }
+    }
+  }
+
+  if (lockBtn) {
+    const iconImg = lockBtn.querySelector('.nav-icon img') as HTMLImageElement;
+    if (iconImg) {
+      // Show closed lock if all layers are locked, open lock otherwise (including mixed state)
+      if (selectionLocked === true) {
+        iconImg.src = ICON_LOCK_CLOSED;
+        lockBtn.setAttribute('aria-label', 'Unlock layers (Cmd/Ctrl+Shift+L)');
+        lockBtn.setAttribute('data-tooltip', 'Unlock (⌘⇧L)');
+      } else {
+        iconImg.src = ICON_LOCK_OPEN;
+        lockBtn.setAttribute('aria-label', 'Lock layers (Cmd/Ctrl+Shift+L)');
+        lockBtn.setAttribute('data-tooltip', 'Lock (⌘⇧L)');
+      }
+    }
   }
 }
 
@@ -3214,6 +3266,10 @@ let navigationContext: NavigationContext = {
 // Controls section setting state
 let controlsEnabled = true;
 
+// Nudge settings (user-configurable)
+let smallNudgeAmount = 1;
+let bigNudgeAmount = 8;
+
 // Update control button states based on context
 function updateControlButtons(context: NavigationContext): void {
   const enterBtn = document.getElementById('nav-enter') as HTMLButtonElement;
@@ -3467,6 +3523,18 @@ function updateControlButtons(context: NavigationContext): void {
   if (layerDownBtn) {
     layerDownBtn.disabled = !hasSelection;
   }
+
+  // Update hide/lock buttons - enable when elements are selected
+  const hideBtn = document.getElementById('nav-hide') as HTMLButtonElement;
+  const lockBtn = document.getElementById('nav-lock') as HTMLButtonElement;
+
+  if (hideBtn) {
+    hideBtn.disabled = !hasSelection;
+  }
+
+  if (lockBtn) {
+    lockBtn.disabled = !hasSelection;
+  }
 }
 
 // Update controls section visibility based on setting
@@ -3621,15 +3689,23 @@ function setupControls(): void {
     });
   }
 
-  /* Button removed from UI
-  if (gotoComponentBtn) {
-    gotoComponentBtn.addEventListener('click', () => {
-      console.log('Navigation: Go to main component');
-      announceNavigationResult({ success: true, message: 'Navigating to main component' });
-      sendMessage('navigation-action', { action: 'goto-main-component' });
+  // Hide/Show button
+  const hideBtn = document.getElementById('nav-hide');
+  if (hideBtn) {
+    hideBtn.addEventListener('click', () => {
+      console.log('Toggle visibility');
+      sendMessage('toggle-visibility');
     });
   }
-  */
+
+  // Lock/Unlock button
+  const lockBtn = document.getElementById('nav-lock');
+  if (lockBtn) {
+    lockBtn.addEventListener('click', () => {
+      console.log('Toggle lock');
+      sendMessage('toggle-lock');
+    });
+  }
 
   if (deleteBtn) {
     deleteBtn.addEventListener('click', () => {
@@ -3640,19 +3716,19 @@ function setupControls(): void {
   }
 
   // Arrow key button event listeners - for nudging/moving elements on canvas
-  // Alt+Arrow: duplicate by 1px offset
-  // Shift+Alt+Arrow: duplicate by 8px offset
-  // Ctrl+Arrow: resize by 1px
-  // Shift+Ctrl+Arrow: resize by 8px
-  // Shift+Arrow: nudge by 8px
-  // Arrow: nudge by 1px
+  // Alt+Arrow: duplicate by small nudge offset
+  // Shift+Alt+Arrow: duplicate by big nudge offset
+  // Cmd/Ctrl+Arrow: resize by small nudge
+  // Shift+Cmd/Ctrl+Arrow: resize by big nudge
+  // Shift+Arrow: nudge by big nudge
+  // Arrow: nudge by small nudge
   if (arrowUpBtn) {
     arrowUpBtn.addEventListener('click', (e: MouseEvent) => {
-      const amount = e.shiftKey ? 8 : 1;
+      const amount = e.shiftKey ? bigNudgeAmount : smallNudgeAmount;
       if (e.altKey) {
         console.log(`Arrow Duplicate: Up (offset ${amount}px)`);
         sendMessage('duplicate-elements', { direction: 'up', amount });
-      } else if (e.ctrlKey) {
+      } else if (e.ctrlKey || e.metaKey) {
         console.log(`Arrow Resize: Up (decrease height by ${amount}px)`);
         sendMessage('resize-elements', { direction: 'up', amount });
       } else {
@@ -3664,11 +3740,11 @@ function setupControls(): void {
 
   if (arrowDownBtn) {
     arrowDownBtn.addEventListener('click', (e: MouseEvent) => {
-      const amount = e.shiftKey ? 8 : 1;
+      const amount = e.shiftKey ? bigNudgeAmount : smallNudgeAmount;
       if (e.altKey) {
         console.log(`Arrow Duplicate: Down (offset ${amount}px)`);
         sendMessage('duplicate-elements', { direction: 'down', amount });
-      } else if (e.ctrlKey) {
+      } else if (e.ctrlKey || e.metaKey) {
         console.log(`Arrow Resize: Down (increase height by ${amount}px)`);
         sendMessage('resize-elements', { direction: 'down', amount });
       } else {
@@ -3680,11 +3756,11 @@ function setupControls(): void {
 
   if (arrowLeftBtn) {
     arrowLeftBtn.addEventListener('click', (e: MouseEvent) => {
-      const amount = e.shiftKey ? 8 : 1;
+      const amount = e.shiftKey ? bigNudgeAmount : smallNudgeAmount;
       if (e.altKey) {
         console.log(`Arrow Duplicate: Left (offset ${amount}px)`);
         sendMessage('duplicate-elements', { direction: 'left', amount });
-      } else if (e.ctrlKey) {
+      } else if (e.ctrlKey || e.metaKey) {
         console.log(`Arrow Resize: Left (decrease width by ${amount}px)`);
         sendMessage('resize-elements', { direction: 'left', amount });
       } else {
@@ -3696,11 +3772,11 @@ function setupControls(): void {
 
   if (arrowRightBtn) {
     arrowRightBtn.addEventListener('click', (e: MouseEvent) => {
-      const amount = e.shiftKey ? 8 : 1;
+      const amount = e.shiftKey ? bigNudgeAmount : smallNudgeAmount;
       if (e.altKey) {
         console.log(`Arrow Duplicate: Right (offset ${amount}px)`);
         sendMessage('duplicate-elements', { direction: 'right', amount });
-      } else if (e.ctrlKey) {
+      } else if (e.ctrlKey || e.metaKey) {
         console.log(`Arrow Resize: Right (increase width by ${amount}px)`);
         sendMessage('resize-elements', { direction: 'right', amount });
       } else {
@@ -4092,16 +4168,66 @@ function setupControlsSettings(): void {
   }
 }
 
+// Setup nudge settings
+function setupNudgeSettings(): void {
+  const smallNudgeInput = document.getElementById('small-nudge-input') as HTMLInputElement;
+  const bigNudgeInput = document.getElementById('big-nudge-input') as HTMLInputElement;
+
+  if (smallNudgeInput) {
+    smallNudgeInput.addEventListener('change', () => {
+      const value = parseInt(smallNudgeInput.value, 10);
+      if (!isNaN(value) && value >= 1 && value <= 100) {
+        smallNudgeAmount = value;
+        sendMessage('set-nudge-settings', { smallNudge: smallNudgeAmount, bigNudge: bigNudgeAmount });
+      } else {
+        // Reset to current value if invalid
+        smallNudgeInput.value = String(smallNudgeAmount);
+      }
+    });
+  }
+
+  if (bigNudgeInput) {
+    bigNudgeInput.addEventListener('change', () => {
+      const value = parseInt(bigNudgeInput.value, 10);
+      if (!isNaN(value) && value >= 1 && value <= 100) {
+        bigNudgeAmount = value;
+        sendMessage('set-nudge-settings', { smallNudge: smallNudgeAmount, bigNudge: bigNudgeAmount });
+      } else {
+        // Reset to current value if invalid
+        bigNudgeInput.value = String(bigNudgeAmount);
+      }
+    });
+  }
+}
+
+// Update nudge settings UI from plugin storage
+function updateNudgeSettingsUI(small: number, big: number): void {
+  smallNudgeAmount = small;
+  bigNudgeAmount = big;
+
+  const smallNudgeInput = document.getElementById('small-nudge-input') as HTMLInputElement;
+  const bigNudgeInput = document.getElementById('big-nudge-input') as HTMLInputElement;
+
+  if (smallNudgeInput) {
+    smallNudgeInput.value = String(small);
+  }
+  if (bigNudgeInput) {
+    bigNudgeInput.value = String(big);
+  }
+}
+
 // Initialize controls
 function initializeControls(): void {
   setupControls();
   setupControlsSettings();
+  setupNudgeSettings();
 
   // Initialize accessibility features
   initializeAccessibilityFeatures();
 
-  // Request current controls setting from plugin
+  // Request current settings from plugin
   sendMessage('get-controls-setting');
+  sendMessage('get-nudge-settings');
 }
 
 // Initialize accessibility features for controls

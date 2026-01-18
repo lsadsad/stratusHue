@@ -32,6 +32,37 @@ export function sendSelectionStateToUI(): void {
   const pageName = figma.currentPage.name;
   const selectedLayerName = hasLayerSelected && selectedLayers[0] ? (selectedLayers[0] as any).name : null;
 
+  // Determine visibility and lock state of selection
+  // If all selected layers share the same state, use that; otherwise use 'mixed'
+  let selectionVisible: boolean | 'mixed' | null = null;
+  let selectionLocked: boolean | 'mixed' | null = null;
+
+  if (hasLayerSelected) {
+    let allVisible = true;
+    let allHidden = true;
+    let allLocked = true;
+    let allUnlocked = true;
+
+    for (const node of selectedLayers) {
+      if ('visible' in node) {
+        if (node.visible) allHidden = false;
+        else allVisible = false;
+      }
+      if ('locked' in node) {
+        if (node.locked) allUnlocked = false;
+        else allLocked = false;
+      }
+    }
+
+    if (allVisible) selectionVisible = true;
+    else if (allHidden) selectionVisible = false;
+    else selectionVisible = 'mixed';
+
+    if (allLocked) selectionLocked = true;
+    else if (allUnlocked) selectionLocked = false;
+    else selectionLocked = 'mixed';
+  }
+
   figma.ui.postMessage({
     type: 'selection-state',
     hasLayerSelected,
@@ -39,7 +70,9 @@ export function sendSelectionStateToUI(): void {
     layerEmojis: hasLayerSelected ? currentEmojiSet.emojis : getCurrentEmojiSet(true).emojis,
     pageEmojis: !hasLayerSelected ? currentEmojiSet.emojis : getCurrentEmojiSet(false).emojis,
     pageName,
-    selectedLayerName
+    selectedLayerName,
+    selectionVisible,
+    selectionLocked
   });
 
   // Send emoji navigation state
