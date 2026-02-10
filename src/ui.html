@@ -103,34 +103,7 @@
     <section id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
       <div class="anchors-container">
         <ul id="bookmark-list" role="list" aria-label="Bookmarks">
-          <li class="bookmark-item" draggable="true" data-id="mock-1">
-            <div class="bookmark-content">
-              <div class="bookmark-name">⭐ 8bit Assets</div>
-              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
-            </div>
-            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
-          </li>
-          <li class="bookmark-item" draggable="true" data-id="mock-2">
-            <div class="bookmark-content">
-              <div class="bookmark-name">✅ icon</div>
-              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
-            </div>
-            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
-          </li>
-          <li class="bookmark-item" draggable="true" data-id="mock-3">
-            <div class="bookmark-content">
-              <div class="bookmark-name">🎨 icons</div>
-              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
-            </div>
-            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
-          </li>
-          <li class="bookmark-item" draggable="true" data-id="mock-4">
-            <div class="bookmark-content">
-              <div class="bookmark-name">🎯 relay</div>
-              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
-            </div>
-            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
-          </li>
+          <!-- Bookmarks will be populated dynamically -->
         </ul>
         <div id="anchors-null-state" class="null-state" role="status" aria-hidden="true" style="display: none;">
           <div class="null-state-icon">⚓️</div>
@@ -147,9 +120,6 @@
         <h2 class="header-title">Controls</h2>
       </div>
       <div class="header-right">
-        <button id="nav-delete" class="action-btn header-action-btn" aria-label="Delete selected nodes" data-tooltip="Delete selected" data-tooltip-delay="600" disabled onclick="event.stopPropagation();">
-          <span class="icon"><img src="./assets/ICO-delete.svg" alt=""></span>
-        </button>
       </div>
     </header>
 
@@ -163,7 +133,7 @@
         </div>
 
         <!-- Arrow Key Movement Grid -->
-        <div class="tag-grid-container">
+        <div id="movement-zoom-group" class="tag-grid-container">
           <span class="emoji-set-title">
             <span class="set-name">Movement & Zoom</span>
           </span>
@@ -191,7 +161,12 @@
               <span class="nav-label">Up</span>
               <span id="arrow-up-desc" class="sr-only">Move up 1px, 8px with Shift. Ctrl: decrease height. Alt: duplicate upward</span>
             </button>
-            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="0" data-grid-col="2"></div>
+            <button id="nav-delete" class="nav-button nav-button-delete" role="gridcell" aria-colindex="3"
+              aria-label="Delete selected nodes" aria-describedby="nav-delete-desc" data-tooltip="Delete Selected" data-tooltip-delay="600" disabled data-grid-row="0" data-grid-col="2">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-delete.svg" alt=""></span>
+              <span class="nav-label">Delete</span>
+              <span id="nav-delete-desc" class="sr-only">Delete selected elements from the canvas</span>
+            </button>
           </div>
 
           <!-- Row 2 -->
@@ -246,7 +221,7 @@
           </div>
         </div>
 
-        <div class="tag-grid-container">
+        <div id="hierarchy-group" class="tag-grid-container">
           <span class="mode-affordance">PAGE</span>
           <span id="hierarchy-set-indicator" class="emoji-set-title">
             <span class="set-name">Hierarchy</span>
@@ -330,7 +305,7 @@
           </div>
         </div>
 
-        <div class="tag-grid-container">
+        <div id="sizing-modes-group" class="tag-grid-container">
           <span class="emoji-set-title">
             <span class="set-name">Sizing Modes</span>
           </span>
@@ -371,7 +346,7 @@
 
         <!-- Theme Section -->
         <div class="settings-section">
-          <h3 class="settings-section-title">🎨&nbsp;Appearance</h3>
+          <h3 class="settings-section-title">🎨&nbsp;Theme</h3>
 
           <!-- Theme Selection -->
           <div class="setting-item">
@@ -426,6 +401,22 @@
             <label class="setting-label-small">
               <input type="checkbox" id="controls-toggle" checked>
               <span class="checkbox-description">Enable layer navigation, element movement, zoom, and actions</span>
+            </label>
+          </div>
+
+          <!-- Per-group visibility toggles -->
+          <div id="controls-group-toggles" class="setting-item controls-group-toggles">
+            <label class="setting-label-small sub-toggle">
+              <input type="checkbox" id="toggle-movement-zoom" checked>
+              <span class="checkbox-description">Movement & Zoom</span>
+            </label>
+            <label class="setting-label-small sub-toggle">
+              <input type="checkbox" id="toggle-hierarchy" checked>
+              <span class="checkbox-description">Hierarchy</span>
+            </label>
+            <label class="setting-label-small sub-toggle">
+              <input type="checkbox" id="toggle-sizing-modes" checked>
+              <span class="checkbox-description">Sizing Modes</span>
             </label>
           </div>
         </div>

@@ -120,6 +120,15 @@ function handlePluginMessage(event: MessageEvent): void {
       controlsEnabled = message.enabled;
       updateControlsVisibility(controlsEnabled);
       break;
+    case 'controls-group-settings':
+      if (message.groups) {
+        groupMovementZoomVisible = message.groups.movementZoom ?? true;
+        groupHierarchyVisible = message.groups.hierarchy ?? true;
+        groupSizingModesVisible = message.groups.sizingModes ?? true;
+        updateGroupTogglesUI();
+        applyGroupVisibility();
+      }
+      break;
     case 'nudge-settings':
       updateNudgeSettingsUI(message.smallNudge, message.bigNudge);
       break;
@@ -3266,6 +3275,11 @@ let navigationContext: NavigationContext = {
 // Controls section setting state
 let controlsEnabled = true;
 
+// Per-group visibility state
+let groupMovementZoomVisible = true;
+let groupHierarchyVisible = true;
+let groupSizingModesVisible = true;
+
 // Nudge settings (user-configurable)
 let smallNudgeAmount = 1;
 let bigNudgeAmount = 8;
@@ -3541,6 +3555,8 @@ function updateControlButtons(context: NavigationContext): void {
 function updateControlsVisibility(enabled: boolean): void {
   const controlsSection = document.getElementById('controls-section');
   const controlsHeader = document.getElementById('controls-header');
+  const controlsToggle = document.getElementById('controls-toggle') as HTMLInputElement;
+  const groupTogglesContainer = document.getElementById('controls-group-toggles');
 
   if (controlsSection && controlsHeader) {
     if (enabled) {
@@ -3551,6 +3567,53 @@ function updateControlsVisibility(enabled: boolean): void {
       controlsHeader.style.display = 'none';
     }
   }
+
+  // Sync the master toggle checkbox
+  if (controlsToggle) {
+    controlsToggle.checked = enabled;
+  }
+
+  // Enable/disable sub-toggles based on master toggle
+  if (groupTogglesContainer) {
+    if (enabled) {
+      groupTogglesContainer.classList.remove('disabled');
+    } else {
+      groupTogglesContainer.classList.add('disabled');
+    }
+  }
+
+  // Apply per-group visibility when master is enabled
+  if (enabled) {
+    applyGroupVisibility();
+  }
+}
+
+// Apply per-group visibility within the controls section
+function applyGroupVisibility(): void {
+  const movementZoomGroup = document.getElementById('movement-zoom-group');
+  const hierarchyGroup = document.getElementById('hierarchy-group');
+  const sizingModesGroup = document.getElementById('sizing-modes-group');
+
+  if (movementZoomGroup) {
+    movementZoomGroup.style.display = groupMovementZoomVisible ? '' : 'none';
+  }
+  if (hierarchyGroup) {
+    hierarchyGroup.style.display = groupHierarchyVisible ? '' : 'none';
+  }
+  if (sizingModesGroup) {
+    sizingModesGroup.style.display = groupSizingModesVisible ? '' : 'none';
+  }
+}
+
+// Update the group toggle checkboxes to reflect current state
+function updateGroupTogglesUI(): void {
+  const toggleMovementZoom = document.getElementById('toggle-movement-zoom') as HTMLInputElement;
+  const toggleHierarchy = document.getElementById('toggle-hierarchy') as HTMLInputElement;
+  const toggleSizingModes = document.getElementById('toggle-sizing-modes') as HTMLInputElement;
+
+  if (toggleMovementZoom) toggleMovementZoom.checked = groupMovementZoomVisible;
+  if (toggleHierarchy) toggleHierarchy.checked = groupHierarchyVisible;
+  if (toggleSizingModes) toggleSizingModes.checked = groupSizingModesVisible;
 }
 
 // Accessibility preferences detection and handling
@@ -4166,6 +4229,36 @@ function setupControlsSettings(): void {
       sendMessage('toggle-controls', { enabled });
     });
   }
+
+  // Per-group visibility toggles
+  setupGroupToggle('toggle-movement-zoom', 'movementZoom');
+  setupGroupToggle('toggle-hierarchy', 'hierarchy');
+  setupGroupToggle('toggle-sizing-modes', 'sizingModes');
+}
+
+// Setup a single group visibility toggle
+function setupGroupToggle(toggleId: string, groupKey: string): void {
+  const toggle = document.getElementById(toggleId) as HTMLInputElement;
+  if (toggle) {
+    toggle.addEventListener('change', () => {
+      const visible = toggle.checked;
+      // Update local state
+      switch (groupKey) {
+        case 'movementZoom': groupMovementZoomVisible = visible; break;
+        case 'hierarchy': groupHierarchyVisible = visible; break;
+        case 'sizingModes': groupSizingModesVisible = visible; break;
+      }
+      applyGroupVisibility();
+      // Persist via plugin
+      sendMessage('set-controls-group-visibility', {
+        groups: {
+          movementZoom: groupMovementZoomVisible,
+          hierarchy: groupHierarchyVisible,
+          sizingModes: groupSizingModesVisible
+        }
+      });
+    });
+  }
 }
 
 // Setup nudge settings
@@ -4227,6 +4320,7 @@ function initializeControls(): void {
 
   // Request current settings from plugin
   sendMessage('get-controls-setting');
+  sendMessage('get-controls-group-settings');
   sendMessage('get-nudge-settings');
 }
 

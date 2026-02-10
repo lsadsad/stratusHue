@@ -522,27 +522,7 @@ body.touch-active .kofi-button:hover {
   color: var(--theme-info);
 }
 
-/* ENHANCED THEME OPTION HOVER STATES */
-.theme-option:hover .theme-option-content {
-  background: transparent;
-  border-color: transparent;
-}
-
-.theme-option:hover .theme-name {
-  color: var(--theme-text-primary);
-}
-
-.theme-option:hover .theme-description {
-  color: var(--theme-text-secondary);
-}
-
 /* THEME OPTION PREVIEW STATES */
-.theme-previewing .theme-option:hover .theme-option-content {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
 .theme-previewing .theme-option:hover .theme-icon {
   transform: scale(1.1);
   transition: transform 150ms ease-out;
@@ -599,47 +579,7 @@ body.touch-active .kofi-button:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* ENHANCED FOCUS INDICATORS FOR ACCESSIBILITY */
-.theme-option input[type="radio"]:focus-visible+.theme-option-content {
-  outline: 2px solid var(--theme-info);
-  outline-offset: 2px;
-}
-
-.high-contrast-mode .theme-option input[type="radio"]:focus-visible+.theme-option-content {
-  outline: 3px solid currentColor;
-  outline-offset: 1px;
-}
-
-/* ENHANCED THEME OPTION FOCUS STATES */
-.theme-option-focused .theme-option-content {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.high-contrast-mode .theme-option-focused .theme-option-content {
-  border: none;
-  box-shadow: none;
-}
-
-/* KEYBOARD NAVIGATION INDICATORS */
-.theme-option input[type="radio"]:focus+.theme-option-content::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border: 2px solid var(--theme-info);
-  border-radius: var(--border-radius-lg);
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.high-contrast-mode .theme-option input[type="radio"]:focus+.theme-option-content::before {
-  border: 3px solid currentColor;
-  opacity: 1;
-}
+/* (Dead code removed: focus/keyboard indicators that targeted input[type="radio"]+.theme-option-content) */
 
 /* THEME NOTIFICATION ACCESSIBILITY */
 .theme-notification[role="status"] {
@@ -669,23 +609,6 @@ body.touch-active .kofi-button:hover {
 
 /* FORCED COLORS MODE SUPPORT (Windows High Contrast) */
 @media (forced-colors: active) {
-  .theme-option-content {
-    border: none;
-    background: transparent;
-    color: ButtonText;
-  }
-
-  .theme-option input[type="radio"]:checked+.theme-option-content {
-    border: none;
-    background: transparent;
-    color: SelectedItemText;
-  }
-
-  .theme-option input[type="radio"]:focus+.theme-option-content {
-    outline: 2px solid Highlight;
-    outline-offset: 2px;
-  }
-
   .theme-notification {
     border: 1px solid WindowText;
     background: Window;
@@ -721,14 +644,6 @@ body.touch-active .kofi-button:hover {
     --border-width: 2px;
   }
 
-  .theme-option-content {
-    border-width: 0;
-  }
-
-  .theme-option input[type="radio"]:checked+.theme-option-content {
-    border-width: 0;
-  }
-
   .theme-notification {
     border-width: 2px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -740,8 +655,7 @@ body.touch-active .kofi-button:hover {
   }
 
   .emoji-button:focus,
-  .action-btn:focus,
-  .theme-option input[type="radio"]:focus+.theme-option-content {
+  .action-btn:focus {
     outline-width: 3px;
     outline-offset: 1px;
   }
@@ -797,24 +711,11 @@ body.touch-active .kofi-button:hover {
   position: relative;
 }
 
-/* KEYBOARD NAVIGATION HELPERS */
-.theme-option input[type="radio"] {
-  position: relative;
-}
-
-.theme-option input[type="radio"]:focus {
-  z-index: 1;
-}
-
 /* CONTRAST VALIDATION INDICATORS */
 [data-contrast-issues] .theme-notification::after {
   content: '⚠️';
   margin-left: var(--spacing-sm);
   color: var(--theme-warning);
-}
-
-[data-high-contrast="true"] .theme-option-content {
-  border-width: 0;
 }
 
 [data-reduced-motion="true"] * {
@@ -992,11 +893,6 @@ body.touch-active .kofi-button:hover {
     outline-style: solid;
     background: var(--theme-bg-hover);
   }
-}
-
-[data-forced-colors="true"] .theme-option-content {
-  border: none;
-  background: transparent;
 }
 
 /* FIGMA THEME FALLBACKS - Default values when Figma variables aren't available */
@@ -3416,11 +3312,10 @@ h3 {
   /* No transform for Drop button */
 }
 
-/* Override clear-color, save-bookmark, and nav-delete styles when used as header action buttons */
+/* Override clear-color and save-bookmark styles when used as header action buttons */
 #tags-header #clear-color,
 #anchors-header #refresh-anchors,
-#anchors-header #save-bookmark,
-#controls-header #nav-delete {
+#anchors-header #save-bookmark {
   /* Reset to header action button dimensions */
   width: calc(var(--spacing-lg) * 3);
   height: calc(var(--spacing-lg) * 3);
@@ -3446,8 +3341,7 @@ h3 {
 
 #tags-header #clear-color .icon,
 #anchors-header #refresh-anchors .icon,
-#anchors-header #save-bookmark .icon,
-#controls-header #nav-delete .icon {
+#anchors-header #save-bookmark .icon {
   font-size: var(--icon-size-md);
   color: var(--color-text-subtle);
   display: flex;
@@ -3456,8 +3350,7 @@ h3 {
 }
 
 #tags-header #clear-color .icon img,
-#anchors-header #save-bookmark .icon img,
-#controls-header #nav-delete .icon img {
+#anchors-header #save-bookmark .icon img {
   width: 16px;
   height: 16px;
   display: block;
@@ -3478,8 +3371,7 @@ h3 {
 
 #tags-header #clear-color:hover,
 #anchors-header #refresh-anchors:hover,
-#anchors-header #save-bookmark:hover,
-#controls-header #nav-delete:hover:not(:disabled) {
+#anchors-header #save-bookmark:hover {
   background: var(--color-background-secondary);
   color: var(--figma-color-border-brand);
   transform: scale(1.1);
@@ -3488,8 +3380,7 @@ h3 {
 
 #tags-header #clear-color:hover .icon,
 #anchors-header #refresh-anchors:hover .icon,
-#anchors-header #save-bookmark:hover .icon,
-#controls-header #nav-delete:hover:not(:disabled) .icon {
+#anchors-header #save-bookmark:hover .icon {
   color: var(--figma-color-border-brand);
 }
 
@@ -3498,9 +3389,7 @@ h3 {
 #anchors-header #refresh-anchors:hover .icon img,
 #anchors-header #refresh-anchors:active .icon img,
 #anchors-header #save-bookmark:hover .icon img,
-#anchors-header #save-bookmark:active .icon img,
-#controls-header #nav-delete:hover:not(:disabled) .icon img,
-#controls-header #nav-delete:active:not(:disabled) .icon img {
+#anchors-header #save-bookmark:active .icon img {
   /* Hover/active: brand blue tint to match text color */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
@@ -3508,8 +3397,7 @@ h3 {
 
 #tags-header #clear-color:active,
 #anchors-header #refresh-anchors:active,
-#anchors-header #save-bookmark:active,
-#controls-header #nav-delete:active:not(:disabled) {
+#anchors-header #save-bookmark:active {
   background: var(--color-background-secondary);
   color: var(--figma-color-border-brand);
   transform: scale(0.95);
@@ -3518,20 +3406,8 @@ h3 {
 
 #tags-header #clear-color:active .icon,
 #anchors-header #refresh-anchors:active .icon,
-#anchors-header #save-bookmark:active .icon,
-#controls-header #nav-delete:active:not(:disabled) .icon {
+#anchors-header #save-bookmark:active .icon {
   color: var(--figma-color-border-brand);
-}
-
-/* Disabled state for nav-delete in header */
-#controls-header #nav-delete:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: var(--theme-interactive-disabled);
-}
-
-#controls-header #nav-delete:disabled .icon img {
-  opacity: 0.4;
 }
 
 /* ===== CONTROLS SECTION ===== */
@@ -3934,6 +3810,31 @@ h3 {
 }
 
 .nav-button.nav-button-sizing:disabled {
+  border-color: transparent !important;
+  opacity: 0.4;
+  background: var(--theme-interactive-disabled) !important;
+}
+
+/* Red: Destructive action button (Delete) */
+.nav-button.nav-button-delete {
+  /* Transparent border in default state, visible on hover */
+  border-color: transparent !important;
+  /* Default fill 12% opacity - red tint */
+  background: rgba(255, 80, 80, 0.12) !important;
+}
+
+.nav-button.nav-button-delete:hover:not(:disabled) {
+  background: rgba(255, 80, 80, 0.2) !important;
+  border-color: rgba(255, 80, 80, 0.6) !important;
+  color: var(--theme-text-primary);
+}
+
+.nav-button.nav-button-delete:active:not(:disabled) {
+  background: rgba(255, 80, 80, 0.3) !important;
+  border-color: rgba(255, 80, 80, 0.8) !important;
+}
+
+.nav-button.nav-button-delete:disabled {
   border-color: transparent !important;
   opacity: 0.4;
   background: var(--theme-interactive-disabled) !important;
@@ -5118,6 +5019,32 @@ i.grip {
   grid-column: 2;
 }
 
+/* Controls group sub-toggles */
+.controls-group-toggles {
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: opacity var(--transition-normal), max-height var(--transition-normal);
+  overflow: hidden;
+}
+
+.controls-group-toggles.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+  max-height: 0;
+  margin: 0;
+}
+
+.controls-group-toggles .sub-toggle {
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-text-secondary);
+}
+
+.controls-group-toggles .sub-toggle:last-child {
+  margin-bottom: 0;
+}
+
 .theme-selector {
   display: flex;
   flex-direction: column;
@@ -5206,37 +5133,19 @@ i.grip {
   margin-left: var(--spacing-sm);
 }
 
-/* Theme option states */
+/* Theme option states — all buttons share the same text styling */
 .theme-option .theme-name {
-  font-size: var(--spacing-xl) !important;
-  font-weight: var(--font-weight-normal) !important;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
 }
 
 .theme-option[aria-pressed="true"] .theme-name {
-  color: var(--figma-color-text-brand);
-}
-
-.theme-option[aria-pressed="true"] .theme-description {
-  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .theme-option[aria-pressed="true"] .theme-status {
-  color: var(--figma-color-text-brand);
   opacity: 1;
-}
-
-/* Light and Boilerplate theme options - dark text in light mode to match other options */
-#theme-light .theme-name,
-#theme-light .theme-description,
-#theme-boilerplate .theme-name,
-#theme-boilerplate .theme-description {
-  color: var(--color-text-primary);
-}
-
-/* Ensure Boilerplate has dark text when light theme is active */
-[data-theme="light"] #theme-boilerplate .theme-name,
-[data-theme="light"] #theme-boilerplate .theme-description {
-  color: var(--theme-text-primary) !important;
 }
 
 /* Theme groups */
@@ -5270,10 +5179,6 @@ i.grip {
     padding: var(--spacing-sm);
   }
 
-  .theme-option-content {
-    gap: var(--spacing-xs);
-  }
-
   .theme-icon {
     font-size: var(--icon-size-md);
   }
@@ -5288,7 +5193,7 @@ i.grip {
 }
 
 /* Focus states for accessibility */
-.theme-option:has(input:focus-visible) {
+.theme-option:focus-visible {
   outline: var(--outline-width) solid var(--figma-color-border-brand);
   outline-offset: var(--outline-offset);
 }
@@ -5299,11 +5204,11 @@ i.grip {
     border-width: var(--border-width-lg);
   }
 
-  .theme-option:has(input:checked) {
+  .theme-option[aria-pressed="true"] {
     box-shadow: 0 0 0 var(--outline-width-hc) var(--figma-color-border-brand);
   }
 
-  .theme-option:has(input:focus-visible) {
+  .theme-option:focus-visible {
     outline-width: var(--outline-width-hc);
     outline-offset: var(--outline-offset-hc);
   }
@@ -5699,7 +5604,6 @@ i.grip {
 [data-theme="figma-light"] #tags-header #clear-color .icon img,
 [data-theme="figma-light"] #anchors-header #refresh-anchors .icon img,
 [data-theme="figma-light"] #anchors-header #save-bookmark .icon img,
-[data-theme="figma-light"] #controls-header #nav-delete .icon img,
 [data-theme="light"] .header-nav-btn .icon img,
 [data-theme="light"] .header-action-btn .icon img,
 [data-theme="light"] #quick-actions .action-btn .icon img,
@@ -5713,8 +5617,7 @@ i.grip {
 [data-theme="light"] .buttons-right #outdent-title-btn .icon img,
 [data-theme="light"] #tags-header #clear-color .icon img,
 [data-theme="light"] #anchors-header #refresh-anchors .icon img,
-[data-theme="light"] #anchors-header #save-bookmark .icon img,
-[data-theme="light"] #controls-header #nav-delete .icon img {
+[data-theme="light"] #anchors-header #save-bookmark .icon img {
   /* Use black icons on light backgrounds */
   filter: brightness(0) saturate(0%);
   opacity: 0.60;
@@ -5734,8 +5637,7 @@ i.grip {
 [data-theme="figma-dark"] .buttons-right #outdent-title-btn .icon img,
 [data-theme="figma-dark"] #tags-header #clear-color .icon img,
 [data-theme="figma-dark"] #anchors-header #refresh-anchors .icon img,
-[data-theme="figma-dark"] #anchors-header #save-bookmark .icon img,
-[data-theme="figma-dark"] #controls-header #nav-delete .icon img {
+[data-theme="figma-dark"] #anchors-header #save-bookmark .icon img {
   /* Use a lighter monochrome tint on dark backgrounds */
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 0.60;
@@ -5760,8 +5662,7 @@ i.grip {
 [data-theme="boilerplate"] .buttons-right #outdent-title-btn .icon img,
 [data-theme="boilerplate"] #tags-header #clear-color .icon img,
 [data-theme="boilerplate"] #anchors-header #refresh-anchors .icon img,
-[data-theme="boilerplate"] #anchors-header #save-bookmark .icon img,
-[data-theme="boilerplate"] #controls-header #nav-delete .icon img {
+[data-theme="boilerplate"] #anchors-header #save-bookmark .icon img {
   /* Use a lighter monochrome tint on dark backgrounds */
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 0.60;
@@ -5783,9 +5684,7 @@ i.grip {
 [data-theme="boilerplate"] #anchors-header #refresh-anchors:hover .icon img,
 [data-theme="boilerplate"] #anchors-header #refresh-anchors:active .icon img,
 [data-theme="boilerplate"] #anchors-header #save-bookmark:hover .icon img,
-[data-theme="boilerplate"] #anchors-header #save-bookmark:active .icon img,
-[data-theme="boilerplate"] #controls-header #nav-delete:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #controls-header #nav-delete:active:not(:disabled) .icon img {
+[data-theme="boilerplate"] #anchors-header #save-bookmark:active .icon img {
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 1;
 }
@@ -5804,8 +5703,7 @@ i.grip {
 [data-theme="cybertron"] .buttons-right #outdent-title-btn .icon img,
 [data-theme="cybertron"] #tags-header #clear-color .icon img,
 [data-theme="cybertron"] #anchors-header #refresh-anchors .icon img,
-[data-theme="cybertron"] #anchors-header #save-bookmark .icon img,
-[data-theme="cybertron"] #controls-header #nav-delete .icon img {
+[data-theme="cybertron"] #anchors-header #save-bookmark .icon img {
   /* Cyan tint to match cybertron theme - invert to white then apply cyan filter */
   filter: brightness(0) invert(1) sepia(100%) saturate(200%) hue-rotate(160deg) brightness(1.2);
   opacity: 0.80;
@@ -5924,7 +5822,7 @@ Purple: Organization/hierarchy actions (Indent, Outdent)
   filter: brightness(0) invert(1) !important;
 }
 
-Red: Destructive actions (Delete)
+/* Red: Destructive actions (Delete) */
 #nav-delete .icon img {
   filter: brightness(0) saturate(100%) invert(35%) sepia(80%) saturate(600%) hue-rotate(330deg) brightness(0.9) !important;
 }
@@ -5941,7 +5839,7 @@ Red: Destructive actions (Delete)
   opacity: 0.4 !important;
 }
 
-===== LIGHT THEME ADJUSTMENTS FOR QUICK ACTION BUTTONS =====
+/* ===== LIGHT THEME ADJUSTMENTS FOR QUICK ACTION BUTTONS ===== */
 Adjust colors for better visibility on light backgrounds
 
 [data-theme="figma-light"] #new-page-btn .icon img,
@@ -6367,88 +6265,7 @@ Maintain color-coding for boilerplate theme
   border-color: var(--theme-border-translucent);
 }
 
-/* Theme Selector Styles */
-.theme-selector {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm);
-}
-
-.theme-option {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: var(--spacing-md);
-  border: 1px solid var(--figma-color-border);
-  border-radius: var(--border-radius-md);
-  background: var(--figma-color-bg);
-  transition: all var(--transition-fast);
-  position: relative;
-}
-
-.theme-option:hover {
-  background: var(--figma-color-bg-hover);
-  border-color: var(--figma-color-border-selected);
-}
-
-.theme-option input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  border: none;
-  outline: none;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content {
-  color: var(--figma-color-text-onbrand);
-}
-
-.theme-option input[type="radio"]:checked~.theme-option {
-  border-color: var(--figma-color-border-brand);
-  background: var(--figma-color-bg-brand-secondary);
-}
-
-.theme-option-content {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  width: 100%;
-  position: relative;
-}
-
-.theme-icon {
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-.theme-name {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--figma-color-text);
-}
-
-.theme-description {
-  font-size: 10px;
-  color: var(--figma-color-text-secondary);
-  margin-left: auto;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content .theme-name {
-  color: var(--figma-color-text);
-  font-weight: 600;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content .theme-description {
-  color: var(--figma-color-text-secondary);
-}
-
-/* Theme option selected state */
-.theme-option:has(input[type="radio"]:checked) {
-  border-color: var(--figma-color-border-brand);
-  background: var(--figma-color-bg-brand-secondary, rgba(24, 160, 251, 0.05));
-}
+/* (Dead code removed: Theme Selector Styles that targeted input[type="radio"] / .theme-option-content) */
 
 /* =
 ==== LOGO THEME SWITCHING ===== */
@@ -6863,84 +6680,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   letter-spacing: normal;
 }
 
-/* THEME OPTION STYLING - Settings panel theme selection */
-.theme-option {
-  display: flex;
-  margin-bottom: var(--spacing-md);
-  cursor: pointer;
-}
-
-.theme-option input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  border: none;
-  outline: none;
-}
-
-.theme-option-content {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  transition: all var(--transition-fast);
-  position: relative;
-}
-
-.theme-option:hover .theme-option-content {
-  background: transparent;
-  border-color: transparent;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.theme-icon {
-  font-size: var(--icon-size-lg);
-  flex-shrink: 0;
-}
-
-.theme-name {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-normal);
-  color: var(--theme-text-primary);
-  flex-grow: 1;
-}
-
-.theme-description {
-  font-size: var(--font-size-sm);
-  color: var(--theme-text-secondary);
-}
-
-.theme-status {
-  font-size: var(--font-size-xs);
-  color: var(--theme-text-muted);
-  font-style: italic;
-}
-
-/* Theme group styling */
-.theme-group {
-  margin-bottom: var(--spacing-xl);
-}
-
-.theme-group-header {
-  margin-bottom: var(--spacing-md);
-}
-
-.theme-group-title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--theme-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+/* (Dead code removed: THEME OPTION STYLING that targeted input[type="radio"] / .theme-option-content) */
 
 /* LIGHT THEME SUPPORT - Ensure proper contrast in light mode */
 [data-theme="light"] {
@@ -6991,146 +6731,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   --theme-shadow-heavy: rgba(0, 0, 0, 0.15);
 }
 
-/* Ensure theme names are always readable */
-[data-theme="light"] .theme-name {
-  color: var(--theme-text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-[data-theme="light"] .theme-group-title {
-  color: var(--theme-text-secondary);
-}
-
-/* Fix unselected theme option contrast in light mode */
-[data-theme="light"] .theme-option:not(:has(input:checked)) {
-  background: #e9ecef;
-  border-color: #dee2e6;
-}
-
-[data-theme="light"] .theme-option:not(:has(input:checked)):hover {
-  background: #dee2e6;
-  border-color: #ced4da;
-}
-
-/* Fix unselected theme option contrast when System theme is selected */
-[data-theme="figma-light"] .theme-option:not(:has(input:checked)) {
-  background: #e9ecef;
-  border-color: #dee2e6;
-}
-
-[data-theme="figma-light"] .theme-option:not(:has(input:checked)):hover {
-  background: #dee2e6;
-  border-color: #ced4da;
-}
-
-[data-theme="figma-dark"] .theme-option:not(:has(input:checked)) {
-  background: #3a3a3a;
-  border-color: #4a4a4a;
-}
-
-[data-theme="figma-dark"] .theme-option:not(:has(input:checked)):hover {
-  background: #4a4a4a;
-  border-color: #5a5a5a;
-}
-
-/* Enhanced readability for selected theme options in light mode */
-[data-theme="light"] .theme-option input[type="radio"]:checked+.theme-option-content .theme-name {
-  color: var(--theme-text-primary);
-  font-weight: var(--font-weight-bold);
-}
-
-/* Ensure selected theme names are always readable across all themes */
-.theme-option input[type="radio"]:checked+.theme-option-content .theme-name {
-  color: var(--theme-text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-/* Specific override for light theme selected state */
-[data-theme="light"] .theme-option input[type="radio"]:checked+.theme-option-content .theme-name {
-  color: var(--theme-text-primary) !important;
-  font-weight: var(--font-weight-bold) !important;
-}
-
-/* THEME OPTION STYLING - Base styles for theme selection */
-.theme-option {
-  display: flex;
-  cursor: pointer;
-}
-
-.theme-option input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  border: none;
-  outline: none;
-}
-
-.theme-option-content {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  transition: all var(--transition-fast);
-  position: relative;
-}
-
-.theme-option:hover .theme-option-content {
-  background: transparent;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content {
-  background: transparent;
-  box-shadow: none;
-}
-
-.theme-icon {
-  font-size: var(--icon-size-lg);
-  flex-shrink: 0;
-}
-
-.theme-name {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-normal);
-  color: var(--theme-text-primary);
-  flex-grow: 1;
-}
-
-.theme-description {
-  font-size: var(--font-size-sm);
-  color: var(--theme-text-secondary);
-}
-
-.theme-status {
-  font-size: var(--font-size-xs);
-  color: var(--theme-text-muted);
-  font-style: italic;
-}
-
-/* Theme group styling */
-.theme-group {
-  margin-bottom: var(--spacing-xl);
-}
-
-.theme-group-header {
-  margin-bottom: var(--spacing-md);
-}
-
-.theme-group-title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--theme-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Focus states for accessibility */
-.theme-option input[type="radio"]:focus-visible+.theme-option-content {
-  outline: 2px solid var(--theme-info);
-  outline-offset: 2px;
-}
+/* (Dead code removed: per-theme .theme-name overrides, input[type="radio"] rules, and duplicate theme option blocks) */
 
 /*
  ===== RESPONSIVE CONTROLS SECTION ===== */
