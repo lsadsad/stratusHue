@@ -65,14 +65,13 @@ body.touch-active .kofi-button:hover {
 
 /* Main scrollable content area */
 .scrollable-content {
-  height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0;
   margin: 0;
   position: relative;
-  /* Account for footer height */
-  padding-bottom: var(--spacing-md);
+  /* Footer height is accounted for separately in computeFitHeight() */
+  padding-bottom: 0;
 }
 
 /* Compact mode - adjustments to prevent content breaking */
@@ -97,29 +96,7 @@ body.touch-active .kofi-button:hover {
   margin-left: 0;
 }
 
-/* Scale down the anatomy section */
-.scrollable-content.compact-mode .anatomy-section {
-  /* transform: scale(0.9); */
-  transform-origin: center center;
-  gap: 4px;
-  border-radius: 8px;
-}
 
-.scrollable-content.compact-mode .anatomy-prefix,
-.scrollable-content.compact-mode .anatomy-date {
-  font-size: 9px;
-  letter-spacing: 0.3px;
-}
-
-.scrollable-content.compact-mode .anatomy-emoji {
-  font-size: 10px;
-}
-
-.scrollable-content.compact-mode .anatomy-section .mode-affordance {
-  padding: 1px 3px;
-  font-size: 7px;
-  letter-spacing: 0.28px;
-}
 
 /* Scrollbar styling */
 .scrollable-content::-webkit-scrollbar {
@@ -522,27 +499,7 @@ body.touch-active .kofi-button:hover {
   color: var(--theme-info);
 }
 
-/* ENHANCED THEME OPTION HOVER STATES */
-.theme-option:hover .theme-option-content {
-  background: transparent;
-  border-color: transparent;
-}
-
-.theme-option:hover .theme-name {
-  color: var(--theme-text-primary);
-}
-
-.theme-option:hover .theme-description {
-  color: var(--theme-text-secondary);
-}
-
 /* THEME OPTION PREVIEW STATES */
-.theme-previewing .theme-option:hover .theme-option-content {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
 .theme-previewing .theme-option:hover .theme-icon {
   transform: scale(1.1);
   transition: transform 150ms ease-out;
@@ -599,47 +556,7 @@ body.touch-active .kofi-button:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* ENHANCED FOCUS INDICATORS FOR ACCESSIBILITY */
-.theme-option input[type="radio"]:focus-visible+.theme-option-content {
-  outline: 2px solid var(--theme-info);
-  outline-offset: 2px;
-}
-
-.high-contrast-mode .theme-option input[type="radio"]:focus-visible+.theme-option-content {
-  outline: 3px solid currentColor;
-  outline-offset: 1px;
-}
-
-/* ENHANCED THEME OPTION FOCUS STATES */
-.theme-option-focused .theme-option-content {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.high-contrast-mode .theme-option-focused .theme-option-content {
-  border: none;
-  box-shadow: none;
-}
-
-/* KEYBOARD NAVIGATION INDICATORS */
-.theme-option input[type="radio"]:focus+.theme-option-content::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border: 2px solid var(--theme-info);
-  border-radius: var(--border-radius-lg);
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.high-contrast-mode .theme-option input[type="radio"]:focus+.theme-option-content::before {
-  border: 3px solid currentColor;
-  opacity: 1;
-}
+/* (Dead code removed: focus/keyboard indicators that targeted input[type="radio"]+.theme-option-content) */
 
 /* THEME NOTIFICATION ACCESSIBILITY */
 .theme-notification[role="status"] {
@@ -669,23 +586,6 @@ body.touch-active .kofi-button:hover {
 
 /* FORCED COLORS MODE SUPPORT (Windows High Contrast) */
 @media (forced-colors: active) {
-  .theme-option-content {
-    border: none;
-    background: transparent;
-    color: ButtonText;
-  }
-
-  .theme-option input[type="radio"]:checked+.theme-option-content {
-    border: none;
-    background: transparent;
-    color: SelectedItemText;
-  }
-
-  .theme-option input[type="radio"]:focus+.theme-option-content {
-    outline: 2px solid Highlight;
-    outline-offset: 2px;
-  }
-
   .theme-notification {
     border: 1px solid WindowText;
     background: Window;
@@ -721,14 +621,6 @@ body.touch-active .kofi-button:hover {
     --border-width: 2px;
   }
 
-  .theme-option-content {
-    border-width: 0;
-  }
-
-  .theme-option input[type="radio"]:checked+.theme-option-content {
-    border-width: 0;
-  }
-
   .theme-notification {
     border-width: 2px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -740,8 +632,7 @@ body.touch-active .kofi-button:hover {
   }
 
   .emoji-button:focus,
-  .action-btn:focus,
-  .theme-option input[type="radio"]:focus+.theme-option-content {
+  .action-btn:focus {
     outline-width: 3px;
     outline-offset: 1px;
   }
@@ -797,24 +688,11 @@ body.touch-active .kofi-button:hover {
   position: relative;
 }
 
-/* KEYBOARD NAVIGATION HELPERS */
-.theme-option input[type="radio"] {
-  position: relative;
-}
-
-.theme-option input[type="radio"]:focus {
-  z-index: 1;
-}
-
 /* CONTRAST VALIDATION INDICATORS */
 [data-contrast-issues] .theme-notification::after {
   content: '⚠️';
   margin-left: var(--spacing-sm);
   color: var(--theme-warning);
-}
-
-[data-high-contrast="true"] .theme-option-content {
-  border-width: 0;
 }
 
 [data-reduced-motion="true"] * {
@@ -992,11 +870,6 @@ body.touch-active .kofi-button:hover {
     outline-style: solid;
     background: var(--theme-bg-hover);
   }
-}
-
-[data-forced-colors="true"] .theme-option-content {
-  border: none;
-  background: transparent;
 }
 
 /* FIGMA THEME FALLBACKS - Default values when Figma variables aren't available */
@@ -1922,7 +1795,8 @@ h3 {
 /* ===== SCROLLABLE CONTENT ===== */
 .scrollable-content {
   width: 100%;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
@@ -1965,16 +1839,24 @@ h3 {
   flex-direction: column;
   position: relative;
   z-index: 0;
+  padding-bottom: 12px;
+}
+
+#color-section.collapsed {
+  padding-bottom: 0;
+  overflow: hidden;
+  min-height: 0;
 }
 
 
 .tags-content-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 4px;
   padding: 0 var(--spacing-xxl) calc(var(--spacing-lg) * 2 + var(--spacing-xxl) - 8px) var(--spacing-xxl);
   padding-bottom: 12px;
 }
+
 
 /* Boilerplate: use elevated background for Tags content section */
 [data-theme="boilerplate"] .tags-content-wrapper {
@@ -2016,6 +1898,38 @@ h3 {
 /* Improve tooltip contrast on light themes (match Figma-style dark tooltip) */
 [data-theme="figma-light"] .tooltip,
 [data-theme="light"] .tooltip {
+  background: #1e1e1e;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
+}
+
+/* ===== CANVAS HINT ===== */
+.canvas-hint {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--spacing-xl);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: calc(var(--z-tooltip) + 1);
+  box-shadow: 0 8px 24px var(--theme-shadow-light);
+  white-space: nowrap;
+}
+
+.canvas-hint.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Improve canvas hint contrast on light themes */
+[data-theme="figma-light"] .canvas-hint,
+[data-theme="light"] .canvas-hint {
   background: #1e1e1e;
   color: #ffffff;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
@@ -2775,7 +2689,7 @@ h3 {
 }
 
 #tags-header .header-right {
-  gap: var(--spacing-xs);
+  gap: 0;
 }
 
 /* Emoji Navigation List */
@@ -2884,6 +2798,23 @@ h3 {
   transition: padding var(--transition-normal);
   position: relative;
   margin-top: var(--spacing-lg);
+}
+
+/* Divider variant - dotted line with label instead of bordered box */
+.tag-grid-container--divider {
+  background: none;
+  border: none;
+  border-radius: 0;
+  border-top: 1px dotted var(--theme-border-translucent);
+  padding: 12px 0 0;
+}
+
+.tag-grid-container--divider .emoji-set-title {
+  background: var(--color-background-primary);
+}
+
+[data-theme="boilerplate"] .tag-grid-container--divider .emoji-set-title {
+  background: var(--color-background-elevated);
 }
 
 #controls-section .tag-grid-container {
@@ -3264,6 +3195,12 @@ h3 {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   letter-spacing: 0.32px;
+}
+
+.anatomy-section .mode-affordance[data-mode="onPage"] {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  border-color: rgba(255, 255, 255, 0.2);
   line-height: 1;
   display: flex;
   align-items: center;
@@ -3416,11 +3353,12 @@ h3 {
   /* No transform for Drop button */
 }
 
-/* Override clear-color, save-bookmark, and nav-delete styles when used as header action buttons */
+/* Override clear-color, new-page-btn, and save-bookmark styles when used as header action buttons */
+#tags-header #new-page-btn,
+#tags-header #date-btn,
 #tags-header #clear-color,
 #anchors-header #refresh-anchors,
-#anchors-header #save-bookmark,
-#controls-header #nav-delete {
+#anchors-header #save-bookmark {
   /* Reset to header action button dimensions */
   width: calc(var(--spacing-lg) * 3);
   height: calc(var(--spacing-lg) * 3);
@@ -3444,10 +3382,11 @@ h3 {
   min-height: calc(var(--spacing-lg) * 3);
 }
 
+#tags-header #new-page-btn .icon,
+#tags-header #date-btn .icon,
 #tags-header #clear-color .icon,
 #anchors-header #refresh-anchors .icon,
-#anchors-header #save-bookmark .icon,
-#controls-header #nav-delete .icon {
+#anchors-header #save-bookmark .icon {
   font-size: var(--icon-size-md);
   color: var(--color-text-subtle);
   display: flex;
@@ -3455,9 +3394,10 @@ h3 {
   justify-content: center;
 }
 
+#tags-header #new-page-btn .icon img,
+#tags-header #date-btn .icon img,
 #tags-header #clear-color .icon img,
-#anchors-header #save-bookmark .icon img,
-#controls-header #nav-delete .icon img {
+#anchors-header #save-bookmark .icon img {
   width: 16px;
   height: 16px;
   display: block;
@@ -3476,62 +3416,57 @@ h3 {
   opacity: 0.7;
 }
 
+#tags-header #new-page-btn:hover,
+#tags-header #date-btn:hover,
 #tags-header #clear-color:hover,
 #anchors-header #refresh-anchors:hover,
-#anchors-header #save-bookmark:hover,
-#controls-header #nav-delete:hover:not(:disabled) {
+#anchors-header #save-bookmark:hover {
   background: var(--color-background-secondary);
   color: var(--figma-color-border-brand);
   transform: scale(1.1);
   border: none;
 }
 
+#tags-header #new-page-btn:hover .icon,
+#tags-header #date-btn:hover .icon,
 #tags-header #clear-color:hover .icon,
 #anchors-header #refresh-anchors:hover .icon,
-#anchors-header #save-bookmark:hover .icon,
-#controls-header #nav-delete:hover:not(:disabled) .icon {
+#anchors-header #save-bookmark:hover .icon {
   color: var(--figma-color-border-brand);
 }
 
+#tags-header #new-page-btn:hover .icon img,
+#tags-header #new-page-btn:active .icon img,
+#tags-header #date-btn:hover .icon img,
+#tags-header #date-btn:active .icon img,
 #tags-header #clear-color:hover .icon img,
 #tags-header #clear-color:active .icon img,
 #anchors-header #refresh-anchors:hover .icon img,
 #anchors-header #refresh-anchors:active .icon img,
 #anchors-header #save-bookmark:hover .icon img,
-#anchors-header #save-bookmark:active .icon img,
-#controls-header #nav-delete:hover:not(:disabled) .icon img,
-#controls-header #nav-delete:active:not(:disabled) .icon img {
+#anchors-header #save-bookmark:active .icon img {
   /* Hover/active: brand blue tint to match text color */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
 }
 
+#tags-header #new-page-btn:active,
+#tags-header #date-btn:active,
 #tags-header #clear-color:active,
 #anchors-header #refresh-anchors:active,
-#anchors-header #save-bookmark:active,
-#controls-header #nav-delete:active:not(:disabled) {
+#anchors-header #save-bookmark:active {
   background: var(--color-background-secondary);
   color: var(--figma-color-border-brand);
   transform: scale(0.95);
   border: none;
 }
 
+#tags-header #new-page-btn:active .icon,
+#tags-header #date-btn:active .icon,
 #tags-header #clear-color:active .icon,
 #anchors-header #refresh-anchors:active .icon,
-#anchors-header #save-bookmark:active .icon,
-#controls-header #nav-delete:active:not(:disabled) .icon {
+#anchors-header #save-bookmark:active .icon {
   color: var(--figma-color-border-brand);
-}
-
-/* Disabled state for nav-delete in header */
-#controls-header #nav-delete:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: var(--theme-interactive-disabled);
-}
-
-#controls-header #nav-delete:disabled .icon img {
-  opacity: 0.4;
 }
 
 /* ===== CONTROLS SECTION ===== */
@@ -3934,6 +3869,31 @@ h3 {
 }
 
 .nav-button.nav-button-sizing:disabled {
+  border-color: transparent !important;
+  opacity: 0.4;
+  background: var(--theme-interactive-disabled) !important;
+}
+
+/* Red: Destructive action button (Delete) */
+.nav-button.nav-button-delete {
+  /* Transparent border in default state, visible on hover */
+  border-color: transparent !important;
+  /* Default fill 12% opacity - red tint */
+  background: rgba(255, 80, 80, 0.12) !important;
+}
+
+.nav-button.nav-button-delete:hover:not(:disabled) {
+  background: rgba(255, 80, 80, 0.2) !important;
+  border-color: rgba(255, 80, 80, 0.6) !important;
+  color: var(--theme-text-primary);
+}
+
+.nav-button.nav-button-delete:active:not(:disabled) {
+  background: rgba(255, 80, 80, 0.3) !important;
+  border-color: rgba(255, 80, 80, 0.8) !important;
+}
+
+.nav-button.nav-button-delete:disabled {
   border-color: transparent !important;
   opacity: 0.4;
   background: var(--theme-interactive-disabled) !important;
@@ -4641,7 +4601,8 @@ h3 {
   align-items: center;
 }
 
-.footer-controls li:first-child {
+.footer-controls li:first-child,
+.footer-controls li:nth-child(2) {
   justify-content: flex-start;
 }
 
@@ -4649,7 +4610,7 @@ h3 {
   justify-content: flex-end;
 }
 
-.footer-controls li:nth-child(2) {
+.footer-controls li:nth-child(3) {
   flex: 1;
   justify-content: center;
 }
@@ -5118,6 +5079,32 @@ i.grip {
   grid-column: 2;
 }
 
+/* Controls group sub-toggles */
+.controls-group-toggles {
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: opacity var(--transition-normal), max-height var(--transition-normal);
+  overflow: hidden;
+}
+
+.controls-group-toggles.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+  max-height: 0;
+  margin: 0;
+}
+
+.controls-group-toggles .sub-toggle {
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-text-secondary);
+}
+
+.controls-group-toggles .sub-toggle:last-child {
+  margin-bottom: 0;
+}
+
 .theme-selector {
   display: flex;
   flex-direction: column;
@@ -5206,37 +5193,19 @@ i.grip {
   margin-left: var(--spacing-sm);
 }
 
-/* Theme option states */
+/* Theme option states — all buttons share the same text styling */
 .theme-option .theme-name {
-  font-size: var(--spacing-xl) !important;
-  font-weight: var(--font-weight-normal) !important;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
 }
 
 .theme-option[aria-pressed="true"] .theme-name {
-  color: var(--figma-color-text-brand);
-}
-
-.theme-option[aria-pressed="true"] .theme-description {
-  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .theme-option[aria-pressed="true"] .theme-status {
-  color: var(--figma-color-text-brand);
   opacity: 1;
-}
-
-/* Light and Boilerplate theme options - dark text in light mode to match other options */
-#theme-light .theme-name,
-#theme-light .theme-description,
-#theme-boilerplate .theme-name,
-#theme-boilerplate .theme-description {
-  color: var(--color-text-primary);
-}
-
-/* Ensure Boilerplate has dark text when light theme is active */
-[data-theme="light"] #theme-boilerplate .theme-name,
-[data-theme="light"] #theme-boilerplate .theme-description {
-  color: var(--theme-text-primary) !important;
 }
 
 /* Theme groups */
@@ -5270,10 +5239,6 @@ i.grip {
     padding: var(--spacing-sm);
   }
 
-  .theme-option-content {
-    gap: var(--spacing-xs);
-  }
-
   .theme-icon {
     font-size: var(--icon-size-md);
   }
@@ -5288,7 +5253,7 @@ i.grip {
 }
 
 /* Focus states for accessibility */
-.theme-option:has(input:focus-visible) {
+.theme-option:focus-visible {
   outline: var(--outline-width) solid var(--figma-color-border-brand);
   outline-offset: var(--outline-offset);
 }
@@ -5299,11 +5264,11 @@ i.grip {
     border-width: var(--border-width-lg);
   }
 
-  .theme-option:has(input:checked) {
+  .theme-option[aria-pressed="true"] {
     box-shadow: 0 0 0 var(--outline-width-hc) var(--figma-color-border-brand);
   }
 
-  .theme-option:has(input:focus-visible) {
+  .theme-option:focus-visible {
     outline-width: var(--outline-width-hc);
     outline-offset: var(--outline-offset-hc);
   }
@@ -5696,10 +5661,11 @@ i.grip {
 [data-theme="figma-light"] .color-grid #outdent-title-btn .icon img,
 [data-theme="figma-light"] .buttons-right #indent-title-btn .icon img,
 [data-theme="figma-light"] .buttons-right #outdent-title-btn .icon img,
+[data-theme="figma-light"] #tags-header #new-page-btn .icon img,
+[data-theme="figma-light"] #tags-header #date-btn .icon img,
 [data-theme="figma-light"] #tags-header #clear-color .icon img,
 [data-theme="figma-light"] #anchors-header #refresh-anchors .icon img,
 [data-theme="figma-light"] #anchors-header #save-bookmark .icon img,
-[data-theme="figma-light"] #controls-header #nav-delete .icon img,
 [data-theme="light"] .header-nav-btn .icon img,
 [data-theme="light"] .header-action-btn .icon img,
 [data-theme="light"] #quick-actions .action-btn .icon img,
@@ -5711,10 +5677,11 @@ i.grip {
 [data-theme="light"] .color-grid #outdent-title-btn .icon img,
 [data-theme="light"] .buttons-right #indent-title-btn .icon img,
 [data-theme="light"] .buttons-right #outdent-title-btn .icon img,
+[data-theme="light"] #tags-header #new-page-btn .icon img,
+[data-theme="light"] #tags-header #date-btn .icon img,
 [data-theme="light"] #tags-header #clear-color .icon img,
 [data-theme="light"] #anchors-header #refresh-anchors .icon img,
-[data-theme="light"] #anchors-header #save-bookmark .icon img,
-[data-theme="light"] #controls-header #nav-delete .icon img {
+[data-theme="light"] #anchors-header #save-bookmark .icon img {
   /* Use black icons on light backgrounds */
   filter: brightness(0) saturate(0%);
   opacity: 0.60;
@@ -5732,10 +5699,11 @@ i.grip {
 [data-theme="figma-dark"] .color-grid #outdent-title-btn .icon img,
 [data-theme="figma-dark"] .buttons-right #indent-title-btn .icon img,
 [data-theme="figma-dark"] .buttons-right #outdent-title-btn .icon img,
+[data-theme="figma-dark"] #tags-header #new-page-btn .icon img,
+[data-theme="figma-dark"] #tags-header #date-btn .icon img,
 [data-theme="figma-dark"] #tags-header #clear-color .icon img,
 [data-theme="figma-dark"] #anchors-header #refresh-anchors .icon img,
-[data-theme="figma-dark"] #anchors-header #save-bookmark .icon img,
-[data-theme="figma-dark"] #controls-header #nav-delete .icon img {
+[data-theme="figma-dark"] #anchors-header #save-bookmark .icon img {
   /* Use a lighter monochrome tint on dark backgrounds */
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 0.60;
@@ -5758,10 +5726,11 @@ i.grip {
 [data-theme="boilerplate"] .color-grid #outdent-title-btn .icon img,
 [data-theme="boilerplate"] .buttons-right #indent-title-btn .icon img,
 [data-theme="boilerplate"] .buttons-right #outdent-title-btn .icon img,
+[data-theme="boilerplate"] #tags-header #new-page-btn .icon img,
+[data-theme="boilerplate"] #tags-header #date-btn .icon img,
 [data-theme="boilerplate"] #tags-header #clear-color .icon img,
 [data-theme="boilerplate"] #anchors-header #refresh-anchors .icon img,
-[data-theme="boilerplate"] #anchors-header #save-bookmark .icon img,
-[data-theme="boilerplate"] #controls-header #nav-delete .icon img {
+[data-theme="boilerplate"] #anchors-header #save-bookmark .icon img {
   /* Use a lighter monochrome tint on dark backgrounds */
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 0.60;
@@ -5778,14 +5747,16 @@ i.grip {
 [data-theme="boilerplate"] #quick-actions #new-page-btn:active:not(:disabled) .icon img,
 [data-theme="boilerplate"] .color-grid .action-btn:hover:not(:disabled) .icon img,
 [data-theme="boilerplate"] .color-grid .action-btn:active:not(:disabled) .icon img,
+[data-theme="boilerplate"] #tags-header #new-page-btn:hover .icon img,
+[data-theme="boilerplate"] #tags-header #new-page-btn:active .icon img,
+[data-theme="boilerplate"] #tags-header #date-btn:hover .icon img,
+[data-theme="boilerplate"] #tags-header #date-btn:active .icon img,
 [data-theme="boilerplate"] #tags-header #clear-color:hover .icon img,
 [data-theme="boilerplate"] #tags-header #clear-color:active .icon img,
 [data-theme="boilerplate"] #anchors-header #refresh-anchors:hover .icon img,
 [data-theme="boilerplate"] #anchors-header #refresh-anchors:active .icon img,
 [data-theme="boilerplate"] #anchors-header #save-bookmark:hover .icon img,
-[data-theme="boilerplate"] #anchors-header #save-bookmark:active .icon img,
-[data-theme="boilerplate"] #controls-header #nav-delete:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #controls-header #nav-delete:active:not(:disabled) .icon img {
+[data-theme="boilerplate"] #anchors-header #save-bookmark:active .icon img {
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 1;
 }
@@ -5802,10 +5773,11 @@ i.grip {
 [data-theme="cybertron"] .color-grid #outdent-title-btn .icon img,
 [data-theme="cybertron"] .buttons-right #indent-title-btn .icon img,
 [data-theme="cybertron"] .buttons-right #outdent-title-btn .icon img,
+[data-theme="cybertron"] #tags-header #new-page-btn .icon img,
+[data-theme="cybertron"] #tags-header #date-btn .icon img,
 [data-theme="cybertron"] #tags-header #clear-color .icon img,
 [data-theme="cybertron"] #anchors-header #refresh-anchors .icon img,
-[data-theme="cybertron"] #anchors-header #save-bookmark .icon img,
-[data-theme="cybertron"] #controls-header #nav-delete .icon img {
+[data-theme="cybertron"] #anchors-header #save-bookmark .icon img {
   /* Cyan tint to match cybertron theme - invert to white then apply cyan filter */
   filter: brightness(0) invert(1) sepia(100%) saturate(200%) hue-rotate(160deg) brightness(1.2);
   opacity: 0.80;
@@ -5827,190 +5799,214 @@ i.grip {
 }
 
 /* ===== COLOR-CODED QUICK ACTION BUTTONS ===== */
-/* DISABLED: Color-coding for quick action buttons - see docs/features/COLOR_CODED_BUTTONS.md */
-/* To enable, remove the opening comment below and closing comment at end of section */
-/*
+/* Color-coding aligned with Controls section color vocabulary:
+   Green  = New Page (creation/additive, like movement arrows)
+   Yellow = Back, Forward (navigation history, like hierarchy traversal)
+   Blue   = Date, Bookmark, Refresh Anchors (informational/viewing, like zoom)
+   Red    = Remove Tag (destructive, like delete)
+   Purple = Indent, Outdent (organization/structure, like sizing)
+   Gray   = Settings (utility/neutral)
+   Red    = Delete (destructive)
+*/
+
+/* Default states: neutral white/monochrome - color reveals on hover */
+
+/* Green on hover: Creation actions (New Page) */
 #new-page-btn .icon img {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(85deg) brightness(0.85) !important;
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.7 !important;
 }
 
 #new-page-btn:hover:not(:disabled) .icon img {
   filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7) !important;
+  opacity: 1 !important;
 }
 
 #new-page-btn:active:not(:disabled) .icon img {
   filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
 }
 
-Blue: Navigation/history actions (Back, Forward)
+/* Yellow on hover: Navigation history actions (Back, Forward) */
 #back-btn .icon img,
 #forward-btn .icon img {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(190deg) brightness(0.85) !important;
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.7 !important;
 }
 
 #back-btn:hover:not(:disabled) .icon img,
 #forward-btn:hover:not(:disabled) .icon img {
-  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7) !important;
+  filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7) !important;
+  opacity: 1 !important;
 }
 
 #back-btn:active:not(:disabled) .icon img,
 #forward-btn:active:not(:disabled) .icon img {
   filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
 }
 
 #back-btn:disabled .icon img,
 #forward-btn:disabled .icon img {
-  opacity: 0.4 !important;
+  opacity: 0.3 !important;
 }
 
-Neutral/Gray: Utility actions (Settings)
+/* Gray: Utility actions (Settings) */
 #settings-btn .icon img {
-  filter: brightness(0) saturate(0%) invert(60%) brightness(0.85) !important;
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.5 !important;
 }
 
 #settings-btn:hover:not(:disabled) .icon img {
-  filter: brightness(0) saturate(0%) invert(50%) brightness(0.7) !important;
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.85 !important;
 }
 
 #settings-btn:active:not(:disabled) .icon img {
   filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
 }
 
-Orange/Yellow: Warning actions (Remove Tag)
+/* Red on hover: Destructive actions (Remove Tag) */
 #clear-color .icon img {
-  filter: brightness(0) saturate(100%) invert(55%) sepia(90%) saturate(600%) hue-rotate(15deg) brightness(0.85) !important;
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.7 !important;
 }
 
 #clear-color:hover:not(:disabled) .icon img {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7) !important;
+  filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.75) !important;
+  opacity: 1 !important;
 }
 
 #clear-color:active:not(:disabled) .icon img {
   filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
 }
 
-Cyan/Blue: Informational/metadata actions (Add Date, Save Bookmark, Refresh Anchors)
+/* Blue on hover: Informational/viewing actions (Date, Bookmark, Refresh Anchors) */
 #date-btn .icon img,
 #save-bookmark .icon img,
 #refresh-anchors .icon img {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(190deg) brightness(0.85) !important;
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.7 !important;
 }
 
 #date-btn:hover:not(:disabled) .icon img,
 #save-bookmark:hover:not(:disabled) .icon img,
 #refresh-anchors:hover:not(:disabled) .icon img {
   filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7) !important;
+  opacity: 1 !important;
 }
 
 #date-btn:active:not(:disabled) .icon img,
 #save-bookmark:active:not(:disabled) .icon img,
 #refresh-anchors:active:not(:disabled) .icon img {
   filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
 }
 
-Purple: Organization/hierarchy actions (Indent, Outdent)
-#indent-title-btn .icon img,
-#outdent-title-btn .icon img {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(240deg) brightness(0.85) !important;
-}
-
-#indent-title-btn:hover:not(:disabled) .icon img,
-#outdent-title-btn:hover:not(:disabled) .icon img {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.7) !important;
-}
-
-#indent-title-btn:active:not(:disabled) .icon img,
-#outdent-title-btn:active:not(:disabled) .icon img {
-  filter: brightness(0) invert(1) !important;
-}
-
-Red: Destructive actions (Delete)
-#nav-delete .icon img {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(80%) saturate(600%) hue-rotate(330deg) brightness(0.9) !important;
-}
-
-#nav-delete:hover:not(:disabled) .icon img {
-  filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.75) !important;
-}
-
-#nav-delete:active:not(:disabled) .icon img {
-  filter: brightness(0) invert(1) !important;
-}
-
-#nav-delete:disabled .icon img {
-  opacity: 0.4 !important;
-}
-
-===== LIGHT THEME ADJUSTMENTS FOR QUICK ACTION BUTTONS =====
-Adjust colors for better visibility on light backgrounds
+/* ===== LIGHT THEME ADJUSTMENTS FOR QUICK ACTION BUTTONS ===== */
+/* Default: dark gray monochrome on light backgrounds; color on hover */
 
 [data-theme="figma-light"] #new-page-btn .icon img,
-[data-theme="light"] #new-page-btn .icon img {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75) !important;
-}
-
+[data-theme="light"] #new-page-btn .icon img,
 [data-theme="figma-light"] #back-btn .icon img,
 [data-theme="figma-light"] #forward-btn .icon img,
 [data-theme="light"] #back-btn .icon img,
-[data-theme="light"] #forward-btn .icon img {
-  filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75) !important;
-}
-
-[data-theme="figma-light"] #settings-btn .icon img,
-[data-theme="light"] #settings-btn .icon img {
-  filter: brightness(0) saturate(0%) invert(40%) brightness(0.75) !important;
-}
-
+[data-theme="light"] #forward-btn .icon img,
 [data-theme="figma-light"] #clear-color .icon img,
-[data-theme="light"] #clear-color .icon img {
-  filter: brightness(0) saturate(100%) invert(40%) sepia(95%) saturate(650%) hue-rotate(15deg) brightness(0.7) !important;
-}
-
+[data-theme="light"] #clear-color .icon img,
 [data-theme="figma-light"] #date-btn .icon img,
 [data-theme="figma-light"] #save-bookmark .icon img,
 [data-theme="figma-light"] #refresh-anchors .icon img,
 [data-theme="light"] #date-btn .icon img,
 [data-theme="light"] #save-bookmark .icon img,
 [data-theme="light"] #refresh-anchors .icon img {
-  filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75) !important;
+  filter: brightness(0) saturate(0%) !important;
+  opacity: 0.45 !important;
 }
 
-[data-theme="figma-light"] #indent-title-btn .icon img,
-[data-theme="figma-light"] #outdent-title-btn .icon img,
-[data-theme="light"] #indent-title-btn .icon img,
-[data-theme="light"] #outdent-title-btn .icon img {
-  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.75) !important;
+[data-theme="figma-light"] #settings-btn .icon img,
+[data-theme="light"] #settings-btn .icon img {
+  filter: brightness(0) saturate(0%) !important;
+  opacity: 0.35 !important;
+}
+
+/* Light theme hover: reveal colors */
+[data-theme="figma-light"] #new-page-btn:hover:not(:disabled) .icon img,
+[data-theme="light"] #new-page-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="figma-light"] #back-btn:hover:not(:disabled) .icon img,
+[data-theme="figma-light"] #forward-btn:hover:not(:disabled) .icon img,
+[data-theme="light"] #back-btn:hover:not(:disabled) .icon img,
+[data-theme="light"] #forward-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(95%) saturate(650%) hue-rotate(15deg) brightness(0.7) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="figma-light"] #clear-color:hover:not(:disabled) .icon img,
+[data-theme="light"] #clear-color:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(90%) saturate(700%) hue-rotate(335deg) brightness(0.8) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="figma-light"] #date-btn:hover:not(:disabled) .icon img,
+[data-theme="figma-light"] #save-bookmark:hover:not(:disabled) .icon img,
+[data-theme="figma-light"] #refresh-anchors:hover:not(:disabled) .icon img,
+[data-theme="light"] #date-btn:hover:not(:disabled) .icon img,
+[data-theme="light"] #save-bookmark:hover:not(:disabled) .icon img,
+[data-theme="light"] #refresh-anchors:hover:not(:disabled) .icon img {
+  filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75) !important;
+  opacity: 1 !important;
 }
 
 [data-theme="figma-light"] #nav-delete .icon img,
 [data-theme="light"] #nav-delete .icon img {
+  filter: brightness(0) saturate(0%) !important;
+  opacity: 0.45 !important;
+}
+
+[data-theme="figma-light"] #nav-delete:hover:not(:disabled) .icon img,
+[data-theme="light"] #nav-delete:hover:not(:disabled) .icon img {
   filter: brightness(0) saturate(100%) invert(20%) sepia(90%) saturate(700%) hue-rotate(335deg) brightness(0.8) !important;
+  opacity: 1 !important;
 }
 
-===== CYBERTRON THEME: BRIGHT QUICK ACTION ICONS =====
-Bright, glowing versions for dark cyberpunk background
+/* ===== CYBERTRON THEME: QUICK ACTION ICONS ===== */
+/* Default: white monochrome; color reveals on hover */
 
-[data-theme="cybertron"] #new-page-btn .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
-  opacity: 0.9 !important;
+[data-theme="cybertron"] #new-page-btn .icon img,
+[data-theme="cybertron"] #back-btn .icon img,
+[data-theme="cybertron"] #forward-btn .icon img,
+[data-theme="cybertron"] #date-btn .icon img,
+[data-theme="cybertron"] #save-bookmark .icon img,
+[data-theme="cybertron"] #refresh-anchors .icon img,
+[data-theme="cybertron"] #clear-color .icon img,
+[data-theme="cybertron"] #nav-delete .icon img {
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.7 !important;
 }
 
+[data-theme="cybertron"] #settings-btn .icon img {
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.5 !important;
+}
+
+/* Cybertron hover: reveal neon colors */
 [data-theme="cybertron"] #new-page-btn:hover:not(:disabled) .icon img {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3) !important;
   opacity: 1 !important;
 }
 
-[data-theme="cybertron"] #back-btn .icon img,
-[data-theme="cybertron"] #forward-btn .icon img,
-[data-theme="cybertron"] #date-btn .icon img,
-[data-theme="cybertron"] #save-bookmark .icon img,
-[data-theme="cybertron"] #refresh-anchors .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1) !important;
-  opacity: 0.9 !important;
+[data-theme="cybertron"] #back-btn:hover:not(:disabled) .icon img,
+[data-theme="cybertron"] #forward-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(15deg) brightness(1.3) !important;
+  opacity: 1 !important;
 }
 
-[data-theme="cybertron"] #back-btn:hover:not(:disabled) .icon img,
-[data-theme="cybertron"] #forward-btn:hover:not(:disabled) .icon img,
 [data-theme="cybertron"] #date-btn:hover:not(:disabled) .icon img,
 [data-theme="cybertron"] #save-bookmark:hover:not(:disabled) .icon img,
 [data-theme="cybertron"] #refresh-anchors:hover:not(:disabled) .icon img {
@@ -6018,40 +6014,13 @@ Bright, glowing versions for dark cyberpunk background
   opacity: 1 !important;
 }
 
-[data-theme="cybertron"] #indent-title-btn .icon img,
-[data-theme="cybertron"] #outdent-title-btn .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1) !important;
-  opacity: 0.9 !important;
-}
-
-[data-theme="cybertron"] #indent-title-btn:hover:not(:disabled) .icon img,
-[data-theme="cybertron"] #outdent-title-btn:hover:not(:disabled) .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(260deg) brightness(1.3) !important;
+[data-theme="cybertron"] #clear-color:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(320deg) brightness(1.3) !important;
   opacity: 1 !important;
-}
-
-[data-theme="cybertron"] #settings-btn .icon img {
-  filter: brightness(0) invert(1) saturate(0%) brightness(0.8) !important;
-  opacity: 0.7 !important;
 }
 
 [data-theme="cybertron"] #settings-btn:hover:not(:disabled) .icon img {
   filter: brightness(0) invert(1) saturate(0%) brightness(1.0) !important;
-  opacity: 0.9 !important;
-}
-
-[data-theme="cybertron"] #clear-color .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1) !important;
-  opacity: 0.9 !important;
-}
-
-[data-theme="cybertron"] #clear-color:hover:not(:disabled) .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(15deg) brightness(1.3) !important;
-  opacity: 1 !important;
-}
-
-[data-theme="cybertron"] #nav-delete .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
   opacity: 0.9 !important;
 }
 
@@ -6060,30 +6029,38 @@ Bright, glowing versions for dark cyberpunk background
   opacity: 1 !important;
 }
 
-===== FIGMA-DARK THEME: BRIGHT QUICK ACTION ICONS =====
-Visible versions for Figma's dark theme
+/* ===== FIGMA-DARK THEME: QUICK ACTION ICONS ===== */
+/* Default: white monochrome; color reveals on hover */
 
-[data-theme="figma-dark"] #new-page-btn .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(70deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
+[data-theme="figma-dark"] #new-page-btn .icon img,
+[data-theme="figma-dark"] #back-btn .icon img,
+[data-theme="figma-dark"] #forward-btn .icon img,
+[data-theme="figma-dark"] #date-btn .icon img,
+[data-theme="figma-dark"] #save-bookmark .icon img,
+[data-theme="figma-dark"] #refresh-anchors .icon img,
+[data-theme="figma-dark"] #clear-color .icon img,
+[data-theme="figma-dark"] #nav-delete .icon img {
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.6 !important;
 }
 
+[data-theme="figma-dark"] #settings-btn .icon img {
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.45 !important;
+}
+
+/* Figma-dark hover: reveal colors */
 [data-theme="figma-dark"] #new-page-btn:hover:not(:disabled) .icon img {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="figma-dark"] #back-btn .icon img,
-[data-theme="figma-dark"] #forward-btn .icon img,
-[data-theme="figma-dark"] #date-btn .icon img,
-[data-theme="figma-dark"] #save-bookmark .icon img,
-[data-theme="figma-dark"] #refresh-anchors .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(160deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
+[data-theme="figma-dark"] #back-btn:hover:not(:disabled) .icon img,
+[data-theme="figma-dark"] #forward-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1) !important;
+  opacity: 1 !important;
 }
 
-[data-theme="figma-dark"] #back-btn:hover:not(:disabled) .icon img,
-[data-theme="figma-dark"] #forward-btn:hover:not(:disabled) .icon img,
 [data-theme="figma-dark"] #date-btn:hover:not(:disabled) .icon img,
 [data-theme="figma-dark"] #save-bookmark:hover:not(:disabled) .icon img,
 [data-theme="figma-dark"] #refresh-anchors:hover:not(:disabled) .icon img {
@@ -6091,21 +6068,9 @@ Visible versions for Figma's dark theme
   opacity: 1 !important;
 }
 
-[data-theme="figma-dark"] #indent-title-btn .icon img,
-[data-theme="figma-dark"] #outdent-title-btn .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(260deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
-}
-
-[data-theme="figma-dark"] #indent-title-btn:hover:not(:disabled) .icon img,
-[data-theme="figma-dark"] #outdent-title-btn:hover:not(:disabled) .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1) !important;
+[data-theme="figma-dark"] #clear-color:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
   opacity: 1 !important;
-}
-
-[data-theme="figma-dark"] #settings-btn .icon img {
-  filter: brightness(0) invert(1) saturate(0%) brightness(0.7) !important;
-  opacity: 0.7 !important;
 }
 
 [data-theme="figma-dark"] #settings-btn:hover:not(:disabled) .icon img {
@@ -6113,50 +6078,43 @@ Visible versions for Figma's dark theme
   opacity: 0.9 !important;
 }
 
-[data-theme="figma-dark"] #clear-color .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(15deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
-}
-
-[data-theme="figma-dark"] #clear-color:hover:not(:disabled) .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(15deg) brightness(1.1) !important;
-  opacity: 1 !important;
-}
-
-[data-theme="figma-dark"] #nav-delete .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(320deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
-}
-
 [data-theme="figma-dark"] #nav-delete:hover:not(:disabled) .icon img {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-===== BOILERPLATE THEME: COLOR-CODED QUICK ACTION ICONS =====
-Maintain color-coding for boilerplate theme
+/* ===== BOILERPLATE THEME: QUICK ACTION ICONS ===== */
+/* Default: white monochrome; color reveals on hover */
 
-[data-theme="boilerplate"] #new-page-btn .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(70deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
+[data-theme="boilerplate"] #new-page-btn .icon img,
+[data-theme="boilerplate"] #back-btn .icon img,
+[data-theme="boilerplate"] #forward-btn .icon img,
+[data-theme="boilerplate"] #date-btn .icon img,
+[data-theme="boilerplate"] #save-bookmark .icon img,
+[data-theme="boilerplate"] #refresh-anchors .icon img,
+[data-theme="boilerplate"] #clear-color .icon img,
+[data-theme="boilerplate"] #nav-delete .icon img {
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.6 !important;
 }
 
+[data-theme="boilerplate"] #settings-btn .icon img {
+  filter: brightness(0) invert(1) saturate(0%) !important;
+  opacity: 0.45 !important;
+}
+
+/* Boilerplate hover: reveal colors */
 [data-theme="boilerplate"] #new-page-btn:hover:not(:disabled) .icon img {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="boilerplate"] #back-btn .icon img,
-[data-theme="boilerplate"] #forward-btn .icon img,
-[data-theme="boilerplate"] #date-btn .icon img,
-[data-theme="boilerplate"] #save-bookmark .icon img,
-[data-theme="boilerplate"] #refresh-anchors .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(160deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
+[data-theme="boilerplate"] #back-btn:hover:not(:disabled) .icon img,
+[data-theme="boilerplate"] #forward-btn:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1) !important;
+  opacity: 1 !important;
 }
 
-[data-theme="boilerplate"] #back-btn:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #forward-btn:hover:not(:disabled) .icon img,
 [data-theme="boilerplate"] #date-btn:hover:not(:disabled) .icon img,
 [data-theme="boilerplate"] #save-bookmark:hover:not(:disabled) .icon img,
 [data-theme="boilerplate"] #refresh-anchors:hover:not(:disabled) .icon img {
@@ -6164,21 +6122,9 @@ Maintain color-coding for boilerplate theme
   opacity: 1 !important;
 }
 
-[data-theme="boilerplate"] #indent-title-btn .icon img,
-[data-theme="boilerplate"] #outdent-title-btn .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(260deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
-}
-
-[data-theme="boilerplate"] #indent-title-btn:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #outdent-title-btn:hover:not(:disabled) .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1) !important;
+[data-theme="boilerplate"] #clear-color:hover:not(:disabled) .icon img {
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
   opacity: 1 !important;
-}
-
-[data-theme="boilerplate"] #settings-btn .icon img {
-  filter: brightness(0) invert(1) saturate(0%) brightness(0.7) !important;
-  opacity: 0.7 !important;
 }
 
 [data-theme="boilerplate"] #settings-btn:hover:not(:disabled) .icon img {
@@ -6186,26 +6132,11 @@ Maintain color-coding for boilerplate theme
   opacity: 0.9 !important;
 }
 
-[data-theme="boilerplate"] #clear-color .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(15deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
-}
-
-[data-theme="boilerplate"] #clear-color:hover:not(:disabled) .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(15deg) brightness(1.1) !important;
-  opacity: 1 !important;
-}
-
-[data-theme="boilerplate"] #nav-delete .icon img {
-  filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(320deg) brightness(0.95) !important;
-  opacity: 0.85 !important;
-}
-
 [data-theme="boilerplate"] #nav-delete:hover:not(:disabled) .icon img {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
-*/
+
 /* END COLOR-CODED QUICK ACTION BUTTONS */
 
 #quick-actions #refresh-anchors:hover {
@@ -6286,6 +6217,12 @@ Maintain color-coding for boilerplate theme
 }
 
 /* Mode affordance state variations */
+.mode-affordance[data-mode="onPage"] {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 .mode-affordance[data-mode="onLayer"] {
   color: var(--figma-color-border-brand);
   border-color: var(--theme-border-soft);
@@ -6367,88 +6304,7 @@ Maintain color-coding for boilerplate theme
   border-color: var(--theme-border-translucent);
 }
 
-/* Theme Selector Styles */
-.theme-selector {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm);
-}
-
-.theme-option {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: var(--spacing-md);
-  border: 1px solid var(--figma-color-border);
-  border-radius: var(--border-radius-md);
-  background: var(--figma-color-bg);
-  transition: all var(--transition-fast);
-  position: relative;
-}
-
-.theme-option:hover {
-  background: var(--figma-color-bg-hover);
-  border-color: var(--figma-color-border-selected);
-}
-
-.theme-option input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  border: none;
-  outline: none;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content {
-  color: var(--figma-color-text-onbrand);
-}
-
-.theme-option input[type="radio"]:checked~.theme-option {
-  border-color: var(--figma-color-border-brand);
-  background: var(--figma-color-bg-brand-secondary);
-}
-
-.theme-option-content {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  width: 100%;
-  position: relative;
-}
-
-.theme-icon {
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-.theme-name {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--figma-color-text);
-}
-
-.theme-description {
-  font-size: 10px;
-  color: var(--figma-color-text-secondary);
-  margin-left: auto;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content .theme-name {
-  color: var(--figma-color-text);
-  font-weight: 600;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content .theme-description {
-  color: var(--figma-color-text-secondary);
-}
-
-/* Theme option selected state */
-.theme-option:has(input[type="radio"]:checked) {
-  border-color: var(--figma-color-border-brand);
-  background: var(--figma-color-bg-brand-secondary, rgba(24, 160, 251, 0.05));
-}
+/* (Dead code removed: Theme Selector Styles that targeted input[type="radio"] / .theme-option-content) */
 
 /* =
 ==== LOGO THEME SWITCHING ===== */
@@ -6520,11 +6376,10 @@ Maintain color-coding for boilerplate theme
 
 /* Main footer container */
 #footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  width: 100%;
   height: var(--footer-height);
+  flex-shrink: 0;
   background: var(--color-background-elevated);
   border-top: var(--border-width) solid var(--color-border-primary);
   display: flex;
@@ -6614,8 +6469,25 @@ Maintain color-coding for boilerplate theme
   border-radius: var(--border-radius-sm);
 }
 
-#footer-width-toggle.footer-icon-btn {
+/* Settings button in footer - leftmost position */
+#settings-btn.footer-icon-btn {
   left: 0;
+}
+
+#settings-btn.footer-icon-btn .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#settings-btn.footer-icon-btn .icon img {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+#footer-width-toggle.footer-icon-btn {
+  left: calc(var(--footer-height) + var(--spacing-sm));
 }
 
 /* Toggle width button - match active toggle states */
@@ -6631,9 +6503,7 @@ Maintain color-coding for boilerplate theme
 }
 
 /* Active state when compact mode is enabled - removed persistent blue styling */
-#footer-width-toggle.footer-icon-btn.active {
-  /* No persistent styling - user only wants to see blue while actively pressing */
-}
+/* No persistent styling - user only wants to see blue while actively pressing */
 
 /* Footer button hover states */
 .footer-icon-btn:hover {
@@ -6725,9 +6595,9 @@ Maintain color-coding for boilerplate theme
   opacity: 0.85;
 }
 
-/* Adjust main content to account for footer */
+/* Footer height is accounted for separately in computeFitHeight() */
 .scrollable-content {
-  padding-bottom: var(--spacing-md);
+  padding-bottom: 0;
 }
 
 /* ===== 
@@ -6863,84 +6733,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   letter-spacing: normal;
 }
 
-/* THEME OPTION STYLING - Settings panel theme selection */
-.theme-option {
-  display: flex;
-  margin-bottom: var(--spacing-md);
-  cursor: pointer;
-}
-
-.theme-option input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  border: none;
-  outline: none;
-}
-
-.theme-option-content {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  transition: all var(--transition-fast);
-  position: relative;
-}
-
-.theme-option:hover .theme-option-content {
-  background: transparent;
-  border-color: transparent;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.theme-icon {
-  font-size: var(--icon-size-lg);
-  flex-shrink: 0;
-}
-
-.theme-name {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-normal);
-  color: var(--theme-text-primary);
-  flex-grow: 1;
-}
-
-.theme-description {
-  font-size: var(--font-size-sm);
-  color: var(--theme-text-secondary);
-}
-
-.theme-status {
-  font-size: var(--font-size-xs);
-  color: var(--theme-text-muted);
-  font-style: italic;
-}
-
-/* Theme group styling */
-.theme-group {
-  margin-bottom: var(--spacing-xl);
-}
-
-.theme-group-header {
-  margin-bottom: var(--spacing-md);
-}
-
-.theme-group-title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--theme-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+/* (Dead code removed: THEME OPTION STYLING that targeted input[type="radio"] / .theme-option-content) */
 
 /* LIGHT THEME SUPPORT - Ensure proper contrast in light mode */
 [data-theme="light"] {
@@ -6991,146 +6784,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   --theme-shadow-heavy: rgba(0, 0, 0, 0.15);
 }
 
-/* Ensure theme names are always readable */
-[data-theme="light"] .theme-name {
-  color: var(--theme-text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-[data-theme="light"] .theme-group-title {
-  color: var(--theme-text-secondary);
-}
-
-/* Fix unselected theme option contrast in light mode */
-[data-theme="light"] .theme-option:not(:has(input:checked)) {
-  background: #e9ecef;
-  border-color: #dee2e6;
-}
-
-[data-theme="light"] .theme-option:not(:has(input:checked)):hover {
-  background: #dee2e6;
-  border-color: #ced4da;
-}
-
-/* Fix unselected theme option contrast when System theme is selected */
-[data-theme="figma-light"] .theme-option:not(:has(input:checked)) {
-  background: #e9ecef;
-  border-color: #dee2e6;
-}
-
-[data-theme="figma-light"] .theme-option:not(:has(input:checked)):hover {
-  background: #dee2e6;
-  border-color: #ced4da;
-}
-
-[data-theme="figma-dark"] .theme-option:not(:has(input:checked)) {
-  background: #3a3a3a;
-  border-color: #4a4a4a;
-}
-
-[data-theme="figma-dark"] .theme-option:not(:has(input:checked)):hover {
-  background: #4a4a4a;
-  border-color: #5a5a5a;
-}
-
-/* Enhanced readability for selected theme options in light mode */
-[data-theme="light"] .theme-option input[type="radio"]:checked+.theme-option-content .theme-name {
-  color: var(--theme-text-primary);
-  font-weight: var(--font-weight-bold);
-}
-
-/* Ensure selected theme names are always readable across all themes */
-.theme-option input[type="radio"]:checked+.theme-option-content .theme-name {
-  color: var(--theme-text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-/* Specific override for light theme selected state */
-[data-theme="light"] .theme-option input[type="radio"]:checked+.theme-option-content .theme-name {
-  color: var(--theme-text-primary) !important;
-  font-weight: var(--font-weight-bold) !important;
-}
-
-/* THEME OPTION STYLING - Base styles for theme selection */
-.theme-option {
-  display: flex;
-  cursor: pointer;
-}
-
-.theme-option input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  border: none;
-  outline: none;
-}
-
-.theme-option-content {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  transition: all var(--transition-fast);
-  position: relative;
-}
-
-.theme-option:hover .theme-option-content {
-  background: transparent;
-}
-
-.theme-option input[type="radio"]:checked+.theme-option-content {
-  background: transparent;
-  box-shadow: none;
-}
-
-.theme-icon {
-  font-size: var(--icon-size-lg);
-  flex-shrink: 0;
-}
-
-.theme-name {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-normal);
-  color: var(--theme-text-primary);
-  flex-grow: 1;
-}
-
-.theme-description {
-  font-size: var(--font-size-sm);
-  color: var(--theme-text-secondary);
-}
-
-.theme-status {
-  font-size: var(--font-size-xs);
-  color: var(--theme-text-muted);
-  font-style: italic;
-}
-
-/* Theme group styling */
-.theme-group {
-  margin-bottom: var(--spacing-xl);
-}
-
-.theme-group-header {
-  margin-bottom: var(--spacing-md);
-}
-
-.theme-group-title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--theme-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Focus states for accessibility */
-.theme-option input[type="radio"]:focus-visible+.theme-option-content {
-  outline: 2px solid var(--theme-info);
-  outline-offset: 2px;
-}
+/* (Dead code removed: per-theme .theme-name overrides, input[type="radio"] rules, and duplicate theme option blocks) */
 
 /*
  ===== RESPONSIVE CONTROLS SECTION ===== */

@@ -10,29 +10,6 @@
 
 <body>
   <main class="scrollable-content">
-    <nav id="quick-actions" role="toolbar" aria-label="Quick actions">
-      <div class="header-left">
-        <button id="new-page-btn" class="header-nav-btn" aria-label="Create new page">
-          <span class="icon"><img src="./assets/ICO-addPage.svg" alt=""></span>
-        </button>
-      </div>
-      <div class="header-center">
-        <nav class="header-nav-group" role="group" aria-label="Navigation history">
-          <button id="back-btn" class="header-nav-btn" aria-label="Go back" disabled>
-            <span class="icon"><img src="./assets/ICO-navBack.svg" alt=""></span>
-          </button>
-          <button id="forward-btn" class="header-nav-btn" aria-label="Go forward" disabled>
-            <span class="icon"><img src="./assets/ICO-navForward.svg" alt=""></span>
-          </button>
-        </nav>
-      </div>
-      <div class="header-right">
-        <button id="settings-btn" class="action-btn" aria-label="Open settings" aria-controls="settings-overlay">
-          <span class="icon"><img src="./assets/ICO-settingsMenu.svg" alt=""></span>
-        </button>
-      </div>
-    </nav>
-
     <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="-1"
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
@@ -41,7 +18,13 @@
         <h2 class="header-title">Tags</h2>
       </div>
       <div class="header-right">
-        <button id="clear-color" class="action-btn header-action-btn" aria-label="Remove tag" onclick="event.stopPropagation();">
+        <button id="new-page-btn" class="action-btn header-action-btn" aria-label="Create new page" data-tooltip-placement="left-group" onclick="event.stopPropagation();" tabindex="-1">
+          <span class="icon"><img src="./assets/ICO-addPage.svg" alt=""></span>
+        </button>
+        <button id="date-btn" class="action-btn header-action-btn" aria-label="Add/update date" data-tooltip-placement="left-group" onclick="event.stopPropagation();" tabindex="-1">
+          <span class="icon"><img src="./assets/ICO-addDate.svg" alt=""></span>
+        </button>
+        <button id="clear-color" class="action-btn header-action-btn" aria-label="Remove tag" data-tooltip-placement="left-group" onclick="event.stopPropagation();" tabindex="-1">
           <span class="icon"><img src="./assets/ICO-removeTag.svg" alt=""></span>
         </button>
       </div>
@@ -49,22 +32,7 @@
 
     <section id="color-section" class="collapsible-content" role="region" aria-labelledby="tags-header">
       <div class="tags-content-wrapper">
-        <div class="tag-grid-container">
-          <span id="emoji-set-indicator" class="emoji-set-title">
-            <span class="set-name">Colors</span>
-          </span>
-          <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
-          <nav class="emoji-nav-container">
-            <button id="emoji-nav-left" class="emoji-nav-btn"><img src="./assets/ICO-menuPrev.svg" class="nav-arrow" alt="Previous set"></button>
-            <button id="emoji-nav-right" class="emoji-nav-btn"><img src="./assets/ICO-menuNext.svg" class="nav-arrow" alt="Next set"></button>
-          </nav>
-        </div>
         <div class="color-grid page-actions-grid" role="group" aria-label="Page actions">
-          <div class="buttons-left">
-            <button id="date-btn" class="action-btn" aria-label="Add/update date">
-              <span class="icon"><img src="./assets/ICO-addDate.svg" alt=""></span>
-            </button>
-          </div>
           <div class="anatomy-section">
             <span class="anatomy-prefix" style="display: none;">↳</span>
             <span class="anatomy-emoji" style="display: none;"></span>
@@ -72,13 +40,23 @@
             <span class="mode-affordance" data-mode="onPage">PAGE</span>
           </div>
           <div class="buttons-right">
-            <button id="outdent-title-btn" class="action-btn" aria-label="Outdent title">
+            <button id="outdent-title-btn" class="action-btn" aria-label="Outdent title" data-tooltip-placement="below" tabindex="-1">
               <span class="icon"><img src="./assets/ICO-pageIndent-Left.svg" alt=""></span>
             </button>
-            <button id="indent-title-btn" class="action-btn" aria-label="Indent title">
+            <button id="indent-title-btn" class="action-btn" aria-label="Indent title" data-tooltip-placement="below" tabindex="-1">
               <span class="icon"><img src="./assets/ICO-pageIndent-Right.svg" alt=""></span>
             </button>
           </div>
+        </div>
+        <div class="tag-grid-container">
+          <span id="emoji-set-indicator" class="emoji-set-title">
+            <span class="set-name">Colors</span>
+          </span>
+          <div id="color-emoji-buttons" class="color-grid" role="group" aria-label="Color tags"></div>
+          <nav class="emoji-nav-container">
+            <button id="emoji-nav-left" class="emoji-nav-btn" data-tooltip-placement="above" tabindex="-1"><img src="./assets/ICO-menuPrev.svg" class="nav-arrow" alt="Previous set"></button>
+            <button id="emoji-nav-right" class="emoji-nav-btn" data-tooltip-placement="above" tabindex="-1"><img src="./assets/ICO-menuNext.svg" class="nav-arrow" alt="Next set"></button>
+          </nav>
         </div>
       </div>
     </section>
@@ -91,10 +69,10 @@
         <h2 class="header-title">Anchors</h2>
       </div>
       <div class="header-right">
-        <button id="refresh-anchors" class="action-btn header-action-btn" aria-label="Sync bookmarks across plugin windows" onclick="event.stopPropagation();">
+        <button id="refresh-anchors" class="action-btn header-action-btn" aria-label="Sync bookmarks across plugin windows" data-tooltip-placement="left-group" onclick="event.stopPropagation();" tabindex="-1">
           <span class="icon"><img src="./assets/ICO-anchorRefresh.svg" alt=""></span>
         </button>
-        <button id="save-bookmark" class="action-btn header-action-btn" aria-label="Save bookmark" onclick="event.stopPropagation();">
+        <button id="save-bookmark" class="action-btn header-action-btn" aria-label="Save bookmark" data-tooltip-placement="left-group" onclick="event.stopPropagation();" tabindex="-1">
           <span class="icon"><img src="./assets/ICO-anchors.svg" alt=""></span>
         </button>
       </div>
@@ -103,34 +81,7 @@
     <section id="anchors-section" class="collapsible-content" role="region" aria-labelledby="anchors-header">
       <div class="anchors-container">
         <ul id="bookmark-list" role="list" aria-label="Bookmarks">
-          <li class="bookmark-item" draggable="true" data-id="mock-1">
-            <div class="bookmark-content">
-              <div class="bookmark-name">⭐ 8bit Assets</div>
-              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
-            </div>
-            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
-          </li>
-          <li class="bookmark-item" draggable="true" data-id="mock-2">
-            <div class="bookmark-content">
-              <div class="bookmark-name">✅ icon</div>
-              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
-            </div>
-            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
-          </li>
-          <li class="bookmark-item" draggable="true" data-id="mock-3">
-            <div class="bookmark-content">
-              <div class="bookmark-name">🎨 icons</div>
-              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
-            </div>
-            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
-          </li>
-          <li class="bookmark-item" draggable="true" data-id="mock-4">
-            <div class="bookmark-content">
-              <div class="bookmark-name">🎯 relay</div>
-              <div class="bookmark-page">└ 09.06 : Speed Test - Long ass title g...</div>
-            </div>
-            <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">✕</button>
-          </li>
+          <!-- Bookmarks will be populated dynamically -->
         </ul>
         <div id="anchors-null-state" class="null-state" role="status" aria-hidden="true" style="display: none;">
           <div class="null-state-icon">⚓️</div>
@@ -147,9 +98,14 @@
         <h2 class="header-title">Controls</h2>
       </div>
       <div class="header-right">
-        <button id="nav-delete" class="action-btn header-action-btn" aria-label="Delete selected nodes" data-tooltip="Delete selected" data-tooltip-delay="600" disabled onclick="event.stopPropagation();">
-          <span class="icon"><img src="./assets/ICO-delete.svg" alt=""></span>
-        </button>
+        <nav class="header-nav-group" role="group" aria-label="Navigation history">
+          <button id="back-btn" class="header-nav-btn" aria-label="Go back" data-tooltip-placement="left-group" disabled tabindex="-1" onclick="event.stopPropagation();">
+            <span class="icon"><img src="./assets/ICO-navBack.svg" alt=""></span>
+          </button>
+          <button id="forward-btn" class="header-nav-btn" aria-label="Go forward" data-tooltip-placement="left-group" disabled tabindex="-1" onclick="event.stopPropagation();">
+            <span class="icon"><img src="./assets/ICO-navForward.svg" alt=""></span>
+          </button>
+        </nav>
       </div>
     </header>
 
@@ -163,7 +119,7 @@
         </div>
 
         <!-- Arrow Key Movement Grid -->
-        <div class="tag-grid-container">
+        <div id="movement-zoom-group" class="tag-grid-container">
           <span class="emoji-set-title">
             <span class="set-name">Movement & Zoom</span>
           </span>
@@ -178,41 +134,46 @@
           <!-- Row 1 -->
           <div role="row" aria-rowindex="1" class="nav-row">
             <button id="zoom-in" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="1"
-              aria-label="Zoom in" aria-describedby="zoom-in-desc" data-tooltip="Zoom In" data-tooltip-delay="600" data-grid-row="0"
-              data-grid-col="0">
+              aria-label="Zoom in" aria-describedby="zoom-in-desc" data-tooltip="Zoom In" data-tooltip-placement="top-of-container" data-tooltip-delay="600" data-grid-row="0"
+              data-grid-col="0" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-zoomIn.svg" alt=""></span>
               <span class="nav-label">Zoom In</span>
               <span id="zoom-in-desc" class="sr-only">Zoom into canvas view</span>
             </button>
             <button id="arrow-up" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="2"
-              aria-label="Move up. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-up-desc" data-tooltip="Move Up · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-delay="600" disabled data-grid-row="0"
-              data-grid-col="1" data-shortcut="↑">
+              aria-label="Move up. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-up-desc" data-tooltip="Move Up · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="0"
+              data-grid-col="1" data-shortcut="↑" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowUp.svg" alt=""></span>
               <span class="nav-label">Up</span>
               <span id="arrow-up-desc" class="sr-only">Move up 1px, 8px with Shift. Ctrl: decrease height. Alt: duplicate upward</span>
             </button>
-            <div class="nav-spacer" role="gridcell" aria-colindex="3" data-grid-row="0" data-grid-col="2"></div>
+            <button id="nav-delete" class="nav-button nav-button-delete" role="gridcell" aria-colindex="3"
+              aria-label="Delete selected nodes" aria-describedby="nav-delete-desc" data-tooltip="Delete Selected" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="0" data-grid-col="2" tabindex="-1">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-delete.svg" alt=""></span>
+              <span class="nav-label">Delete</span>
+              <span id="nav-delete-desc" class="sr-only">Delete selected elements from the canvas</span>
+            </button>
           </div>
 
           <!-- Row 2 -->
           <div role="row" aria-rowindex="2" class="nav-row">
             <button id="arrow-left" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="1"
-              aria-label="Move left. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-left-desc" data-tooltip="Move Left · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-delay="600" disabled data-grid-row="1"
-              data-grid-col="0" data-shortcut="←">
+              aria-label="Move left. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-left-desc" data-tooltip="Move Left · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="1"
+              data-grid-col="0" data-shortcut="←" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowLeft.svg" alt=""></span>
               <span class="nav-label">Left</span>
               <span id="arrow-left-desc" class="sr-only">Move left 1px, 8px with Shift. Ctrl: decrease width. Alt: duplicate leftward</span>
             </button>
             <button id="zoom-100" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="2"
-              aria-label="Zoom to 100%" aria-describedby="zoom-100-desc" data-tooltip="Zoom to 100%" data-tooltip-delay="600" data-grid-row="1"
-              data-grid-col="1">
+              aria-label="Zoom to 100%" aria-describedby="zoom-100-desc" data-tooltip="Zoom to 100%" data-tooltip-placement="top-of-container" data-tooltip-delay="600" data-grid-row="1"
+              data-grid-col="1" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-zoom100.svg" alt=""></span>
               <span class="nav-label">100%</span>
               <span id="zoom-100-desc" class="sr-only">Reset zoom to 100%</span>
             </button>
             <button id="arrow-right" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="3"
-              aria-label="Move right. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-right-desc" data-tooltip="Move Right · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-delay="600" disabled data-grid-row="1"
-              data-grid-col="2" data-shortcut="→">
+              aria-label="Move right. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-right-desc" data-tooltip="Move Right · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="1"
+              data-grid-col="2" data-shortcut="→" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowRight.svg" alt=""></span>
               <span class="nav-label">Right</span>
               <span id="arrow-right-desc" class="sr-only">Move right 1px, 8px with Shift. Ctrl: increase width. Alt: duplicate rightward</span>
@@ -222,22 +183,22 @@
           <!-- Row 3 -->
           <div role="row" aria-rowindex="3" class="nav-row">
             <button id="zoom-out" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="1"
-              aria-label="Zoom out" aria-describedby="zoom-out-desc" data-tooltip="Zoom Out" data-tooltip-delay="600" data-grid-row="2"
-              data-grid-col="0">
+              aria-label="Zoom out" aria-describedby="zoom-out-desc" data-tooltip="Zoom Out" data-tooltip-placement="top-of-container" data-tooltip-delay="600" data-grid-row="2"
+              data-grid-col="0" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-zoomOut.svg" alt=""></span>
               <span class="nav-label">Zoom Out</span>
               <span id="zoom-out-desc" class="sr-only">Zoom out of canvas view</span>
             </button>
             <button id="arrow-down" class="nav-button nav-button-arrow" role="gridcell" aria-colindex="2"
-              aria-label="Move down. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-down-desc" data-tooltip="Move Down · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-delay="600" disabled data-grid-row="2"
-              data-grid-col="1" data-shortcut="↓">
+              aria-label="Move down. Shift: 8px. Ctrl: resize. Alt: duplicate" aria-describedby="arrow-down-desc" data-tooltip="Move Down · ⇧8px · ^Resize · ⌥Duplicate" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="2"
+              data-grid-col="1" data-shortcut="↓" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-arrowDown.svg" alt=""></span>
               <span class="nav-label">Down</span>
               <span id="arrow-down-desc" class="sr-only">Move down 1px, 8px with Shift. Ctrl: increase height. Alt: duplicate downward</span>
             </button>
             <button id="zoom-selection" class="nav-button nav-button-zoom" role="gridcell" aria-colindex="3"
-              aria-label="Zoom to selection (Shift+2)" aria-describedby="zoom-selection-desc" data-tooltip="Zoom to selection" data-tooltip-delay="600" data-grid-row="2"
-              data-grid-col="2">
+              aria-label="Zoom to selection (Shift+2)" aria-describedby="zoom-selection-desc" data-tooltip="Zoom to selection" data-tooltip-placement="top-of-container" data-tooltip-delay="600" data-grid-row="2"
+              data-grid-col="2" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-zoomSelection.svg" alt=""></span>
               <span class="nav-label">Fit</span>
               <span id="zoom-selection-desc" class="sr-only">Zoom and center view to fit selected elements, or all page content if nothing is selected</span>
@@ -246,7 +207,7 @@
           </div>
         </div>
 
-        <div class="tag-grid-container">
+        <div id="hierarchy-group" class="tag-grid-container">
           <span class="mode-affordance">PAGE</span>
           <span id="hierarchy-set-indicator" class="emoji-set-title">
             <span class="set-name">Hierarchy</span>
@@ -263,20 +224,20 @@
           <!-- Row 1 -->
           <div role="row" aria-rowindex="1" class="nav-row">
             <button id="nav-exit" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="1"
-              aria-label="Exit container (Shift+Enter)" aria-describedby="nav-exit-desc" data-tooltip="Exit Container (⇧Enter)" data-tooltip-delay="600" disabled data-grid-row="0"
-              data-grid-col="0" data-shortcut="Shift+Enter">
+              aria-label="Exit container (Shift+Enter)" aria-describedby="nav-exit-desc" data-tooltip="Exit Container (⇧Enter)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="0"
+              data-grid-col="0" data-shortcut="Shift+Enter" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderExit.svg" alt=""></span>
               <span id="nav-exit-desc" class="sr-only">Move selection up one level in hierarchy</span>
             </button>
             <button id="nav-prev" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="2"
-              aria-label="Previous sibling" aria-describedby="nav-prev-desc" data-tooltip="Previous Sibling" data-tooltip-delay="600" disabled data-grid-row="0"
-              data-grid-col="1">
+              aria-label="Previous sibling" aria-describedby="nav-prev-desc" data-tooltip="Previous Sibling" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="0"
+              data-grid-col="1" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderUp.svg" alt=""></span>
               <span id="nav-prev-desc" class="sr-only">Select previous sibling layer (up in layers panel)</span>
             </button>
             <button id="layer-up" class="nav-button nav-button-layer" role="gridcell" aria-colindex="3"
-              aria-label="Bring forward. Shift: bring to front" aria-describedby="layer-up-desc" data-tooltip="Bring Forward · ⇧Front" data-tooltip-delay="600" disabled data-grid-row="0"
-              data-grid-col="2">
+              aria-label="Bring forward. Shift: bring to front" aria-describedby="layer-up-desc" data-tooltip="Bring Forward · ⇧Front" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="0"
+              data-grid-col="2" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-layerUp.svg" alt=""></span>
               <span class="nav-label">Forward</span>
               <span id="layer-up-desc" class="sr-only">Bring layer forward in stack. Hold Shift to bring to front</span>
@@ -286,19 +247,19 @@
           <!-- Row 2 -->
           <div role="row" aria-rowindex="2" class="nav-row">
             <button id="nav-enter" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="1"
-              aria-label="Expand container (Enter)" aria-describedby="nav-enter-desc" data-tooltip="Enter Container (Enter)" data-tooltip-delay="600" disabled data-grid-row="1"
-              data-grid-col="0" data-shortcut="Enter">
+              aria-label="Expand container (Enter)" aria-describedby="nav-enter-desc" data-tooltip="Enter Container (Enter)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="1"
+              data-grid-col="0" data-shortcut="Enter" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderEnter.svg" alt=""></span>
               <span id="nav-enter-desc" class="sr-only">Select all children of container and focus view</span>
             </button>
             <button id="nav-next" class="nav-button nav-button-hierarchy" role="gridcell" aria-colindex="2" aria-label="Next sibling"
-              aria-describedby="nav-next-desc" data-tooltip="Next Sibling" data-tooltip-delay="600" disabled data-grid-row="1" data-grid-col="1">
+              aria-describedby="nav-next-desc" data-tooltip="Next Sibling" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="1" data-grid-col="1" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-folderDown.svg" alt=""></span>
               <span id="nav-next-desc" class="sr-only">Select next sibling layer (down in layers panel)</span>
             </button>
             <button id="layer-down" class="nav-button nav-button-layer" role="gridcell" aria-colindex="3"
-              aria-label="Send backward. Shift: send to back" aria-describedby="layer-down-desc" data-tooltip="Send Backward · ⇧Back" data-tooltip-delay="600" disabled data-grid-row="1"
-              data-grid-col="2">
+              aria-label="Send backward. Shift: send to back" aria-describedby="layer-down-desc" data-tooltip="Send Backward · ⇧Back" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="1"
+              data-grid-col="2" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-layerDown.svg" alt=""></span>
               <span class="nav-label">Backward</span>
               <span id="layer-down-desc" class="sr-only">Send layer backward in stack. Hold Shift to send to back</span>
@@ -309,19 +270,19 @@
           <div role="row" aria-rowindex="3" class="nav-row">
             <button id="nav-collapse" class="nav-button nav-button-sizing" role="gridcell" aria-colindex="1"
               aria-label="Collapse selected and sibling containers (Alt+L)" aria-describedby="nav-collapse-desc"
-              data-tooltip="Collapse Containers (⌥L)" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="0" data-shortcut="Alt+L">
+              data-tooltip="Collapse Containers (⌥L)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="0" data-shortcut="Alt+L" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-foldeCollapse.svg" alt=""></span>
               <span id="nav-collapse-desc" class="sr-only">Collapse selected container and sibling containers</span>
             </button>
             <button id="nav-hide" class="nav-button nav-button-sizing" role="gridcell" aria-colindex="2"
               aria-label="Toggle visibility (Cmd/Ctrl+Shift+H)" aria-describedby="nav-hide-desc"
-              data-tooltip="Hide/Show (⌘⇧H)" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="1">
+              data-tooltip="Hide/Show (⌘⇧H)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="1" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-eyeOpen.svg" alt=""></span>
               <span id="nav-hide-desc" class="sr-only">Toggle visibility of selected layers</span>
             </button>
             <button id="nav-lock" class="nav-button nav-button-sizing" role="gridcell" aria-colindex="3"
               aria-label="Toggle lock (Cmd/Ctrl+Shift+L)" aria-describedby="nav-lock-desc"
-              data-tooltip="Lock/Unlock (⌘⇧L)" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="2">
+              data-tooltip="Lock/Unlock (⌘⇧L)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="2" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-lockOpen.svg" alt=""></span>
               <span id="nav-lock-desc" class="sr-only">Toggle lock state of selected layers</span>
             </button>
@@ -330,7 +291,7 @@
           </div>
         </div>
 
-        <div class="tag-grid-container">
+        <div id="sizing-modes-group" class="tag-grid-container">
           <span class="emoji-set-title">
             <span class="set-name">Sizing Modes</span>
           </span>
@@ -342,13 +303,13 @@
             </div>
 
             <button id="cycle-width" class="nav-button nav-button-sizing"
-              aria-label="Cycle width sizing (Hug → Fill → Fixed)" aria-describedby="cycle-width-desc" data-tooltip="Cycle Width (Hug → Fill → Fixed)" data-tooltip-delay="600" disabled>
+              aria-label="Cycle width sizing (Hug → Fill → Fixed)" aria-describedby="cycle-width-desc" data-tooltip="Cycle Width (Hug → Fill → Fixed)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img id="width-icon" src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="width-mode">—</span></span>
               <span id="cycle-width-desc" class="sr-only">Cycle horizontal sizing mode between Hug, Fill, and Fixed</span>
             </button>
             <button id="cycle-height" class="nav-button nav-button-sizing"
-              aria-label="Cycle height sizing (Hug → Fill → Fixed)" aria-describedby="cycle-height-desc" data-tooltip="Cycle Height (Hug → Fill → Fixed)" data-tooltip-delay="600" disabled>
+              aria-label="Cycle height sizing (Hug → Fill → Fixed)" aria-describedby="cycle-height-desc" data-tooltip="Cycle Height (Hug → Fill → Fixed)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img id="height-icon" src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="height-mode">—</span></span>
               <span id="cycle-height-desc" class="sr-only">Cycle vertical sizing mode between Hug, Fill, and Fixed</span>
@@ -365,13 +326,13 @@
     <div class="settings-panel" role="document">
       <header class="settings-header">
         <h2 class="settings-title">SETTINGS</h2>
-        <button id="settings-close" class="action-btn" aria-label="Close settings">✕</button>
+        <button id="settings-close" class="action-btn" aria-label="Close settings" tabindex="-1">✕</button>
       </header>
       <div class="settings-content" tabindex="-1">
 
         <!-- Theme Section -->
         <div class="settings-section">
-          <h3 class="settings-section-title">🎨&nbsp;Appearance</h3>
+          <h3 class="settings-section-title">🎨&nbsp;Theme</h3>
 
           <!-- Theme Selection -->
           <div class="setting-item">
@@ -379,32 +340,32 @@
               <!-- Theme Options -->
               <div class="theme-group primary-themes">
                 <button class="theme-option" data-theme="system" id="theme-system" aria-pressed="true"
-                  aria-describedby="system-theme-description">
+                  aria-describedby="system-theme-description" tabindex="-1">
                   <span class="theme-icon" aria-hidden="true">🔄</span>
                   <span class="theme-name">System</span>
                   <span class="theme-description" id="system-theme-description"></span>
                   <span class="theme-status" id="system-theme-status" aria-live="polite"></span>
                 </button>
                 <button class="theme-option" data-theme="light" id="theme-light" aria-pressed="false"
-                  aria-describedby="light-theme-description">
+                  aria-describedby="light-theme-description" tabindex="-1">
                   <span class="theme-icon" aria-hidden="true">☀️</span>
                   <span class="theme-name">Light</span>
                   <span class="theme-description" id="light-theme-description"></span>
                 </button>
                 <button class="theme-option" data-theme="dark" id="theme-dark" aria-pressed="false"
-                  aria-describedby="dark-theme-description">
+                  aria-describedby="dark-theme-description" tabindex="-1">
                   <span class="theme-icon" aria-hidden="true">🌙</span>
                   <span class="theme-name">Dark</span>
                   <span class="theme-description" id="dark-theme-description"></span>
                 </button>
                 <button class="theme-option" data-theme="boilerplate" id="theme-boilerplate" aria-pressed="false"
-                  aria-describedby="boilerplate-theme-description">
+                  aria-describedby="boilerplate-theme-description" tabindex="-1">
                   <span class="theme-icon" aria-hidden="true">⚫</span>
                   <span class="theme-name">Boilerplate</span>
                   <span class="theme-description" id="boilerplate-theme-description"></span>
                 </button>
                 <button class="theme-option" data-theme="cybertron" id="theme-cybertron" aria-pressed="false"
-                  aria-describedby="cybertron-theme-description">
+                  aria-describedby="cybertron-theme-description" tabindex="-1">
                   <span class="theme-icon" aria-hidden="true">🤖</span>
                   <span class="theme-name">Cybertron</span>
                   <span class="theme-description" id="cybertron-theme-description"></span>
@@ -424,8 +385,24 @@
           <!-- Controls Section Toggle -->
           <div class="setting-item">
             <label class="setting-label-small">
-              <input type="checkbox" id="controls-toggle" checked>
+              <input type="checkbox" id="controls-toggle" checked tabindex="-1">
               <span class="checkbox-description">Enable layer navigation, element movement, zoom, and actions</span>
+            </label>
+          </div>
+
+          <!-- Per-group visibility toggles -->
+          <div id="controls-group-toggles" class="setting-item controls-group-toggles">
+            <label class="setting-label-small sub-toggle">
+              <input type="checkbox" id="toggle-movement-zoom" checked tabindex="-1">
+              <span class="checkbox-description">Movement & Zoom</span>
+            </label>
+            <label class="setting-label-small sub-toggle">
+              <input type="checkbox" id="toggle-hierarchy" checked tabindex="-1">
+              <span class="checkbox-description">Hierarchy</span>
+            </label>
+            <label class="setting-label-small sub-toggle">
+              <input type="checkbox" id="toggle-sizing-modes" checked tabindex="-1">
+              <span class="checkbox-description">Sizing Modes</span>
             </label>
           </div>
         </div>
@@ -436,11 +413,11 @@
           <div class="setting-item nudge-settings">
             <div class="nudge-input-group">
               <label for="small-nudge-input" class="nudge-label">Small nudge</label>
-              <input type="number" id="small-nudge-input" class="nudge-input" min="1" max="100" value="1" aria-describedby="small-nudge-desc">
+              <input type="number" id="small-nudge-input" class="nudge-input" min="1" max="100" value="1" aria-describedby="small-nudge-desc" tabindex="-1">
             </div>
             <div class="nudge-input-group">
               <label for="big-nudge-input" class="nudge-label">Big nudge</label>
-              <input type="number" id="big-nudge-input" class="nudge-input" min="1" max="100" value="8" aria-describedby="big-nudge-desc">
+              <input type="number" id="big-nudge-input" class="nudge-input" min="1" max="100" value="8" aria-describedby="big-nudge-desc" tabindex="-1">
             </div>
           </div>
           <p class="settings-help-text" id="small-nudge-desc">Used with Arrow keys. <span id="big-nudge-desc">Hold Shift for big nudge.</span></p>
@@ -466,7 +443,7 @@
         <div class="settings-section">
           <div class="support-section">
             <p class="support-text">Enjoying this plugin?<br>Support its development!</p>
-            <button id="kofi-btn" class="kofi-button" aria-label="Support on Ko-fi">
+            <button id="kofi-btn" class="kofi-button" aria-label="Support on Ko-fi" tabindex="-1">
               <span class="action-text">🍦 Buy me an ice cream</span>
             </button>
           </div>
@@ -477,11 +454,17 @@
   </div>
 
   <div id="tooltip" class="tooltip"></div>
+  <div id="canvas-hint" class="canvas-hint">Click canvas to continue</div>
 
   <footer id="footer">
     <ul class="footer-controls">
       <li>
-        <button id="footer-width-toggle" class="footer-icon-btn" aria-label="Toggle width" title="Width">↔</button>
+        <button id="settings-btn" class="footer-icon-btn" aria-label="Open settings" aria-controls="settings-overlay" data-tooltip-placement="above" title="Settings" tabindex="-1">
+          <span class="icon"><img src="./assets/ICO-settingsMenu.svg" alt=""></span>
+        </button>
+      </li>
+      <li>
+        <button id="footer-width-toggle" class="footer-icon-btn" aria-label="Toggle width" data-tooltip-placement="above" title="Width" tabindex="-1">↔</button>
       </li>
       <li>
         <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel (double-click to toggle auto-fit)" tabindex="-1">

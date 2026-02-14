@@ -430,6 +430,16 @@ figma.ui.onmessage = async (msg) => {
         await handleGetControlsSetting();
         break;
 
+      case 'set-controls-group-visibility':
+        if ('groups' in msg && typeof msg.groups === 'object') {
+          await handleSetControlsGroupVisibility(msg.groups as Record<string, boolean>);
+        }
+        break;
+
+      case 'get-controls-group-settings':
+        await handleGetControlsGroupSettings();
+        break;
+
       case 'set-nudge-settings':
         if ('smallNudge' in msg && 'bigNudge' in msg) {
           await handleSetNudgeSettings(msg.smallNudge as number, msg.bigNudge as number);
@@ -1356,6 +1366,47 @@ const handleGetControlsSetting = withErrorBoundary(async () => {
     figma.ui.postMessage({
       type: 'controls-setting',
       enabled: true
+    });
+  }
+}, ErrorType.STORAGE_ERROR);
+
+const handleSetControlsGroupVisibility = withErrorBoundary(async (groups: Record<string, boolean>) => {
+  try {
+    const defaultGroups = { movementZoom: true, hierarchy: true, sizingModes: true };
+    const validated = {
+      movementZoom: typeof groups.movementZoom === 'boolean' ? groups.movementZoom : defaultGroups.movementZoom,
+      hierarchy: typeof groups.hierarchy === 'boolean' ? groups.hierarchy : defaultGroups.hierarchy,
+      sizingModes: typeof groups.sizingModes === 'boolean' ? groups.sizingModes : defaultGroups.sizingModes
+    };
+
+    await figma.clientStorage.setAsync('controlsGroupVisibility', validated);
+
+    figma.ui.postMessage({
+      type: 'controls-group-settings',
+      groups: validated
+    });
+  } catch (error) {
+    console.error('Failed to save controls group visibility:', error);
+  }
+}, ErrorType.STORAGE_ERROR);
+
+const handleGetControlsGroupSettings = withErrorBoundary(async () => {
+  try {
+    const groups = await figma.clientStorage.getAsync('controlsGroupVisibility') ?? {
+      movementZoom: true,
+      hierarchy: true,
+      sizingModes: true
+    };
+
+    figma.ui.postMessage({
+      type: 'controls-group-settings',
+      groups: groups
+    });
+  } catch (error) {
+    console.error('Failed to load controls group settings:', error);
+    figma.ui.postMessage({
+      type: 'controls-group-settings',
+      groups: { movementZoom: true, hierarchy: true, sizingModes: true }
     });
   }
 }, ErrorType.STORAGE_ERROR);

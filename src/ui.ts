@@ -66,6 +66,28 @@ function sendMessage(type: string, data: Record<string, any> = {}): void {
   parent.postMessage({ pluginMessage: { type, ...data } }, '*');
 }
 
+// Canvas hint management
+let canvasHintTimeout: number | null = null;
+
+function showCanvasHint(): void {
+  const hint = document.getElementById('canvas-hint');
+  if (!hint) return;
+
+  // Clear any existing timeout
+  if (canvasHintTimeout !== null) {
+    clearTimeout(canvasHintTimeout);
+  }
+
+  // Show the hint
+  hint.classList.add('visible');
+
+  // Hide after 2.5 seconds
+  canvasHintTimeout = window.setTimeout(() => {
+    hint.classList.remove('visible');
+    canvasHintTimeout = null;
+  }, 2500);
+}
+
 // Message handler for plugin responses
 function handlePluginMessage(event: MessageEvent): void {
   const message = event.data.pluginMessage;
@@ -119,6 +141,15 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'controls-setting':
       controlsEnabled = message.enabled;
       updateControlsVisibility(controlsEnabled);
+      break;
+    case 'controls-group-settings':
+      if (message.groups) {
+        groupMovementZoomVisible = message.groups.movementZoom ?? true;
+        groupHierarchyVisible = message.groups.hierarchy ?? true;
+        groupSizingModesVisible = message.groups.sizingModes ?? true;
+        updateGroupTogglesUI();
+        applyGroupVisibility();
+      }
       break;
     case 'nudge-settings':
       updateNudgeSettingsUI(message.smallNudge, message.bigNudge);
@@ -217,38 +248,33 @@ function computeFitHeight(): number {
   const children = Array.from(main.children) as HTMLElement[];
   
   for (const child of children) {
-    if (child.classList.contains('collapsible-content') && child.classList.contains('collapsed')) {
-      // Collapsed sections contribute 0 height (they have max-height: 0)
-      continue;
+    const childStyle = window.getComputedStyle(child);
+    const isSticky = childStyle.position === 'sticky';
+    const marginTop = parseInt(childStyle.marginTop, 10) || 0;
+    const marginBottom = parseInt(childStyle.marginBottom, 10) || 0;
+    
+    // Always measure actual rendered height (including mid-transition states).
+    // This prevents premature window resize before CSS transitions complete.
+    const childHeight = isSticky 
+      ? child.getBoundingClientRect().height 
+      : child.offsetHeight;
+    
+    // Sticky positioned elements don't participate in normal margin collapsing:
+    // - When a sticky element follows another element, margins don't collapse
+    // - When an element follows a sticky element, margins don't collapse
+    let effectiveMargin: number;
+    if (isSticky || previousWasSticky) {
+      // No margin collapsing with sticky elements - add both margins
+      effectiveMargin = previousMarginBottom + marginTop;
     } else {
-      const childStyle = window.getComputedStyle(child);
-      const isSticky = childStyle.position === 'sticky';
-      const marginTop = parseInt(childStyle.marginTop, 10) || 0;
-      const marginBottom = parseInt(childStyle.marginBottom, 10) || 0;
-      
-      // For sticky elements, use getBoundingClientRect for accurate height measurement
-      // as offsetHeight can be unreliable when element is in "stuck" state
-      const childHeight = isSticky 
-        ? child.getBoundingClientRect().height 
-        : child.offsetHeight;
-      
-      // Sticky positioned elements don't participate in normal margin collapsing:
-      // - When a sticky element follows another element, margins don't collapse
-      // - When an element follows a sticky element, margins don't collapse
-      let effectiveMargin: number;
-      if (isSticky || previousWasSticky) {
-        // No margin collapsing with sticky elements - add both margins
-        effectiveMargin = previousMarginBottom + marginTop;
-      } else {
-        // Normal margin collapsing: only the larger of adjacent margins is used
-        effectiveMargin = Math.max(previousMarginBottom, marginTop);
-      }
-      
-      totalContentHeight += childHeight + effectiveMargin;
-      
-      previousMarginBottom = marginBottom;
-      previousWasSticky = isSticky;
+      // Normal margin collapsing: only the larger of adjacent margins is used
+      effectiveMargin = Math.max(previousMarginBottom, marginTop);
     }
+    
+    totalContentHeight += childHeight + effectiveMargin;
+    
+    previousMarginBottom = marginBottom;
+    previousWasSticky = isSticky;
   }
   
   // Add the last element's bottom margin (doesn't collapse with padding)
@@ -375,24 +401,104 @@ function positionTooltip(target: HTMLElement): void {
   tip.classList.remove('visible');
   tip.style.visibility = '';
 
-  // Placement preference: data-tooltip-placement="above|below"
+  // Placement preference: data-tooltip-placement="above|below|left|right|left-group|right-group|top-of-container"
   const placementPref = (target.getAttribute('data-tooltip-placement') || '').toLowerCase();
-  let placeAbove: boolean;
-  if (placementPref === 'below') {
-    placeAbove = false;
-  } else if (placementPref === 'above') {
-    placeAbove = true;
-  } else {
-    // Default: prefer above when there is room
-    placeAbove = rect.top >= tipHeight + margin;
-  }
-  const top = placeAbove ? rect.top - tipHeight - margin : rect.bottom + margin;
+  let top: number;
+  let left: number;
 
-  // Center horizontally over target; clamp to viewport
-  let left = rect.left + rect.width / 2 - tipWidth / 2;
-  const minLeft = 8;
-  const maxLeft = Math.max(minLeft, window.innerWidth - tipWidth - 8);
-  left = Math.min(Math.max(left, minLeft), maxLeft);
+  if (placementPref === 'top-of-container') {
+    // Find the container (data-tooltip-container attribute or closest grid/container)
+    const containerSelector = target.getAttribute('data-tooltip-container');
+    let container: HTMLElement | null = null;
+    
+    if (containerSelector) {
+      container = target.closest(containerSelector) as HTMLElement;
+    } else {
+      // Default: find closest grid or tag-grid-container
+      container = target.closest('.tag-grid-container') as HTMLElement;
+    }
+    
+    if (container) {
+      const containerRect = container.getBoundingClientRect();
+      // Position at the top of the container
+      top = containerRect.top - tipHeight - margin;
+      // Center horizontally over the button
+      left = rect.left + rect.width / 2 - tipWidth / 2;
+    } else {
+      // Fallback to above placement
+      top = rect.top - tipHeight - margin;
+      left = rect.left + rect.width / 2 - tipWidth / 2;
+    }
+    
+    // Clamp to viewport
+    const minLeft = 8;
+    const maxLeft = Math.max(minLeft, window.innerWidth - tipWidth - 8);
+    left = Math.min(Math.max(left, minLeft), maxLeft);
+    const minTop = 8;
+    top = Math.max(top, minTop);
+  } else if (placementPref === 'left' || placementPref === 'left-group') {
+    // Place to the left of target (or left of group)
+    top = rect.top + rect.height / 2 - tipHeight / 2;
+    
+    if (placementPref === 'left-group') {
+      // Find the parent container and align to its left edge
+      const groupParent = target.parentElement;
+      if (groupParent) {
+        const groupRect = groupParent.getBoundingClientRect();
+        left = groupRect.left - tipWidth - margin;
+      } else {
+        // Fallback to individual button if no parent found
+        left = rect.left - tipWidth - margin;
+      }
+    } else {
+      left = rect.left - tipWidth - margin;
+    }
+    
+    // Clamp vertical position to viewport
+    const minTop = 8;
+    const maxTop = Math.max(minTop, window.innerHeight - tipHeight - 8);
+    top = Math.min(Math.max(top, minTop), maxTop);
+  } else if (placementPref === 'right' || placementPref === 'right-group') {
+    // Place to the right of target (or right of group)
+    top = rect.top + rect.height / 2 - tipHeight / 2;
+    
+    if (placementPref === 'right-group') {
+      // Find the parent container and align to its right edge
+      const groupParent = target.parentElement;
+      if (groupParent) {
+        const groupRect = groupParent.getBoundingClientRect();
+        left = groupRect.right + margin;
+      } else {
+        // Fallback to individual button if no parent found
+        left = rect.right + margin;
+      }
+    } else {
+      left = rect.right + margin;
+    }
+    
+    // Clamp vertical position to viewport
+    const minTop = 8;
+    const maxTop = Math.max(minTop, window.innerHeight - tipHeight - 8);
+    top = Math.min(Math.max(top, minTop), maxTop);
+  } else {
+    // Vertical placement (above or below)
+    let placeAbove: boolean;
+    if (placementPref === 'below') {
+      placeAbove = false;
+    } else if (placementPref === 'above') {
+      placeAbove = true;
+    } else {
+      // Default: prefer above when there is room
+      placeAbove = rect.top >= tipHeight + margin;
+    }
+    top = placeAbove ? rect.top - tipHeight - margin : rect.bottom + margin;
+
+    // Center horizontally over target; clamp to viewport
+    left = rect.left + rect.width / 2 - tipWidth / 2;
+    const minLeft = 8;
+    const maxLeft = Math.max(minLeft, window.innerWidth - tipWidth - 8);
+    left = Math.min(Math.max(left, minLeft), maxLeft);
+  }
 
   tip.style.top = `${Math.round(top)}px`;
   tip.style.left = `${Math.round(left)}px`;
@@ -494,6 +600,34 @@ function initializeQuickActionTooltips(): void {
       e.preventDefault();
     }
   });
+
+  // Blur active element after button clicks to remove focus ring
+  // This doesn't return focus to Figma, but removes the visual cue from the plugin
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button')) {
+      // Use a small delay to let the click action complete first
+      setTimeout(() => {
+        (document.activeElement as HTMLElement)?.blur();
+      }, 10);
+    }
+  });
+}
+
+// Timer for debouncing anatomy emoji reset between button hovers
+let emojiPreviewResetTimer: number | null = null;
+
+function resetAnatomyEmoji(anatomyEmoji: Element): void {
+  const el = anatomyEmoji as HTMLElement;
+  if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+    el.textContent = currentAnatomyState.emoji;
+    el.style.display = 'inline-flex';
+    el.style.opacity = '1';
+  } else {
+    el.textContent = '';
+    el.style.display = 'none';
+  }
+  el.classList.remove('preview-mode');
 }
 
 // Simple emoji button updater
@@ -512,10 +646,16 @@ function updateEmojiButtons(emojis: string[]): void {
     button.addEventListener('click', () => {
       console.log('Emoji clicked:', emoji);
       sendMessage('add-emoji', { emoji });
+      showCanvasHint();
     });
 
     // Update anatomy-emoji on hover to show preview
     button.addEventListener('mouseenter', () => {
+      // Cancel any pending reset so the preview stays stable between buttons
+      if (emojiPreviewResetTimer !== null) {
+        clearTimeout(emojiPreviewResetTimer);
+        emojiPreviewResetTimer = null;
+      }
       if (anatomyEmoji) {
         anatomyEmoji.textContent = emoji;
         anatomyEmoji.style.display = 'inline-flex';
@@ -524,21 +664,17 @@ function updateEmojiButtons(emojis: string[]): void {
       }
     });
 
-    // Reset anatomy-emoji when hover ends
+    // Debounce the reset so moving between buttons doesn't cause a flash
     button.addEventListener('mouseleave', () => {
-      if (anatomyEmoji) {
-        if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
-          // Show actual emoji if it exists
-          anatomyEmoji.textContent = currentAnatomyState.emoji;
-          anatomyEmoji.style.display = 'inline-flex';
-          anatomyEmoji.style.opacity = '1';
-        } else {
-          // Hide emoji if none exists
-          anatomyEmoji.textContent = '';
-          anatomyEmoji.style.display = 'none';
-        }
-        anatomyEmoji.classList.remove('preview-mode');
+      if (emojiPreviewResetTimer !== null) {
+        clearTimeout(emojiPreviewResetTimer);
       }
+      emojiPreviewResetTimer = window.setTimeout(() => {
+        emojiPreviewResetTimer = null;
+        if (anatomyEmoji) {
+          resetAnatomyEmoji(anatomyEmoji);
+        }
+      }, 80);
     });
 
     container.appendChild(button);
@@ -1007,6 +1143,25 @@ function setupEventListeners(): void {
       console.log('Clear clicked');
       sendMessage('clear-emoji');
     });
+
+    // Add hover preview for clear button - hide emoji to show removal effect
+    clearBtn.addEventListener('mouseenter', () => {
+      const anatomyEmoji = document.querySelector('.anatomy-emoji') as HTMLElement;
+      if (anatomyEmoji && currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+        anatomyEmoji.style.opacity = '0.3';
+        anatomyEmoji.classList.add('preview-mode');
+      }
+    });
+
+    clearBtn.addEventListener('mouseleave', () => {
+      const anatomyEmoji = document.querySelector('.anatomy-emoji') as HTMLElement;
+      if (anatomyEmoji) {
+        if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+          anatomyEmoji.style.opacity = '1';
+        }
+        anatomyEmoji.classList.remove('preview-mode');
+      }
+    });
   }
 
   if (saveBtn) {
@@ -1058,6 +1213,71 @@ function setupEventListeners(): void {
     newPageBtn.addEventListener('click', () => {
       console.log('New Page clicked');
       sendMessage('create-new-page');
+    });
+
+    // Add hover preview for new page button - show date preview (new pages get today's date)
+    newPageBtn.addEventListener('mouseenter', () => {
+      const anatomyDate = document.querySelector('.anatomy-date') as HTMLElement;
+      const anatomyEmoji = document.querySelector('.anatomy-emoji') as HTMLElement;
+      const modeAffordance = document.querySelector('.mode-affordance') as HTMLElement;
+      
+      if (anatomyDate) {
+        const today = getTodayDate();
+        anatomyDate.textContent = `${today} :`;
+        anatomyDate.style.display = 'flex';
+        anatomyDate.style.opacity = '1';
+        anatomyDate.classList.add('preview-mode');
+      }
+      // Also preview a blank emoji state (new page starts with no emoji)
+      if (anatomyEmoji) {
+        anatomyEmoji.dataset.prevContent = anatomyEmoji.textContent || '';
+        anatomyEmoji.dataset.prevDisplay = anatomyEmoji.style.display;
+        anatomyEmoji.textContent = '';
+        anatomyEmoji.style.display = 'none';
+      }
+      // Update mode to PAGE (new pages are always in page mode)
+      if (modeAffordance) {
+        modeAffordance.dataset.prevMode = modeAffordance.dataset.mode || 'onPage';
+        modeAffordance.dataset.mode = 'onPage';
+        modeAffordance.textContent = 'PAGE';
+        modeAffordance.classList.add('preview-mode');
+      }
+    });
+
+    newPageBtn.addEventListener('mouseleave', () => {
+      const anatomyDate = document.querySelector('.anatomy-date') as HTMLElement;
+      const anatomyEmoji = document.querySelector('.anatomy-emoji') as HTMLElement;
+      const modeAffordance = document.querySelector('.mode-affordance') as HTMLElement;
+      
+      if (anatomyDate) {
+        if (currentAnatomyState.hasDate) {
+          anatomyDate.textContent = `${currentAnatomyState.date} :`;
+          anatomyDate.style.display = 'flex';
+          anatomyDate.style.opacity = '0.6';
+        } else {
+          anatomyDate.textContent = '';
+          anatomyDate.style.display = 'none';
+        }
+        anatomyDate.classList.remove('preview-mode');
+      }
+      // Restore emoji to actual state
+      if (anatomyEmoji) {
+        if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+          anatomyEmoji.textContent = currentAnatomyState.emoji;
+          anatomyEmoji.style.display = 'inline-flex';
+          anatomyEmoji.style.opacity = '1';
+        } else {
+          anatomyEmoji.textContent = '';
+          anatomyEmoji.style.display = 'none';
+        }
+      }
+      // Restore mode to actual state
+      if (modeAffordance) {
+        const prevMode = modeAffordance.dataset.prevMode || 'onPage';
+        modeAffordance.dataset.mode = prevMode;
+        modeAffordance.textContent = prevMode === 'onPage' ? 'PAGE' : 'LAYER';
+        modeAffordance.classList.remove('preview-mode');
+      }
     });
   }
 
@@ -1176,10 +1396,13 @@ function setupEventListeners(): void {
     });
   }
 
-  // Escape to close
+  // Escape to close settings
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && settingsOverlay && settingsOverlay.getAttribute('aria-hidden') === 'false') {
-      closeSettings();
+    if (e.key === 'Escape') {
+      if (settingsOverlay && settingsOverlay.getAttribute('aria-hidden') === 'false') {
+        // Settings are open - close them
+        closeSettings();
+      }
     }
   });
 
@@ -1600,6 +1823,7 @@ function updateBookmarksList(
       li.addEventListener('click', () => {
         if (isDragging) return;
         sendMessage('jump-to-bookmark', { id: bookmark.id });
+        showCanvasHint();
       });
 
       // Remove button behavior
@@ -3266,6 +3490,11 @@ let navigationContext: NavigationContext = {
 // Controls section setting state
 let controlsEnabled = true;
 
+// Per-group visibility state
+let groupMovementZoomVisible = true;
+let groupHierarchyVisible = true;
+let groupSizingModesVisible = true;
+
 // Nudge settings (user-configurable)
 let smallNudgeAmount = 1;
 let bigNudgeAmount = 8;
@@ -3541,6 +3770,8 @@ function updateControlButtons(context: NavigationContext): void {
 function updateControlsVisibility(enabled: boolean): void {
   const controlsSection = document.getElementById('controls-section');
   const controlsHeader = document.getElementById('controls-header');
+  const controlsToggle = document.getElementById('controls-toggle') as HTMLInputElement;
+  const groupTogglesContainer = document.getElementById('controls-group-toggles');
 
   if (controlsSection && controlsHeader) {
     if (enabled) {
@@ -3551,6 +3782,53 @@ function updateControlsVisibility(enabled: boolean): void {
       controlsHeader.style.display = 'none';
     }
   }
+
+  // Sync the master toggle checkbox
+  if (controlsToggle) {
+    controlsToggle.checked = enabled;
+  }
+
+  // Enable/disable sub-toggles based on master toggle
+  if (groupTogglesContainer) {
+    if (enabled) {
+      groupTogglesContainer.classList.remove('disabled');
+    } else {
+      groupTogglesContainer.classList.add('disabled');
+    }
+  }
+
+  // Apply per-group visibility when master is enabled
+  if (enabled) {
+    applyGroupVisibility();
+  }
+}
+
+// Apply per-group visibility within the controls section
+function applyGroupVisibility(): void {
+  const movementZoomGroup = document.getElementById('movement-zoom-group');
+  const hierarchyGroup = document.getElementById('hierarchy-group');
+  const sizingModesGroup = document.getElementById('sizing-modes-group');
+
+  if (movementZoomGroup) {
+    movementZoomGroup.style.display = groupMovementZoomVisible ? '' : 'none';
+  }
+  if (hierarchyGroup) {
+    hierarchyGroup.style.display = groupHierarchyVisible ? '' : 'none';
+  }
+  if (sizingModesGroup) {
+    sizingModesGroup.style.display = groupSizingModesVisible ? '' : 'none';
+  }
+}
+
+// Update the group toggle checkboxes to reflect current state
+function updateGroupTogglesUI(): void {
+  const toggleMovementZoom = document.getElementById('toggle-movement-zoom') as HTMLInputElement;
+  const toggleHierarchy = document.getElementById('toggle-hierarchy') as HTMLInputElement;
+  const toggleSizingModes = document.getElementById('toggle-sizing-modes') as HTMLInputElement;
+
+  if (toggleMovementZoom) toggleMovementZoom.checked = groupMovementZoomVisible;
+  if (toggleHierarchy) toggleHierarchy.checked = groupHierarchyVisible;
+  if (toggleSizingModes) toggleSizingModes.checked = groupSizingModesVisible;
 }
 
 // Accessibility preferences detection and handling
@@ -3652,6 +3930,7 @@ function setupControls(): void {
       console.log('Navigation: Expand container');
       announceNavigationResult({ success: true, message: 'Attempting to expand container' });
       sendMessage('navigation-action', { action: 'enter' });
+      showCanvasHint();
     });
   }
 
@@ -3660,6 +3939,7 @@ function setupControls(): void {
       console.log('Navigation: Exit container');
       announceNavigationResult({ success: true, message: 'Attempting to exit container' });
       sendMessage('navigation-action', { action: 'exit' });
+      showCanvasHint();
     });
   }
 
@@ -3669,6 +3949,7 @@ function setupControls(): void {
       console.log('Navigation: Previous sibling (UP in layers panel)');
       announceNavigationResult({ success: true, message: 'Navigating to previous sibling' });
       sendMessage('navigation-action', { action: 'prev-sibling' });
+      showCanvasHint();
     });
   }
 
@@ -3678,6 +3959,7 @@ function setupControls(): void {
       console.log('Navigation: Next sibling (DOWN in layers panel)');
       announceNavigationResult({ success: true, message: 'Navigating to next sibling' });
       sendMessage('navigation-action', { action: 'next-sibling' });
+      showCanvasHint();
     });
   }
 
@@ -3686,6 +3968,7 @@ function setupControls(): void {
       console.log('Navigation: Toggle collapse');
       announceNavigationResult({ success: true, message: 'Toggling container collapse state' });
       sendMessage('navigation-action', { action: 'toggle-collapse' });
+      showCanvasHint();
     });
   }
 
@@ -4166,6 +4449,36 @@ function setupControlsSettings(): void {
       sendMessage('toggle-controls', { enabled });
     });
   }
+
+  // Per-group visibility toggles
+  setupGroupToggle('toggle-movement-zoom', 'movementZoom');
+  setupGroupToggle('toggle-hierarchy', 'hierarchy');
+  setupGroupToggle('toggle-sizing-modes', 'sizingModes');
+}
+
+// Setup a single group visibility toggle
+function setupGroupToggle(toggleId: string, groupKey: string): void {
+  const toggle = document.getElementById(toggleId) as HTMLInputElement;
+  if (toggle) {
+    toggle.addEventListener('change', () => {
+      const visible = toggle.checked;
+      // Update local state
+      switch (groupKey) {
+        case 'movementZoom': groupMovementZoomVisible = visible; break;
+        case 'hierarchy': groupHierarchyVisible = visible; break;
+        case 'sizingModes': groupSizingModesVisible = visible; break;
+      }
+      applyGroupVisibility();
+      // Persist via plugin
+      sendMessage('set-controls-group-visibility', {
+        groups: {
+          movementZoom: groupMovementZoomVisible,
+          hierarchy: groupHierarchyVisible,
+          sizingModes: groupSizingModesVisible
+        }
+      });
+    });
+  }
 }
 
 // Setup nudge settings
@@ -4227,6 +4540,7 @@ function initializeControls(): void {
 
   // Request current settings from plugin
   sendMessage('get-controls-setting');
+  sendMessage('get-controls-group-settings');
   sendMessage('get-nudge-settings');
 }
 
