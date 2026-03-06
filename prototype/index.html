@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>stratusHue — Preflight Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== DESIGN TOKENS (from stratusHue styles.css) ===== */
+    :root {
+      /* Spacing */
+      --spacing-xs: 2px;
+      --spacing-sm: 4px;
+      --spacing-md: 6px;
+      --spacing-lg: 8px;
+      --spacing-xl: 10px;
+      --spacing-xxl: 12px;
+
+      /* Component Sizes */
+      --button-height-sm: 16px;
+      --button-height-md: 24px;
+      --button-height-lg: 32px;
+      --icon-size-sm: 8px;
+      --icon-size-md: 10px;
+      --icon-size-lg: 16px;
+
+      /* Layout */
+      --footer-height: 20px;
+      --border-radius-xs: 2px;
+      --border-radius-sm: 3px;
+      --border-radius-md: 4px;
+      --border-radius-lg: 6px;
+      --border-radius-xl: 8px;
+      --border-radius-pill: 999px;
+      --container-min-width: 188px;
+      --scrollbar-width: 2px;
+
+      /* Typography */
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      --font-size-xs: 10px;
+      --font-size-sm: 11px;
+      --font-size-base: 12px;
+      --font-size-lg: 14px;
+      --font-weight-normal: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --letter-spacing-tight: 0.5px;
+
+      /* Transitions */
+      --transition-fast: 0.12s ease;
+      --transition-normal: 0.2s ease;
+      --transition-slow: 0.3s ease;
+
+      /* Boilerplate Theme (default dark) */
+      --theme-bg-primary: #0f0f0f;
+      --theme-bg-secondary: #1a1a1a;
+      --theme-bg-tertiary: #2a2a2a;
+      --theme-bg-elevated: #0a0a0a;
+      --theme-bg-hover: rgba(42, 42, 42, 0.2);
+      --theme-bg-active: rgba(64, 64, 64, 0.2);
+
+      --theme-text-primary: #f5f5f5;
+      --theme-text-secondary: #d4d4d4;
+      --theme-text-muted: rgba(255, 255, 255, 0.6);
+      --theme-text-disabled: rgba(255, 255, 255, 0.4);
+
+      --theme-border-primary: #2a2a2a;
+      --theme-border-secondary: #404040;
+      --theme-border-accent: #13171B;
+
+      --theme-interactive-hover: #2a2a2a;
+      --theme-interactive-active: #404040;
+
+      --theme-accent-red: rgba(255, 107, 107, 0.20);
+      --theme-accent-green: rgba(110, 222, 110, 0.20);
+      --theme-accent-purple: rgba(180, 120, 255, 0.20);
+
+      --theme-success: #4ade80;
+      --theme-warning: rgba(255, 193, 7, 0.9);
+      --theme-error: #ff6b6b;
+      --theme-info: rgba(111, 176, 255, 0.9);
+
+      /* Preflight-specific tokens */
+      --pf-cat-fill: #ef4444;
+      --pf-cat-text: #6fb0ff;
+      --pf-cat-stroke: #f59e0b;
+      --pf-cat-radius: #b478ff;
+      --pf-cat-effects: #4ade80;
+      --pf-status-bg: rgba(255, 107, 107, 0.08);
+      --pf-status-border: rgba(255, 107, 107, 0.2);
+      --pf-card-bg: rgba(255, 255, 255, 0.03);
+      --pf-card-border: rgba(255, 255, 255, 0.06);
+      --pf-card-hover: rgba(255, 255, 255, 0.06);
+      --pf-fix-bg: rgba(74, 222, 128, 0.08);
+      --pf-fix-border: rgba(74, 222, 128, 0.2);
+    }
+
+    /* ===== RESET & BASE ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-family);
+      font-size: var(--font-size-base);
+      background: var(--theme-bg-primary);
+      color: var(--theme-text-primary);
+    }
+
+    /* ===== PLUGIN SHELL ===== */
+    .plugin-shell {
+      width: 240px;
+      height: 488px;
+      margin: 20px auto;
+      display: flex;
+      flex-direction: column;
+      background: var(--theme-bg-primary);
+      border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ===== MODE VIEWS ===== */
+    .mode-view {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: none;
+    }
+    .mode-view.active { display: block; }
+
+    .mode-view::-webkit-scrollbar { width: var(--scrollbar-width); }
+    .mode-view::-webkit-scrollbar-track { background: transparent; }
+    .mode-view::-webkit-scrollbar-thumb { background: var(--theme-border-secondary); border-radius: var(--border-radius-sm); }
+
+    /* ===== SHARED: SECTION HEADERS ===== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--theme-bg-secondary);
+      border-bottom: 1px solid var(--theme-border-primary);
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--transition-fast);
+    }
+    .section-header:hover { background: var(--theme-interactive-hover); }
+    .section-header h2 {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-tight);
+      text-transform: uppercase;
+      color: var(--theme-text-secondary);
+    }
+    .header-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+    .header-action-btn {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; color: var(--theme-text-muted);
+      cursor: pointer; border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-xs);
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+    .header-action-btn:hover { background: var(--theme-interactive-hover); color: var(--theme-text-primary); }
+    .header-action-btn img, .footer-btn img, .nav-btn img, .pf-scan-btn img {
+      width: 12px; height: 12px;
+      opacity: 0.6;
+      filter: brightness(1);
+    }
+    .header-action-btn:hover img, .footer-btn:hover img, .nav-btn:hover img { opacity: 1; }
+    .nav-btn img { width: 14px; height: 14px; }
+
+    /* ===== SHARED: SECTION CONTENT ===== */
+    .section-content {
+      padding: var(--spacing-lg);
+      overflow: hidden;
+      transition: max-height var(--transition-normal), padding var(--transition-normal);
+    }
+    .section-content.collapsed {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    /* ===== NAVIGATE MODE ===== */
+    .nav-placeholder {
+      padding: var(--spacing-xl);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    .nav-placeholder-block {
+      background: var(--theme-bg-tertiary);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-lg);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+    .emoji-dot {
+      width: 20px; height: 20px;
+      border-radius: var(--border-radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: transform var(--transition-fast);
+    }
+    .emoji-dot:hover { transform: scale(1.15); }
+    .nav-row-placeholder {
+      height: 24px;
+      background: var(--theme-bg-tertiary);
+      border-radius: var(--border-radius-sm);
+    }
+    .bookmark-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+      font-size: var(--font-size-sm);
+      color: var(--theme-text-secondary);
+    }
+    .bookmark-item:hover { background: var(--theme-interactive-hover); }
+    .bookmark-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--theme-info);
+      flex-shrink: 0;
+    }
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-xs);
+    }
+    .nav-btn {
+      height: var(--button-height-md);
+      display: flex; align-items: center; justify-content: center;
+      background: var(--theme-bg-tertiary);
+      border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-md);
+      color: var(--theme-text-muted);
+      font-size: var(--font-size-xs);
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+    .nav-btn:hover { background: var(--theme-interactive-hover); border-color: var(--theme-border-secondary); }
+    .group-label {
+      font-size: var(--font-size-xs);
+      color: var(--theme-text-muted);
+      padding: var(--spacing-md) 0 var(--spacing-sm);
+      text-transform: uppercase;
+      letter-spacing: var(--letter-spacing-tight);
+    }
+
+    /* ===== PREFLIGHT MODE ===== */
+
+    /* Status Bar */
+    .pf-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--pf-status-bg);
+      border-bottom: 1px solid var(--pf-status-border);
+    }
+    .pf-status-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    .pf-error-count {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--pf-cat-fill);
+    }
+    .pf-error-label {
+      font-size: var(--font-size-xs);
+      color: var(--theme-text-muted);
+    }
+    .pf-scan-btn {
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-md);
+      color: var(--theme-text-muted);
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      transition: all var(--transition-fast);
+    }
+    .pf-scan-btn:hover { background: var(--theme-interactive-hover); color: var(--theme-text-primary); border-color: var(--theme-border-secondary); }
+    .pf-scan-btn.scanning { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Progress bar */
+    .pf-progress {
+      height: 2px;
+      background: var(--theme-border-primary);
+      overflow: hidden;
+      display: none;
+    }
+    .pf-progress.active { display: block; }
+    .pf-progress-bar {
+      height: 100%;
+      background: var(--pf-cat-fill);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Filter Pills */
+    .pf-filters {
+      display: flex;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-bottom: 1px solid var(--theme-border-primary);
+      overflow-x: auto;
+    }
+    .pf-pill {
+      padding: var(--spacing-xs) var(--spacing-lg);
+      border-radius: var(--border-radius-pill);
+      border: 1px solid var(--theme-border-primary);
+      background: transparent;
+      color: var(--theme-text-muted);
+      font-size: var(--font-size-xs);
+      font-family: var(--font-family);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    .pf-pill:hover { border-color: var(--theme-border-secondary); color: var(--theme-text-secondary); }
+    .pf-pill.active {
+      background: var(--theme-text-primary);
+      color: var(--theme-bg-primary);
+      border-color: var(--theme-text-primary);
+      font-weight: var(--font-weight-semibold);
+    }
+    .pf-pill-count {
+      font-size: 9px;
+      opacity: 0.7;
+    }
+
+    /* Error List */
+    .pf-error-list {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    /* Error Card */
+    .pf-card {
+      background: var(--pf-card-bg);
+      border: 1px solid var(--pf-card-border);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+    .pf-card:hover { background: var(--pf-card-hover); border-color: rgba(255,255,255,0.1); }
+    .pf-card.ignored { opacity: 0.35; }
+    .pf-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+    .pf-cat-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .pf-cat-dot.fill { background: var(--pf-cat-fill); }
+    .pf-cat-dot.text { background: var(--pf-cat-text); }
+    .pf-cat-dot.stroke { background: var(--pf-cat-stroke); }
+    .pf-cat-dot.radius { background: var(--pf-cat-radius); }
+    .pf-cat-dot.effects { background: var(--pf-cat-effects); }
+
+    .pf-node-name {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--theme-text-primary);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pf-card-detail {
+      font-size: var(--font-size-xs);
+      color: var(--theme-text-muted);
+      margin-bottom: var(--spacing-md);
+      padding-left: 14px;
+    }
+    .pf-card-value {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: var(--theme-text-secondary);
+      font-size: var(--font-size-xs);
+    }
+    .pf-card-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+      padding-left: 14px;
+    }
+    .pf-action-btn {
+      padding: var(--spacing-xs) var(--spacing-md);
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--theme-border-primary);
+      background: transparent;
+      color: var(--theme-text-muted);
+      font-size: var(--font-size-xs);
+      font-family: var(--font-family);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .pf-action-btn:hover { background: var(--theme-interactive-hover); color: var(--theme-text-primary); border-color: var(--theme-border-secondary); }
+    .pf-action-btn.fix { color: var(--theme-success); border-color: rgba(74, 222, 128, 0.3); }
+    .pf-action-btn.fix:hover { background: rgba(74, 222, 128, 0.1); }
+    .pf-action-btn.fix.disabled { opacity: 0.3; pointer-events: none; }
+    .pf-action-btn.ignore { color: var(--theme-text-disabled); }
+
+    /* Fix All Banner */
+    .pf-fix-banner {
+      margin: var(--spacing-sm) var(--spacing-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--pf-fix-bg);
+      border: 1px solid var(--pf-fix-border);
+      border-radius: var(--border-radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .pf-fix-banner:hover { background: rgba(74, 222, 128, 0.12); }
+    .pf-fix-count {
+      font-size: var(--font-size-xs);
+      color: var(--theme-success);
+      font-weight: var(--font-weight-medium);
+    }
+    .pf-fix-action {
+      font-size: var(--font-size-xs);
+      color: var(--theme-success);
+      font-weight: var(--font-weight-bold);
+      text-transform: uppercase;
+      letter-spacing: var(--letter-spacing-tight);
+    }
+
+    /* Empty/Success State */
+    .pf-empty {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px var(--spacing-lg);
+      text-align: center;
+      gap: var(--spacing-lg);
+    }
+    .pf-empty.active { display: flex; }
+    .pf-empty-icon { font-size: 32px; }
+    .pf-empty-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--theme-text-primary);
+    }
+    .pf-empty-desc {
+      font-size: var(--font-size-xs);
+      color: var(--theme-text-muted);
+      line-height: 1.5;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      height: 28px;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      padding: 0 var(--spacing-lg);
+      background: var(--theme-bg-secondary);
+      border-top: 1px solid var(--theme-border-primary);
+      gap: var(--spacing-md);
+      z-index: 10;
+    }
+    .footer-controls {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: var(--spacing-md);
+      list-style: none;
+    }
+    .mode-toggle {
+      padding: var(--spacing-xs) var(--spacing-lg);
+      border-radius: var(--border-radius-pill);
+      border: 1px solid var(--theme-border-secondary);
+      background: transparent;
+      color: var(--theme-text-muted);
+      font-size: 9px;
+      font-family: var(--font-family);
+      font-weight: var(--font-weight-bold);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .mode-toggle:hover { background: var(--theme-interactive-hover); color: var(--theme-text-primary); }
+    .mode-toggle.nav-active {
+      border-color: rgba(180, 120, 255, 0.4);
+      color: rgba(180, 120, 255, 0.9);
+    }
+    .mode-toggle.pf-active {
+      border-color: rgba(255, 107, 107, 0.4);
+      color: var(--pf-cat-fill);
+      background: rgba(255, 107, 107, 0.08);
+    }
+    .footer-btn {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none;
+      color: var(--theme-text-muted);
+      cursor: pointer; font-size: var(--font-size-xs);
+      border-radius: var(--border-radius-sm);
+      transition: color var(--transition-fast);
+    }
+    .footer-btn:hover { color: var(--theme-text-primary); }
+    .footer-spacer { flex: 1; }
+    .footer-brand {
+      font-size: 9px;
+      color: var(--theme-text-disabled);
+      letter-spacing: 0.3px;
+    }
+
+    /* ===== TAG PILL ===== */
+    .tag-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border: 1px dashed rgba(255,255,255,0.18);
+      border-radius: 100px;
+      font-size: 11px;
+      color: var(--theme-text-secondary);
+      margin-bottom: 8px;
+      width: fit-content;
+      cursor: pointer;
+      transition: border-color var(--transition-fast);
+    }
+    .tag-pill:hover { border-color: rgba(255,255,255,0.3); }
+    .tag-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+    .tag-pill-date { font-size: 11px; color: var(--theme-text-secondary); }
+    .tag-pill-sep { color: var(--theme-text-muted); font-size: 10px; }
+    .tag-pill-badge {
+      background: rgba(255,255,255,0.12);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--theme-text-primary);
+    }
+    .tag-pill-expand { color: var(--theme-text-muted); font-size: 10px; opacity: 0.55; letter-spacing: -1px; }
+
+    /* ===== COLOR CIRCLES ===== */
+    .colors-container {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 10px 10px 8px;
+      margin-bottom: 0;
+      position: relative;
+    }
+    .colors-legend {
+      position: absolute;
+      top: -7px; left: 10px;
+      background: var(--theme-bg-primary);
+      padding: 0 4px;
+      font-size: 9px;
+      color: var(--theme-text-muted);
+      letter-spacing: 0.3px;
+      pointer-events: none;
+    }
+    .color-circles-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .color-circle {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      margin: 0 auto;
+      display: block;
+    }
+    .color-circle:hover { transform: scale(1.12); box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+    .color-nav-row {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+    }
+    .color-nav-btn {
+      background: none; border: none;
+      color: var(--theme-text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 3px;
+      line-height: 1;
+      transition: color var(--transition-fast), background var(--transition-fast);
+    }
+    .color-nav-btn:hover { color: var(--theme-text-primary); background: var(--theme-interactive-hover); }
+
+    /* ===== NAV GROUP CONTAINERS ===== */
+    .nav-group {
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px;
+      padding: 8px 6px 6px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .nav-group:last-child { margin-bottom: 0; }
+    .nav-group-legend {
+      position: absolute;
+      top: -7px; left: 8px;
+      background: var(--theme-bg-primary);
+      padding: 0 4px;
+      font-size: 9px;
+      color: var(--theme-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      pointer-events: none;
+    }
+    .nav-group-badge {
+      position: absolute;
+      top: -9px; right: 8px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.7);
+      pointer-events: none;
+    }
+
+    /* ===== ACTIVE BUTTON STATES ===== */
+    .nav-btn.btn-active-blue {
+      background: rgba(59, 130, 246, 0.18);
+      border-color: rgba(59, 130, 246, 0.35);
+    }
+    .nav-btn.btn-active-blue img {
+      filter: brightness(0) saturate(100%) invert(53%) sepia(90%) saturate(400%) hue-rotate(195deg) brightness(1.2);
+      opacity: 1;
+    }
+    .nav-btn.btn-active-gold {
+      background: rgba(160, 100, 20, 0.28);
+      border-color: rgba(200, 140, 40, 0.4);
+    }
+    .nav-btn.btn-active-gold img {
+      filter: brightness(0) saturate(100%) invert(75%) sepia(60%) saturate(600%) hue-rotate(15deg) brightness(1.1);
+      opacity: 1;
+    }
+
+    /* ===== SIZING BUTTONS ===== */
+    .sizing-btn {
+      height: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      background: var(--theme-bg-tertiary);
+      border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-md);
+      color: var(--theme-text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: var(--font-family);
+      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+    }
+    .sizing-btn:hover { background: var(--theme-interactive-hover); border-color: var(--theme-border-secondary); color: var(--theme-text-secondary); }
+    .sizing-btn img { width: 12px; height: 12px; opacity: 0.45; }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      background: var(--theme-bg-elevated);
+      border: 1px solid var(--theme-border-secondary);
+      border-radius: var(--border-radius-lg);
+      font-size: var(--font-size-xs);
+      color: var(--theme-text-primary);
+      opacity: 0;
+      transition: all var(--transition-normal);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: rgba(74, 222, 128, 0.4); color: var(--theme-success); }
+    .toast.error { border-color: rgba(255, 107, 107, 0.4); color: var(--theme-error); }
+  </style>
+</head>
+
+<body>
+  <div class="plugin-shell" id="plugin">
+    <!-- ===== NAVIGATE MODE ===== -->
+    <main class="mode-view active" id="navigate-view">
+      <!-- Tags -->
+      <div class="section-header" data-section="tags-content">
+        <h2>Tags</h2>
+        <div class="header-actions">
+          <button class="header-action-btn" title="New page"><img src="/assets/ICO-addPage.svg" alt="New page"></button>
+          <button class="header-action-btn" title="Add date"><img src="/assets/ICO-addDate.svg" alt="Add date"></button>
+          <button class="header-action-btn" title="Clear tag"><img src="/assets/ICO-removeTag.svg" alt="Clear tag"></button>
+        </div>
+      </div>
+      <div class="section-content" id="tags-content">
+        <div class="tag-pill">
+          <span style="color:var(--theme-text-muted);font-size:10px;">↳</span>
+          <div class="tag-pill-dot"></div>
+          <span class="tag-pill-date">01.24</span>
+          <span class="tag-pill-sep">:</span>
+          <span class="tag-pill-badge">PAGE</span>
+          <span class="tag-pill-expand">|← →|</span>
+        </div>
+        <div class="colors-container">
+          <span class="colors-legend">Colors</span>
+          <div class="color-circles-grid">
+            <div class="color-circle" style="background:#D94F4F;"></div>
+            <div class="color-circle" style="background:#D4832A;"></div>
+            <div class="color-circle" style="background:#CEB52A;"></div>
+            <div class="color-circle" style="background:#3DB870;"></div>
+            <div class="color-circle" style="background:#3B82C4;"></div>
+            <div class="color-circle" style="background:#8B5CF6;"></div>
+            <div class="color-circle" style="background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);"></div>
+            <div class="color-circle" style="background:#C0C0C0;"></div>
+          </div>
+          <div class="color-nav-row">
+            <button class="color-nav-btn">&#8592;</button>
+            <button class="color-nav-btn">&#8594;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anchors -->
+      <div class="section-header" data-section="anchors-content">
+        <h2>Anchors</h2>
+        <div class="header-actions">
+          <button class="header-action-btn" title="Refresh"><img src="/assets/ICO-anchorRefresh.svg" alt="Refresh"></button>
+          <button class="header-action-btn" title="Add anchor"><img src="/assets/ICO-anchors.svg" alt="Add anchor"></button>
+        </div>
+      </div>
+      <div class="section-content" id="anchors-content">
+        <div class="bookmark-item"><div class="bookmark-dot"></div> Cover Page</div>
+        <div class="bookmark-item"><div class="bookmark-dot" style="background:var(--theme-success);"></div> Visual Design</div>
+        <div class="bookmark-item"><div class="bookmark-dot"></div> Specs</div>
+      </div>
+
+      <!-- Controls -->
+      <div class="section-header" data-section="controls-content">
+        <h2>Controls</h2>
+        <div class="header-actions">
+          <button class="header-action-btn" title="Back"><img src="/assets/ICO-navBack.svg" alt="Back"></button>
+          <button class="header-action-btn" title="Forward"><img src="/assets/ICO-navForward.svg" alt="Forward"></button>
+        </div>
+      </div>
+      <div class="section-content" id="controls-content">
+        <!-- Movement & Zoom -->
+        <div class="nav-group">
+          <span class="nav-group-legend">Movement & Zoom</span>
+          <div class="nav-grid">
+            <div class="nav-btn btn-active-blue"><img src="/assets/ICO-zoomIn.svg" alt="Zoom in"></div>
+            <div class="nav-btn"><img src="/assets/ICO-arrowUp.svg" alt="Up"></div>
+            <div class="nav-btn"><img src="/assets/ICO-delete.svg" alt="Delete"></div>
+            <div class="nav-btn"><img src="/assets/ICO-arrowLeft.svg" alt="Left"></div>
+            <div class="nav-btn btn-active-blue"><img src="/assets/ICO-zoom100.svg" alt="100%"></div>
+            <div class="nav-btn"><img src="/assets/ICO-arrowRight.svg" alt="Right"></div>
+            <div class="nav-btn btn-active-blue"><img src="/assets/ICO-zoomOut.svg" alt="Zoom out"></div>
+            <div class="nav-btn"><img src="/assets/ICO-arrowDown.svg" alt="Down"></div>
+            <div class="nav-btn btn-active-blue"><img src="/assets/ICO-zoomSelection.svg" alt="Fit"></div>
+          </div>
+        </div>
+        <!-- Hierarchy -->
+        <div class="nav-group">
+          <span class="nav-group-legend">Hierarchy</span>
+          <span class="nav-group-badge">PAGE</span>
+          <div class="nav-grid">
+            <div class="nav-btn"><img src="/assets/ICO-folderExit.svg" alt="Exit"></div>
+            <div class="nav-btn"><img src="/assets/ICO-folderUp.svg" alt="Prev sibling"></div>
+            <div class="nav-btn"><img src="/assets/ICO-layerUp.svg" alt="Bring forward"></div>
+            <div class="nav-btn btn-active-gold"><img src="/assets/ICO-folderEnter.svg" alt="Enter"></div>
+            <div class="nav-btn btn-active-gold"><img src="/assets/ICO-folderDown.svg" alt="Next sibling"></div>
+            <div class="nav-btn"><img src="/assets/ICO-layerDown.svg" alt="Send back"></div>
+            <div class="nav-btn"><img src="/assets/ICO-foldeCollapse.svg" alt="Collapse"></div>
+            <div class="nav-btn"><img src="/assets/ICO-eyeOpen.svg" alt="Visibility"></div>
+            <div class="nav-btn"><img src="/assets/ICO-lockOpen.svg" alt="Lock"></div>
+          </div>
+        </div>
+        <!-- Sizing Modes -->
+        <div class="nav-group">
+          <span class="nav-group-legend">Sizing Modes</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
+            <button class="sizing-btn">
+              <img src="/assets/ICO-hug.svg" alt="">
+              <span>Width</span>
+            </button>
+            <button class="sizing-btn">
+              <img src="/assets/ICO-fill.svg" alt="">
+              <span>Height</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===== PREFLIGHT MODE ===== -->
+    <main class="mode-view" id="preflight-view">
+      <!-- Status Bar -->
+      <div class="pf-status" id="pf-status">
+        <div class="pf-status-left">
+          <span class="pf-error-count" id="pf-count">28</span>
+          <span class="pf-error-label">errors found</span>
+        </div>
+        <button class="pf-scan-btn" id="pf-scan" title="Re-scan"><img src="/assets/ICO-anchorRefresh.svg" alt="Scan" style="width:14px;height:14px;opacity:0.7;"></button>
+      </div>
+
+      <!-- Progress -->
+      <div class="pf-progress" id="pf-progress">
+        <div class="pf-progress-bar" id="pf-progress-bar"></div>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="pf-filters" id="pf-filters">
+        <button class="pf-pill active" data-filter="all">All <span class="pf-pill-count">28</span></button>
+        <button class="pf-pill" data-filter="fill">Fill <span class="pf-pill-count">8</span></button>
+        <button class="pf-pill" data-filter="text">Text <span class="pf-pill-count">12</span></button>
+        <button class="pf-pill" data-filter="stroke">Strk <span class="pf-pill-count">4</span></button>
+        <button class="pf-pill" data-filter="radius">Rad <span class="pf-pill-count">2</span></button>
+        <button class="pf-pill" data-filter="effects">Fx <span class="pf-pill-count">2</span></button>
+      </div>
+
+      <!-- Fix All Banner -->
+      <div class="pf-fix-banner" id="pf-fix-banner">
+        <span class="pf-fix-count">12 auto-fixable</span>
+        <span class="pf-fix-action">Fix All &#x2192;</span>
+      </div>
+
+      <!-- Error List -->
+      <div class="pf-error-list" id="pf-error-list"></div>
+
+      <!-- Empty State -->
+      <div class="pf-empty" id="pf-empty">
+        <div class="pf-empty-icon">&#x2705;</div>
+        <div class="pf-empty-title">All clear!</div>
+        <div class="pf-empty-desc">No style errors found.<br>Every node uses a named style.</div>
+      </div>
+    </main>
+
+    <!-- ===== FOOTER (shared shell) ===== -->
+    <footer>
+      <ul class="footer-controls">
+        <li><button class="mode-toggle nav-active" id="mode-toggle">NAV</button></li>
+        <li><button class="footer-btn" title="Settings"><img src="/assets/ICO-settingsMenu.svg" alt="Settings"></button></li>
+        <li><button class="footer-btn" title="Toggle width" style="font-size:14px;opacity:0.5;">&harr;</button></li>
+        <li><button class="footer-btn" title="More" style="font-size:6px;letter-spacing:2px;opacity:0.4;padding:0 2px;">&#8226;&#8226;&#8226;</button></li>
+        <li class="footer-spacer"></li>
+        <li style="font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:0.3px;">made w/</li>
+        <li><img src="/assets/LOGO-L3Vi_dsgn-dark.svg" alt="L3Vi" style="height:10px;opacity:0.3;"></li>
+      </ul>
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    // ===== MOCK DATA =====
+    const ERRORS = [
+      { id: 'e1', node: 'Button/Primary', category: 'fill', value: '#3B82F6', detail: 'Fill has no named style', fixable: true, suggestion: 'brand/primary-500' },
+      { id: 'e2', node: 'Button/Primary', category: 'text', value: 'Inter 14/Bold', detail: 'Text has no named style', fixable: true, suggestion: 'button/label' },
+      { id: 'e3', node: 'Header/Title', category: 'text', value: 'Inter 32/Bold', detail: 'Text has no named style', fixable: true, suggestion: 'heading/h1' },
+      { id: 'e4', node: 'Header/Subtitle', category: 'text', value: 'Inter 18/Regular', detail: 'Text has no named style', fixable: true, suggestion: 'body/large' },
+      { id: 'e5', node: 'Card/Base', category: 'stroke', value: '#E5E7EB 1px', detail: 'Stroke has no named style', fixable: true, suggestion: 'border/default' },
+      { id: 'e6', node: 'Card/Base', category: 'fill', value: '#FFFFFF', detail: 'Fill has no named style', fixable: true, suggestion: 'surface/card' },
+      { id: 'e7', node: 'Card/Shadow', category: 'effects', value: 'Drop Shadow 0,2,8', detail: 'Effect has no named style', fixable: false },
+      { id: 'e8', node: 'Input/Border', category: 'radius', value: '8px', detail: 'Non-standard radius', fixable: false },
+      { id: 'e9', node: 'Avatar/Frame', category: 'fill', value: '#F3F4F6', detail: 'Fill has no named style', fixable: true, suggestion: 'surface/subtle' },
+      { id: 'e10', node: 'Icon/Close', category: 'fill', value: '#6B7280', detail: 'Fill has no named style', fixable: true, suggestion: 'icon/secondary' },
+      { id: 'e11', node: 'Nav/Link', category: 'text', value: 'Inter 14/Medium', detail: 'Text has no named style', fixable: true, suggestion: 'nav/link' },
+      { id: 'e12', node: 'Footer/Text', category: 'text', value: 'Inter 12/Regular', detail: 'Text has no named style', fixable: false },
+      { id: 'e13', node: 'Badge/Warning', category: 'fill', value: '#FEF3C7', detail: 'Fill has no named style', fixable: true, suggestion: 'status/warning-bg' },
+      { id: 'e14', node: 'Badge/Warning', category: 'text', value: 'Inter 11/Semibold', detail: 'Text has no named style', fixable: false },
+      { id: 'e15', node: 'Divider/Line', category: 'stroke', value: '#E5E7EB 1px', detail: 'Stroke has no named style', fixable: true, suggestion: 'border/default' },
+      { id: 'e16', node: 'Input/Field', category: 'stroke', value: '#D1D5DB 1px', detail: 'Stroke has no named style', fixable: false },
+      { id: 'e17', node: 'Modal/Overlay', category: 'fill', value: 'rgba(0,0,0,0.5)', detail: 'Fill has no named style', fixable: false },
+      { id: 'e18', node: 'Modal/Card', category: 'radius', value: '16px', detail: 'Non-standard radius', fixable: false },
+      { id: 'e19', node: 'Tab/Active', category: 'text', value: 'Inter 14/Semibold', detail: 'Text has no named style', fixable: true, suggestion: 'tab/active' },
+      { id: 'e20', node: 'Tab/Inactive', category: 'text', value: 'Inter 14/Regular', detail: 'Text has no named style', fixable: false },
+      { id: 'e21', node: 'Sidebar/Bg', category: 'fill', value: '#F9FAFB', detail: 'Fill has no named style', fixable: false },
+      { id: 'e22', node: 'Tooltip/Bg', category: 'fill', value: '#1F2937', detail: 'Fill has no named style', fixable: false },
+      { id: 'e23', node: 'Tooltip/Text', category: 'text', value: 'Inter 11/Regular', detail: 'Text has no named style', fixable: false },
+      { id: 'e24', node: 'Progress/Bar', category: 'fill', value: '#3B82F6', detail: 'Fill has no named style', fixable: false },
+      { id: 'e25', node: 'Input/Field', category: 'fill', value: '#FFFFFF', detail: 'Fill has no named style', fixable: false },
+      { id: 'e26', node: 'Chip/Tag', category: 'stroke', value: '#D1D5DB 1px', detail: 'Stroke has no named style', fixable: false },
+      { id: 'e27', node: 'Card/Header', category: 'text', value: 'Inter 16/Semibold', detail: 'Text has no named style', fixable: false },
+      { id: 'e28', node: 'Link/External', category: 'effects', value: 'Underline offset', detail: 'Effect has no named style', fixable: false },
+    ];
+
+    const ignoredIds = new Set();
+    let activeFilter = 'all';
+    let currentMode = 'navigate';
+
+    // ===== DOM REFS =====
+    const navView = document.getElementById('navigate-view');
+    const pfView = document.getElementById('preflight-view');
+    const modeToggle = document.getElementById('mode-toggle');
+    const errorList = document.getElementById('pf-error-list');
+    const pfCount = document.getElementById('pf-count');
+    const pfEmpty = document.getElementById('pf-empty');
+    const pfFixBanner = document.getElementById('pf-fix-banner');
+    const pfScan = document.getElementById('pf-scan');
+    const pfProgress = document.getElementById('pf-progress');
+    const pfProgressBar = document.getElementById('pf-progress-bar');
+    const toast = document.getElementById('toast');
+
+    // ===== RENDER ERROR CARDS =====
+    function getFilteredErrors() {
+      return ERRORS.filter(e => {
+        if (activeFilter !== 'all' && e.category !== activeFilter) return false;
+        return true;
+      });
+    }
+
+    function renderErrors() {
+      const filtered = getFilteredErrors();
+      const visible = filtered.filter(e => !ignoredIds.has(e.id));
+      const fixable = visible.filter(e => e.fixable);
+
+      errorList.innerHTML = '';
+      pfEmpty.classList.toggle('active', visible.length === 0);
+      pfFixBanner.style.display = fixable.length > 0 ? 'flex' : 'none';
+      document.querySelector('.pf-fix-count').textContent = `${fixable.length} auto-fixable`;
+      pfCount.textContent = visible.length;
+
+      visible.forEach(err => {
+        const card = document.createElement('div');
+        card.className = `pf-card${ignoredIds.has(err.id) ? ' ignored' : ''}`;
+        card.innerHTML = `
+          <div class="pf-card-header">
+            <div class="pf-cat-dot ${err.category}"></div>
+            <span class="pf-node-name">${err.node}</span>
+          </div>
+          <div class="pf-card-detail">
+            ${err.detail}<br>
+            <span class="pf-card-value">${err.value}</span>
+            ${err.suggestion ? `<br><span style="color:var(--theme-success);font-size:10px;">&rarr; ${err.suggestion}</span>` : ''}
+          </div>
+          <div class="pf-card-actions">
+            <button class="pf-action-btn" onclick="selectNode('${err.id}')">Select</button>
+            <button class="pf-action-btn fix${err.fixable ? '' : ' disabled'}" onclick="fixError('${err.id}')">Fix</button>
+            <button class="pf-action-btn ignore" onclick="ignoreError('${err.id}')">Ignore</button>
+          </div>
+        `;
+        errorList.appendChild(card);
+      });
+    }
+
+    // ===== ACTIONS =====
+    function selectNode(id) {
+      const err = ERRORS.find(e => e.id === id);
+      showToast(`Selected: ${err.node}`);
+    }
+
+    function fixError(id) {
+      const err = ERRORS.find(e => e.id === id);
+      if (!err.fixable) return;
+      const idx = ERRORS.indexOf(err);
+      ERRORS.splice(idx, 1);
+      showToast(`Fixed: ${err.node} -> ${err.suggestion}`, 'success');
+      updateCounts();
+      renderErrors();
+    }
+
+    function ignoreError(id) {
+      ignoredIds.add(id);
+      showToast('Error ignored');
+      renderErrors();
+    }
+
+    function fixAll() {
+      const fixable = getFilteredErrors().filter(e => e.fixable && !ignoredIds.has(e.id));
+      fixable.forEach(e => {
+        const idx = ERRORS.indexOf(e);
+        if (idx > -1) ERRORS.splice(idx, 1);
+      });
+      showToast(`Fixed ${fixable.length} errors`, 'success');
+      updateCounts();
+      renderErrors();
+    }
+
+    function updateCounts() {
+      document.querySelectorAll('.pf-pill').forEach(pill => {
+        const filter = pill.dataset.filter;
+        const count = filter === 'all'
+          ? ERRORS.filter(e => !ignoredIds.has(e.id)).length
+          : ERRORS.filter(e => e.category === filter && !ignoredIds.has(e.id)).length;
+        pill.querySelector('.pf-pill-count').textContent = count;
+      });
+    }
+
+    // ===== SCAN ANIMATION =====
+    function runScan() {
+      pfScan.classList.add('scanning');
+      pfProgress.classList.add('active');
+      pfProgressBar.style.width = '0%';
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 15 + 5;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setTimeout(() => {
+            pfScan.classList.remove('scanning');
+            pfProgress.classList.remove('active');
+            pfProgressBar.style.width = '0%';
+            showToast('Scan complete', 'success');
+          }, 300);
+        }
+        pfProgressBar.style.width = progress + '%';
+      }, 150);
+    }
+
+    // ===== MODE TOGGLE =====
+    function toggleMode() {
+      if (currentMode === 'navigate') {
+        currentMode = 'preflight';
+        navView.classList.remove('active');
+        pfView.classList.add('active');
+        modeToggle.textContent = 'PREFLIGHT';
+        modeToggle.classList.remove('nav-active');
+        modeToggle.classList.add('pf-active');
+        runScan();
+      } else {
+        currentMode = 'navigate';
+        pfView.classList.remove('active');
+        navView.classList.add('active');
+        modeToggle.textContent = 'NAV';
+        modeToggle.classList.remove('pf-active');
+        modeToggle.classList.add('nav-active');
+      }
+    }
+
+    // ===== FILTER PILLS =====
+    document.getElementById('pf-filters').addEventListener('click', (e) => {
+      const pill = e.target.closest('.pf-pill');
+      if (!pill) return;
+      document.querySelectorAll('.pf-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeFilter = pill.dataset.filter;
+      renderErrors();
+    });
+
+    // ===== SECTION COLLAPSE =====
+    document.querySelectorAll('.section-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const targetId = header.dataset.section;
+        const content = document.getElementById(targetId);
+        if (content) content.classList.toggle('collapsed');
+      });
+    });
+
+    // ===== TOAST =====
+    function showToast(msg, type = '') {
+      toast.textContent = msg;
+      toast.className = `toast show ${type}`;
+      setTimeout(() => { toast.className = 'toast'; }, 1500);
+    }
+
+    // ===== WIRE UP =====
+    modeToggle.addEventListener('click', toggleMode);
+    pfScan.addEventListener('click', runScan);
+    pfFixBanner.addEventListener('click', fixAll);
+
+    // Initial render
+    renderErrors();
+  </script>
+</body>
+</html>
