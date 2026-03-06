@@ -5,7 +5,9 @@
       "Bash(npm run build:*)",
       "Bash(npm run clean:*)",
       "Bash(ls:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git commit:*)"
     ]
   }
 }
