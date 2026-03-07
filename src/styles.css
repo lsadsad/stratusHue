@@ -1378,40 +1378,40 @@ body.touch-active .kofi-button:hover {
 }
 
 
-[data-theme="figma-light"] .nav-icon img,
-[data-theme="light"] .nav-icon img {
+[data-theme="figma-light"] .nav-icon svg,
+[data-theme="light"] .nav-icon svg {
   filter: brightness(0);
   opacity: 1;
 }
 
 /* Preserve color-enhanced icons in light themes */
-[data-theme="figma-light"] .nav-button.nav-button-arrow .nav-icon img,
-[data-theme="light"] .nav-button.nav-button-arrow .nav-icon img {
+[data-theme="figma-light"] .nav-button.nav-button-arrow .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-arrow .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75);
 }
 
-[data-theme="figma-light"] .nav-button.nav-button-zoom .nav-icon img,
-[data-theme="light"] .nav-button.nav-button-zoom .nav-icon img {
+[data-theme="figma-light"] .nav-button.nav-button-zoom .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-zoom .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75);
 }
 
-[data-theme="figma-light"] .nav-button.nav-button-hierarchy .nav-icon img,
-[data-theme="light"] .nav-button.nav-button-hierarchy .nav-icon img {
+[data-theme="figma-light"] .nav-button.nav-button-hierarchy .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-hierarchy .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(40%) sepia(95%) saturate(650%) hue-rotate(15deg) brightness(0.7);
 }
 
-[data-theme="figma-light"] .nav-button.nav-button-action .nav-icon img,
-[data-theme="light"] .nav-button.nav-button-action .nav-icon img {
+[data-theme="figma-light"] .nav-button.nav-button-action .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-action .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(20%) sepia(90%) saturate(700%) hue-rotate(335deg) brightness(0.8);
 }
 
-[data-theme="figma-light"] .nav-button.nav-button-layer .nav-icon img,
-[data-theme="light"] .nav-button.nav-button-layer .nav-icon img {
+[data-theme="figma-light"] .nav-button.nav-button-layer .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-layer .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75);
 }
 
-[data-theme="figma-light"] .nav-button.nav-button-sizing .nav-icon img,
-[data-theme="light"] .nav-button.nav-button-sizing .nav-icon img {
+[data-theme="figma-light"] .nav-button.nav-button-sizing .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-sizing .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.75);
 }
 
@@ -2565,7 +2565,7 @@ h3 {
   color: var(--color-text-subtle);
 }
 
-.header-nav-btn .icon img {
+.header-nav-btn .icon svg {
   width: 16px;
   height: 16px;
   display: block;
@@ -2574,14 +2574,14 @@ h3 {
   opacity: 0.7;
 }
 
-.header-nav-btn:hover:not(:disabled) .icon img,
-.header-nav-btn:active:not(:disabled) .icon img {
+.header-nav-btn:hover:not(:disabled) .icon svg,
+.header-nav-btn:active:not(:disabled) .icon svg {
   /* Hover/active: brand blue tint to match text color */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
 }
 
-.header-nav-btn:disabled .icon img {
+.header-nav-btn:disabled .icon svg {
   opacity: 0.4;
 }
 
@@ -2607,7 +2607,7 @@ h3 {
   justify-content: center;
 }
 
-.header-action-btn .icon img {
+.header-action-btn .icon svg {
   width: 16px;
   height: 16px;
   display: block;
@@ -2627,8 +2627,8 @@ h3 {
   color: var(--figma-color-border-brand);
 }
 
-.header-action-btn:hover .icon img,
-.header-action-btn:active .icon img {
+.header-action-btn:hover .icon svg,
+.header-action-btn:active .icon svg {
   /* Hover/active: brand blue tint to match text color */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
@@ -2902,7 +2902,7 @@ h3 {
   color: var(--color-text-subtle);
 }
 
-.color-grid .action-btn .icon img {
+.color-grid .action-btn .icon svg {
   width: 16px;
   height: 16px;
   display: block;
@@ -2911,14 +2911,14 @@ h3 {
   opacity: 0.7;
 }
 
-.color-grid .action-btn:hover:not(:disabled) .icon img,
-.color-grid .action-btn:active:not(:disabled) .icon img {
+.color-grid .action-btn:hover:not(:disabled) .icon svg,
+.color-grid .action-btn:active:not(:disabled) .icon svg {
   /* Hover/active: brand blue tint to match text color */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
 }
 
-.color-grid .action-btn:disabled .icon img {
+.color-grid .action-btn:disabled .icon svg {
   opacity: 0.4;
 }
 
@@ -2944,7 +2944,7 @@ h3 {
   color: var(--figma-color-border-brand);
 }
 
-.color-grid #date-btn .icon img {
+.color-grid #date-btn .icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
   /* Default: subtle white/light grey for visibility on dark background */
@@ -2964,8 +2964,8 @@ h3 {
   transform: translateY(0);
 }
 
-.color-grid #date-btn:hover:not(:disabled) .icon img,
-.color-grid #date-btn:active:not(:disabled) .icon img {
+.color-grid #date-btn:hover:not(:disabled) .icon svg,
+.color-grid #date-btn:active:not(:disabled) .icon svg {
   /* Hover/active: brand blue tint to match quick-actions */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
@@ -2976,7 +2976,7 @@ h3 {
   color: var(--theme-text-disabled);
 }
 
-.color-grid #date-btn:disabled .icon img {
+.color-grid #date-btn:disabled .icon svg {
   opacity: 0.4;
 }
 
@@ -2988,7 +2988,7 @@ h3 {
   border: var(--border-width) solid var(--figma-color-border);
 }
 
-.color-grid #new-page-btn .icon img {
+.color-grid #new-page-btn .icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
   opacity: 0.85;
@@ -3007,8 +3007,8 @@ h3 {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.color-grid #new-page-btn:hover:not(:disabled) .icon img,
-.color-grid #new-page-btn:active:not(:disabled) .icon img {
+.color-grid #new-page-btn:hover:not(:disabled) .icon svg,
+.color-grid #new-page-btn:active:not(:disabled) .icon svg {
   opacity: 1;
 }
 .color-grid #new-page-btn {
@@ -3018,7 +3018,7 @@ h3 {
   border: var(--border-width) solid var(--figma-color-border);
 }
 
-.color-grid #new-page-btn .icon img {
+.color-grid #new-page-btn .icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
   opacity: 0.85;
@@ -3037,8 +3037,8 @@ h3 {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.color-grid #new-page-btn:hover:not(:disabled) .icon img,
-.color-grid #new-page-btn:active:not(:disabled) .icon img {
+.color-grid #new-page-btn:hover:not(:disabled) .icon svg,
+.color-grid #new-page-btn:active:not(:disabled) .icon svg {
   opacity: 1;
 }
 
@@ -3051,8 +3051,8 @@ h3 {
   color: var(--figma-color-border-brand);
 }
 
-.color-grid #outdent-title-btn .icon img,
-.color-grid #indent-title-btn .icon img {
+.color-grid #outdent-title-btn .icon svg,
+.color-grid #indent-title-btn .icon svg {
   width: var(--icon-size-md-plus);
   height: var(--icon-size-md-plus);
   /* Default: subtle white/light grey for visibility on dark background */
@@ -3074,10 +3074,10 @@ h3 {
   transform: translateY(0);
 }
 
-.color-grid #outdent-title-btn:hover:not(:disabled) .icon img,
-.color-grid #indent-title-btn:hover:not(:disabled) .icon img,
-.color-grid #outdent-title-btn:active:not(:disabled) .icon img,
-.color-grid #indent-title-btn:active:not(:disabled) .icon img {
+.color-grid #outdent-title-btn:hover:not(:disabled) .icon svg,
+.color-grid #indent-title-btn:hover:not(:disabled) .icon svg,
+.color-grid #outdent-title-btn:active:not(:disabled) .icon svg,
+.color-grid #indent-title-btn:active:not(:disabled) .icon svg {
   /* Hover/active: brand blue tint to match quick-actions */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
@@ -3089,8 +3089,8 @@ h3 {
   color: var(--theme-text-disabled);
 }
 
-.color-grid #outdent-title-btn:disabled .icon img,
-.color-grid #indent-title-btn:disabled .icon img {
+.color-grid #outdent-title-btn:disabled .icon svg,
+.color-grid #indent-title-btn:disabled .icon svg {
   opacity: 0.4;
 }
 
@@ -3261,7 +3261,7 @@ h3 {
   height: 16px;
 }
 
-.buttons-left #date-btn .icon img {
+.buttons-left #date-btn .icon svg {
   width: 16px;
   height: 16px;
   display: block;
@@ -3270,8 +3270,8 @@ h3 {
   opacity: 0.7;
 }
 
-.buttons-right #outdent-title-btn .icon img,
-.buttons-right #indent-title-btn .icon img {
+.buttons-right #outdent-title-btn .icon svg,
+.buttons-right #indent-title-btn .icon svg {
   width: 12px;
   height: 12px;
   display: block;
@@ -3280,8 +3280,8 @@ h3 {
   opacity: 0.7;
 }
 
-.buttons-left .action-btn:hover:not(:disabled) .icon img,
-.buttons-right .action-btn:hover:not(:disabled) .icon img {
+.buttons-left .action-btn:hover:not(:disabled) .icon svg,
+.buttons-right .action-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
 }
@@ -3411,10 +3411,10 @@ h3 {
   justify-content: center;
 }
 
-#tags-header #new-page-btn .icon img,
-#tags-header #date-btn .icon img,
-#tags-header #clear-color .icon img,
-#anchors-header #save-bookmark .icon img {
+#tags-header #new-page-btn .icon svg,
+#tags-header #date-btn .icon svg,
+#tags-header #clear-color .icon svg,
+#anchors-header #save-bookmark .icon svg {
   width: 16px;
   height: 16px;
   display: block;
@@ -3424,7 +3424,7 @@ h3 {
 }
 
 /* Refresh-anchors icon: match indent icon size (12px) */
-#anchors-header #refresh-anchors .icon img {
+#anchors-header #refresh-anchors .icon svg {
   width: 12px;
   height: 12px;
   display: block;
@@ -3452,16 +3452,16 @@ h3 {
   color: var(--figma-color-border-brand);
 }
 
-#tags-header #new-page-btn:hover .icon img,
-#tags-header #new-page-btn:active .icon img,
-#tags-header #date-btn:hover .icon img,
-#tags-header #date-btn:active .icon img,
-#tags-header #clear-color:hover .icon img,
-#tags-header #clear-color:active .icon img,
-#anchors-header #refresh-anchors:hover .icon img,
-#anchors-header #refresh-anchors:active .icon img,
-#anchors-header #save-bookmark:hover .icon img,
-#anchors-header #save-bookmark:active .icon img {
+#tags-header #new-page-btn:hover .icon svg,
+#tags-header #new-page-btn:active .icon svg,
+#tags-header #date-btn:hover .icon svg,
+#tags-header #date-btn:active .icon svg,
+#tags-header #clear-color:hover .icon svg,
+#tags-header #clear-color:active .icon svg,
+#anchors-header #refresh-anchors:hover .icon svg,
+#anchors-header #refresh-anchors:active .icon svg,
+#anchors-header #save-bookmark:hover .icon svg,
+#anchors-header #save-bookmark:active .icon svg {
   /* Hover/active: brand blue tint to match text color */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
@@ -3542,7 +3542,7 @@ h3 {
 }
 
 /* Controls Grid Icons - 16x16 equivalent token */
-.controls-grid .nav-icon img {
+.controls-grid .nav-icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
 }
@@ -3575,7 +3575,7 @@ h3 {
 }
 
 /* Actions Grid Icons - 16x16 equivalent token */
-.actions-grid .nav-icon img {
+.actions-grid .nav-icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
 }
@@ -3589,6 +3589,76 @@ h3 {
 #cycle-width:disabled,
 #cycle-height:disabled {
   opacity: 1 !important;
+}
+
+/* ===== STYLED TEXT SECTION ===== */
+
+/* "Replace selected" toggle switch */
+.styled-text-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  margin-top: var(--spacing-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.styled-text-toggle input[type="checkbox"] {
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 16px;
+  min-width: 28px;
+  border-radius: var(--border-radius-pill);
+  background: var(--theme-interactive-disabled);
+  border: 1px solid var(--theme-border-primary);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.styled-text-toggle input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--theme-text-secondary);
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.styled-text-toggle input[type="checkbox"]:checked {
+  background: rgba(111, 176, 255, 0.25);
+  border-color: var(--theme-info);
+}
+
+.styled-text-toggle input[type="checkbox"]:checked::after {
+  transform: translateX(12px);
+  background: var(--theme-info);
+}
+
+.styled-text-toggle input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--theme-info);
+  outline-offset: 2px;
+}
+
+.toggle-label {
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-secondary);
+  line-height: 1.3;
+}
+
+/* Styled Text hint */
+.styled-text-hint {
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-secondary);
+  text-align: center;
+  margin: var(--spacing-xs) 0 0;
+  opacity: 0.6;
+  font-style: italic;
 }
 
 /* Control rows for semantic structure */
@@ -3717,7 +3787,7 @@ h3 {
 }
 
 /* SVG Images inside control icons */
-.nav-icon img {
+.nav-icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
   display: block;
@@ -3920,90 +3990,90 @@ h3 {
 /* Apply color tinting to icons based on their button category */
 
 /* Green icons for arrow/movement buttons */
-.nav-button.nav-button-arrow .nav-icon img {
+.nav-button.nav-button-arrow .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(85deg) brightness(0.85);
 }
 
-.nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon img {
+.nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7);
 }
 
-.nav-button.nav-button-arrow:active:not(:disabled) .nav-icon img {
+.nav-button.nav-button-arrow:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
 /* Blue icons for zoom controls */
-.nav-button.nav-button-zoom .nav-icon img {
+.nav-button.nav-button-zoom .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(190deg) brightness(0.85);
 }
 
-.nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon img {
+.nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7);
 }
 
-.nav-button.nav-button-zoom:active:not(:disabled) .nav-icon img {
+.nav-button.nav-button-zoom:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
 /* Yellow/Amber icons for hierarchy controls */
-.nav-button.nav-button-hierarchy .nav-icon img {
+.nav-button.nav-button-hierarchy .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(55%) sepia(90%) saturate(600%) hue-rotate(15deg) brightness(0.85);
 }
 
-.nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon img {
+.nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7);
 }
 
-.nav-button.nav-button-hierarchy:active:not(:disabled) .nav-icon img {
+.nav-button.nav-button-hierarchy:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
 /* Red icons for action/delete buttons */
-.nav-button.nav-button-action .nav-icon img {
+.nav-button.nav-button-action .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(35%) sepia(80%) saturate(600%) hue-rotate(330deg) brightness(0.9);
 }
 
-.nav-button.nav-button-action:hover:not(:disabled) .nav-icon img {
+.nav-button.nav-button-action:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.75);
 }
 
-.nav-button.nav-button-action:active:not(:disabled) .nav-icon img {
+.nav-button.nav-button-action:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
 /* Green icons for layer ordering buttons (matching arrow keys) */
-.nav-button.nav-button-layer .nav-icon img {
+.nav-button.nav-button-layer .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(85deg) brightness(0.85);
 }
 
-.nav-button.nav-button-layer:hover:not(:disabled) .nav-icon img {
+.nav-button.nav-button-layer:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7);
 }
 
-.nav-button.nav-button-layer:active:not(:disabled) .nav-icon img {
+.nav-button.nav-button-layer:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
 /* Purple icons for sizing mode buttons */
-.nav-button.nav-button-sizing .nav-icon img {
+.nav-button.nav-button-sizing .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(240deg) brightness(0.85);
 }
 
-.nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img {
+.nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.7);
 }
 
-.nav-button.nav-button-sizing:active:not(:disabled) .nav-icon img {
+.nav-button.nav-button-sizing:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
 /* Disabled state: muted icons for all color-coded buttons */
-.nav-button.nav-button-arrow:disabled .nav-icon img,
-.nav-button.nav-button-zoom:disabled .nav-icon img,
-.nav-button.nav-button-hierarchy:disabled .nav-icon img,
-.nav-button.nav-button-action:disabled .nav-icon img,
-.nav-button.nav-button-layer:disabled .nav-icon img,
-.nav-button.nav-button-sizing:disabled .nav-icon img {
+.nav-button.nav-button-arrow:disabled .nav-icon svg,
+.nav-button.nav-button-zoom:disabled .nav-icon svg,
+.nav-button.nav-button-hierarchy:disabled .nav-icon svg,
+.nav-button.nav-button-action:disabled .nav-icon svg,
+.nav-button.nav-button-layer:disabled .nav-icon svg,
+.nav-button.nav-button-sizing:disabled .nav-icon svg {
   opacity: 0.4;
 }
 
@@ -4011,78 +4081,78 @@ h3 {
 /* Override default dark icons with bright, glowing versions for dark background */
 
 /* Green icons - bright lime/neon green */
-[data-theme="cybertron"] .nav-button.nav-button-arrow .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-arrow .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1);
   opacity: 0.9;
 }
 
-[data-theme="cybertron"] .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Blue icons - bright cyan/electric blue */
-[data-theme="cybertron"] .nav-button.nav-button-zoom .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-zoom .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1);
   opacity: 0.9;
 }
 
-[data-theme="cybertron"] .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(160deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Yellow icons - bright gold/amber */
-[data-theme="cybertron"] .nav-button.nav-button-hierarchy .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-hierarchy .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1);
   opacity: 0.9;
 }
 
-[data-theme="cybertron"] .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(15deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Red icons - bright coral/neon red */
-[data-theme="cybertron"] .nav-button.nav-button-action .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-action .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1);
   opacity: 0.9;
 }
 
-[data-theme="cybertron"] .nav-button.nav-button-action:hover:not(:disabled) .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-action:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(320deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Green icons - bright lime/neon green (matching arrow keys) */
-[data-theme="cybertron"] .nav-button.nav-button-layer .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-layer .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1);
   opacity: 0.9;
 }
 
-[data-theme="cybertron"] .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Purple icons - bright violet/magenta */
-[data-theme="cybertron"] .nav-button.nav-button-sizing .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-sizing .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1);
   opacity: 0.9;
 }
 
-[data-theme="cybertron"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(260deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Cybertron disabled state: muted */
-[data-theme="cybertron"] .nav-button.nav-button-arrow:disabled .nav-icon img,
-[data-theme="cybertron"] .nav-button.nav-button-zoom:disabled .nav-icon img,
-[data-theme="cybertron"] .nav-button.nav-button-hierarchy:disabled .nav-icon img,
-[data-theme="cybertron"] .nav-button.nav-button-action:disabled .nav-icon img,
-[data-theme="cybertron"] .nav-button.nav-button-layer:disabled .nav-icon img,
-[data-theme="cybertron"] .nav-button.nav-button-sizing:disabled .nav-icon img {
+[data-theme="cybertron"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
+[data-theme="cybertron"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
+[data-theme="cybertron"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
+[data-theme="cybertron"] .nav-button.nav-button-action:disabled .nav-icon svg,
+[data-theme="cybertron"] .nav-button.nav-button-layer:disabled .nav-icon svg,
+[data-theme="cybertron"] .nav-button.nav-button-sizing:disabled .nav-icon svg {
   opacity: 0.3;
 }
 
@@ -4090,114 +4160,114 @@ h3 {
 /* Override default dark icons with bright, visible versions for dark background */
 
 /* Green icons - bright green for arrow/movement */
-[data-theme="figma-dark"] .nav-button.nav-button-arrow .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-arrow .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-arrow .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-arrow .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-arrow .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-arrow .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1);
   opacity: 0.85;
 }
 
-[data-theme="figma-dark"] .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Blue icons - bright cyan for zoom controls */
-[data-theme="figma-dark"] .nav-button.nav-button-zoom .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-zoom .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-zoom .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-zoom .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-zoom .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-zoom .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(180deg) brightness(1.1);
   opacity: 0.85;
 }
 
-[data-theme="figma-dark"] .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(180deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Yellow/Amber icons - bright gold for hierarchy controls */
-[data-theme="figma-dark"] .nav-button.nav-button-hierarchy .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-hierarchy .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-hierarchy .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-hierarchy .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-hierarchy .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-hierarchy .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1);
   opacity: 0.85;
 }
 
-[data-theme="figma-dark"] .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(15deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Red icons - bright coral for action/delete buttons */
-[data-theme="figma-dark"] .nav-button.nav-button-action .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-action .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-action .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-action .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-action .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-action .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1);
   opacity: 0.85;
 }
 
-[data-theme="figma-dark"] .nav-button.nav-button-action:hover:not(:disabled) .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-action:hover:not(:disabled) .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-action:hover:not(:disabled) .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-action:hover:not(:disabled) .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-action:hover:not(:disabled) .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-action:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(320deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Green icons - bright green for layer ordering (matching arrow keys) */
-[data-theme="figma-dark"] .nav-button.nav-button-layer .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-layer .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-layer .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-layer .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-layer .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-layer .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1);
   opacity: 0.85;
 }
 
-[data-theme="figma-dark"] .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Purple icons - bright violet for sizing mode buttons */
-[data-theme="figma-dark"] .nav-button.nav-button-sizing .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-sizing .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-sizing .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-sizing .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-sizing .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-sizing .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(260deg) brightness(1.1);
   opacity: 0.85;
 }
 
-[data-theme="figma-dark"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(260deg) brightness(1.3);
   opacity: 1;
 }
 
 /* Figma-dark disabled state: muted */
-[data-theme="figma-dark"] .nav-button.nav-button-arrow:disabled .nav-icon img,
-[data-theme="figma-dark"] .nav-button.nav-button-zoom:disabled .nav-icon img,
-[data-theme="figma-dark"] .nav-button.nav-button-hierarchy:disabled .nav-icon img,
-[data-theme="figma-dark"] .nav-button.nav-button-action:disabled .nav-icon img,
-[data-theme="figma-dark"] .nav-button.nav-button-layer:disabled .nav-icon img,
-[data-theme="figma-dark"] .nav-button.nav-button-sizing:disabled .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-arrow:disabled .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-zoom:disabled .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-hierarchy:disabled .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-action:disabled .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-layer:disabled .nav-icon img,
-[data-theme="dark"] .nav-button.nav-button-sizing:disabled .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-arrow:disabled .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-zoom:disabled .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-hierarchy:disabled .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-action:disabled .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-layer:disabled .nav-icon img,
-[data-theme="boilerplate"] .nav-button.nav-button-sizing:disabled .nav-icon img {
+[data-theme="figma-dark"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
+[data-theme="figma-dark"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
+[data-theme="figma-dark"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
+[data-theme="figma-dark"] .nav-button.nav-button-action:disabled .nav-icon svg,
+[data-theme="figma-dark"] .nav-button.nav-button-layer:disabled .nav-icon svg,
+[data-theme="figma-dark"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-action:disabled .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-layer:disabled .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-action:disabled .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-layer:disabled .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-sizing:disabled .nav-icon svg {
   opacity: 0.3;
 }
 
@@ -5412,7 +5482,7 @@ i.grip {
   justify-content: center;
 }
 
-#quick-actions .action-btn .icon img {
+#quick-actions .action-btn .icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
   display: block;
@@ -5432,8 +5502,8 @@ i.grip {
   color: var(--figma-color-border-brand);
 }
 
-#quick-actions .action-btn:hover .icon img,
-#quick-actions .action-btn:active .icon img {
+#quick-actions .action-btn:hover .icon svg,
+#quick-actions .action-btn:active .icon svg {
   /* Hover/active: brand blue tint to match text color */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 0.8;
@@ -5450,7 +5520,7 @@ i.grip {
   opacity: 0.4;
 }
 
-#quick-actions .action-btn:disabled .icon img {
+#quick-actions .action-btn:disabled .icon svg {
   opacity: 0.4;
 }
 
@@ -5503,7 +5573,7 @@ i.grip {
   color: var(--color-text-subtle);
 }
 
-#quick-actions #new-page-btn .icon img {
+#quick-actions #new-page-btn .icon svg {
   width: 16px;
   height: 16px;
   display: block;
@@ -5512,14 +5582,14 @@ i.grip {
   opacity: 0.7;
 }
 
-#quick-actions #new-page-btn:hover:not(:disabled) .icon img,
-#quick-actions #new-page-btn:active:not(:disabled) .icon img {
+#quick-actions #new-page-btn:hover:not(:disabled) .icon svg,
+#quick-actions #new-page-btn:active:not(:disabled) .icon svg {
   /* Hover/active: brand blue tint to match text color */
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
 }
 
-#quick-actions #new-page-btn:disabled .icon img {
+#quick-actions #new-page-btn:disabled .icon svg {
   opacity: 0.4;
 }
 
@@ -5542,8 +5612,8 @@ i.grip {
   justify-content: center;
 }
 
-#quick-actions #indent-title-btn .icon img,
-#quick-actions #outdent-title-btn .icon img {
+#quick-actions #indent-title-btn .icon svg,
+#quick-actions #outdent-title-btn .icon svg {
   width: 12px;
   height: 12px;
   display: block;
@@ -5599,7 +5669,7 @@ i.grip {
   justify-content: center;
 }
 
-#quick-actions #settings-btn .icon img {
+#quick-actions #settings-btn .icon svg {
   width: 16px;
   height: 16px;
   display: block;
@@ -5659,7 +5729,7 @@ i.grip {
   color: var(--color-text-subtle);
 }
 
-#quick-actions #refresh-anchors .icon img {
+#quick-actions #refresh-anchors .icon svg {
   width: 16px;
   height: 16px;
   display: block;
@@ -5667,60 +5737,60 @@ i.grip {
 }
 
 /* Light theme adjustments for header/quick action icons */
-[data-theme="figma-light"] .header-nav-btn .icon img,
-[data-theme="figma-light"] .header-action-btn .icon img,
-[data-theme="figma-light"] #quick-actions .action-btn .icon img,
-[data-theme="figma-light"] #quick-actions #new-page-btn .icon img,
-[data-theme="figma-light"] .color-grid .action-btn .icon img,
-[data-theme="figma-light"] .color-grid #date-btn .icon img,
-[data-theme="figma-light"] .buttons-left #date-btn .icon img,
-[data-theme="figma-light"] .color-grid #indent-title-btn .icon img,
-[data-theme="figma-light"] .color-grid #outdent-title-btn .icon img,
-[data-theme="figma-light"] .buttons-right #indent-title-btn .icon img,
-[data-theme="figma-light"] .buttons-right #outdent-title-btn .icon img,
-[data-theme="figma-light"] #tags-header #new-page-btn .icon img,
-[data-theme="figma-light"] #tags-header #date-btn .icon img,
-[data-theme="figma-light"] #tags-header #clear-color .icon img,
-[data-theme="figma-light"] #anchors-header #refresh-anchors .icon img,
-[data-theme="figma-light"] #anchors-header #save-bookmark .icon img,
-[data-theme="light"] .header-nav-btn .icon img,
-[data-theme="light"] .header-action-btn .icon img,
-[data-theme="light"] #quick-actions .action-btn .icon img,
-[data-theme="light"] #quick-actions #new-page-btn .icon img,
-[data-theme="light"] .color-grid .action-btn .icon img,
-[data-theme="light"] .color-grid #date-btn .icon img,
-[data-theme="light"] .buttons-left #date-btn .icon img,
-[data-theme="light"] .color-grid #indent-title-btn .icon img,
-[data-theme="light"] .color-grid #outdent-title-btn .icon img,
-[data-theme="light"] .buttons-right #indent-title-btn .icon img,
-[data-theme="light"] .buttons-right #outdent-title-btn .icon img,
-[data-theme="light"] #tags-header #new-page-btn .icon img,
-[data-theme="light"] #tags-header #date-btn .icon img,
-[data-theme="light"] #tags-header #clear-color .icon img,
-[data-theme="light"] #anchors-header #refresh-anchors .icon img,
-[data-theme="light"] #anchors-header #save-bookmark .icon img {
+[data-theme="figma-light"] .header-nav-btn .icon svg,
+[data-theme="figma-light"] .header-action-btn .icon svg,
+[data-theme="figma-light"] #quick-actions .action-btn .icon svg,
+[data-theme="figma-light"] #quick-actions #new-page-btn .icon svg,
+[data-theme="figma-light"] .color-grid .action-btn .icon svg,
+[data-theme="figma-light"] .color-grid #date-btn .icon svg,
+[data-theme="figma-light"] .buttons-left #date-btn .icon svg,
+[data-theme="figma-light"] .color-grid #indent-title-btn .icon svg,
+[data-theme="figma-light"] .color-grid #outdent-title-btn .icon svg,
+[data-theme="figma-light"] .buttons-right #indent-title-btn .icon svg,
+[data-theme="figma-light"] .buttons-right #outdent-title-btn .icon svg,
+[data-theme="figma-light"] #tags-header #new-page-btn .icon svg,
+[data-theme="figma-light"] #tags-header #date-btn .icon svg,
+[data-theme="figma-light"] #tags-header #clear-color .icon svg,
+[data-theme="figma-light"] #anchors-header #refresh-anchors .icon svg,
+[data-theme="figma-light"] #anchors-header #save-bookmark .icon svg,
+[data-theme="light"] .header-nav-btn .icon svg,
+[data-theme="light"] .header-action-btn .icon svg,
+[data-theme="light"] #quick-actions .action-btn .icon svg,
+[data-theme="light"] #quick-actions #new-page-btn .icon svg,
+[data-theme="light"] .color-grid .action-btn .icon svg,
+[data-theme="light"] .color-grid #date-btn .icon svg,
+[data-theme="light"] .buttons-left #date-btn .icon svg,
+[data-theme="light"] .color-grid #indent-title-btn .icon svg,
+[data-theme="light"] .color-grid #outdent-title-btn .icon svg,
+[data-theme="light"] .buttons-right #indent-title-btn .icon svg,
+[data-theme="light"] .buttons-right #outdent-title-btn .icon svg,
+[data-theme="light"] #tags-header #new-page-btn .icon svg,
+[data-theme="light"] #tags-header #date-btn .icon svg,
+[data-theme="light"] #tags-header #clear-color .icon svg,
+[data-theme="light"] #anchors-header #refresh-anchors .icon svg,
+[data-theme="light"] #anchors-header #save-bookmark .icon svg {
   /* Use black icons on light backgrounds */
   filter: brightness(0) saturate(0%);
   opacity: 0.60;
 }
 
 /* Dark theme adjustments for header/quick action icons */
-[data-theme="figma-dark"] .header-nav-btn .icon img,
-[data-theme="figma-dark"] .header-action-btn .icon img,
-[data-theme="figma-dark"] #quick-actions .action-btn .icon img,
-[data-theme="figma-dark"] #quick-actions #new-page-btn .icon img,
-[data-theme="figma-dark"] .color-grid .action-btn .icon img,
-[data-theme="figma-dark"] .color-grid #date-btn .icon img,
-[data-theme="figma-dark"] .buttons-left #date-btn .icon img,
-[data-theme="figma-dark"] .color-grid #indent-title-btn .icon img,
-[data-theme="figma-dark"] .color-grid #outdent-title-btn .icon img,
-[data-theme="figma-dark"] .buttons-right #indent-title-btn .icon img,
-[data-theme="figma-dark"] .buttons-right #outdent-title-btn .icon img,
-[data-theme="figma-dark"] #tags-header #new-page-btn .icon img,
-[data-theme="figma-dark"] #tags-header #date-btn .icon img,
-[data-theme="figma-dark"] #tags-header #clear-color .icon img,
-[data-theme="figma-dark"] #anchors-header #refresh-anchors .icon img,
-[data-theme="figma-dark"] #anchors-header #save-bookmark .icon img {
+[data-theme="figma-dark"] .header-nav-btn .icon svg,
+[data-theme="figma-dark"] .header-action-btn .icon svg,
+[data-theme="figma-dark"] #quick-actions .action-btn .icon svg,
+[data-theme="figma-dark"] #quick-actions #new-page-btn .icon svg,
+[data-theme="figma-dark"] .color-grid .action-btn .icon svg,
+[data-theme="figma-dark"] .color-grid #date-btn .icon svg,
+[data-theme="figma-dark"] .buttons-left #date-btn .icon svg,
+[data-theme="figma-dark"] .color-grid #indent-title-btn .icon svg,
+[data-theme="figma-dark"] .color-grid #outdent-title-btn .icon svg,
+[data-theme="figma-dark"] .buttons-right #indent-title-btn .icon svg,
+[data-theme="figma-dark"] .buttons-right #outdent-title-btn .icon svg,
+[data-theme="figma-dark"] #tags-header #new-page-btn .icon svg,
+[data-theme="figma-dark"] #tags-header #date-btn .icon svg,
+[data-theme="figma-dark"] #tags-header #clear-color .icon svg,
+[data-theme="figma-dark"] #anchors-header #refresh-anchors .icon svg,
+[data-theme="figma-dark"] #anchors-header #save-bookmark .icon svg {
   /* Use a lighter monochrome tint on dark backgrounds */
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 0.60;
@@ -5732,85 +5802,85 @@ i.grip {
 }
 
 /* Boilerplate theme: light monochrome icons for dark background */
-[data-theme="boilerplate"] .header-nav-btn .icon img,
-[data-theme="boilerplate"] .header-action-btn .icon img,
-[data-theme="boilerplate"] #quick-actions .action-btn .icon img,
-[data-theme="boilerplate"] #quick-actions #new-page-btn .icon img,
-[data-theme="boilerplate"] .color-grid .action-btn .icon img,
-[data-theme="boilerplate"] .color-grid #date-btn .icon img,
-[data-theme="boilerplate"] .buttons-left #date-btn .icon img,
-[data-theme="boilerplate"] .color-grid #indent-title-btn .icon img,
-[data-theme="boilerplate"] .color-grid #outdent-title-btn .icon img,
-[data-theme="boilerplate"] .buttons-right #indent-title-btn .icon img,
-[data-theme="boilerplate"] .buttons-right #outdent-title-btn .icon img,
-[data-theme="boilerplate"] #tags-header #new-page-btn .icon img,
-[data-theme="boilerplate"] #tags-header #date-btn .icon img,
-[data-theme="boilerplate"] #tags-header #clear-color .icon img,
-[data-theme="boilerplate"] #anchors-header #refresh-anchors .icon img,
-[data-theme="boilerplate"] #anchors-header #save-bookmark .icon img {
+[data-theme="boilerplate"] .header-nav-btn .icon svg,
+[data-theme="boilerplate"] .header-action-btn .icon svg,
+[data-theme="boilerplate"] #quick-actions .action-btn .icon svg,
+[data-theme="boilerplate"] #quick-actions #new-page-btn .icon svg,
+[data-theme="boilerplate"] .color-grid .action-btn .icon svg,
+[data-theme="boilerplate"] .color-grid #date-btn .icon svg,
+[data-theme="boilerplate"] .buttons-left #date-btn .icon svg,
+[data-theme="boilerplate"] .color-grid #indent-title-btn .icon svg,
+[data-theme="boilerplate"] .color-grid #outdent-title-btn .icon svg,
+[data-theme="boilerplate"] .buttons-right #indent-title-btn .icon svg,
+[data-theme="boilerplate"] .buttons-right #outdent-title-btn .icon svg,
+[data-theme="boilerplate"] #tags-header #new-page-btn .icon svg,
+[data-theme="boilerplate"] #tags-header #date-btn .icon svg,
+[data-theme="boilerplate"] #tags-header #clear-color .icon svg,
+[data-theme="boilerplate"] #anchors-header #refresh-anchors .icon svg,
+[data-theme="boilerplate"] #anchors-header #save-bookmark .icon svg {
   /* Use a lighter monochrome tint on dark backgrounds */
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 0.60;
 }
 
 /* Boilerplate hover/active states: brighter white icons */
-[data-theme="boilerplate"] .header-nav-btn:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] .header-nav-btn:active:not(:disabled) .icon img,
-[data-theme="boilerplate"] .header-action-btn:hover .icon img,
-[data-theme="boilerplate"] .header-action-btn:active .icon img,
-[data-theme="boilerplate"] #quick-actions .action-btn:hover .icon img,
-[data-theme="boilerplate"] #quick-actions .action-btn:active .icon img,
-[data-theme="boilerplate"] #quick-actions #new-page-btn:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #quick-actions #new-page-btn:active:not(:disabled) .icon img,
-[data-theme="boilerplate"] .color-grid .action-btn:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] .color-grid .action-btn:active:not(:disabled) .icon img,
-[data-theme="boilerplate"] #tags-header #new-page-btn:hover .icon img,
-[data-theme="boilerplate"] #tags-header #new-page-btn:active .icon img,
-[data-theme="boilerplate"] #tags-header #date-btn:hover .icon img,
-[data-theme="boilerplate"] #tags-header #date-btn:active .icon img,
-[data-theme="boilerplate"] #tags-header #clear-color:hover .icon img,
-[data-theme="boilerplate"] #tags-header #clear-color:active .icon img,
-[data-theme="boilerplate"] #anchors-header #refresh-anchors:hover .icon img,
-[data-theme="boilerplate"] #anchors-header #refresh-anchors:active .icon img,
-[data-theme="boilerplate"] #anchors-header #save-bookmark:hover .icon img,
-[data-theme="boilerplate"] #anchors-header #save-bookmark:active .icon img {
+[data-theme="boilerplate"] .header-nav-btn:hover:not(:disabled) .icon svg,
+[data-theme="boilerplate"] .header-nav-btn:active:not(:disabled) .icon svg,
+[data-theme="boilerplate"] .header-action-btn:hover .icon svg,
+[data-theme="boilerplate"] .header-action-btn:active .icon svg,
+[data-theme="boilerplate"] #quick-actions .action-btn:hover .icon svg,
+[data-theme="boilerplate"] #quick-actions .action-btn:active .icon svg,
+[data-theme="boilerplate"] #quick-actions #new-page-btn:hover:not(:disabled) .icon svg,
+[data-theme="boilerplate"] #quick-actions #new-page-btn:active:not(:disabled) .icon svg,
+[data-theme="boilerplate"] .color-grid .action-btn:hover:not(:disabled) .icon svg,
+[data-theme="boilerplate"] .color-grid .action-btn:active:not(:disabled) .icon svg,
+[data-theme="boilerplate"] #tags-header #new-page-btn:hover .icon svg,
+[data-theme="boilerplate"] #tags-header #new-page-btn:active .icon svg,
+[data-theme="boilerplate"] #tags-header #date-btn:hover .icon svg,
+[data-theme="boilerplate"] #tags-header #date-btn:active .icon svg,
+[data-theme="boilerplate"] #tags-header #clear-color:hover .icon svg,
+[data-theme="boilerplate"] #tags-header #clear-color:active .icon svg,
+[data-theme="boilerplate"] #anchors-header #refresh-anchors:hover .icon svg,
+[data-theme="boilerplate"] #anchors-header #refresh-anchors:active .icon svg,
+[data-theme="boilerplate"] #anchors-header #save-bookmark:hover .icon svg,
+[data-theme="boilerplate"] #anchors-header #save-bookmark:active .icon svg {
   filter: brightness(0) invert(1) saturate(0%);
   opacity: 1;
 }
 
 /* Cybertron theme: cyan-tinted icons to match theme aesthetic */
-[data-theme="cybertron"] .header-nav-btn .icon img,
-[data-theme="cybertron"] .header-action-btn .icon img,
-[data-theme="cybertron"] #quick-actions .action-btn .icon img,
-[data-theme="cybertron"] #quick-actions #new-page-btn .icon img,
-[data-theme="cybertron"] .color-grid .action-btn .icon img,
-[data-theme="cybertron"] .color-grid #date-btn .icon img,
-[data-theme="cybertron"] .buttons-left #date-btn .icon img,
-[data-theme="cybertron"] .color-grid #indent-title-btn .icon img,
-[data-theme="cybertron"] .color-grid #outdent-title-btn .icon img,
-[data-theme="cybertron"] .buttons-right #indent-title-btn .icon img,
-[data-theme="cybertron"] .buttons-right #outdent-title-btn .icon img,
-[data-theme="cybertron"] #tags-header #new-page-btn .icon img,
-[data-theme="cybertron"] #tags-header #date-btn .icon img,
-[data-theme="cybertron"] #tags-header #clear-color .icon img,
-[data-theme="cybertron"] #anchors-header #refresh-anchors .icon img,
-[data-theme="cybertron"] #anchors-header #save-bookmark .icon img {
+[data-theme="cybertron"] .header-nav-btn .icon svg,
+[data-theme="cybertron"] .header-action-btn .icon svg,
+[data-theme="cybertron"] #quick-actions .action-btn .icon svg,
+[data-theme="cybertron"] #quick-actions #new-page-btn .icon svg,
+[data-theme="cybertron"] .color-grid .action-btn .icon svg,
+[data-theme="cybertron"] .color-grid #date-btn .icon svg,
+[data-theme="cybertron"] .buttons-left #date-btn .icon svg,
+[data-theme="cybertron"] .color-grid #indent-title-btn .icon svg,
+[data-theme="cybertron"] .color-grid #outdent-title-btn .icon svg,
+[data-theme="cybertron"] .buttons-right #indent-title-btn .icon svg,
+[data-theme="cybertron"] .buttons-right #outdent-title-btn .icon svg,
+[data-theme="cybertron"] #tags-header #new-page-btn .icon svg,
+[data-theme="cybertron"] #tags-header #date-btn .icon svg,
+[data-theme="cybertron"] #tags-header #clear-color .icon svg,
+[data-theme="cybertron"] #anchors-header #refresh-anchors .icon svg,
+[data-theme="cybertron"] #anchors-header #save-bookmark .icon svg {
   /* Cyan tint to match cybertron theme - invert to white then apply cyan filter */
   filter: brightness(0) invert(1) sepia(100%) saturate(200%) hue-rotate(160deg) brightness(1.2);
   opacity: 0.80;
 }
 
 /* Cybertron hover/active states: brighter cyan glow */
-[data-theme="cybertron"] .header-nav-btn:hover:not(:disabled) .icon img,
-[data-theme="cybertron"] .header-nav-btn:active:not(:disabled) .icon img,
-[data-theme="cybertron"] .header-action-btn:hover .icon img,
-[data-theme="cybertron"] .header-action-btn:active .icon img,
-[data-theme="cybertron"] #quick-actions .action-btn:hover .icon img,
-[data-theme="cybertron"] #quick-actions .action-btn:active .icon img,
-[data-theme="cybertron"] #quick-actions #new-page-btn:hover:not(:disabled) .icon img,
-[data-theme="cybertron"] #quick-actions #new-page-btn:active:not(:disabled) .icon img,
-[data-theme="cybertron"] .color-grid .action-btn:hover:not(:disabled) .icon img,
-[data-theme="cybertron"] .color-grid .action-btn:active:not(:disabled) .icon img {
+[data-theme="cybertron"] .header-nav-btn:hover:not(:disabled) .icon svg,
+[data-theme="cybertron"] .header-nav-btn:active:not(:disabled) .icon svg,
+[data-theme="cybertron"] .header-action-btn:hover .icon svg,
+[data-theme="cybertron"] .header-action-btn:active .icon svg,
+[data-theme="cybertron"] #quick-actions .action-btn:hover .icon svg,
+[data-theme="cybertron"] #quick-actions .action-btn:active .icon svg,
+[data-theme="cybertron"] #quick-actions #new-page-btn:hover:not(:disabled) .icon svg,
+[data-theme="cybertron"] #quick-actions #new-page-btn:active:not(:disabled) .icon svg,
+[data-theme="cybertron"] .color-grid .action-btn:hover:not(:disabled) .icon svg,
+[data-theme="cybertron"] .color-grid .action-btn:active:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(300%) hue-rotate(160deg) brightness(1.5);
   opacity: 1;
 }
@@ -5829,95 +5899,95 @@ i.grip {
 /* Default states: neutral white/monochrome - color reveals on hover */
 
 /* Green on hover: Creation actions (New Page) */
-#new-page-btn .icon img {
+#new-page-btn .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.7 !important;
 }
 
-#new-page-btn:hover:not(:disabled) .icon img {
+#new-page-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7) !important;
   opacity: 1 !important;
 }
 
-#new-page-btn:active:not(:disabled) .icon img {
+#new-page-btn:active:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) !important;
   opacity: 1 !important;
 }
 
 /* Yellow on hover: Navigation history actions (Back, Forward) */
-#back-btn .icon img,
-#forward-btn .icon img {
+#back-btn .icon svg,
+#forward-btn .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.7 !important;
 }
 
-#back-btn:hover:not(:disabled) .icon img,
-#forward-btn:hover:not(:disabled) .icon img {
+#back-btn:hover:not(:disabled) .icon svg,
+#forward-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7) !important;
   opacity: 1 !important;
 }
 
-#back-btn:active:not(:disabled) .icon img,
-#forward-btn:active:not(:disabled) .icon img {
+#back-btn:active:not(:disabled) .icon svg,
+#forward-btn:active:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) !important;
   opacity: 1 !important;
 }
 
-#back-btn:disabled .icon img,
-#forward-btn:disabled .icon img {
+#back-btn:disabled .icon svg,
+#forward-btn:disabled .icon svg {
   opacity: 0.3 !important;
 }
 
 /* Gray: Utility actions (Settings) */
-#settings-btn .icon img {
+#settings-btn .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.5 !important;
 }
 
-#settings-btn:hover:not(:disabled) .icon img {
+#settings-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.85 !important;
 }
 
-#settings-btn:active:not(:disabled) .icon img {
+#settings-btn:active:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) !important;
   opacity: 1 !important;
 }
 
 /* Red on hover: Destructive actions (Remove Tag) */
-#clear-color .icon img {
+#clear-color .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.7 !important;
 }
 
-#clear-color:hover:not(:disabled) .icon img {
+#clear-color:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.75) !important;
   opacity: 1 !important;
 }
 
-#clear-color:active:not(:disabled) .icon img {
+#clear-color:active:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) !important;
   opacity: 1 !important;
 }
 
 /* Blue on hover: Informational/viewing actions (Date, Bookmark, Refresh Anchors) */
-#date-btn .icon img,
-#save-bookmark .icon img,
-#refresh-anchors .icon img {
+#date-btn .icon svg,
+#save-bookmark .icon svg,
+#refresh-anchors .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.7 !important;
 }
 
-#date-btn:hover:not(:disabled) .icon img,
-#save-bookmark:hover:not(:disabled) .icon img,
-#refresh-anchors:hover:not(:disabled) .icon img {
+#date-btn:hover:not(:disabled) .icon svg,
+#save-bookmark:hover:not(:disabled) .icon svg,
+#refresh-anchors:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7) !important;
   opacity: 1 !important;
 }
 
-#date-btn:active:not(:disabled) .icon img,
-#save-bookmark:active:not(:disabled) .icon img,
-#refresh-anchors:active:not(:disabled) .icon img {
+#date-btn:active:not(:disabled) .icon svg,
+#save-bookmark:active:not(:disabled) .icon svg,
+#refresh-anchors:active:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) !important;
   opacity: 1 !important;
 }
@@ -5925,69 +5995,69 @@ i.grip {
 /* ===== LIGHT THEME ADJUSTMENTS FOR QUICK ACTION BUTTONS ===== */
 /* Default: dark gray monochrome on light backgrounds; color on hover */
 
-[data-theme="figma-light"] #new-page-btn .icon img,
-[data-theme="light"] #new-page-btn .icon img,
-[data-theme="figma-light"] #back-btn .icon img,
-[data-theme="figma-light"] #forward-btn .icon img,
-[data-theme="light"] #back-btn .icon img,
-[data-theme="light"] #forward-btn .icon img,
-[data-theme="figma-light"] #clear-color .icon img,
-[data-theme="light"] #clear-color .icon img,
-[data-theme="figma-light"] #date-btn .icon img,
-[data-theme="figma-light"] #save-bookmark .icon img,
-[data-theme="figma-light"] #refresh-anchors .icon img,
-[data-theme="light"] #date-btn .icon img,
-[data-theme="light"] #save-bookmark .icon img,
-[data-theme="light"] #refresh-anchors .icon img {
+[data-theme="figma-light"] #new-page-btn .icon svg,
+[data-theme="light"] #new-page-btn .icon svg,
+[data-theme="figma-light"] #back-btn .icon svg,
+[data-theme="figma-light"] #forward-btn .icon svg,
+[data-theme="light"] #back-btn .icon svg,
+[data-theme="light"] #forward-btn .icon svg,
+[data-theme="figma-light"] #clear-color .icon svg,
+[data-theme="light"] #clear-color .icon svg,
+[data-theme="figma-light"] #date-btn .icon svg,
+[data-theme="figma-light"] #save-bookmark .icon svg,
+[data-theme="figma-light"] #refresh-anchors .icon svg,
+[data-theme="light"] #date-btn .icon svg,
+[data-theme="light"] #save-bookmark .icon svg,
+[data-theme="light"] #refresh-anchors .icon svg {
   filter: brightness(0) saturate(0%) !important;
   opacity: 0.45 !important;
 }
 
-[data-theme="figma-light"] #settings-btn .icon img,
-[data-theme="light"] #settings-btn .icon img {
+[data-theme="figma-light"] #settings-btn .icon svg,
+[data-theme="light"] #settings-btn .icon svg {
   filter: brightness(0) saturate(0%) !important;
   opacity: 0.35 !important;
 }
 
 /* Light theme hover: reveal colors */
-[data-theme="figma-light"] #new-page-btn:hover:not(:disabled) .icon img,
-[data-theme="light"] #new-page-btn:hover:not(:disabled) .icon img {
+[data-theme="figma-light"] #new-page-btn:hover:not(:disabled) .icon svg,
+[data-theme="light"] #new-page-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75) !important;
   opacity: 1 !important;
 }
 
-[data-theme="figma-light"] #back-btn:hover:not(:disabled) .icon img,
-[data-theme="figma-light"] #forward-btn:hover:not(:disabled) .icon img,
-[data-theme="light"] #back-btn:hover:not(:disabled) .icon img,
-[data-theme="light"] #forward-btn:hover:not(:disabled) .icon img {
+[data-theme="figma-light"] #back-btn:hover:not(:disabled) .icon svg,
+[data-theme="figma-light"] #forward-btn:hover:not(:disabled) .icon svg,
+[data-theme="light"] #back-btn:hover:not(:disabled) .icon svg,
+[data-theme="light"] #forward-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(40%) sepia(95%) saturate(650%) hue-rotate(15deg) brightness(0.7) !important;
   opacity: 1 !important;
 }
 
-[data-theme="figma-light"] #clear-color:hover:not(:disabled) .icon img,
-[data-theme="light"] #clear-color:hover:not(:disabled) .icon img {
+[data-theme="figma-light"] #clear-color:hover:not(:disabled) .icon svg,
+[data-theme="light"] #clear-color:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(20%) sepia(90%) saturate(700%) hue-rotate(335deg) brightness(0.8) !important;
   opacity: 1 !important;
 }
 
-[data-theme="figma-light"] #date-btn:hover:not(:disabled) .icon img,
-[data-theme="figma-light"] #save-bookmark:hover:not(:disabled) .icon img,
-[data-theme="figma-light"] #refresh-anchors:hover:not(:disabled) .icon img,
-[data-theme="light"] #date-btn:hover:not(:disabled) .icon img,
-[data-theme="light"] #save-bookmark:hover:not(:disabled) .icon img,
-[data-theme="light"] #refresh-anchors:hover:not(:disabled) .icon img {
+[data-theme="figma-light"] #date-btn:hover:not(:disabled) .icon svg,
+[data-theme="figma-light"] #save-bookmark:hover:not(:disabled) .icon svg,
+[data-theme="figma-light"] #refresh-anchors:hover:not(:disabled) .icon svg,
+[data-theme="light"] #date-btn:hover:not(:disabled) .icon svg,
+[data-theme="light"] #save-bookmark:hover:not(:disabled) .icon svg,
+[data-theme="light"] #refresh-anchors:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75) !important;
   opacity: 1 !important;
 }
 
-[data-theme="figma-light"] #nav-delete .icon img,
-[data-theme="light"] #nav-delete .icon img {
+[data-theme="figma-light"] #nav-delete .icon svg,
+[data-theme="light"] #nav-delete .icon svg {
   filter: brightness(0) saturate(0%) !important;
   opacity: 0.45 !important;
 }
 
-[data-theme="figma-light"] #nav-delete:hover:not(:disabled) .icon img,
-[data-theme="light"] #nav-delete:hover:not(:disabled) .icon img {
+[data-theme="figma-light"] #nav-delete:hover:not(:disabled) .icon svg,
+[data-theme="light"] #nav-delete:hover:not(:disabled) .icon svg {
   filter: brightness(0) saturate(100%) invert(20%) sepia(90%) saturate(700%) hue-rotate(335deg) brightness(0.8) !important;
   opacity: 1 !important;
 }
@@ -5995,53 +6065,53 @@ i.grip {
 /* ===== CYBERTRON THEME: QUICK ACTION ICONS ===== */
 /* Default: white monochrome; color reveals on hover */
 
-[data-theme="cybertron"] #new-page-btn .icon img,
-[data-theme="cybertron"] #back-btn .icon img,
-[data-theme="cybertron"] #forward-btn .icon img,
-[data-theme="cybertron"] #date-btn .icon img,
-[data-theme="cybertron"] #save-bookmark .icon img,
-[data-theme="cybertron"] #refresh-anchors .icon img,
-[data-theme="cybertron"] #clear-color .icon img,
-[data-theme="cybertron"] #nav-delete .icon img {
+[data-theme="cybertron"] #new-page-btn .icon svg,
+[data-theme="cybertron"] #back-btn .icon svg,
+[data-theme="cybertron"] #forward-btn .icon svg,
+[data-theme="cybertron"] #date-btn .icon svg,
+[data-theme="cybertron"] #save-bookmark .icon svg,
+[data-theme="cybertron"] #refresh-anchors .icon svg,
+[data-theme="cybertron"] #clear-color .icon svg,
+[data-theme="cybertron"] #nav-delete .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.7 !important;
 }
 
-[data-theme="cybertron"] #settings-btn .icon img {
+[data-theme="cybertron"] #settings-btn .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.5 !important;
 }
 
 /* Cybertron hover: reveal neon colors */
-[data-theme="cybertron"] #new-page-btn:hover:not(:disabled) .icon img {
+[data-theme="cybertron"] #new-page-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3) !important;
   opacity: 1 !important;
 }
 
-[data-theme="cybertron"] #back-btn:hover:not(:disabled) .icon img,
-[data-theme="cybertron"] #forward-btn:hover:not(:disabled) .icon img {
+[data-theme="cybertron"] #back-btn:hover:not(:disabled) .icon svg,
+[data-theme="cybertron"] #forward-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(15deg) brightness(1.3) !important;
   opacity: 1 !important;
 }
 
-[data-theme="cybertron"] #date-btn:hover:not(:disabled) .icon img,
-[data-theme="cybertron"] #save-bookmark:hover:not(:disabled) .icon img,
-[data-theme="cybertron"] #refresh-anchors:hover:not(:disabled) .icon img {
+[data-theme="cybertron"] #date-btn:hover:not(:disabled) .icon svg,
+[data-theme="cybertron"] #save-bookmark:hover:not(:disabled) .icon svg,
+[data-theme="cybertron"] #refresh-anchors:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(160deg) brightness(1.3) !important;
   opacity: 1 !important;
 }
 
-[data-theme="cybertron"] #clear-color:hover:not(:disabled) .icon img {
+[data-theme="cybertron"] #clear-color:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(320deg) brightness(1.3) !important;
   opacity: 1 !important;
 }
 
-[data-theme="cybertron"] #settings-btn:hover:not(:disabled) .icon img {
+[data-theme="cybertron"] #settings-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) saturate(0%) brightness(1.0) !important;
   opacity: 0.9 !important;
 }
 
-[data-theme="cybertron"] #nav-delete:hover:not(:disabled) .icon img {
+[data-theme="cybertron"] #nav-delete:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(320deg) brightness(1.3) !important;
   opacity: 1 !important;
 }
@@ -6049,53 +6119,53 @@ i.grip {
 /* ===== FIGMA-DARK THEME: QUICK ACTION ICONS ===== */
 /* Default: white monochrome; color reveals on hover */
 
-[data-theme="figma-dark"] #new-page-btn .icon img,
-[data-theme="figma-dark"] #back-btn .icon img,
-[data-theme="figma-dark"] #forward-btn .icon img,
-[data-theme="figma-dark"] #date-btn .icon img,
-[data-theme="figma-dark"] #save-bookmark .icon img,
-[data-theme="figma-dark"] #refresh-anchors .icon img,
-[data-theme="figma-dark"] #clear-color .icon img,
-[data-theme="figma-dark"] #nav-delete .icon img {
+[data-theme="figma-dark"] #new-page-btn .icon svg,
+[data-theme="figma-dark"] #back-btn .icon svg,
+[data-theme="figma-dark"] #forward-btn .icon svg,
+[data-theme="figma-dark"] #date-btn .icon svg,
+[data-theme="figma-dark"] #save-bookmark .icon svg,
+[data-theme="figma-dark"] #refresh-anchors .icon svg,
+[data-theme="figma-dark"] #clear-color .icon svg,
+[data-theme="figma-dark"] #nav-delete .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.6 !important;
 }
 
-[data-theme="figma-dark"] #settings-btn .icon img {
+[data-theme="figma-dark"] #settings-btn .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.45 !important;
 }
 
 /* Figma-dark hover: reveal colors */
-[data-theme="figma-dark"] #new-page-btn:hover:not(:disabled) .icon img {
+[data-theme="figma-dark"] #new-page-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="figma-dark"] #back-btn:hover:not(:disabled) .icon img,
-[data-theme="figma-dark"] #forward-btn:hover:not(:disabled) .icon img {
+[data-theme="figma-dark"] #back-btn:hover:not(:disabled) .icon svg,
+[data-theme="figma-dark"] #forward-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="figma-dark"] #date-btn:hover:not(:disabled) .icon img,
-[data-theme="figma-dark"] #save-bookmark:hover:not(:disabled) .icon img,
-[data-theme="figma-dark"] #refresh-anchors:hover:not(:disabled) .icon img {
+[data-theme="figma-dark"] #date-btn:hover:not(:disabled) .icon svg,
+[data-theme="figma-dark"] #save-bookmark:hover:not(:disabled) .icon svg,
+[data-theme="figma-dark"] #refresh-anchors:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="figma-dark"] #clear-color:hover:not(:disabled) .icon img {
+[data-theme="figma-dark"] #clear-color:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="figma-dark"] #settings-btn:hover:not(:disabled) .icon img {
+[data-theme="figma-dark"] #settings-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) saturate(0%) brightness(0.9) !important;
   opacity: 0.9 !important;
 }
 
-[data-theme="figma-dark"] #nav-delete:hover:not(:disabled) .icon img {
+[data-theme="figma-dark"] #nav-delete:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
@@ -6103,53 +6173,53 @@ i.grip {
 /* ===== BOILERPLATE THEME: QUICK ACTION ICONS ===== */
 /* Default: white monochrome; color reveals on hover */
 
-[data-theme="boilerplate"] #new-page-btn .icon img,
-[data-theme="boilerplate"] #back-btn .icon img,
-[data-theme="boilerplate"] #forward-btn .icon img,
-[data-theme="boilerplate"] #date-btn .icon img,
-[data-theme="boilerplate"] #save-bookmark .icon img,
-[data-theme="boilerplate"] #refresh-anchors .icon img,
-[data-theme="boilerplate"] #clear-color .icon img,
-[data-theme="boilerplate"] #nav-delete .icon img {
+[data-theme="boilerplate"] #new-page-btn .icon svg,
+[data-theme="boilerplate"] #back-btn .icon svg,
+[data-theme="boilerplate"] #forward-btn .icon svg,
+[data-theme="boilerplate"] #date-btn .icon svg,
+[data-theme="boilerplate"] #save-bookmark .icon svg,
+[data-theme="boilerplate"] #refresh-anchors .icon svg,
+[data-theme="boilerplate"] #clear-color .icon svg,
+[data-theme="boilerplate"] #nav-delete .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.6 !important;
 }
 
-[data-theme="boilerplate"] #settings-btn .icon img {
+[data-theme="boilerplate"] #settings-btn .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.45 !important;
 }
 
 /* Boilerplate hover: reveal colors */
-[data-theme="boilerplate"] #new-page-btn:hover:not(:disabled) .icon img {
+[data-theme="boilerplate"] #new-page-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="boilerplate"] #back-btn:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #forward-btn:hover:not(:disabled) .icon img {
+[data-theme="boilerplate"] #back-btn:hover:not(:disabled) .icon svg,
+[data-theme="boilerplate"] #forward-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="boilerplate"] #date-btn:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #save-bookmark:hover:not(:disabled) .icon img,
-[data-theme="boilerplate"] #refresh-anchors:hover:not(:disabled) .icon img {
+[data-theme="boilerplate"] #date-btn:hover:not(:disabled) .icon svg,
+[data-theme="boilerplate"] #save-bookmark:hover:not(:disabled) .icon svg,
+[data-theme="boilerplate"] #refresh-anchors:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="boilerplate"] #clear-color:hover:not(:disabled) .icon img {
+[data-theme="boilerplate"] #clear-color:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
 
-[data-theme="boilerplate"] #settings-btn:hover:not(:disabled) .icon img {
+[data-theme="boilerplate"] #settings-btn:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) saturate(0%) brightness(0.9) !important;
   opacity: 0.9 !important;
 }
 
-[data-theme="boilerplate"] #nav-delete:hover:not(:disabled) .icon img {
+[data-theme="boilerplate"] #nav-delete:hover:not(:disabled) .icon svg {
   filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
   opacity: 1 !important;
 }
@@ -6497,7 +6567,7 @@ i.grip {
   justify-content: center;
 }
 
-#settings-btn.footer-icon-btn .icon img {
+#settings-btn.footer-icon-btn .icon svg {
   width: 12px;
   height: 12px;
   display: block;
@@ -6823,7 +6893,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     font-size: var(--icon-size-md);
   }
 
-  .nav-icon img {
+  .nav-icon svg {
     width: var(--icon-size-md);
     height: var(--icon-size-md);
   }
@@ -7074,7 +7144,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 /* Arrow Keys Grid Icons - 16x16 equivalent token */
-.arrow-keys-grid .nav-icon img {
+.arrow-keys-grid .nav-icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
 }
@@ -7165,7 +7235,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   justify-content: center;
 }
 
-.nav-icon img {
+.nav-icon svg {
   width: var(--icon-size-lg);
   height: var(--icon-size-lg);
   display: block;
@@ -7220,7 +7290,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     font-size: var(--icon-size-sm);
   }
 
-  .nav-icon img {
+  .nav-icon svg {
     width: var(--icon-size-sm);
     height: var(--icon-size-sm);
   }

@@ -184,7 +184,7 @@
       // All control groups visible
       sendPluginMsg({
         type: 'controls-group-settings',
-        groups: { movementZoom: true, hierarchy: true, sizingModes: true }
+        groups: { movementZoom: true, hierarchy: true, sizingModes: true, styledText: false }
       });
 
       // Navigation context (page mode — matches mockup)

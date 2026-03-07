@@ -131,6 +131,7 @@ const initializePlugin = withErrorBoundary(async () => {
   await validateRecentHistory();
   await validateCurrentAnchor();
   await sendInitialUIState();
+  sendStyledTextStateToUI();
 }, ErrorType.STORAGE_ERROR);
 
 // ===== DEBOUNCED FUNCTIONS =====
@@ -155,6 +156,7 @@ const debouncedSelectionUpdate = debounce(() => {
   addSelectionToHistory();
   sendNavigationStateToUI();
   sendLayoutStateToUI();
+  sendStyledTextStateToUI();
 
   // Send optimized navigation context updates with dedicated debounce
   debouncedNavigationContextUpdate();
@@ -453,6 +455,23 @@ figma.ui.onmessage = async (msg) => {
       case 'cycle-layout-sizing':
         if ('axis' in msg && (msg.axis === 'horizontal' || msg.axis === 'vertical')) {
           await handleCycleLayoutSizing(msg.axis as 'horizontal' | 'vertical');
+        }
+        break;
+
+      case 'paste-styled-text':
+        if ('segments' in msg && Array.isArray(msg.segments)) {
+          const replace = 'replaceSelected' in msg && !!(msg as Record<string, unknown>).replaceSelected;
+          await handlePasteStyledText(msg.segments, replace);
+        }
+        break;
+
+      case 'copy-styled-text':
+        await handleCopyStyledText();
+        break;
+
+      case 'notify':
+        if ('message' in msg && typeof (msg as Record<string, unknown>).message === 'string') {
+          figma.notify((msg as Record<string, unknown>).message as string);
         }
         break;
 
@@ -1372,11 +1391,12 @@ const handleGetControlsSetting = withErrorBoundary(async () => {
 
 const handleSetControlsGroupVisibility = withErrorBoundary(async (groups: Record<string, boolean>) => {
   try {
-    const defaultGroups = { movementZoom: true, hierarchy: true, sizingModes: true };
+    const defaultGroups = { movementZoom: true, hierarchy: true, sizingModes: true, styledText: false };
     const validated = {
       movementZoom: typeof groups.movementZoom === 'boolean' ? groups.movementZoom : defaultGroups.movementZoom,
       hierarchy: typeof groups.hierarchy === 'boolean' ? groups.hierarchy : defaultGroups.hierarchy,
-      sizingModes: typeof groups.sizingModes === 'boolean' ? groups.sizingModes : defaultGroups.sizingModes
+      sizingModes: typeof groups.sizingModes === 'boolean' ? groups.sizingModes : defaultGroups.sizingModes,
+      styledText: typeof groups.styledText === 'boolean' ? groups.styledText : defaultGroups.styledText
     };
 
     await figma.clientStorage.setAsync('controlsGroupVisibility', validated);
@@ -1392,21 +1412,23 @@ const handleSetControlsGroupVisibility = withErrorBoundary(async (groups: Record
 
 const handleGetControlsGroupSettings = withErrorBoundary(async () => {
   try {
-    const groups = await figma.clientStorage.getAsync('controlsGroupVisibility') ?? {
-      movementZoom: true,
-      hierarchy: true,
-      sizingModes: true
+    const stored = await figma.clientStorage.getAsync('controlsGroupVisibility') ?? {};
+    const groups = {
+      movementZoom: stored.movementZoom ?? true,
+      hierarchy: stored.hierarchy ?? true,
+      sizingModes: stored.sizingModes ?? true,
+      styledText: stored.styledText ?? false
     };
 
     figma.ui.postMessage({
       type: 'controls-group-settings',
-      groups: groups
+      groups
     });
   } catch (error) {
     console.error('Failed to load controls group settings:', error);
     figma.ui.postMessage({
       type: 'controls-group-settings',
-      groups: { movementZoom: true, hierarchy: true, sizingModes: true }
+      groups: { movementZoom: true, hierarchy: true, sizingModes: true, styledText: false }
     });
   }
 }, ErrorType.STORAGE_ERROR);
@@ -1451,6 +1473,161 @@ const handleGetNudgeSettings = withErrorBoundary(async () => {
     });
   }
 }, ErrorType.STORAGE_ERROR);
+
+// ===== STYLED TEXT HANDLERS =====
+
+function sendStyledTextStateToUI(): void {
+  const sel = figma.currentPage.selection;
+  const hasTextNode = sel.length > 0 && sel.every(n => n.type === 'TEXT');
+  figma.ui.postMessage({ type: 'update-styled-text-state', hasTextNode });
+}
+
+interface StyledTextSegment {
+  characters: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  fontSize?: number;
+  color?: { r: number; g: number; b: number };
+  link?: string;
+}
+
+const handlePasteStyledText = withErrorBoundary(async (segments: StyledTextSegment[], replaceSelected: boolean) => {
+  if (segments.length === 0) {
+    figma.notify('No text found in clipboard');
+    return;
+  }
+
+  const fullText = segments.map(s => s.characters).join('');
+
+  // Collect unique font variants needed
+  const fontVariants = new Set<string>();
+  for (const seg of segments) {
+    const bold = seg.bold ?? false;
+    const italic = seg.italic ?? false;
+    const style = bold && italic ? 'Bold Italic' : bold ? 'Bold' : italic ? 'Italic' : 'Regular';
+    fontVariants.add(style);
+  }
+
+  const family = 'Inter';
+  const fontsToLoad = Array.from(fontVariants).map(style => ({ family, style }));
+
+  try {
+    await Promise.all(fontsToLoad.map(f => figma.loadFontAsync(f)));
+  } catch (_e) {
+    figma.notify('Could not load fonts — check that Inter is available');
+    return;
+  }
+
+  let targetNode: TextNode;
+
+  if (replaceSelected) {
+    const sel = figma.currentPage.selection;
+    if (sel.length === 1 && sel[0].type === 'TEXT') {
+      targetNode = sel[0] as TextNode;
+      targetNode.fontName = { family, style: 'Regular' };
+    } else {
+      // Fallback: create new node
+      targetNode = figma.createText();
+      targetNode.fontName = { family, style: 'Regular' };
+      targetNode.x = figma.viewport.center.x - 100;
+      targetNode.y = figma.viewport.center.y - 20;
+      figma.currentPage.appendChild(targetNode);
+    }
+  } else {
+    targetNode = figma.createText();
+    targetNode.fontName = { family, style: 'Regular' };
+    targetNode.x = figma.viewport.center.x - 100;
+    targetNode.y = figma.viewport.center.y - 20;
+    figma.currentPage.appendChild(targetNode);
+  }
+
+  targetNode.characters = fullText;
+
+  // Apply per-range styles
+  let offset = 0;
+  for (const seg of segments) {
+    const start = offset;
+    const end = offset + seg.characters.length;
+    offset = end;
+
+    if (start >= end) continue;
+
+    const bold = seg.bold ?? false;
+    const italic = seg.italic ?? false;
+    const style = bold && italic ? 'Bold Italic' : bold ? 'Bold' : italic ? 'Italic' : 'Regular';
+    targetNode.setRangeFontName(start, end, { family, style });
+
+    if (seg.fontSize) {
+      targetNode.setRangeFontSize(start, end, seg.fontSize);
+    }
+    if (seg.color) {
+      targetNode.setRangeFills(start, end, [{ type: 'SOLID', color: seg.color }]);
+    }
+    if (seg.underline) {
+      targetNode.setRangeTextDecoration(start, end, 'UNDERLINE');
+    }
+    if (seg.link) {
+      try {
+        targetNode.setRangeHyperlink(start, end, { type: 'URL', value: seg.link });
+      } catch (_e) {
+        // Ignore invalid URLs
+      }
+    }
+  }
+
+  figma.currentPage.selection = [targetNode];
+  figma.viewport.scrollAndZoomIntoView([targetNode]);
+  figma.notify('Styled text pasted');
+}, ErrorType.UNKNOWN);
+
+const handleCopyStyledText = withErrorBoundary(async () => {
+  const sel = figma.currentPage.selection;
+  if (sel.length !== 1 || sel[0].type !== 'TEXT') {
+    figma.notify('Select a single text layer to copy');
+    return;
+  }
+
+  const node = sel[0] as TextNode;
+  const segments = node.getStyledTextSegments(['fontName', 'fills', 'fontSize', 'textDecoration', 'hyperlink']);
+
+  let html = '';
+  for (const seg of segments) {
+    const text = seg.characters
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+
+    const bold = (seg.fontName as FontName).style.includes('Bold');
+    const italic = (seg.fontName as FontName).style.includes('Italic');
+    const underline = seg.textDecoration === 'UNDERLINE';
+    const fill = (seg.fills as Paint[]).find(f => f.type === 'SOLID') as SolidPaint | undefined;
+    const link = seg.hyperlink?.type === 'URL' ? seg.hyperlink.value : undefined;
+
+    const styles: string[] = [];
+    if (fill) {
+      const { r, g, b } = fill.color;
+      styles.push(`color: rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`);
+    }
+    if ((seg.fontSize as number) !== 14) {
+      styles.push(`font-size: ${seg.fontSize}px`);
+    }
+
+    let open = '';
+    let close = '';
+    if (link) { open += `<a href="${link}">`; close = `</a>${close}`; }
+    if (bold && italic) { open += '<strong><em>'; close = `</em></strong>${close}`; }
+    else if (bold) { open += '<strong>'; close = `</strong>${close}`; }
+    else if (italic) { open += '<em>'; close = `</em>${close}`; }
+    if (underline) { open += '<u>'; close = `</u>${close}`; }
+    if (styles.length > 0) { open += `<span style="${styles.join('; ')}">` ; close = `</span>${close}`; }
+
+    html += open + text + close;
+  }
+
+  figma.ui.postMessage({ type: 'styled-text-html', html });
+}, ErrorType.UNKNOWN);
 
 const handleCycleLayoutSizing = withErrorBoundary(async (axis: 'horizontal' | 'vertical') => {
   const selection = figma.currentPage.selection;

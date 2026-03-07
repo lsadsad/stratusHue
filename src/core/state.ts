@@ -268,9 +268,7 @@ let saveStateTimeout: ReturnType<typeof setTimeout> | null = null;
 export async function loadUISectionStates(): Promise<void> {
   try {
     const data = await figma.clientStorage.getAsync('uiSectionStates');
-    if (data && typeof data === 'object') {
-      uiSectionStates = data;
-    }
+    uiSectionStates = (data && typeof data === 'object') ? data : {};
   } catch (error) {
     console.error('Failed to load UI section states:', error);
     uiSectionStates = {};

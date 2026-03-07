@@ -1,0 +1,104 @@
+---
+description: Icon sourcing, SVG export conventions, and animation approach for stratusHue
+alwaysApply: true
+---
+
+# Icons & Animation
+
+## Icon System (current state)
+
+All 46 icons in `assets/` are **inline SVGs with `stroke="currentColor"`**. There are no `<img>` tags with base64 data URIs — that approach was fully retired. Every icon automatically inherits its color from CSS, enabling theming, hover/disabled states, and path-level animation with no extra work.
+
+## Icon Sources
+
+| Use case | Source |
+|----------|--------|
+| Standard icons | `lucide-static` (installed) or copy from [lucide.dev](https://lucide.dev) |
+| Custom / bespoke shapes | Figma → export SVG, then apply prep steps below |
+| Animated icons | Figma (authored) or CSS `@keyframes` on the inline SVG element |
+
+## Adding an Icon
+
+1. **Find the Lucide equivalent** — most UI icons map directly.
+2. **Copy to `assets/`** with the `ICO-` prefix:
+   ```bash
+   cp node_modules/lucide-static/icons/your-icon.svg assets/ICO-your-icon.svg
+   ```
+3. **Strip `width` and `height`** from the root `<svg>` (keep `viewBox`). Lucide icons already have `stroke="currentColor"` — no other edits needed.
+4. **Reference in `ui.html`** as a plain `<img>` tag:
+   ```html
+   <img src="./assets/ICO-your-icon.svg" alt="" class="your-classes">
+   ```
+   The build pipeline replaces every `<img src="*.svg">` with the raw `<svg>` markup, preserving `class` attributes.
+
+## Making a Custom (Figma) SVG Inline-Ready
+
+Four things to fix on every Figma export:
+
+```
+① Remove width/height from <svg> root        (keep viewBox only)
+② Remove <g clip-path="url(#...)"> wrapper   (promote paths to root)
+③ stroke="white" → stroke="currentColor"
+④ Remove entire <defs><clipPath>...</defs>   block
+```
+
+**Shortcut:** uncheck "Clip content" on the frame before exporting — eliminates ② and ④ at source. Then run SVGO:
+```bash
+npx svgo assets/ICO-new-icon.svg
+```
+
+## Dynamic Icon Swapping (JS)
+
+When an icon changes at runtime (e.g. eye open↔closed, lock, sizing mode, nav mode), do **not** use an `<img>` tag. Instead:
+
+- Store the SVG as a **single-line** markup string constant in `ui.ts` (no literal newlines — they break JS string literals after build inlining):
+  ```typescript
+  const ICON_EYE_OPEN = '<svg xmlns="..." viewBox="0 0 24 24" stroke="currentColor" ...><path .../></svg>';
+  ```
+- Put the `id` on the **parent `<span class="nav-icon">`**, not on an inner element.
+- Swap with `element.innerHTML = ICON_CONSTANT`.
+
+## Build Pipeline
+
+`esbuild.config.js` post-processes `dist/ui.html` after JS inlining:
+
+- `<img src="*.svg">` anywhere in the HTML → replaced with the raw `<svg>` markup
+- SVG content is **collapsed to a single line** before injection (strips XML prolog, HTML comments/license headers, all newlines) — this is required to prevent SyntaxErrors when the tag appears inside a JS string literal in the bundled script
+- `class` attribute from `<img>` is merged into the `<svg>` root
+
+⚠️ Never put multi-line SVG markup inside a JS string constant in `ui.ts`. The build inlines the entire JS bundle into a `<script>` tag; literal newlines inside string literals cause a parse-time `SyntaxError` that silently kills the entire plugin UI.
+
+## CSS Targeting
+
+Selectors use `svg`, not `img`:
+```css
+.nav-icon svg   { width: var(--icon-size-md); height: var(--icon-size-md); }
+.icon svg       { color: var(--theme-icon-primary); }
+.nav-button:disabled .nav-icon svg { opacity: 0.4; }
+```
+
+## Animation Tiers
+
+**Tier 1 — CSS `@keyframes`** (zero runtime cost, works on any inline SVG element):
+```css
+#nav-up-btn:active .nav-icon    { animation: nudge-up    0.28s ease-out; }
+#refresh-anchors:active .icon   { animation: spin-once   0.5s ease-in-out; }
+#nav-delete:active .nav-icon    { animation: shake       0.45s ease-out; }
+```
+
+**Tier 2 — Animated SVG** (self-contained `<style>` block inside the `.svg` file):
+- `stroke-dasharray` / `stroke-dashoffset` for draw-on effects
+- Prototype by opening the `.svg` directly in a browser — no build needed
+- Only reach for this when path-level animation is required
+
+No Rive, no Lottie — both require runtime libraries incompatible with Figma's `networkAccess: none` constraint.
+
+## Prototype / Iteration Workflow
+
+```bash
+npm run sync:prototype            # full build + patch prototype/plugin.html
+npm run sync:prototype --no-build # patch only (shim.js edits, no rebuild needed)
+npx serve prototype               # http://localhost:3000/plugin.html
+```
+
+Animation playground: `prototype/anim-playground.html` — iterate there first, then move approved `@keyframes` into `styles.css`.

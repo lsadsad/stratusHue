@@ -14,7 +14,7 @@ Core navigation and productivity tools for active design work.
 | Navigation History | (in codebase) | Shipped |
 | Emoji Tags | (in codebase) | Shipped |
 | Layout Sizing | `LAYOUT_SIZING_FEATURE.md` | Shipped |
-| Styled Text | `STYLED_TEXT_FEATURE.md` | Specced — Phase 1 |
+| Styled Text | `STYLED_TEXT_FEATURE.md` | ⏸ Paused — hidden, see spec for blockers |
 
 ### Reference docs
 

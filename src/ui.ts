@@ -7,11 +7,11 @@ import type { NavigationContext } from './types';
 // UI should not import plugin-side storage (which uses `figma`).
 // We request and persist UI section states via postMessage to the plugin.
 
-// Icon data URIs for lock/hide controls
-const ICON_EYE_OPEN = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuMzMzMjUgOC4wMDAwNkMxLjMzMzI1IDguMDAwMDYgMy4zMzMyNSAzLjMzMzM5IDcuOTk5OTIgMy4zMzMzOUMxMi42NjY2IDMuMzMzMzkgMTQuNjY2NiA4LjAwMDA2IDE0LjY2NjYgOC4wMDAwNkMxNC42NjY2IDguMDAwMDYgMTIuNjY2NiAxMi42NjY3IDcuOTk5OTIgMTIuNjY2N0MzLjMzMzI1IDEyLjY2NjcgMS4zMzMyNSA4LjAwMDA2IDEuMzMzMjUgOC4wMDAwNloiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSIyIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K';
-const ICON_EYE_CLOSED = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkuNDEzMjUgOS40MTMzOUM5LjIzMDA3IDkuNjA5OTkgOS4wMDkzNSA5Ljc2NzQzIDguNzY0MDUgOS44NzY1OEM4LjUxODc1IDkuOTg1NzIgOC4yNTM5MSAxMC4wNDQ0IDcuOTg1MzkgMTAuMDQ5MkM3LjcxNjg3IDEwLjA1NCA3LjQ1MDA5IDEwLjAwNDkgNy4yMDEwMyA5LjkwNDczQzYuOTUxOTcgOS44MDQ1OCA2LjcyNTc2IDkuNjU1MzQgNi41MzUyMSA5LjQ2NDc5QzYuMzQ0NjYgOS4yNzQyNCA2LjE5NTQyIDkuMDQ4MDMgNi4wOTUyNyA4Ljc5ODk3QzUuOTk1MTIgOC41NDk5MSA1Ljk0NTk2IDguMjgzMTMgNS45NTA3NiA4LjAxNDYxQzUuOTU1NTYgNy43NDYwOSA2LjAxNDI4IDcuNDgxMjUgNi4xMjM0MiA3LjIzNTk1QzYuMjMyNTcgNi45OTA2NSA2LjM5MDAxIDYuNzY5OTMgNi41ODY1OSA2LjU4NjczTTExLjk1OTkgMTEuOTYwMUMxMC44MjAzIDEyLjgyODcgOS40MzI2NyAxMy4zMDk5IDcuOTk5OTIgMTMuMzMzNEMzLjMzMzI1IDEzLjMzMzQgMS4zMzMyNSA4LjAwMDA2IDEuMzMzMjUgOC4wMDAwNkMyLjE2MzYzIDYuNDU0NjcgMy4zMTQwOCA1LjEwNDQ3IDQuNzA2NTkgNC4wNDAwNkwxMS45NTk5IDExLjk2MDFaTTYuNTk5OTIgMi44MjY3M0M3LjA1ODgxIDIuNzE5MzYgNy41Mjg2MyAyLjY2NTY0IDcuOTk5OTIgMi42NjY3M0MxMi42NjY2IDIuNjY2NzMgMTQuNjY2NiA4LjAwMDA2IDE0LjY2NjYgOC4wMDAwNkMxNC4yNjAzIDguNzU3MTMgMTMuNzY0MyA5LjQ2OTg5IDEzLjE4NjYgMTAuMTIwMUw2LjU5OTkyIDIuODI2NzNaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMS4zMzMyNSAxLjMzMzM5TDE0LjY2NjYgMTQuNjY2NyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==';
-const ICON_LOCK_OPEN = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjY2NjcgNy4zMzM1SDMuMzMzMzNDMi41OTY5NSA3LjMzMzUgMiA3LjkzMDQ1IDIgOC42NjY4M1YxMy4zMzM1QzIgMTQuMDY5OSAyLjU5Njk1IDE0LjY2NjggMy4zMzMzMyAxNC42NjY4SDEyLjY2NjdDMTMuNDAzIDE0LjY2NjggMTQgMTQuMDY5OSAxNCAxMy4zMzM1VjguNjY2ODNDMTQgNy45MzA0NSAxMy40MDMgNy4zMzM1IDEyLjY2NjcgNy4zMzM1WiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik00LjY2Njc1IDcuMzMzNVY0LjY2NjgzQzQuNjY2NzUgMy43ODI3NyA1LjAxNzk0IDIuOTM0OTMgNS42NDMwNiAyLjMwOTgxQzYuMjY4MTggMS42ODQ2OSA3LjExNjAzIDEuMzMzNSA4LjAwMDA4IDEuMzMzNUM4Ljg4NDE0IDEuMzMzNSA5LjczMTk4IDEuNjg0NjkgMTAuMzU3MSAyLjMwOTgxQzEwLjk4MjIgMi45MzQ5MyAxMS4zMzM0IDMuNzgyNzcgMTEuMzMzNCA0LjY2NjgzVjcuMzMzNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
-const ICON_LOCK_CLOSED = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjY2NjcgNy4zMzM1SDMuMzMzMzNDMi41OTY5NSA3LjMzMzUgMiA3LjkzMDQ1IDIgOC42NjY4M1YxMy4zMzM1QzIgMTQuMDY5OSAyLjU5Njk1IDE0LjY2NjggMy4zMzMzMyAxNC42NjY4SDEyLjY2NjdDMTMuNDAzIDE0LjY2NjggMTQgMTQuMDY5OSAxNCAxMy4zMzM1VjguNjY2ODNDMTQgNy45MzA0NSAxMy40MDMgNy4zMzM1IDEyLjY2NjcgNy4zMzM1WiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik00LjY2Njc1IDcuMzMzNDRWNC42NjY3N0M0LjY2NTkyIDMuODQwMTMgNC45NzIyNyAzLjA0MjY4IDUuNTI2MzMgMi40MjkyMUM2LjA4MDM5IDEuODE1NzUgNi44NDI2NCAxLjQzMDA0IDcuNjY1MDkgMS4zNDY5NkM4LjQ4NzU0IDEuMjYzODkgOS4zMTE1MSAxLjQ4OTM3IDkuOTc3MDcgMS45Nzk2NEMxMC42NDI2IDIuNDY5OTIgMTEuMTAyMyAzLjE5IDExLjI2NjcgNC4wMDAxIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==';
+// Inline SVG markup for dynamically-swapped icons — uses currentColor for theme support
+const ICON_EYE_OPEN = '<svg class="lucide lucide-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
+const ICON_EYE_CLOSED = '<svg class="lucide lucide-eye-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>';
+const ICON_LOCK_OPEN = '<svg class="lucide lucide-lock-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" rx="2" ry="2" width="18" height="11"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>';
+const ICON_LOCK_CLOSED = '<svg class="lucide lucide-lock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" rx="2" ry="2" width="18" height="11"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
 
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
@@ -147,6 +147,7 @@ function handlePluginMessage(event: MessageEvent): void {
         groupMovementZoomVisible = message.groups.movementZoom ?? true;
         groupHierarchyVisible = message.groups.hierarchy ?? true;
         groupSizingModesVisible = message.groups.sizingModes ?? true;
+        groupStyledTextVisible = message.groups.styledText ?? true;
         updateGroupTogglesUI();
         applyGroupVisibility();
       }
@@ -164,6 +165,48 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'update-layout-state':
       updateLayoutSizingButtons(message.horizontal, message.vertical);
       break;
+    case 'update-styled-text-state':
+      updateStyledTextButtons(!!message.hasTextNode);
+      break;
+    case 'styled-text-html': {
+      const styledHtml = message.html as string;
+      if (styledHtml) {
+        const notifySuccess = () => sendMessage('notify', { message: '✓ Styled text copied to clipboard' });
+        const notifyFail = () => sendMessage('notify', { message: 'Copy failed — clipboard unavailable' });
+
+        // Fallback: intercept the copy event to write both HTML and plain-text MIME types.
+        // Works in Figma's plugin iframe where navigator.clipboard may be absent.
+        const copyViaExecCommand = (): boolean => {
+          const onCopy = (e: ClipboardEvent) => {
+            e.preventDefault();
+            e.clipboardData?.setData('text/html', styledHtml);
+            e.clipboardData?.setData('text/plain', styledHtml);
+          };
+          document.addEventListener('copy', onCopy as EventListener, { once: true });
+          const ta = document.createElement('textarea');
+          ta.value = styledHtml;
+          ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none';
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          if (!ok) document.removeEventListener('copy', onCopy as EventListener);
+          return ok;
+        };
+
+        // Primary: modern Clipboard API (Electron / browsers with clipboard-write permission)
+        if (navigator.clipboard?.write) {
+          navigator.clipboard.write([
+            new ClipboardItem({ 'text/html': new Blob([styledHtml], { type: 'text/html' }) })
+          ]).then(notifySuccess).catch(() => {
+            copyViaExecCommand() ? notifySuccess() : notifyFail();
+          });
+        } else {
+          copyViaExecCommand() ? notifySuccess() : notifyFail();
+        }
+      }
+      break;
+    }
   }
 }
 
@@ -205,14 +248,13 @@ function updateToggleUI(): void {
   }
 
   // Swap hierarchy control icons based on mode
-  // Base64 data URIs for dynamic icon swapping (required for Figma plugin sandbox)
-  const ICON_PAGE_UP = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgMi41QzIgMS4zOTU0MyAyLjg5NTQzIDAuNSA0IDAuNUg5LjIzMDA5QzkuNzI1NjQgMC41IDEwLjIwMzUgMC42ODM5NjkgMTAuNTcxMiAxLjAxNjI1TDEzLjM0MTEgMy41MTk4MkMxMy43NjA2IDMuODk5MDEgMTQgNC40MzgwNyAxNCA1LjAwMzU3VjEzLjVDMTQgMTQuNjA0NiAxMy4xMDQ2IDE1LjUgMTIgMTUuNUg0QzIuODk1NDMgMTUuNSAyIDE0LjYwNDYgMiAxMy41VjIuNVoiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOS41IDFWNEM5LjUgNC41NTIyOCA5Ljk0NzcyIDUgMTAuNSA1SDEzLjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCA3LjY2NjVWMTEuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDkuNjY2NUw4IDcuNjY2NUwxMCA5LjY2NjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=';
-  const ICON_PAGE_DOWN = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgMi41QzIgMS4zOTU0MyAyLjg5NTQzIDAuNSA0IDAuNUg5LjIzMDA5QzkuNzI1NjQgMC41IDEwLjIwMzUgMC42ODM5NjkgMTAuNTcxMiAxLjAxNjI1TDEzLjM0MTEgMy41MTk4MkMxMy43NjA2IDMuODk5MDEgMTQgNC40MzgwNyAxNCA1LjAwMzU3VjEzLjVDMTQgMTQuNjA0NiAxMy4xMDQ2IDE1LjUgMTIgMTUuNUg0QzIuODk1NDMgMTUuNSAyIDE0LjYwNDYgMiAxMy41VjIuNVoiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOS41IDFWNEM5LjUgNC41NTIyOCA5Ljk0NzcyIDUgMTAuNSA1SDEzLjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCAxMS42NjY1VjcuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDkuNjY2NUw4IDExLjY2NjVMMTAgOS42NjY1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+';
-  const ICON_PAGE_ENTER = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgN1YyLjVDMiAxLjM5NTQzIDIuODk1NDMgMC41IDQgMC41SDkuMjMwMDlDOS43MjU2NCAwLjUgMTAuMjAzNSAwLjY4Mzk2OSAxMC41NzEyIDEuMDE2MjVMMTMuMzQxMSAzLjUxOTgyQzEzLjc2MDYgMy44OTkwMSAxNCA0LjQzODA3IDE0IDUuMDAzNTdWMTMuNUMxNCAxNC42MDQ2IDEzLjEwNDYgMTUuNSAxMiAxNS41SDRDMS44OTU0MyAxNS41IDIgMTQuNjA0NiAyIDEzLjVWMTIuNzUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOS41IDFWNEM5LjUgNC41NTIyOCA5Ljk0NzcyIDUgMTAuNSA1SDEzLjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOSAxMEwyIDEwIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTcgOEw5IDEwTDcgMTIiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=';
-  const ICON_FOLDER_UP = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzLjMzMzMgMTMuMzMzM0MxMy42ODY5IDEzLjMzMzMgMTQuMDI2IDEzLjE5MjkgMTQuMjc2MSAxMi45NDI4QzE0LjUyNjEgMTIuNjkyOCAxNC42NjY2IDEyLjM1MzYgMTQuNjY2NiAxMlY1LjMzMzMzQzE0LjY2NjYgNC45Nzk3MSAxNC41MjYxIDQuNjQwNTcgMTQuMjc2MSA0LjM5MDUzQzE0LjAyNiA0LjE0MDQ4IDEzLjY4NjkgNCAxMy4zMzMzIDRIOC4wNjY1OUM3Ljg0MzYgNC4wMDIxOSA3LjYyMzYyIDMuOTQ4NDEgNy40MjY3OSAzLjg0MzU5QzcuMjI5OTYgMy43Mzg3NyA3LjA2MjU2IDMuNTg2MjUgNi45Mzk5MiAzLjRMNi4zOTk5MiAyLjZDNi4yNzg1MSAyLjQxNTY1IDYuMTEzMjQgMi4yNjQzMiA1LjkxODkyIDIuMTU5NkM1LjcyNDYgMi4wNTQ4OCA1LjUwNzMzIDIuMDAwMDQgNS4yODY1OSAySDIuNjY2NTlDMi4zMTI5NiAyIDEuOTczODIgMi4xNDA0OCAxLjcyMzc4IDIuMzkwNTJDMS40NzM3MyAyLjY0MDU3IDEuMzMzMjUgMi45Nzk3MSAxLjMzMzI1IDMuMzMzMzNWMTJDMS4zMzMyNSAxMi4zNTM2IDEuNDczNzMgMTIuNjkyOCAxLjcyMzc4IDEyLjk0MjhDMS45NzM4MiAxMy4xOTI5IDIuMzEyOTYgMTMuMzMzMyAyLjY2NjU5IDEzLjMzMzNIMTMuMzMzM1oiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCA2LjY2NjVWMTAuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDguNjY2NUw4IDYuNjY2NUwxMCA4LjY2NjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=';
-  const ICON_FOLDER_DOWN = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzLjMzMzMgMTMuMzMzM0MxMy42ODY5IDEzLjMzMzMgMTQuMDI2IDEzLjE5MjkgMTQuMjc2MSAxMi45NDI4QzE0LjUyNjEgMTIuNjkyOCAxNC42NjY2IDEyLjM1MzYgMTQuNjY2NiAxMlY1LjMzMzMzQzE0LjY2NjYgNC45Nzk3MSAxNC41MjYxIDQuNjQwNTcgMTQuMjc2MSA0LjM5MDUzQzE0LjAyNiA0LjE0MDQ4IDEzLjY4NjkgNCAxMy4zMzMzIDRIOC4wNjY1OUM3Ljg0MzYgNC4wMDIxOSA3LjYyMzYyIDMuOTQ4NDEgNy40MjY3OSAzLjg0MzU5QzcuMjI5OTYgMy43Mzg3NyA3LjA2MjU2IDMuNTg2MjUgNi45Mzk5MiAzLjRMNi4zOTk5MiAyLjZDNi4yNzg1MSAyLjQxNTY1IDYuMTEzMjQgMi4yNjQzMiA1LjkxODkyIDIuMTU5NkM1LjcyNDYgMi4wNTQ4OCA1LjUwNzMzIDIuMDAwMDQgNS4yODY1OSAySDIuNjY2NTlDMi4zMTI5NiAyIDEuOTczODIgMi4xNDA0OCAxLjcyMzc4IDIuMzkwNTJDMS40NzM3MyAyLjY0MDU3IDEuMzMzMjUgMi45Nzk3MSAxLjMzMzI1IDMuMzMzMzNWMTJDMS4zMzMyNSAxMi4zNTM2IDEuNDczNzMgMTIuNjkyOCAxLjcyMzc4IDEyLjk0MjhDMS45NzM4MiAxMy4xOTI5IDIuMzEyOTYgMTMuMzMzMyAyLjY2NjU5IDEzLjMzMzNIMTMuMzMzM1oiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCAxMC42NjY1VjYuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMCA4LjY2NjVMOCAxMC42NjY1TDYgOC42NjY1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+';
-  const ICON_FOLDER_ENTER = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuMzMzMjUgNS4wMDAwNlYzLjMzMzRDMS4zMzMyNSAyLjk3OTc4IDEuNDczNzMgMi42NDA2NCAxLjcyMzc4IDIuMzkwNTlDMS45NzM4MiAyLjE0MDU0IDIuMzEyOTYgMi4wMDAwNiAyLjY2NjU5IDIuMDAwMDZINS4yNjY1OUM1LjQ4OTU4IDEuOTk3ODggNS43MDk1NiAyLjA1MTY2IDUuOTA2MzkgMi4xNTY0OEM2LjEwMzIyIDIuMjYxMyA2LjI3MDYxIDIuNDEzODEgNi4zOTMyNSAyLjYwMDA2TDYuOTMzMjUgMy40MDAwNkM3LjA1NDY2IDMuNTg0NDIgNy4yMTk5NCAzLjczNTc0IDcuNDE0MjUgMy44NDA0N0M3LjYwODU3IDMuOTQ1MTkgNy44MjU4NSA0LjAwMDAzIDguMDQ2NTkgNC4wMDAwNkgxMy4zMzMzQzEzLjY4NjkgNC4wMDAwNiAxNC4wMjYgNC4xNDA1NCAxNC4yNzYxIDQuMzkwNTlDMTQuNTI2MSA0LjY0MDY0IDE0LjY2NjYgNC45Nzk3OCAxNC42NjY2IDUuMzMzNFYxMi4wMDAxQzE0LjY2NjYgMTIuMzUzNyAxNC41MjYxIDEyLjY5MjggMTQuMjc2MSAxMi45NDI5QzE0LjAyNiAxMy4xOTI5IDEzLjY4NjkgMTMuMzMzNCAxMy4zMzMzIDEzLjMzMzRIMi42NjY1OUMyLjM2MzggMTMuMzQzIDIuMDY2NzcgMTMuMjQ5MiAxLjgyNDQyIDEzLjA2NzRDMS41ODIwNyAxMi44ODU2IDEuNDA4ODQgMTIuNjI2OCAxLjMzMzI1IDEyLjMzMzQiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCA4LjY2NjVIMS4zMzMzMyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDYuNjY2NUw4IDguNjY2NUw2IDEwLjY2NjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=';
-
+    // Inline SVG markup for page-vs-layer navigation icon swapping
+  const ICON_PAGE_UP    = '<svg class="lucide lucide-file-up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>';
+  const ICON_PAGE_DOWN  = '<svg class="lucide lucide-file-down" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>';
+  const ICON_PAGE_ENTER = '<svg class="lucide lucide-file-input" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M2 15h10"/><path d="m9 18 3-3-3-3"/></svg>';
+  const ICON_FOLDER_UP    = '<svg class="lucide lucide-folder-up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="m9 13 3-3 3 3"/></svg>';
+  const ICON_FOLDER_DOWN  = '<svg class="lucide lucide-folder-down" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="m15 13-3 3-3-3"/></svg>';
+  const ICON_FOLDER_ENTER = '<svg class="lucide lucide-folder-input" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1"/><path d="M2 13h10"/><path d="m9 16 3-3-3-3"/></svg>';
   const iconSwaps: Array<{ buttonId: string; pageIcon: string; layerIcon: string }> = [
     { buttonId: 'nav-prev', pageIcon: ICON_PAGE_UP, layerIcon: ICON_FOLDER_UP },
     { buttonId: 'nav-next', pageIcon: ICON_PAGE_DOWN, layerIcon: ICON_FOLDER_DOWN },
@@ -221,9 +263,9 @@ function updateToggleUI(): void {
 
   iconSwaps.forEach(({ buttonId, pageIcon, layerIcon }) => {
     const button = document.getElementById(buttonId);
-    const iconImg = button?.querySelector('.nav-icon img') as HTMLImageElement | null;
-    if (iconImg) {
-      iconImg.src = currentToggleMode === 'onPage' ? pageIcon : layerIcon;
+    const iconEl = button?.querySelector('.nav-icon') as HTMLElement | null;
+    if (iconEl) {
+      iconEl.innerHTML = currentToggleMode === 'onPage' ? pageIcon : layerIcon;
     }
   });
 }
@@ -635,7 +677,7 @@ function updateEmojiButtons(emojis: string[]): void {
   const container = document.getElementById('color-emoji-buttons');
   if (!container) return;
 
-  const anatomyEmoji = document.querySelector('.anatomy-emoji');
+  const anatomyEmoji = document.querySelector('.anatomy-emoji') as HTMLElement | null;
 
   container.innerHTML = '';
   emojis.forEach(emoji => {
@@ -686,7 +728,7 @@ function updateEmojiButtons(emojis: string[]): void {
 
 // ===== ANATOMY SECTION UTILITIES =====
 // Store current anatomy state for hover previews
-let currentAnatomyState = {
+const currentAnatomyState = {
   emoji: '',
   date: '12.29',
   hasDate: false,
@@ -793,7 +835,7 @@ function updateAnatomySection(isLayerMode: boolean, pageName: string | null, lay
   currentAnatomyState.emoji = parsed.emoji || '';
   currentAnatomyState.date = parsed.date || getTodayDate();
   currentAnatomyState.hasDate = parsed.date !== null;
-  currentAnatomyState.hasPrefix = 'hasPrefix' in parsed ? parsed.hasPrefix : false;
+  currentAnatomyState.hasPrefix = 'hasPrefix' in parsed ? Boolean(parsed.hasPrefix) : false;
   currentAnatomyState.isLayerMode = isLayerMode;
   
   // Update prefix display - only show in page mode if prefix exists in page title
@@ -842,15 +884,15 @@ function updateVisibilityLockIcons(
   const lockBtn = document.getElementById('nav-lock');
 
   if (hideBtn) {
-    const iconImg = hideBtn.querySelector('.nav-icon img') as HTMLImageElement;
-    if (iconImg) {
+    const iconEl = hideBtn.querySelector('.nav-icon') as HTMLElement;
+    if (iconEl) {
       // Show closed eye if all layers are hidden, open eye otherwise (including mixed state)
       if (selectionVisible === false) {
-        iconImg.src = ICON_EYE_CLOSED;
+        iconEl.innerHTML = ICON_EYE_CLOSED;
         hideBtn.setAttribute('aria-label', 'Show layers (Cmd/Ctrl+Shift+H)');
         hideBtn.setAttribute('data-tooltip', 'Show (⌘⇧H)');
       } else {
-        iconImg.src = ICON_EYE_OPEN;
+        iconEl.innerHTML = ICON_EYE_OPEN;
         hideBtn.setAttribute('aria-label', 'Hide layers (Cmd/Ctrl+Shift+H)');
         hideBtn.setAttribute('data-tooltip', 'Hide (⌘⇧H)');
       }
@@ -858,15 +900,15 @@ function updateVisibilityLockIcons(
   }
 
   if (lockBtn) {
-    const iconImg = lockBtn.querySelector('.nav-icon img') as HTMLImageElement;
-    if (iconImg) {
+    const iconEl = lockBtn.querySelector('.nav-icon') as HTMLElement;
+    if (iconEl) {
       // Show closed lock if all layers are locked, open lock otherwise (including mixed state)
       if (selectionLocked === true) {
-        iconImg.src = ICON_LOCK_CLOSED;
+        iconEl.innerHTML = ICON_LOCK_CLOSED;
         lockBtn.setAttribute('aria-label', 'Unlock layers (Cmd/Ctrl+Shift+L)');
         lockBtn.setAttribute('data-tooltip', 'Unlock (⌘⇧L)');
       } else {
-        iconImg.src = ICON_LOCK_OPEN;
+        iconEl.innerHTML = ICON_LOCK_OPEN;
         lockBtn.setAttribute('aria-label', 'Lock layers (Cmd/Ctrl+Shift+L)');
         lockBtn.setAttribute('data-tooltip', 'Lock (⌘⇧L)');
       }
@@ -1933,26 +1975,25 @@ function updateNavigationButtons(canGoBack: boolean, canGoForward: boolean): voi
 function updateLayoutSizingButtons(horizontal: string | undefined, vertical: string | undefined): void {
   const widthModeSpan = document.getElementById('width-mode');
   const heightModeSpan = document.getElementById('height-mode');
-  const widthIcon = document.getElementById('width-icon') as HTMLImageElement;
-  const heightIcon = document.getElementById('height-icon') as HTMLImageElement;
+  const widthIcon = document.getElementById('width-icon') as HTMLElement;
+  const heightIcon = document.getElementById('height-icon') as HTMLElement;
   const cycleWidthBtn = document.getElementById('cycle-width') as HTMLButtonElement;
   const cycleHeightBtn = document.getElementById('cycle-height') as HTMLButtonElement;
   const widthCaption = document.getElementById('width-caption');
   const heightCaption = document.getElementById('height-caption');
 
-  // Base64 data URIs for icons (matching the inlined assets in HTML)
-  const ICON_FIXED = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEgNlYxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNSA2VjEwIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEgOEgxNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
-  const ICON_HUG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYgNVYxMSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMCA1VjExIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEgOEg1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTMgMTBMNSA4TDMgNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNSA4SDExIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEzIDZMMTEgOEwxMyAxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
-  const ICON_FILL = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjY2NjcgOEgxNC42NjY3IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEyLjY2NjcgMTBMMTQuNjY2NyA4TDEyLjY2NjcgNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMS4zMzMzIDhIMS4zMzMyNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0zLjMzMzI1IDZMMS4zMzMyNSA4TDMuMzMzMjUgMTAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K';
+  // Inline SVG markup for sizing-mode icons
+  const ICON_FIXED = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 6V10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 6V10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 8H15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ICON_HUG   = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.5 5V11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.5 8H4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 10L4.5 8L2.5 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 5V11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 8H11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 6L11.5 8L13.5 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ICON_FILL  = '<svg class="lucide lucide-arrow-left-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>';
 
-  // Helper function to get icon data URI based on mode
-  const getIconDataUri = (mode: string | undefined): string => {
-    if (!mode || mode === '—') return ICON_FIXED; // Default icon - show fixed when no hug/fill
+  const getSvgMarkup = (mode: string | undefined): string => {
+    if (!mode || mode === '—') return ICON_FIXED;
     const modeLower = mode.toLowerCase();
     if (modeLower === 'hug') return ICON_HUG;
     if (modeLower === 'fill') return ICON_FILL;
     if (modeLower === 'fixed') return ICON_FIXED;
-    return ICON_FIXED; // Fallback - show fixed when no hug/fill
+    return ICON_FIXED;
   };
 
   // Update button labels
@@ -1965,10 +2006,10 @@ function updateLayoutSizingButtons(horizontal: string | undefined, vertical: str
 
   // Update icons based on current mode
   if (widthIcon) {
-    widthIcon.src = getIconDataUri(horizontal);
+    widthIcon.innerHTML = getSvgMarkup(horizontal);
   }
   if (heightIcon) {
-    heightIcon.src = getIconDataUri(vertical);
+    heightIcon.innerHTML = getSvgMarkup(vertical);
   }
 
   // Enable/disable buttons based on whether we have valid layout properties
@@ -2001,10 +2042,10 @@ function updateLayoutSizingButtons(horizontal: string | undefined, vertical: str
   // When buttons are disabled, always reset icons to fixed (default state)
   if (!hasValidState) {
     if (widthIcon) {
-      widthIcon.src = ICON_FIXED;
+      widthIcon.innerHTML = ICON_FIXED;
     }
     if (heightIcon) {
-      heightIcon.src = ICON_FIXED;
+      heightIcon.innerHTML = ICON_FIXED;
     }
   }
 }
@@ -3494,6 +3535,7 @@ let controlsEnabled = true;
 let groupMovementZoomVisible = true;
 let groupHierarchyVisible = true;
 let groupSizingModesVisible = true;
+let groupStyledTextVisible = false;
 
 // Nudge settings (user-configurable)
 let smallNudgeAmount = 1;
@@ -3808,6 +3850,7 @@ function applyGroupVisibility(): void {
   const movementZoomGroup = document.getElementById('movement-zoom-group');
   const hierarchyGroup = document.getElementById('hierarchy-group');
   const sizingModesGroup = document.getElementById('sizing-modes-group');
+  const styledTextGroup = document.getElementById('styled-text-group');
 
   if (movementZoomGroup) {
     movementZoomGroup.style.display = groupMovementZoomVisible ? '' : 'none';
@@ -3818,6 +3861,9 @@ function applyGroupVisibility(): void {
   if (sizingModesGroup) {
     sizingModesGroup.style.display = groupSizingModesVisible ? '' : 'none';
   }
+  if (styledTextGroup) {
+    styledTextGroup.style.display = groupStyledTextVisible ? '' : 'none';
+  }
 }
 
 // Update the group toggle checkboxes to reflect current state
@@ -3825,10 +3871,12 @@ function updateGroupTogglesUI(): void {
   const toggleMovementZoom = document.getElementById('toggle-movement-zoom') as HTMLInputElement;
   const toggleHierarchy = document.getElementById('toggle-hierarchy') as HTMLInputElement;
   const toggleSizingModes = document.getElementById('toggle-sizing-modes') as HTMLInputElement;
+  const toggleStyledText = document.getElementById('toggle-styled-text') as HTMLInputElement;
 
   if (toggleMovementZoom) toggleMovementZoom.checked = groupMovementZoomVisible;
   if (toggleHierarchy) toggleHierarchy.checked = groupHierarchyVisible;
   if (toggleSizingModes) toggleSizingModes.checked = groupSizingModesVisible;
+  if (toggleStyledText) toggleStyledText.checked = groupStyledTextVisible;
 }
 
 // Accessibility preferences detection and handling
@@ -4454,6 +4502,7 @@ function setupControlsSettings(): void {
   setupGroupToggle('toggle-movement-zoom', 'movementZoom');
   setupGroupToggle('toggle-hierarchy', 'hierarchy');
   setupGroupToggle('toggle-sizing-modes', 'sizingModes');
+  setupGroupToggle('toggle-styled-text', 'styledText');
 }
 
 // Setup a single group visibility toggle
@@ -4467,6 +4516,7 @@ function setupGroupToggle(toggleId: string, groupKey: string): void {
         case 'movementZoom': groupMovementZoomVisible = visible; break;
         case 'hierarchy': groupHierarchyVisible = visible; break;
         case 'sizingModes': groupSizingModesVisible = visible; break;
+        case 'styledText': groupStyledTextVisible = visible; break;
       }
       applyGroupVisibility();
       // Persist via plugin
@@ -4474,7 +4524,8 @@ function setupGroupToggle(toggleId: string, groupKey: string): void {
         groups: {
           movementZoom: groupMovementZoomVisible,
           hierarchy: groupHierarchyVisible,
-          sizingModes: groupSizingModesVisible
+          sizingModes: groupSizingModesVisible,
+          styledText: groupStyledTextVisible
         }
       });
     });
@@ -4530,10 +4581,217 @@ function updateNudgeSettingsUI(small: number, big: number): void {
 }
 
 // Initialize controls
+// ===== STYLED TEXT =====
+
+function parseColor(str: string): { r: number; g: number; b: number } | undefined {
+  const s = str.trim();
+  const rgb = s.match(/^rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (rgb) {
+    return { r: parseInt(rgb[1]) / 255, g: parseInt(rgb[2]) / 255, b: parseInt(rgb[3]) / 255 };
+  }
+  const hex = s.match(/^#([0-9a-fA-F]{3,6})$/);
+  if (hex) {
+    let h = hex[1];
+    if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    const n = parseInt(h, 16);
+    return { r: ((n >> 16) & 0xff) / 255, g: ((n >> 8) & 0xff) / 255, b: (n & 0xff) / 255 };
+  }
+  return undefined;
+}
+
+interface StyledTextSegment {
+  characters: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  fontSize?: number;
+  color?: { r: number; g: number; b: number };
+  link?: string;
+}
+
+function parseHTMLToSegments(html: string): StyledTextSegment[] {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const segments: StyledTextSegment[] = [];
+
+  interface InheritedStyle {
+    bold: boolean;
+    italic: boolean;
+    underline: boolean;
+    fontSize?: number;
+    color?: { r: number; g: number; b: number };
+    link?: string;
+  }
+
+  function walkNode(node: Node, style: InheritedStyle): void {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent || '';
+      if (text) {
+        segments.push({ characters: text, ...style });
+      }
+      return;
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const el = node as HTMLElement;
+    const tag = el.tagName.toLowerCase();
+
+    // Block elements → prepend newline (if segments already exist)
+    if (['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'].includes(tag)) {
+      if (segments.length > 0) {
+        segments.push({ characters: '\n', ...style });
+      }
+    }
+    if (tag === 'br') {
+      segments.push({ characters: '\n', ...style });
+      return;
+    }
+
+    // Inherit and override style
+    const next: InheritedStyle = { ...style };
+
+    if (tag === 'b' || tag === 'strong') next.bold = true;
+    if (tag === 'i' || tag === 'em') next.italic = true;
+    if (tag === 'u') next.underline = true;
+    if (tag === 'li') { segments.push({ characters: '• ', ...next }); }
+    if (tag === 'a') {
+      next.link = el.getAttribute('href') || undefined;
+    }
+    if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tag)) {
+      next.bold = true;
+      const sizes: Record<string, number> = { h1: 32, h2: 24, h3: 20, h4: 18, h5: 16, h6: 14 };
+      next.fontSize = sizes[tag];
+    }
+
+    // Inline CSS
+    const inlineStyle = el.style;
+    if (inlineStyle) {
+      if (/^(bold|[6-9]\d{2})$/.test(inlineStyle.fontWeight)) next.bold = true;
+      if (inlineStyle.fontStyle === 'italic') next.italic = true;
+      if (inlineStyle.textDecoration?.includes('underline')) next.underline = true;
+      if (inlineStyle.fontSize) {
+        const px = parseFloat(inlineStyle.fontSize);
+        if (!isNaN(px)) next.fontSize = Math.round(px);
+      }
+      if (inlineStyle.color) {
+        const c = parseColor(inlineStyle.color);
+        if (c) next.color = c;
+      }
+    }
+
+    for (const child of Array.from(el.childNodes)) {
+      walkNode(child, next);
+    }
+  }
+
+  walkNode(doc.body, { bold: false, italic: false, underline: false });
+
+  // Trim leading/trailing blank segments
+  while (segments.length > 0 && segments[0].characters.trim() === '') segments.shift();
+  while (segments.length > 0 && segments[segments.length - 1].characters.trim() === '') segments.pop();
+
+  return segments;
+}
+
+function updateStyledTextButtons(hasTextNode: boolean): void {
+  const copyBtn = document.getElementById('copy-styled') as HTMLButtonElement;
+  if (copyBtn) {
+    copyBtn.disabled = !hasTextNode;
+  }
+}
+
+function setupStyledTextControls(): void {
+  const pasteBtn = document.getElementById('paste-styled') as HTMLButtonElement;
+  const copyBtn = document.getElementById('copy-styled') as HTMLButtonElement;
+  const replaceToggle = document.getElementById('styled-text-replace') as HTMLInputElement;
+  const clipboardDiv = document.getElementById('styled-text-clipboard') as HTMLDivElement;
+  const toggleLabel = document.querySelector('.styled-text-toggle') as HTMLElement;
+
+  if (toggleLabel) {
+    attachTooltip(toggleLabel);
+  }
+
+  if (replaceToggle) {
+    replaceToggle.addEventListener('change', () => {
+      replaceToggle.setAttribute('aria-checked', String(replaceToggle.checked));
+    });
+  }
+
+  if (pasteBtn && clipboardDiv) {
+    pasteBtn.addEventListener('click', async () => {
+      const doSend = (html: string, plain: string) => {
+        const segments = html
+          ? parseHTMLToSegments(html)
+          : plain
+            ? [{ characters: plain }]
+            : [];
+        if (segments.length === 0) {
+          sendMessage('notify', { message: 'No text found in clipboard' });
+          return;
+        }
+        sendMessage('paste-styled-text', {
+          segments,
+          replaceSelected: replaceToggle?.checked ?? false
+        });
+      };
+
+      // Primary: modern Clipboard API (not available in all Figma iframe contexts)
+      try {
+        if (!navigator.clipboard?.read) throw new Error('no clipboard api');
+        const items = await navigator.clipboard.read();
+        let html = '';
+        let plain = '';
+        for (const item of items) {
+          if (!html && item.types.includes('text/html')) {
+            html = await (await item.getType('text/html')).text();
+          }
+          if (!plain && item.types.includes('text/plain')) {
+            plain = await (await item.getType('text/plain')).text();
+          }
+        }
+        doSend(html, plain);
+      } catch (_err) {
+        // Fallback: contenteditable + execCommand (older browsers / restricted contexts)
+        // Must blur() before restoring aria-hidden — setting aria-hidden on a focused
+        // element is blocked by browsers and logged as an accessibility violation.
+        const restoreClipboardDiv = () => {
+          clipboardDiv.blur();
+          clipboardDiv.setAttribute('aria-hidden', 'true');
+          clipboardDiv.innerHTML = '';
+        };
+
+        clipboardDiv.innerHTML = '';
+        clipboardDiv.removeAttribute('aria-hidden');
+        clipboardDiv.focus();
+        const handlePaste = (e: ClipboardEvent) => {
+          e.preventDefault();
+          clipboardDiv.removeEventListener('paste', handlePaste);
+          const html = e.clipboardData?.getData('text/html') || '';
+          const plain = e.clipboardData?.getData('text/plain') || '';
+          restoreClipboardDiv();
+          doSend(html, plain);
+        };
+        clipboardDiv.addEventListener('paste', handlePaste);
+        if (!document.execCommand('paste')) {
+          clipboardDiv.removeEventListener('paste', handlePaste);
+          restoreClipboardDiv();
+          sendMessage('notify', { message: 'Clipboard access unavailable — try copying again' });
+        }
+      }
+    });
+  }
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      sendMessage('copy-styled-text', {});
+    });
+  }
+}
+
 function initializeControls(): void {
   setupControls();
   setupControlsSettings();
   setupNudgeSettings();
+  setupStyledTextControls();
 
   // Initialize accessibility features
   initializeAccessibilityFeatures();

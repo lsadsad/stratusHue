@@ -304,13 +304,13 @@
 
             <button id="cycle-width" class="nav-button nav-button-sizing"
               aria-label="Cycle width sizing (Hug → Fill → Fixed)" aria-describedby="cycle-width-desc" data-tooltip="Cycle Width (Hug → Fill → Fixed)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled tabindex="-1">
-              <span class="nav-icon" aria-hidden="true"><img id="width-icon" src="./assets/ICO-fixed.svg" alt=""></span>
+              <span id="width-icon" class="nav-icon" aria-hidden="true"><img src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="width-mode">—</span></span>
               <span id="cycle-width-desc" class="sr-only">Cycle horizontal sizing mode between Hug, Fill, and Fixed</span>
             </button>
             <button id="cycle-height" class="nav-button nav-button-sizing"
               aria-label="Cycle height sizing (Hug → Fill → Fixed)" aria-describedby="cycle-height-desc" data-tooltip="Cycle Height (Hug → Fill → Fixed)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled tabindex="-1">
-              <span class="nav-icon" aria-hidden="true"><img id="height-icon" src="./assets/ICO-fixed.svg" alt=""></span>
+              <span id="height-icon" class="nav-icon" aria-hidden="true"><img src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="height-mode">—</span></span>
               <span id="cycle-height-desc" class="sr-only">Cycle vertical sizing mode between Hug, Fill, and Fixed</span>
             </button>
@@ -318,6 +318,47 @@
             <div id="height-caption" class="nav-caption" aria-hidden="true">Height</div>
           </div>
         </div>
+
+        <div id="styled-text-group" class="tag-grid-container">
+          <span class="emoji-set-title">
+            <span class="set-name">Styled Text</span>
+          </span>
+          <div class="actions-grid" role="group" aria-label="Styled text controls"
+            aria-describedby="styled-text-instructions">
+            <div id="styled-text-instructions" class="sr-only">
+              Paste rich text from clipboard into Figma, or copy a styled text layer as HTML.
+            </div>
+
+            <button id="paste-styled" class="nav-button nav-button-zoom"
+              aria-label="Paste styled text from clipboard" aria-describedby="paste-styled-desc"
+              data-tooltip="Paste Styled" data-tooltip-placement="top-of-container" data-tooltip-delay="600" tabindex="-1">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-clipboardPaste.svg" alt=""></span>
+              <span class="nav-label">Paste</span>
+              <span id="paste-styled-desc" class="sr-only">Read HTML from clipboard and create a styled text layer in Figma</span>
+            </button>
+            <button id="copy-styled" class="nav-button nav-button-arrow"
+              aria-label="Copy selected text layer as HTML" aria-describedby="copy-styled-desc"
+              data-tooltip="Copy Styled" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled tabindex="-1">
+              <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-codeXml.svg" alt=""></span>
+              <span class="nav-label">Copy</span>
+              <span id="copy-styled-desc" class="sr-only">Copy selected text layer styles as HTML to clipboard</span>
+            </button>
+            <div class="nav-caption" aria-hidden="true">Paste</div>
+            <div class="nav-caption" aria-hidden="true">Copy</div>
+          </div>
+
+          <label class="styled-text-toggle" data-tooltip="Replace the selected text layer instead of creating a new one" data-tooltip-delay="800">
+            <input type="checkbox" id="styled-text-replace" role="switch" aria-checked="false"
+              aria-label="Replace selected text layer on paste" tabindex="-1">
+            <span class="toggle-label">Replace selected</span>
+          </label>
+
+          <p class="styled-text-hint" aria-hidden="true">Copy from web, then click Paste</p>
+        </div>
+
+        <!-- Hidden contenteditable div for clipboard HTML access -->
+        <div id="styled-text-clipboard" contenteditable="true" aria-hidden="true" tabindex="-1"
+          style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;"></div>
       </div>
     </section>
   </main>
@@ -403,6 +444,10 @@
             <label class="setting-label-small sub-toggle">
               <input type="checkbox" id="toggle-sizing-modes" checked tabindex="-1">
               <span class="checkbox-description">Sizing Modes</span>
+            </label>
+            <label class="setting-label-small sub-toggle">
+              <input type="checkbox" id="toggle-styled-text" checked tabindex="-1">
+              <span class="checkbox-description">Styled Text</span>
             </label>
           </div>
         </div>
