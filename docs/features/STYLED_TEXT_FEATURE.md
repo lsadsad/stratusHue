@@ -6,6 +6,17 @@ Add a Styled Text group to the Controls section that allows designers to paste r
 ## Status
 🟡 Not yet implemented — specification only
 
+## Strategic Context
+
+### Mode: Navigate
+Styled Text is a **Navigate** mode feature — a productivity tool for active design work. It sits alongside Bookmarks, Emoji Tags, Sizing Modes, and other controls that help designers work efficiently within a file.
+
+Content teams use this during the design phase to import formatted copy from Docs/Notion/Confluence and export styled text back for review. The primary workflow is mid-flight content iteration.
+
+> **Future integration note**: Styled Text could eventually become part of a **Scaffold** workflow — seeding template pages with real content during project kickoff. This is a natural extension but not the initial placement.
+
+See also: `docs/features/DESIGN_LINT_FEATURE.md` for the full three-mode framework (Scaffold / Navigate / Validate).
+
 ## Motivation
 
 ### The Problem

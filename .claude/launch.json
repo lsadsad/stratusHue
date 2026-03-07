@@ -6,6 +6,18 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", ".", "-l", "3333", "--no-clipboard"],
       "port": 3333
+    },
+    {
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 0
+    },
+    {
+      "name": "test-ui",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vitest", "--ui", "--port", "51204"],
+      "port": 51204
     }
   ]
 }
