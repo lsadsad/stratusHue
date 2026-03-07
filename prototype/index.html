@@ -164,8 +164,8 @@
     /* ===== PLUGIN SHELL ===== */
     .plugin-shell {
       width: 240px;
-      height: 488px;
-      margin: 20px auto;
+      height: 610px;
+      margin: 10px auto;
       display: flex;
       flex-direction: column;
       background: var(--theme-bg-primary);
@@ -173,6 +173,65 @@
       border-radius: var(--border-radius-xl);
       overflow: hidden;
       position: relative;
+    }
+
+    /* ===== PLUGIN TITLE BAR ===== */
+    .plugin-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--theme-bg-secondary);
+      border-bottom: 1px solid var(--theme-border-primary);
+      min-height: 32px;
+      flex-shrink: 0;
+    }
+    .plugin-title-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    .plugin-title-icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .plugin-title-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: none;
+    }
+    .plugin-title-name {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-bold);
+      color: var(--theme-text-primary);
+      letter-spacing: 0.2px;
+    }
+    .plugin-close-btn {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--theme-text-muted);
+      cursor: pointer;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-sm);
+      transition: color var(--transition-fast), background var(--transition-fast);
+      padding: 0;
+    }
+    .plugin-close-btn:hover {
+      color: var(--theme-text-primary);
+      background: var(--theme-interactive-hover);
+    }
+    .plugin-close-btn svg {
+      width: 10px;
+      height: 10px;
+      stroke-width: 1.5;
     }
 
     /* ===== SCROLLABLE MAIN ===== */
@@ -206,15 +265,14 @@
       transition: background var(--transition-fast);
     }
     .section-header:hover { background: var(--theme-interactive-hover); }
-    .header-left { display: flex; align-items: center; }
-    .header-center { display: flex; align-items: center; flex: 1; justify-content: center; }
+    .header-left { display: flex; align-items: center; flex: 1; }
+    .header-center { display: none; }
     .header-right { display: flex; align-items: center; gap: var(--spacing-xs); }
     .header-title {
-      font-size: var(--font-size-xs);
+      font-size: var(--font-size-base);
       font-weight: var(--font-weight-semibold);
-      letter-spacing: var(--letter-spacing-tight);
-      text-transform: uppercase;
-      color: var(--theme-text-secondary);
+      letter-spacing: 0.2px;
+      color: var(--theme-text-primary);
     }
 
     /* Header action buttons (real app style) */
@@ -302,6 +360,15 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: var(--spacing-md);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    [data-theme="light"] .page-actions-grid {
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+    [data-theme="cybertron"] .page-actions-grid {
+      border-color: rgba(0, 229, 255, 0.15);
     }
     .buttons-right {
       display: flex;
@@ -328,6 +395,7 @@
       padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
       margin-bottom: var(--spacing-lg);
       position: relative;
+      background: rgba(255,255,255,0.02);
     }
     .tag-grid-container:last-child { margin-bottom: 0; }
     [data-theme="light"] .tag-grid-container { border-color: rgba(0,0,0,0.08); }
@@ -347,7 +415,7 @@
     /* Emoji grid */
     .color-grid {
       display: grid;
-      grid-template-columns: repeat(8, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: var(--spacing-xs);
     }
     .emoji-button {
@@ -488,7 +556,6 @@
       font-size: 8px;
       color: var(--theme-text-disabled);
       text-align: center;
-      text-transform: uppercase;
       letter-spacing: 0.3px;
       margin-top: 2px;
     }
@@ -782,14 +849,31 @@
 <body>
   <div class="plugin-shell" id="plugin" data-theme="boilerplate">
 
+    <!-- Plugin Title Bar (Figma chrome) -->
+    <div class="plugin-title-bar">
+      <div class="plugin-title-left">
+        <span class="plugin-title-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 1L2 9l10 14L22 9 12 1z" fill="url(#grad)" stroke="none"/>
+            <path d="M2 9h20L12 1 2 9z" fill="rgba(255,255,255,0.3)" stroke="none"/>
+            <path d="M7 9l5-8 5 8" fill="rgba(255,255,255,0.15)" stroke="none"/>
+            <defs><linearGradient id="grad" x1="2" y1="1" x2="22" y2="23"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#e67e22"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="plugin-title-name">stratusHue</span>
+      </div>
+      <button class="plugin-close-btn" title="Close">
+        <svg width="10" height="10" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+
     <div class="scrollable-content">
       <!-- ===== NAVIGATE MODE ===== -->
       <div class="mode-view active" id="navigate-view">
 
         <!-- Tags Header -->
         <header class="section-header" data-target="tags-content">
-          <div class="header-left"></div>
-          <div class="header-center"><h2 class="header-title">Tags</h2></div>
+          <div class="header-left"><h2 class="header-title">Tags</h2></div>
           <div class="header-right">
             <button class="header-action-btn icon-bold" title="New page">
               <svg width="12" height="12" viewBox="0 0 16 16"><path d="M4 .625H9.17a1.5 1.5 0 011.07.4l2.77 2.83a1.5 1.5 0 01.44 1.07V14a1.38 1.38 0 01-1.38 1.38H4A1.38 1.38 0 012.63 14V2A1.38 1.38 0 014 .63z"/><path d="M9 1v3a1 1 0 001 1h3"/><path d="M5.5 10h5M8 7.5v5"/></svg>
@@ -808,8 +892,8 @@
           <div class="tags-content-wrapper">
             <div class="page-actions-grid" id="page-actions-group">
               <div class="anatomy-section">
-                <span class="anatomy-prefix" id="anatomy-prefix" style="display:none;">&#8627;</span>
-                <span class="anatomy-emoji" id="anatomy-emoji">&#x1F534;</span>
+                <span class="anatomy-prefix" id="anatomy-prefix">&#8627;</span>
+                <span class="anatomy-emoji" id="anatomy-emoji">&#x1F7E0;</span>
                 <span class="anatomy-date" id="anatomy-date">03.06 :</span>
                 <span class="mode-affordance" id="mode-badge" data-mode="onPage">PAGE</span>
               </div>
@@ -839,12 +923,8 @@
 
         <!-- Anchors Header -->
         <header class="section-header" data-target="anchors-content">
-          <div class="header-left"></div>
-          <div class="header-center"><h2 class="header-title">Anchors</h2></div>
+          <div class="header-left"><h2 class="header-title">Anchors</h2></div>
           <div class="header-right">
-            <button class="header-action-btn icon-bold" title="Refresh anchors">
-              <svg width="12" height="12" viewBox="0 0 16 16"><path d="M2 8a6 6 0 1011.33-2.83L2 5.33"/><path d="M2 2v3.33h3.33"/></svg>
-            </button>
             <button class="header-action-btn icon-bold" title="Save anchor">
               <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 14.67V5.33"/><path d="M3.33 8H1.33A6.67 6.67 0 108 14.67a6.67 6.67 0 006.67-6.67h-2"/><circle cx="8" cy="3.33" r="2"/></svg>
             </button>
@@ -852,14 +932,13 @@
         </header>
 
         <!-- Anchors Content -->
-        <section id="anchors-content" class="collapsible-content">
+        <section id="anchors-content" class="collapsible-content collapsed">
           <div class="anchors-container" id="bookmarks-list"></div>
         </section>
 
         <!-- Controls Header -->
         <header class="section-header" data-target="controls-content">
-          <div class="header-left"></div>
-          <div class="header-center"><h2 class="header-title">Controls</h2></div>
+          <div class="header-left"><h2 class="header-title">Controls</h2></div>
           <div class="header-right">
             <nav style="display:flex;gap:1px;">
               <button class="header-nav-btn icon-bold" title="Back" id="nav-back" disabled>
@@ -1136,7 +1215,7 @@
       });
     }
 
-    let currentEmoji = '\u{1F534}';
+    let currentEmoji = '\u{1F7E0}';
     function restoreAnatomyEmoji() {
       const el = document.getElementById('anatomy-emoji');
       if (currentEmoji) { el.textContent = currentEmoji; el.style.display = 'inline-flex'; }
@@ -1187,13 +1266,13 @@
     }
 
     function renderHierarchyGrid() {
-      const isDisabled = selectionMode === 'onPage';
+      const isPage = selectionMode === 'onPage';
       hierarchyGrid.innerHTML =
-        btn(ICONS.exit, '', isDisabled) + btn(ICONS.prevSibling, '', isDisabled) + btn(ICONS.layerUp, '', isDisabled) +
-        btn(ICONS.enter, isDisabled ? '' : 'active-gold', isDisabled) +
-        btn(ICONS.nextSibling, isDisabled ? '' : 'active-gold', isDisabled) +
-        btn(ICONS.layerDown, '', isDisabled) +
-        btn(ICONS.collapse, '', isDisabled) + btn(ICONS.eyeOpen, '', isDisabled) + btn(ICONS.lockOpen, '', isDisabled);
+        btn(ICONS.exit, '', isPage) + btn(ICONS.prevSibling, '', isPage) + btn(ICONS.layerUp, '', isPage) +
+        btn(ICONS.enter, 'active-gold') +
+        btn(ICONS.nextSibling, 'active-gold') +
+        btn(ICONS.layerDown, '', isPage) +
+        btn(ICONS.collapse, '', isPage) + btn(ICONS.eyeOpen, '', isPage) + btn(ICONS.lockOpen, '', isPage);
     }
 
     // ===== MODE TOGGLE (PAGE / LAYER simulation) =====
@@ -1219,9 +1298,10 @@
         document.getElementById('anatomy-date').style.display = 'none';
         document.getElementById('anatomy-prefix').style.display = 'none';
       } else {
-        currentEmoji = '\u{1F534}';
+        currentEmoji = '\u{1F7E0}';
         document.getElementById('anatomy-emoji').textContent = currentEmoji;
         document.getElementById('anatomy-date').style.display = 'flex';
+        document.getElementById('anatomy-prefix').style.display = 'inline';
       }
 
       renderEmojiGrid();

@@ -999,6 +999,10 @@ body.touch-active .kofi-button:hover {
   background: transparent;
 }
 
+[data-theme="boilerplate"] .bookmark-item.recent-history:hover {
+  background: var(--theme-bg-hover);
+}
+
 /* CYBERTRON THEME - Futuristic dark theme inspired by Transformers */
 [data-theme="cybertron"] {
   /* Base Colors - Cybertron inspired palette */
@@ -1291,6 +1295,10 @@ body.touch-active .kofi-button:hover {
   background: transparent;
 }
 
+[data-theme="figma-light"] .bookmark-item.recent-history:hover {
+  background: var(--figma-light-enhanced-hover);
+}
+
 /* Figma light theme action buttons */
 [data-theme="figma-light"] .clear-action,
 [data-theme="figma-light"] #save-bookmark {
@@ -1328,6 +1336,10 @@ body.touch-active .kofi-button:hover {
 
 [data-theme="light"] .bookmark-item.recent-history {
   background: transparent;
+}
+
+[data-theme="light"] .bookmark-item.recent-history:hover {
+  background: var(--theme-bg-hover);
 }
 
 /* Light theme action buttons - default state matches hover */
@@ -1640,6 +1652,11 @@ body.touch-active .kofi-button:hover {
 [data-theme="figma-dark"] .bookmark-item.recent-history,
 [data-theme="figma"] .bookmark-item.recent-history {
   background: transparent;
+}
+
+[data-theme="figma-dark"] .bookmark-item.recent-history:hover,
+[data-theme="figma"] .bookmark-item.recent-history:hover {
+  background: var(--theme-bg-hover);
 }
 
 /* LIGHT THEME - Light theme colors and variables */

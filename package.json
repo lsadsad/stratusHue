@@ -29,7 +29,8 @@
     "test:navigation:unit": "vitest --run src/test/navigation.test.ts src/test/navigation-context.test.ts",
     "test:navigation:integration": "vitest --run src/test/navigation-integration.test.ts src/test/navigation-ui-integration.test.ts",
     "test:navigation:settings": "vitest --run src/test/navigation-settings.test.ts",
-    "info": "node -e \"import fs from 'fs'; const files=['dist/code.js','dist/ui.js','dist/styles.css']; console.log('📊 Build Output:'); files.forEach(f => { if(fs.existsSync(f)) { const size=(fs.statSync(f).size/1024).toFixed(1); console.log('  '+f+': '+size+' KB'); } });\""
+    "info": "node -e \"import fs from 'fs'; const files=['dist/code.js','dist/ui.js','dist/styles.css']; console.log('📊 Build Output:'); files.forEach(f => { if(fs.existsSync(f)) { const size=(fs.statSync(f).size/1024).toFixed(1); console.log('  '+f+': '+size+' KB'); } });\"",
+    "sync:prototype": "node scripts/sync-prototype.js"
   },
   "author": "",
   "license": "",

@@ -15,7 +15,9 @@
       "Bash(git push:*)",
       "Bash(git log:*)",
       "Bash(gh pr create:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git status -u)",
+      "Bash(git status -u --short)"
     ]
   }
 }
