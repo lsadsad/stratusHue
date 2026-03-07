@@ -1,6 +1,20 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M5.5 1L5.5 4M10.5 1V4" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M5.5 10H10.5" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8 7.5V12.5" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13 2C14.1046 2 15 2.89543 15 4V14C15 15.0357 14.2128 15.887 13.2041 15.9893L13 16H3L2.7959 15.9893C1.85435 15.8938 1.1062 15.1457 1.01074 14.2041L1 14V4C1 2.89543 1.89543 2 3 2H5.375V3.25H3C2.58579 3.25 2.25 3.58579 2.25 4V14C2.25 14.4142 2.58579 14.75 3 14.75H13C13.4142 14.75 13.75 14.4142 13.75 14V4C13.75 3.58579 13.4142 3.25 13 3.25H11.625V2H13ZM10.375 3.25H6.625V2H10.375V3.25Z" fill="white"/>
+<!-- @license lucide-static v0.577.0 - ISC -->
+<svg
+  class="lucide lucide-calendar-plus"
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M16 19h6" />
+  <path d="M16 2v4" />
+  <path d="M19 16v6" />
+  <path d="M21 12.598V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8.5" />
+  <path d="M3 10h18" />
+  <path d="M8 2v4" />
 </svg>

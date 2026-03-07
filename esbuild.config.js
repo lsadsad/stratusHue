@@ -21,8 +21,38 @@ function readUtf8OrNull(filePath) {
 
 function inlineAssetDataUris(html) {
 	if (!html) return html;
-	
-	// Handle regular src attributes for images
+
+	// Inline SVG assets — replace <img src="*.svg"> with raw <svg> markup so
+	// CSS currentColor and animations work without sandboxing restrictions.
+	// Class attributes from the original <img> are merged into the <svg> root.
+	// SVG content is collapsed to a single line so it is safe when injected
+	// inside JS string literals (e.g. template-literal innerHTML assignments).
+	html = html.replace(/<img\s[^>]*\bsrc=["']\.?\/?assets\/([^"']+\.svg)["'][^>]*>/g, (match, relPath) => {
+		const assetPath = path.join('assets', relPath);
+		if (!fs.existsSync(assetPath)) return match;
+		try {
+			let svgContent = fs.readFileSync(assetPath, 'utf8')
+				.replace(/<\?xml[^>]*\?>\s*/g, '')   // strip XML prolog
+				.replace(/<!--[\s\S]*?-->/g, '')      // strip comments (license headers etc.)
+				.replace(/\s+/g, ' ')                 // collapse all whitespace / newlines
+				.trim();
+			// Carry over class attribute from <img> into <svg> root element
+			const classMatch = match.match(/\bclass=["']([^"']*)["']/);
+			if (classMatch) {
+				const imgClass = classMatch[1];
+				if (/^<svg[^>]*\bclass=["']/.test(svgContent)) {
+					svgContent = svgContent.replace(/(<svg[^>]*\bclass=["'])([^"']*)["']/, `$1$2 ${imgClass}"`);
+				} else {
+					svgContent = svgContent.replace(/^<svg /, `<svg class="${imgClass}" `);
+				}
+			}
+			return svgContent;
+		} catch (_err) {
+			return match;
+		}
+	});
+
+	// Handle remaining src attributes for raster images (SVGs already inlined above)
 	html = html.replace(/src=["']\.?\/?assets\/([^"']+)["']/g, (match, relPath) => {
 		const assetPath = path.join('assets', relPath);
 		if (!fs.existsSync(assetPath)) return match;

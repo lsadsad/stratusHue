@@ -1,5 +1,18 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M3 11.7778V4" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.55575 4.55518L5.22241 7.88851L8.55575 11.2219" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M5.22241 7.88916H13.0002" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- @license lucide-static v0.577.0 - ISC -->
+<svg
+  class="lucide lucide-indent-decrease"
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M21 5H11" />
+  <path d="M21 12H11" />
+  <path d="M21 19H11" />
+  <path d="m7 8-4 4 4 4" />
 </svg>

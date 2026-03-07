@@ -1,11 +1,16 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_1038_7205)">
-<path d="M8.39059 1.72416C8.1406 1.4741 7.80151 1.33357 7.44792 1.3335H2.66659C2.31296 1.3335 1.97382 1.47397 1.72378 1.72402C1.47373 1.97407 1.33325 2.31321 1.33325 2.66683V7.44816C1.33333 7.80176 1.47385 8.14084 1.72392 8.39083L7.52659 14.1935C7.82959 14.4946 8.23942 14.6636 8.66659 14.6636C9.09375 14.6636 9.50358 14.4946 9.80659 14.1935L14.1933 9.80683C14.4943 9.50382 14.6633 9.094 14.6633 8.66683C14.6633 8.23966 14.4943 7.82984 14.1933 7.52683L8.39059 1.72416Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M5.5 6C5.77614 6 6 5.77614 6 5.5C6 5.22386 5.77614 5 5.5 5C5.22386 5 5 5.22386 5 5.5C5 5.77614 5.22386 6 5.5 6Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
-<defs>
-<clipPath id="clip0_1038_7205">
-<rect width="16" height="16" fill="white"/>
-</clipPath>
-</defs>
+<!-- @license lucide-static v0.577.0 - ISC -->
+<svg
+  class="lucide lucide-tag"
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
 </svg>

@@ -93,7 +93,7 @@ Both set `noEmit: true` — esbuild does the actual compilation, `tsc` is type-c
 - **Debouncing**: use `debounce()` from `src/utils/utils.ts`. Standard delays: selection = 100ms, page change = 200ms, nav context = 50ms, section state save = 300ms.
 - **Dynamic imports in `code.ts`**: large feature modules are `await import()`'d lazily. Keep this pattern for new features.
 - **`ui.ts` must not import anything that uses `figma.*`** — theme-manager and ui-communication are sandbox-only.
-- **SVG assets** in `assets/` become base64 data URIs at build time via esbuild loader config. Reference them by original path in source; the build handles the rest.
+- **SVG assets** in `assets/` are inlined as raw `<svg>` markup at build time by `esbuild.config.js` (not base64). Use `<img src="./assets/ICO-*.svg">` in `ui.html`; the build replaces every such tag with the SVG markup, collapsed to a single line so it is safe inside JS string literals. All icons use `stroke="currentColor"`. Dynamic icons swapped at runtime are stored as single-line SVG string constants in `ui.ts` and injected via `element.innerHTML`. See `.cursor/rules/icons-and-animation.mdc` for the full convention.
 
 ## Prototype System
 
