@@ -3758,6 +3758,14 @@ h3 {
   --nav-border-contrast: #e6e7e9;
 }
 
+/* Light theme: disabled buttons at 0.4 opacity land at ~1.6:1 contrast on white.
+   Raise to 0.65 so inactive icons remain legible (~4:1).
+   Specificity 0,4,0 beats the .nav-button.nav-button-*:disabled (0,3,0) type rules. */
+[data-theme="figma-light"] .nav-button.nav-button:disabled,
+[data-theme="light"] .nav-button.nav-button:disabled {
+  opacity: 0.65;
+}
+
 .nav-button:disabled {
   /* Maintain 3:1 contrast ratio for disabled state */
   opacity: 0.6;
@@ -6315,6 +6323,14 @@ i.grip {
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* PAGE badge: light themes need dark text — white-on-white is invisible */
+[data-theme="figma-light"] .mode-affordance[data-mode="onPage"],
+[data-theme="light"] .mode-affordance[data-mode="onPage"] {
+  color: var(--theme-text-primary);
+  border-color: var(--theme-border-soft);
+  background: var(--theme-bg-secondary);
 }
 
 .mode-affordance[data-mode="onLayer"] {
