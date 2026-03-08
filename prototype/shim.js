@@ -187,21 +187,18 @@
         groups: { movementZoom: true, hierarchy: true, sizingModes: true, styledText: false }
       });
 
-      // Navigation context (page mode — matches mockup)
+      // Navigation context (page mode — no layer selected)
       sendPluginMsg({
         type: 'navigation-context-update',
         context: {
-          mode: 'page',
+          hasSelection: false,
           canEnter: true,
           canExit: false,
-          canGoToNextSibling: true,
-          canGoToPrevSibling: false,
-          canLayerUp: false,
-          canLayerDown: false,
-          isVisible: true,
-          isLocked: false,
-          horizontalSizing: null,
-          verticalSizing: null
+          canNavigateSiblings: true,
+          containerCount: 0,
+          siblingContainerCount: 0,
+          hasCollapsibleSiblings: false,
+          hasComponentInstance: false
         }
       });
 
@@ -259,14 +256,14 @@
   function buildControlPanel(sendMsg) {
     var STATES = {
       'Layer Selected': function() {
-        sendMsg({ type: 'selection-state', hasLayerSelected: true, pageName: '🟠 02.11 : Home', selectedLayerName: 'CTA Button / Primary', pageEmojis: ['🔴','🟠','🟡','🟢','🔵','🟣','⚫️','⚪️'], layerEmojis: ['🟥','🟧','🟨','🟩','🟦','🟪','⬛','⬜'], selectionVisible: true, selectionLocked: false });
-        sendMsg({ type: 'navigation-context-update', context: { mode: 'component', canEnter: true, canExit: true, canGoToNextSibling: true, canGoToPrevSibling: true, canLayerUp: true, canLayerDown: true, isVisible: true, isLocked: false, horizontalSizing: 'FIXED', verticalSizing: 'HUG' } });
+        sendMsg({ type: 'selection-state', hasLayerSelected: true, pageName: '🟠 02.11 : Home', selectedLayerName: '🟧 CTA Button / Primary', pageEmojis: ['🔴','🟠','🟡','🟢','🔵','🟣','⚫️','⚪️'], layerEmojis: ['🟥','🟧','🟨','🟩','🟦','🟪','⬛','⬜'], selectionVisible: true, selectionLocked: false });
+        sendMsg({ type: 'navigation-context-update', context: { hasSelection: true, canEnter: true, canExit: true, canNavigateSiblings: true, containerCount: 2, siblingContainerCount: 3, hasCollapsibleSiblings: true, hasComponentInstance: true } });
         sendMsg({ type: 'update-layout-state', horizontal: 'FIXED', vertical: 'HUG' });
         sendMsg({ type: 'navigation-state', canGoBack: true, canGoForward: false });
       },
       'No Selection': function() {
         sendMsg({ type: 'selection-state', hasLayerSelected: false, pageName: '🟠 02.11 : Home', selectedLayerName: null, pageEmojis: ['🔴','🟠','🟡','🟢','🔵','🟣','⚫️','⚪️'], layerEmojis: ['🟥','🟧','🟨','🟩','🟦','🟪','⬛','⬜'], selectionVisible: true, selectionLocked: false });
-        sendMsg({ type: 'navigation-context-update', context: { mode: 'page', canEnter: true, canExit: false, canGoToNextSibling: true, canGoToPrevSibling: false, canLayerUp: false, canLayerDown: false, isVisible: true, isLocked: false, horizontalSizing: null, verticalSizing: null } });
+        sendMsg({ type: 'navigation-context-update', context: { hasSelection: false, canEnter: true, canExit: false, canNavigateSiblings: true, containerCount: 0, siblingContainerCount: 0, hasCollapsibleSiblings: false, hasComponentInstance: false } });
         sendMsg({ type: 'update-layout-state', horizontal: null, vertical: null });
         sendMsg({ type: 'navigation-state', canGoBack: false, canGoForward: false });
       }
