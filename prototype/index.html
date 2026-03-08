@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>stratusHue — Interactive Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== DESIGN TOKENS (from stratusHue styles.css) ===== */
+    :root {
+      /* Spacing */
+      --spacing-xs: 2px;
+      --spacing-sm: 4px;
+      --spacing-md: 6px;
+      --spacing-lg: 8px;
+      --spacing-xl: 10px;
+      --spacing-xxl: 12px;
+
+      /* Component Sizes */
+      --button-height-sm: 16px;
+      --button-height-md: 24px;
+      --button-height-lg: 32px;
+      --icon-size-sm: 8px;
+      --icon-size-md: 10px;
+      --icon-size-lg: 16px;
+
+      /* Layout */
+      --footer-height: 20px;
+      --border-radius-xs: 2px;
+      --border-radius-sm: 3px;
+      --border-radius-md: 4px;
+      --border-radius-lg: 6px;
+      --border-radius-xl: 8px;
+      --border-radius-pill: 999px;
+      --container-min-width: 188px;
+      --scrollbar-width: 2px;
+
+      /* Typography */
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      --font-size-xs: 10px;
+      --font-size-sm: 11px;
+      --font-size-base: 12px;
+      --font-size-lg: 14px;
+      --font-weight-normal: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --letter-spacing-tight: 0.5px;
+
+      /* Transitions */
+      --transition-fast: 0.12s ease;
+      --transition-normal: 0.2s ease;
+      --transition-slow: 0.3s ease;
+    }
+
+    /* ===== THEME: Boilerplate (default) ===== */
+    [data-theme="boilerplate"], :root {
+      --theme-bg-primary: #0f0f0f;
+      --theme-bg-secondary: #1a1a1a;
+      --theme-bg-tertiary: #2a2a2a;
+      --theme-bg-elevated: #0a0a0a;
+      --theme-bg-hover: rgba(42, 42, 42, 0.2);
+      --theme-text-primary: #f5f5f5;
+      --theme-text-secondary: #d4d4d4;
+      --theme-text-muted: rgba(255, 255, 255, 0.6);
+      --theme-text-disabled: rgba(255, 255, 255, 0.4);
+      --theme-border-primary: #2a2a2a;
+      --theme-border-secondary: #404040;
+      --theme-interactive-hover: #2a2a2a;
+      --theme-interactive-active: #404040;
+      --theme-success: #4ade80;
+      --theme-warning: rgba(255, 193, 7, 0.9);
+      --theme-error: #ff6b6b;
+      --theme-info: rgba(111, 176, 255, 0.9);
+      --theme-scrollbar-track: transparent;
+      --theme-scrollbar-thumb: rgba(255,255,255,0.12);
+      --theme-scrollbar-thumb-hover: rgba(255,255,255,0.25);
+    }
+
+    /* ===== THEME: Dark (Figma-like) ===== */
+    [data-theme="dark"] {
+      --theme-bg-primary: #2c2c2c;
+      --theme-bg-secondary: #383838;
+      --theme-bg-tertiary: #444444;
+      --theme-bg-elevated: #1e1e1e;
+      --theme-text-primary: #ffffff;
+      --theme-text-secondary: #b3b3b3;
+      --theme-text-muted: rgba(255, 255, 255, 0.5);
+      --theme-text-disabled: rgba(255, 255, 255, 0.3);
+      --theme-border-primary: #444444;
+      --theme-border-secondary: #5a5a5a;
+      --theme-interactive-hover: #444444;
+    }
+
+    /* ===== THEME: Light ===== */
+    [data-theme="light"] {
+      --theme-bg-primary: #ffffff;
+      --theme-bg-secondary: #f5f5f5;
+      --theme-bg-tertiary: #e8e8e8;
+      --theme-bg-elevated: #ffffff;
+      --theme-text-primary: #1a1a1a;
+      --theme-text-secondary: #666666;
+      --theme-text-muted: rgba(0, 0, 0, 0.45);
+      --theme-text-disabled: rgba(0, 0, 0, 0.25);
+      --theme-border-primary: #e0e0e0;
+      --theme-border-secondary: #cccccc;
+      --theme-interactive-hover: #e8e8e8;
+      --theme-scrollbar-thumb: rgba(0,0,0,0.12);
+      --theme-scrollbar-thumb-hover: rgba(0,0,0,0.25);
+      --theme-success: #16a34a;
+      --theme-error: #dc2626;
+      --theme-info: #2563eb;
+    }
+
+    /* ===== THEME: Cybertron ===== */
+    [data-theme="cybertron"] {
+      --theme-bg-primary: #0a0e14;
+      --theme-bg-secondary: #111820;
+      --theme-bg-tertiary: #1a222d;
+      --theme-bg-elevated: #060a0f;
+      --theme-text-primary: #00e5ff;
+      --theme-text-secondary: #80deea;
+      --theme-text-muted: rgba(0, 229, 255, 0.45);
+      --theme-text-disabled: rgba(0, 229, 255, 0.25);
+      --theme-border-primary: rgba(0, 229, 255, 0.12);
+      --theme-border-secondary: rgba(0, 229, 255, 0.25);
+      --theme-interactive-hover: rgba(0, 229, 255, 0.08);
+      --theme-success: #00e676;
+      --theme-error: #ff1744;
+      --theme-info: #00e5ff;
+      --theme-scrollbar-thumb: rgba(0, 229, 255, 0.15);
+      --theme-scrollbar-thumb-hover: rgba(0, 229, 255, 0.3);
+    }
+
+    /* Preflight tokens */
+    :root {
+      --pf-cat-fill: #ef4444;
+      --pf-cat-text: #6fb0ff;
+      --pf-cat-stroke: #f59e0b;
+      --pf-cat-radius: #b478ff;
+      --pf-cat-effects: #4ade80;
+      --pf-status-bg: rgba(255, 107, 107, 0.08);
+      --pf-status-border: rgba(255, 107, 107, 0.2);
+      --pf-card-bg: rgba(255, 255, 255, 0.03);
+      --pf-card-border: rgba(255, 255, 255, 0.06);
+      --pf-card-hover: rgba(255, 255, 255, 0.06);
+      --pf-fix-bg: rgba(74, 222, 128, 0.08);
+      --pf-fix-border: rgba(74, 222, 128, 0.2);
+    }
+
+    /* ===== RESET & BASE ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-family);
+      font-size: var(--font-size-base);
+      background: #1a1a1a;
+      color: var(--theme-text-primary);
+    }
+
+    /* ===== PLUGIN SHELL ===== */
+    .plugin-shell {
+      width: 240px;
+      height: 610px;
+      margin: 10px auto;
+      display: flex;
+      flex-direction: column;
+      background: var(--theme-bg-primary);
+      border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ===== PLUGIN TITLE BAR ===== */
+    .plugin-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--theme-bg-secondary);
+      border-bottom: 1px solid var(--theme-border-primary);
+      min-height: 32px;
+      flex-shrink: 0;
+    }
+    .plugin-title-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    .plugin-title-icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .plugin-title-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: none;
+    }
+    .plugin-title-name {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-bold);
+      color: var(--theme-text-primary);
+      letter-spacing: 0.2px;
+    }
+    .plugin-close-btn {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--theme-text-muted);
+      cursor: pointer;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-sm);
+      transition: color var(--transition-fast), background var(--transition-fast);
+      padding: 0;
+    }
+    .plugin-close-btn:hover {
+      color: var(--theme-text-primary);
+      background: var(--theme-interactive-hover);
+    }
+    .plugin-close-btn svg {
+      width: 10px;
+      height: 10px;
+      stroke-width: 1.5;
+    }
+
+    /* ===== SCROLLABLE MAIN ===== */
+    .scrollable-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .scrollable-content::-webkit-scrollbar { width: var(--scrollbar-width); }
+    .scrollable-content::-webkit-scrollbar-track { background: transparent; }
+    .scrollable-content::-webkit-scrollbar-thumb { background: var(--theme-scrollbar-thumb, rgba(255,255,255,0.12)); border-radius: var(--border-radius-sm); }
+    .scrollable-content::-webkit-scrollbar-thumb:hover { background: var(--theme-scrollbar-thumb-hover, rgba(255,255,255,0.25)); }
+
+    /* ===== MODE VIEWS ===== */
+    .mode-view { display: none; }
+    .mode-view.active { display: block; }
+
+    /* ===== SECTION HEADERS (matches real app) ===== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--theme-bg-secondary);
+      border-bottom: 1px solid var(--theme-border-primary);
+      cursor: pointer;
+      user-select: none;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      transition: background var(--transition-fast);
+    }
+    .section-header:hover { background: var(--theme-interactive-hover); }
+    .header-left { display: flex; align-items: center; flex: 1; }
+    .header-center { display: none; }
+    .header-right { display: flex; align-items: center; gap: var(--spacing-xs); }
+    .header-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.2px;
+      color: var(--theme-text-primary);
+    }
+
+    /* Header action buttons (real app style) */
+    .header-action-btn {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; color: var(--theme-text-muted);
+      cursor: pointer; border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-xs);
+      transition: background var(--transition-fast), color var(--transition-fast);
+      padding: 0;
+    }
+    .header-action-btn:hover { background: var(--theme-interactive-hover); color: var(--theme-text-primary); }
+    .header-action-btn svg { width: 12px; height: 12px; opacity: 0.5; }
+    .header-action-btn:hover svg { opacity: 0.9; }
+
+    /* Header nav buttons (back/forward in Controls) */
+    .header-nav-btn {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; color: var(--theme-text-muted);
+      cursor: pointer; border-radius: var(--border-radius-sm);
+      padding: 0;
+      transition: color var(--transition-fast);
+    }
+    .header-nav-btn:hover { color: var(--theme-text-primary); }
+    .header-nav-btn:disabled { opacity: 0.25; cursor: default; }
+    .header-nav-btn svg { width: 12px; height: 12px; }
+
+    /* ===== COLLAPSIBLE SECTIONS ===== */
+    .collapsible-content {
+      overflow: hidden;
+      transition: max-height var(--transition-normal), padding var(--transition-normal);
+    }
+    .collapsible-content.collapsed {
+      max-height: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      overflow: hidden;
+    }
+
+    /* ===== TAGS SECTION ===== */
+    .tags-content-wrapper {
+      padding: var(--spacing-lg);
+    }
+
+    /* Anatomy section (page/layer info bar) */
+    .anatomy-section {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-xs) 0;
+      min-height: 20px;
+    }
+    .anatomy-prefix {
+      font-size: var(--font-size-xs);
+      color: var(--theme-text-muted);
+      opacity: 0.6;
+    }
+    .anatomy-emoji {
+      font-size: 13px;
+      line-height: 1;
+    }
+    .anatomy-date {
+      font-size: var(--font-size-xs);
+      color: var(--theme-text-muted);
+      opacity: 0.6;
+    }
+    .mode-affordance {
+      font-size: 9px;
+      font-weight: var(--font-weight-bold);
+      letter-spacing: var(--letter-spacing-tight);
+      color: var(--theme-text-muted);
+      background: rgba(255,255,255,0.06);
+      padding: 1px 5px;
+      border-radius: var(--border-radius-xs);
+    }
+    .mode-affordance[data-mode="onLayer"] {
+      color: rgba(180, 120, 255, 0.9);
+      background: rgba(180, 120, 255, 0.1);
+    }
+
+    .page-actions-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    [data-theme="light"] .page-actions-grid {
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+    [data-theme="cybertron"] .page-actions-grid {
+      border-color: rgba(0, 229, 255, 0.15);
+    }
+    .buttons-right {
+      display: flex;
+      gap: 0;
+    }
+    .buttons-right .action-btn {
+      width: 20px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none;
+      color: var(--theme-text-muted);
+      cursor: pointer;
+      border-radius: var(--border-radius-sm);
+      padding: 0;
+      transition: color var(--transition-fast);
+    }
+    .buttons-right .action-btn:hover { color: var(--theme-text-primary); }
+    .buttons-right .action-btn svg { width: 12px; height: 12px; opacity: 0.4; }
+    .buttons-right .action-btn:hover svg { opacity: 0.8; }
+
+    /* Tag grid container (fieldset-like border) */
+    .tag-grid-container {
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+      position: relative;
+      background: rgba(255,255,255,0.02);
+    }
+    .tag-grid-container:last-child { margin-bottom: 0; }
+    [data-theme="light"] .tag-grid-container { border-color: rgba(0,0,0,0.08); }
+    [data-theme="cybertron"] .tag-grid-container { border-color: rgba(0, 229, 255, 0.1); }
+
+    .emoji-set-title {
+      position: absolute;
+      top: -7px; left: 8px;
+      background: var(--theme-bg-primary);
+      padding: 0 4px;
+      font-size: 9px;
+      color: var(--theme-text-muted);
+      letter-spacing: 0.3px;
+      pointer-events: none;
+    }
+
+    /* Emoji grid */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-xs);
+    }
+    .emoji-button {
+      width: 100%; aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: var(--border-radius-sm);
+      transition: transform var(--transition-fast), background var(--transition-fast);
+      padding: 0;
+    }
+    .emoji-button:hover { transform: scale(1.2); background: rgba(255,255,255,0.06); }
+
+    /* Emoji nav */
+    .emoji-nav-container {
+      display: flex;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-sm);
+    }
+    .emoji-nav-btn {
+      background: none; border: none;
+      color: var(--theme-text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: var(--border-radius-sm);
+      line-height: 1;
+      transition: color var(--transition-fast), background var(--transition-fast);
+    }
+    .emoji-nav-btn:hover { color: var(--theme-text-primary); background: var(--theme-interactive-hover); }
+    .emoji-nav-btn svg { width: 10px; height: 10px; opacity: 0.5; }
+    .emoji-nav-btn:hover svg { opacity: 0.9; }
+
+    /* ===== ANCHORS SECTION ===== */
+    .anchors-container { padding: var(--spacing-sm) 0; }
+    .bookmark-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+      font-size: var(--font-size-sm);
+      color: var(--theme-text-secondary);
+    }
+    .bookmark-item:hover { background: var(--theme-interactive-hover); }
+    .bookmark-item.active { color: var(--theme-text-primary); }
+    .bookmark-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--theme-info);
+      flex-shrink: 0;
+      opacity: 0.5;
+    }
+    .bookmark-item.active .bookmark-dot { opacity: 1; background: var(--theme-success); }
+    .bookmark-item.recent .bookmark-dot { opacity: 0.7; }
+    .bookmark-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bookmark-page {
+      font-size: 9px;
+      color: var(--theme-text-disabled);
+      letter-spacing: 0.3px;
+    }
+    .null-state {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 16px var(--spacing-lg);
+      text-align: center;
+      gap: var(--spacing-md);
+    }
+    .null-state-icon { font-size: 18px; opacity: 0.5; }
+    .null-state-description { font-size: var(--font-size-xs); color: var(--theme-text-muted); line-height: 1.4; }
+
+    /* ===== CONTROLS SECTION ===== */
+    .controls-container { padding: var(--spacing-lg); }
+
+    /* 3x3 nav grid */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-xs);
+    }
+    .nav-row { display: contents; }
+    .nav-button {
+      height: var(--button-height-md);
+      display: flex; align-items: center; justify-content: center;
+      background: var(--theme-bg-tertiary);
+      border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-md);
+      color: var(--theme-text-muted);
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+      padding: 0;
+    }
+    .nav-button:hover { background: var(--theme-interactive-hover); border-color: var(--theme-border-secondary); }
+    .nav-button:disabled { opacity: 0.3; cursor: default; }
+    .nav-button:disabled:hover { background: var(--theme-bg-tertiary); border-color: var(--theme-border-primary); }
+    .nav-button svg { width: 12px; height: 12px; opacity: 0.5; }
+    .nav-button:hover svg { opacity: 0.8; }
+
+    /* Active button states */
+    .nav-button.active-blue {
+      background: rgba(59, 130, 246, 0.18);
+      border-color: rgba(59, 130, 246, 0.35);
+    }
+    .nav-button.active-blue svg { opacity: 1; color: #60a5fa; }
+    .nav-button.active-gold {
+      background: rgba(160, 100, 20, 0.28);
+      border-color: rgba(200, 140, 40, 0.4);
+    }
+    .nav-button.active-gold svg { opacity: 1; color: #fbbf24; }
+
+    /* Sizing buttons */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-sm);
+    }
+    .sizing-button {
+      height: 36px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px;
+      background: var(--theme-bg-tertiary);
+      border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-md);
+      color: var(--theme-text-muted);
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: var(--font-family);
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+    .sizing-button:hover { background: var(--theme-interactive-hover); border-color: var(--theme-border-secondary); }
+    .sizing-button:disabled { opacity: 0.3; cursor: default; }
+    .sizing-button svg { width: 12px; height: 12px; opacity: 0.45; }
+    .nav-caption {
+      font-size: 8px;
+      color: var(--theme-text-disabled);
+      text-align: center;
+      letter-spacing: 0.3px;
+      margin-top: 2px;
+    }
+
+    /* ===== PREFLIGHT MODE ===== */
+    .pf-status {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--pf-status-bg);
+      border-bottom: 1px solid var(--pf-status-border);
+    }
+    .pf-status-left { display: flex; align-items: center; gap: var(--spacing-md); }
+    .pf-error-count { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--pf-cat-fill); }
+    .pf-error-label { font-size: var(--font-size-xs); color: var(--theme-text-muted); }
+    .pf-scan-btn {
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-md);
+      color: var(--theme-text-muted); cursor: pointer; font-size: var(--font-size-sm);
+      transition: all var(--transition-fast);
+    }
+    .pf-scan-btn:hover { background: var(--theme-interactive-hover); border-color: var(--theme-border-secondary); }
+    .pf-scan-btn.scanning { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .pf-progress { height: 2px; background: var(--theme-border-primary); overflow: hidden; display: none; }
+    .pf-progress.active { display: block; }
+    .pf-progress-bar { height: 100%; background: var(--pf-cat-fill); width: 0%; transition: width 0.3s ease; }
+
+    .pf-filters {
+      display: flex; gap: var(--spacing-xs);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-bottom: 1px solid var(--theme-border-primary);
+      overflow-x: auto;
+    }
+    .pf-pill {
+      padding: var(--spacing-xs) var(--spacing-lg);
+      border-radius: var(--border-radius-pill);
+      border: 1px solid var(--theme-border-primary);
+      background: transparent; color: var(--theme-text-muted);
+      font-size: var(--font-size-xs); font-family: var(--font-family);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer; white-space: nowrap;
+      transition: all var(--transition-fast);
+      display: flex; align-items: center; gap: var(--spacing-xs);
+    }
+    .pf-pill:hover { border-color: var(--theme-border-secondary); color: var(--theme-text-secondary); }
+    .pf-pill.active {
+      background: var(--theme-text-primary); color: var(--theme-bg-primary);
+      border-color: var(--theme-text-primary); font-weight: var(--font-weight-semibold);
+    }
+    .pf-pill-count { font-size: 9px; opacity: 0.7; }
+
+    .pf-error-list { padding: var(--spacing-sm) var(--spacing-lg); display: flex; flex-direction: column; gap: var(--spacing-sm); }
+    .pf-card {
+      background: var(--pf-card-bg); border: 1px solid var(--pf-card-border);
+      border-radius: var(--border-radius-lg); padding: var(--spacing-lg);
+      cursor: pointer; transition: all var(--transition-fast);
+    }
+    .pf-card:hover { background: var(--pf-card-hover); border-color: rgba(255,255,255,0.1); }
+    .pf-card.ignored { opacity: 0.35; }
+    .pf-card-header { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-sm); }
+    .pf-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .pf-cat-dot.fill { background: var(--pf-cat-fill); }
+    .pf-cat-dot.text { background: var(--pf-cat-text); }
+    .pf-cat-dot.stroke { background: var(--pf-cat-stroke); }
+    .pf-cat-dot.radius { background: var(--pf-cat-radius); }
+    .pf-cat-dot.effects { background: var(--pf-cat-effects); }
+    .pf-node-name {
+      font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);
+      color: var(--theme-text-primary); flex: 1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .pf-card-detail {
+      font-size: var(--font-size-xs); color: var(--theme-text-muted);
+      margin-bottom: var(--spacing-md); padding-left: 14px;
+    }
+    .pf-card-value { font-family: 'SF Mono', 'Fira Code', monospace; color: var(--theme-text-secondary); font-size: var(--font-size-xs); }
+    .pf-card-actions { display: flex; gap: var(--spacing-sm); padding-left: 14px; }
+    .pf-action-btn {
+      padding: var(--spacing-xs) var(--spacing-md);
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--theme-border-primary);
+      background: transparent; color: var(--theme-text-muted);
+      font-size: var(--font-size-xs); font-family: var(--font-family);
+      cursor: pointer; transition: all var(--transition-fast);
+    }
+    .pf-action-btn:hover { background: var(--theme-interactive-hover); color: var(--theme-text-primary); }
+    .pf-action-btn.fix { color: var(--theme-success); border-color: rgba(74, 222, 128, 0.3); }
+    .pf-action-btn.fix:hover { background: rgba(74, 222, 128, 0.1); }
+    .pf-action-btn.fix.disabled { opacity: 0.3; pointer-events: none; }
+
+    .pf-fix-banner {
+      margin: var(--spacing-sm) var(--spacing-lg); padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--pf-fix-bg); border: 1px solid var(--pf-fix-border);
+      border-radius: var(--border-radius-lg);
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; transition: all var(--transition-fast);
+    }
+    .pf-fix-banner:hover { background: rgba(74, 222, 128, 0.12); }
+    .pf-fix-count { font-size: var(--font-size-xs); color: var(--theme-success); font-weight: var(--font-weight-medium); }
+    .pf-fix-action {
+      font-size: var(--font-size-xs); color: var(--theme-success);
+      font-weight: var(--font-weight-bold); text-transform: uppercase; letter-spacing: var(--letter-spacing-tight);
+    }
+
+    .pf-empty {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px var(--spacing-lg); text-align: center; gap: var(--spacing-lg);
+    }
+    .pf-empty.active { display: flex; }
+    .pf-empty-icon { font-size: 32px; }
+    .pf-empty-title { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); color: var(--theme-text-primary); }
+    .pf-empty-desc { font-size: var(--font-size-xs); color: var(--theme-text-muted); line-height: 1.5; }
+
+    /* ===== SETTINGS OVERLAY ===== */
+    .settings-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none; z-index: 50;
+    }
+    .settings-overlay.open { display: flex; align-items: flex-end; }
+    .settings-panel {
+      width: 100%;
+      max-height: 85%;
+      background: var(--theme-bg-primary);
+      border-top: 1px solid var(--theme-border-secondary);
+      border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+      overflow-y: auto;
+    }
+    .settings-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--spacing-lg) var(--spacing-xl);
+      border-bottom: 1px solid var(--theme-border-primary);
+      position: sticky; top: 0;
+      background: var(--theme-bg-primary);
+    }
+    .settings-title {
+      font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);
+      letter-spacing: 1px; color: var(--theme-text-secondary);
+    }
+    .settings-close {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; color: var(--theme-text-muted);
+      cursor: pointer; font-size: var(--font-size-sm);
+      border-radius: var(--border-radius-sm);
+    }
+    .settings-close:hover { color: var(--theme-text-primary); }
+    .settings-content { padding: var(--spacing-lg); }
+    .settings-section { margin-bottom: var(--spacing-xl); }
+    .settings-section-title {
+      font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold);
+      color: var(--theme-text-secondary); margin-bottom: var(--spacing-lg);
+    }
+    .theme-group {
+      display: flex; flex-direction: column; gap: var(--spacing-xs);
+    }
+    .theme-option {
+      display: flex; align-items: center; gap: var(--spacing-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: none; border: 1px solid transparent;
+      border-radius: var(--border-radius-md);
+      color: var(--theme-text-secondary);
+      font-family: var(--font-family); font-size: var(--font-size-sm);
+      cursor: pointer; transition: all var(--transition-fast);
+      width: 100%; text-align: left;
+    }
+    .theme-option:hover { background: var(--theme-interactive-hover); }
+    .theme-option.active {
+      border-color: var(--theme-border-secondary);
+      background: rgba(255,255,255,0.04);
+      color: var(--theme-text-primary);
+    }
+    .theme-icon { font-size: 14px; }
+    .theme-name { flex: 1; }
+
+    .setting-label-small {
+      display: flex; align-items: center; gap: var(--spacing-lg);
+      font-size: var(--font-size-xs); color: var(--theme-text-muted);
+      cursor: pointer; padding: var(--spacing-sm) 0;
+    }
+    .setting-label-small input[type="checkbox"] { width: 12px; height: 12px; accent-color: var(--theme-info); }
+    .sub-toggle { padding-left: var(--spacing-xl); }
+    .settings-help-text { font-size: 9px; color: var(--theme-text-disabled); line-height: 1.5; margin-top: var(--spacing-sm); }
+
+    .nudge-settings { display: flex; gap: var(--spacing-lg); }
+    .nudge-input-group { display: flex; align-items: center; gap: var(--spacing-sm); flex: 1; }
+    .nudge-label { font-size: var(--font-size-xs); color: var(--theme-text-muted); white-space: nowrap; }
+    .nudge-input {
+      width: 40px; height: 22px;
+      background: var(--theme-bg-tertiary);
+      border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-sm);
+      color: var(--theme-text-primary);
+      font-family: var(--font-family); font-size: var(--font-size-xs);
+      text-align: center; padding: 0;
+    }
+
+    .support-section { text-align: center; padding: var(--spacing-lg) 0; }
+    .support-text { font-size: var(--font-size-xs); color: var(--theme-text-muted); line-height: 1.5; margin-bottom: var(--spacing-lg); }
+    .kofi-button {
+      padding: var(--spacing-md) var(--spacing-xl);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--theme-border-primary);
+      border-radius: var(--border-radius-md);
+      color: var(--theme-text-secondary);
+      font-family: var(--font-family); font-size: var(--font-size-xs);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .kofi-button:hover { background: var(--theme-interactive-hover); border-color: var(--theme-border-secondary); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      height: 24px; min-height: 24px;
+      display: flex; align-items: center;
+      padding: 0 var(--spacing-lg);
+      background: var(--theme-bg-secondary);
+      border-top: 1px solid var(--theme-border-primary);
+      z-index: 10;
+    }
+    .footer-controls {
+      display: flex; align-items: center;
+      width: 100%; gap: var(--spacing-md);
+      list-style: none;
+    }
+    .footer-icon-btn {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; color: var(--theme-text-muted);
+      cursor: pointer; font-size: var(--font-size-xs);
+      border-radius: var(--border-radius-sm);
+      transition: color var(--transition-fast);
+      padding: 0;
+    }
+    .footer-icon-btn:hover { color: var(--theme-text-primary); }
+    .footer-icon-btn svg { width: 12px; height: 12px; opacity: 0.5; }
+    .footer-icon-btn:hover svg { opacity: 0.9; }
+    .footer-spacer { flex: 1; }
+    .footer-resize {
+      color: var(--theme-text-disabled);
+      font-size: 7px; letter-spacing: 1px;
+      cursor: ns-resize; user-select: none;
+      padding: 0 4px;
+    }
+    .made-with {
+      font-size: 9px; color: var(--theme-text-disabled);
+      letter-spacing: 0.3px;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .made-with svg { width: 12px; height: 12px; opacity: 0.3; }
+
+    /* Mode toggle in footer */
+    .mode-toggle {
+      padding: var(--spacing-xs) var(--spacing-lg);
+      border-radius: var(--border-radius-pill);
+      border: 1px solid var(--theme-border-secondary);
+      background: transparent; color: var(--theme-text-muted);
+      font-size: 9px; font-family: var(--font-family);
+      font-weight: var(--font-weight-bold);
+      letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; transition: all var(--transition-fast);
+    }
+    .mode-toggle:hover { background: var(--theme-interactive-hover); color: var(--theme-text-primary); }
+    .mode-toggle.nav-active { border-color: rgba(180, 120, 255, 0.4); color: rgba(180, 120, 255, 0.9); }
+    .mode-toggle.pf-active { border-color: rgba(255, 107, 107, 0.4); color: var(--pf-cat-fill); background: rgba(255, 107, 107, 0.08); }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: absolute; bottom: 32px; left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      background: var(--theme-bg-elevated);
+      border: 1px solid var(--theme-border-secondary);
+      border-radius: var(--border-radius-lg);
+      font-size: var(--font-size-xs); color: var(--theme-text-primary);
+      opacity: 0; transition: all var(--transition-normal);
+      pointer-events: none; white-space: nowrap; z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: rgba(74, 222, 128, 0.4); color: var(--theme-success); }
+    .toast.error { border-color: rgba(255, 107, 107, 0.4); color: var(--theme-error); }
+
+    /* ===== SVG ICON UTILS ===== */
+    svg { fill: none; stroke: currentColor; stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
+    .icon-bold svg { stroke-width: 1.25; }
+  </style>
+</head>
+
+<body>
+  <div class="plugin-shell" id="plugin" data-theme="boilerplate">
+
+    <!-- Plugin Title Bar (Figma chrome) -->
+    <div class="plugin-title-bar">
+      <div class="plugin-title-left">
+        <span class="plugin-title-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 1L2 9l10 14L22 9 12 1z" fill="url(#grad)" stroke="none"/>
+            <path d="M2 9h20L12 1 2 9z" fill="rgba(255,255,255,0.3)" stroke="none"/>
+            <path d="M7 9l5-8 5 8" fill="rgba(255,255,255,0.15)" stroke="none"/>
+            <defs><linearGradient id="grad" x1="2" y1="1" x2="22" y2="23"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#e67e22"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="plugin-title-name">stratusHue</span>
+      </div>
+      <button class="plugin-close-btn" title="Close">
+        <svg width="10" height="10" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+
+    <div class="scrollable-content">
+      <!-- ===== NAVIGATE MODE ===== -->
+      <div class="mode-view active" id="navigate-view">
+
+        <!-- Tags Header -->
+        <header class="section-header" data-target="tags-content">
+          <div class="header-left"><h2 class="header-title">Tags</h2></div>
+          <div class="header-right">
+            <button class="header-action-btn icon-bold" title="New page">
+              <svg width="12" height="12" viewBox="0 0 16 16"><path d="M4 .625H9.17a1.5 1.5 0 011.07.4l2.77 2.83a1.5 1.5 0 01.44 1.07V14a1.38 1.38 0 01-1.38 1.38H4A1.38 1.38 0 012.63 14V2A1.38 1.38 0 014 .63z"/><path d="M9 1v3a1 1 0 001 1h3"/><path d="M5.5 10h5M8 7.5v5"/></svg>
+            </button>
+            <button class="header-action-btn icon-bold" title="Add date" id="date-btn-mock">
+              <svg width="12" height="12" viewBox="0 0 16 16"><path d="M5.5 1v3M10.5 1v3"/><path d="M5.5 10h5"/><path d="M8 7.5v5"/><path d="M13 2a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V4a2 2 0 012-2h2.38V3.25H3a.75.75 0 00-.75.75v10c0 .41.34.75.75.75h10a.75.75 0 00.75-.75V4a.75.75 0 00-.75-.75h-1.38V2H13zM10.38 3.25h-3.75V2h3.75v1.25z"/></svg>
+            </button>
+            <button class="header-action-btn icon-bold" title="Clear tag">
+              <svg width="12" height="12" viewBox="0 0 16 16"><path d="M10 6L6 10M6 6l4 4"/><path d="M4 2.63h8a1.38 1.38 0 011.38 1.37v10.96c0 .27-.28.45-.53.34l-4.18-1.87a1.38 1.38 0 00-1.33 0l-4.18 1.87a.34.34 0 01-.53-.34V4A1.38 1.38 0 014 2.63z"/></svg>
+            </button>
+          </div>
+        </header>
+
+        <!-- Tags Content -->
+        <section id="tags-content" class="collapsible-content">
+          <div class="tags-content-wrapper">
+            <div class="page-actions-grid" id="page-actions-group">
+              <div class="anatomy-section">
+                <span class="anatomy-prefix" id="anatomy-prefix">&#8627;</span>
+                <span class="anatomy-emoji" id="anatomy-emoji">&#x1F7E0;</span>
+                <span class="anatomy-date" id="anatomy-date">03.06 :</span>
+                <span class="mode-affordance" id="mode-badge" data-mode="onPage">PAGE</span>
+              </div>
+              <div class="buttons-right" id="indent-buttons">
+                <button class="action-btn" title="Outdent">
+                  <svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 11.78V4"/><path d="M8.56 4.56L5.22 7.89l3.33 3.33"/><path d="M5.22 7.89H13"/></svg>
+                </button>
+                <button class="action-btn" title="Indent">
+                  <svg width="12" height="12" viewBox="0 0 16 16"><path d="M10.78 7.89H3"/><path d="M7.44 11.22l3.34-3.33-3.34-3.34"/><path d="M13 4v7.78"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="tag-grid-container">
+              <span class="emoji-set-title"><span class="set-name" id="emoji-set-name">Colors</span></span>
+              <div id="emoji-grid" class="color-grid"></div>
+              <nav class="emoji-nav-container">
+                <button class="emoji-nav-btn" id="emoji-prev" title="Previous set">
+                  <svg width="10" height="10" viewBox="0 0 16 16"><path d="M13 8H3"/><path d="M7.67 3.33L3 8l4.67 4.67"/></svg>
+                </button>
+                <button class="emoji-nav-btn" id="emoji-next" title="Next set">
+                  <svg width="10" height="10" viewBox="0 0 16 16"><path d="M3 8h10"/><path d="M8.33 3.33L13 8l-4.67 4.67"/></svg>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </section>
+
+        <!-- Anchors Header -->
+        <header class="section-header" data-target="anchors-content">
+          <div class="header-left"><h2 class="header-title">Anchors</h2></div>
+          <div class="header-right">
+            <button class="header-action-btn icon-bold" title="Save anchor">
+              <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 14.67V5.33"/><path d="M3.33 8H1.33A6.67 6.67 0 108 14.67a6.67 6.67 0 006.67-6.67h-2"/><circle cx="8" cy="3.33" r="2"/></svg>
+            </button>
+          </div>
+        </header>
+
+        <!-- Anchors Content -->
+        <section id="anchors-content" class="collapsible-content collapsed">
+          <div class="anchors-container" id="bookmarks-list"></div>
+        </section>
+
+        <!-- Controls Header -->
+        <header class="section-header" data-target="controls-content">
+          <div class="header-left"><h2 class="header-title">Controls</h2></div>
+          <div class="header-right">
+            <nav style="display:flex;gap:1px;">
+              <button class="header-nav-btn icon-bold" title="Back" id="nav-back" disabled>
+                <svg width="12" height="12" viewBox="0 0 16 16"><path d="M5.38 11.75L1 7.38 5.38 3"/><path d="M15 12.63v-1.75a3.5 3.5 0 00-3.5-3.5H1"/></svg>
+              </button>
+              <button class="header-nav-btn icon-bold" title="Forward" id="nav-forward" disabled>
+                <svg width="12" height="12" viewBox="0 0 16 16"><path d="M10.63 11.75L15 7.38 10.63 3"/><path d="M1 12.63v-1.75a3.5 3.5 0 013.5-3.5H15"/></svg>
+              </button>
+            </nav>
+          </div>
+        </header>
+
+        <!-- Controls Content -->
+        <section id="controls-content" class="collapsible-content">
+          <div class="controls-container">
+            <!-- Movement & Zoom -->
+            <div class="tag-grid-container" id="movement-zoom-group">
+              <span class="emoji-set-title"><span class="set-name">Movement & Zoom</span></span>
+              <div class="nav-grid" id="movement-grid"></div>
+            </div>
+
+            <!-- Hierarchy -->
+            <div class="tag-grid-container" id="hierarchy-group">
+              <span class="mode-affordance" id="hierarchy-badge" data-mode="onPage" style="position:absolute;top:-8px;right:8px;z-index:1;">PAGE</span>
+              <span class="emoji-set-title"><span class="set-name">Hierarchy</span></span>
+              <div class="nav-grid" id="hierarchy-grid"></div>
+            </div>
+
+            <!-- Sizing Modes -->
+            <div class="tag-grid-container" id="sizing-modes-group">
+              <span class="emoji-set-title"><span class="set-name">Sizing Modes</span></span>
+              <div class="actions-grid">
+                <div>
+                  <button class="sizing-button" disabled>
+                    <svg width="12" height="12" viewBox="0 0 16 16"><path d="M1 6v4M15 6v4M1 8h14"/></svg>
+                    <span>---</span>
+                  </button>
+                  <div class="nav-caption">Width</div>
+                </div>
+                <div>
+                  <button class="sizing-button" disabled>
+                    <svg width="12" height="12" viewBox="0 0 16 16" style="transform:rotate(90deg)"><path d="M1 6v4M15 6v4M1 8h14"/></svg>
+                    <span>---</span>
+                  </button>
+                  <div class="nav-caption">Height</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===== PREFLIGHT MODE ===== -->
+      <div class="mode-view" id="preflight-view">
+        <div class="pf-status" id="pf-status">
+          <div class="pf-status-left">
+            <span class="pf-error-count" id="pf-count">28</span>
+            <span class="pf-error-label">errors found</span>
+          </div>
+          <button class="pf-scan-btn" id="pf-scan" title="Re-scan">&#x21bb;</button>
+        </div>
+        <div class="pf-progress" id="pf-progress"><div class="pf-progress-bar" id="pf-progress-bar"></div></div>
+        <div class="pf-filters" id="pf-filters">
+          <button class="pf-pill active" data-filter="all">All <span class="pf-pill-count">28</span></button>
+          <button class="pf-pill" data-filter="fill">Fill <span class="pf-pill-count">8</span></button>
+          <button class="pf-pill" data-filter="text">Text <span class="pf-pill-count">12</span></button>
+          <button class="pf-pill" data-filter="stroke">Strk <span class="pf-pill-count">4</span></button>
+          <button class="pf-pill" data-filter="radius">Rad <span class="pf-pill-count">2</span></button>
+          <button class="pf-pill" data-filter="effects">Fx <span class="pf-pill-count">2</span></button>
+        </div>
+        <div class="pf-fix-banner" id="pf-fix-banner">
+          <span class="pf-fix-count">12 auto-fixable</span>
+          <span class="pf-fix-action">Fix All &#x2192;</span>
+        </div>
+        <div class="pf-error-list" id="pf-error-list"></div>
+        <div class="pf-empty" id="pf-empty">
+          <div class="pf-empty-icon">&#x2705;</div>
+          <div class="pf-empty-title">All clear!</div>
+          <div class="pf-empty-desc">No style errors found.<br>Every node uses a named style.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS OVERLAY ===== -->
+    <div class="settings-overlay" id="settings-overlay">
+      <div class="settings-panel">
+        <header class="settings-header">
+          <h2 class="settings-title">SETTINGS</h2>
+          <button class="settings-close" id="settings-close">&#x2715;</button>
+        </header>
+        <div class="settings-content">
+          <div class="settings-section">
+            <h3 class="settings-section-title">&#x1F3A8;&nbsp;Theme</h3>
+            <div class="theme-group" id="theme-selector">
+              <button class="theme-option" data-theme="system"><span class="theme-icon">&#x1F504;</span><span class="theme-name">System</span></button>
+              <button class="theme-option" data-theme="light"><span class="theme-icon">&#x2600;&#xFE0F;</span><span class="theme-name">Light</span></button>
+              <button class="theme-option" data-theme="dark"><span class="theme-icon">&#x1F319;</span><span class="theme-name">Dark</span></button>
+              <button class="theme-option active" data-theme="boilerplate"><span class="theme-icon">&#x26AB;</span><span class="theme-name">Boilerplate</span></button>
+              <button class="theme-option" data-theme="cybertron"><span class="theme-icon">&#x1F916;</span><span class="theme-name">Cybertron</span></button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3 class="settings-section-title">&#x1F9ED; Controls</h3>
+            <label class="setting-label-small"><input type="checkbox" id="controls-toggle" checked><span>Enable layer navigation, movement, zoom, and actions</span></label>
+            <div id="controls-group-toggles">
+              <label class="setting-label-small sub-toggle"><input type="checkbox" checked><span>Movement & Zoom</span></label>
+              <label class="setting-label-small sub-toggle"><input type="checkbox" checked><span>Hierarchy</span></label>
+              <label class="setting-label-small sub-toggle"><input type="checkbox" checked><span>Sizing Modes</span></label>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3 class="settings-section-title">&#x2194;&#xFE0F; Nudge Amount</h3>
+            <div class="nudge-settings">
+              <div class="nudge-input-group"><label class="nudge-label">Small</label><input type="number" class="nudge-input" value="1" min="1" max="100"></div>
+              <div class="nudge-input-group"><label class="nudge-label">Big</label><input type="number" class="nudge-input" value="8" min="1" max="100"></div>
+            </div>
+            <p class="settings-help-text">Arrow keys. Hold Shift for big nudge.</p>
+          </div>
+          <div class="settings-section">
+            <div class="support-section">
+              <p class="support-text">Enjoying this plugin?<br>Support its development!</p>
+              <button class="kofi-button">&#x1F366; Buy me an ice cream</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer id="footer">
+      <ul class="footer-controls">
+        <li><button class="mode-toggle nav-active" id="mode-toggle">NAV</button></li>
+        <li>
+          <button class="footer-icon-btn" id="settings-btn" title="Settings">
+            <svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2"/><path d="M13.32 9.94a1.1 1.1 0 00.22 1.21l.04.04a1.33 1.33 0 11-1.89 1.89l-.04-.04a1.1 1.1 0 00-1.21-.22 1.1 1.1 0 00-.67 1.01v.11a1.33 1.33 0 01-2.67 0v-.06a1.1 1.1 0 00-.72-1.01 1.1 1.1 0 00-1.21.22l-.04.04a1.33 1.33 0 11-1.89-1.89l.04-.04a1.1 1.1 0 00.22-1.21 1.1 1.1 0 00-1.01-.67h-.11a1.33 1.33 0 010-2.67h.06A1.1 1.1 0 003.7 5.88a1.1 1.1 0 00-.22-1.21l-.04-.04a1.33 1.33 0 111.89-1.89l.04.04a1.1 1.1 0 001.21.22h.05A1.1 1.1 0 007.3 2v-.11a1.33 1.33 0 012.67 0v.06a1.1 1.1 0 00.67 1.01 1.1 1.1 0 001.21-.22l.04-.04a1.33 1.33 0 111.89 1.89l-.04.04a1.1 1.1 0 00-.22 1.21v.05a1.1 1.1 0 001.01.67h.11a1.33 1.33 0 010 2.67h-.06a1.1 1.1 0 00-1.01.67z"/></svg>
+          </button>
+        </li>
+        <li><button class="footer-icon-btn" id="footer-width-toggle" title="Width">&#x2194;</button></li>
+        <li><span class="footer-resize">: : :</span></li>
+        <li class="footer-spacer"></li>
+        <li><span class="made-with">made w/ <svg width="12" height="12" viewBox="0 0 16 16"><path d="M5 2.86A3.18 3.18 0 017 6.98a1.43 1.43 0 102.04 0A3.18 3.18 0 0113.13 10.96a3.18 3.18 0 01-2.41.19H8.89a.34.34 0 00-.34.34v2.18a.34.34 0 00.34.34h1.95a6 6 0 10-4.86-11.63A3.18 3.18 0 015 2.86z" fill="currentColor" stroke="none" opacity="0.3"/></svg></span></li>
+      </ul>
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    // ===== MOCK DATA =====
+    const PAGE_EMOJI_SETS = [
+      { name: 'Colors', emojis: ['\u{1F534}', '\u{1F7E0}', '\u{1F7E1}', '\u{1F7E2}', '\u{1F535}', '\u{1F7E3}', '\u26AB\uFE0F', '\u26AA\uFE0F'] },
+      { name: 'Tools',  emojis: ['\u{1F3F7}\uFE0F', '\u{1F4CC}', '\u{1F3AF}', '\u{1F4A1}', '\u2B50', '\u{1F525}', '\u{1F48E}', '\u{1F3A8}'] },
+      { name: 'Status', emojis: ['\u{1F6A7}', '\u2705', '\u{1F440}', '\u{1F680}', '\u{1F6AB}', '\u{1FAA6}', '\u2B50', '\u{1F4F1}'] },
+      { name: 'Hands',  emojis: ['\u{1F446}', '\u{1F447}', '\u{1F448}', '\u{1F449}', '\u261D\uFE0F', '\u{1F44D}', '\u{1F44E}', '\u270B'] }
+    ];
+    const LAYER_EMOJI_SETS = [
+      { name: 'Colors', emojis: ['\u{1F7E5}', '\u{1F7E7}', '\u{1F7E8}', '\u{1F7E9}', '\u{1F7E6}', '\u{1F7EA}', '\u2B1B', '\u2B1C'] },
+      ...PAGE_EMOJI_SETS.slice(1)
+    ];
+
+    const MOCK_BOOKMARKS = [
+      { id: 'bk1', name: 'Cover Page', pageName: 'Home' },
+      { id: 'bk2', name: 'Visual Design', pageName: 'Home' },
+      { id: 'bk3', name: 'Specs & Redlines', pageName: 'Delivery' },
+      { id: 'bk4', name: 'Component Library', pageName: 'System' },
+      { id: 'bk5', name: 'Prototype Flow', pageName: 'Interactions' }
+    ];
+
+    const ERRORS = [
+      { id: 'e1', node: 'Button/Primary', category: 'fill', value: '#3B82F6', detail: 'Fill has no named style', fixable: true, suggestion: 'brand/primary-500' },
+      { id: 'e2', node: 'Button/Primary', category: 'text', value: 'Inter 14/Bold', detail: 'Text has no named style', fixable: true, suggestion: 'button/label' },
+      { id: 'e3', node: 'Header/Title', category: 'text', value: 'Inter 32/Bold', detail: 'Text has no named style', fixable: true, suggestion: 'heading/h1' },
+      { id: 'e4', node: 'Header/Subtitle', category: 'text', value: 'Inter 18/Regular', detail: 'Text has no named style', fixable: true, suggestion: 'body/large' },
+      { id: 'e5', node: 'Card/Base', category: 'stroke', value: '#E5E7EB 1px', detail: 'Stroke has no named style', fixable: true, suggestion: 'border/default' },
+      { id: 'e6', node: 'Card/Base', category: 'fill', value: '#FFFFFF', detail: 'Fill has no named style', fixable: true, suggestion: 'surface/card' },
+      { id: 'e7', node: 'Card/Shadow', category: 'effects', value: 'Drop Shadow 0,2,8', detail: 'Effect has no named style', fixable: false },
+      { id: 'e8', node: 'Input/Border', category: 'radius', value: '8px', detail: 'Non-standard radius', fixable: false },
+      { id: 'e9', node: 'Avatar/Frame', category: 'fill', value: '#F3F4F6', detail: 'Fill has no named style', fixable: true, suggestion: 'surface/subtle' },
+      { id: 'e10', node: 'Icon/Close', category: 'fill', value: '#6B7280', detail: 'Fill has no named style', fixable: true, suggestion: 'icon/secondary' },
+      { id: 'e11', node: 'Nav/Link', category: 'text', value: 'Inter 14/Medium', detail: 'Text has no named style', fixable: true, suggestion: 'nav/link' },
+      { id: 'e12', node: 'Footer/Text', category: 'text', value: 'Inter 12/Regular', detail: 'Text has no named style', fixable: false },
+      { id: 'e13', node: 'Badge/Warning', category: 'fill', value: '#FEF3C7', detail: 'Fill has no named style', fixable: true, suggestion: 'status/warning-bg' },
+      { id: 'e14', node: 'Badge/Warning', category: 'text', value: 'Inter 11/Semibold', detail: 'Text has no named style', fixable: false },
+      { id: 'e15', node: 'Divider/Line', category: 'stroke', value: '#E5E7EB 1px', detail: 'Stroke has no named style', fixable: true, suggestion: 'border/default' },
+      { id: 'e16', node: 'Input/Field', category: 'stroke', value: '#D1D5DB 1px', detail: 'Stroke has no named style', fixable: false },
+      { id: 'e17', node: 'Modal/Overlay', category: 'fill', value: 'rgba(0,0,0,0.5)', detail: 'Fill has no named style', fixable: false },
+      { id: 'e18', node: 'Modal/Card', category: 'radius', value: '16px', detail: 'Non-standard radius', fixable: false },
+      { id: 'e19', node: 'Tab/Active', category: 'text', value: 'Inter 14/Semibold', detail: 'Text has no named style', fixable: true, suggestion: 'tab/active' },
+      { id: 'e20', node: 'Tab/Inactive', category: 'text', value: 'Inter 14/Regular', detail: 'Text has no named style', fixable: false },
+      { id: 'e21', node: 'Sidebar/Bg', category: 'fill', value: '#F9FAFB', detail: 'Fill has no named style', fixable: false },
+      { id: 'e22', node: 'Tooltip/Bg', category: 'fill', value: '#1F2937', detail: 'Fill has no named style', fixable: false },
+      { id: 'e23', node: 'Tooltip/Text', category: 'text', value: 'Inter 11/Regular', detail: 'Text has no named style', fixable: false },
+      { id: 'e24', node: 'Progress/Bar', category: 'fill', value: '#3B82F6', detail: 'Fill has no named style', fixable: false },
+      { id: 'e25', node: 'Input/Field', category: 'fill', value: '#FFFFFF', detail: 'Fill has no named style', fixable: false },
+      { id: 'e26', node: 'Chip/Tag', category: 'stroke', value: '#D1D5DB 1px', detail: 'Stroke has no named style', fixable: false },
+      { id: 'e27', node: 'Card/Header', category: 'text', value: 'Inter 16/Semibold', detail: 'Text has no named style', fixable: false },
+      { id: 'e28', node: 'Link/External', category: 'effects', value: 'Underline offset', detail: 'Effect has no named style', fixable: false },
+    ];
+
+    // SVG icon templates for 3x3 grids
+    const ICONS = {
+      zoomIn: '<svg width="12" height="12" viewBox="0 0 16 16"><circle cx="7" cy="7" r="6"/><path d="M15.5 15.5l-3.9-3.9"/><path d="M7 5v4M5 7h4"/></svg>',
+      arrowUp: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M5.33 4L8 1.33 10.67 4"/><path d="M8 14.67V1.33"/></svg>',
+      delete: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 6l4 4M12 6l-4 4"/><path d="M13 13a2 2 0 002-2V5a2 2 0 00-2-2H6.77a2 2 0 00-1.35.52L1.31 7.26a1 1 0 000 1.48l4.11 3.74A2 2 0 006.77 13H13z"/></svg>',
+      arrowLeft: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M4 10.67L1.33 8 4 5.33"/><path d="M14.67 8H1.33"/></svg>',
+      zoom100: '<svg width="12" height="12" viewBox="0 0 16 16"><circle cx="7" cy="7" r="6"/><path d="M15.5 15.5l-3.9-3.9"/></svg>',
+      arrowRight: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M12 10.67L14.67 8 12 5.33"/><path d="M1.33 8h13.34"/></svg>',
+      zoomOut: '<svg width="12" height="12" viewBox="0 0 16 16"><circle cx="7" cy="7" r="6"/><path d="M15.5 15.5l-3.9-3.9"/><path d="M5 7h4"/></svg>',
+      arrowDown: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M5.33 12L8 14.67 10.67 12"/><path d="M8 1.33v13.34"/></svg>',
+      zoomFit: '<svg width="12" height="12" viewBox="0 0 16 16"><circle cx="7" cy="7" r="6"/><path d="M15.5 15.5l-3.9-3.9"/><path d="M4 6l0-2 2 0M4 8l0 2 2 0M10 6l0-2-2 0M10 8l0 2-2 0"/></svg>',
+      exit: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M1.33 5V3.33a1.33 1.33 0 011.34-1.33h2.6a1.33 1.33 0 01.94.37l.54.8a1.33 1.33 0 001.08.53h5.5a1.33 1.33 0 011.34 1.33v7a1.33 1.33 0 01-1.34 1.33H2.67a1.36 1.36 0 01-1.34-1"/><path d="M1.33 8.67H8"/><path d="M3.33 6.67L1.33 8.67l2 2"/></svg>',
+      prevSibling: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M13.33 13.33a1.33 1.33 0 001.34-1.33V5.33A1.33 1.33 0 0013.33 4H8.07a1.33 1.33 0 01-1.08-.53l-.54-.8a1.33 1.33 0 00-1.08-.54H2.67a1.33 1.33 0 00-1.34 1.34V12a1.33 1.33 0 001.34 1.33h10.66z"/><path d="M8 6.67v4"/><path d="M6 8.67l2-2 2 2"/></svg>',
+      layerUp: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M6 5.77L1.73 7.72a.67.67 0 000 1.22l5.72 2.61a1.33 1.33 0 001.1 0l5.73-2.6a.67.67 0 000-1.22L10 5.77"/><path d="M1.33 11.33a.67.67 0 000 1.22l5.72 2.61a1.33 1.33 0 001.1 0l5.73-2.6a.67.67 0 000-1.22"/><path d="M8 .67v7"/><path d="M6 2.67L8 .67l2 2"/></svg>',
+      enter: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M1.33 5V3.33a1.33 1.33 0 011.34-1.33h2.6a1.33 1.33 0 01.94.37l.54.8a1.33 1.33 0 001.08.53h5.5a1.33 1.33 0 011.34 1.33v7a1.33 1.33 0 01-1.34 1.33H2.67a1.36 1.36 0 01-1.34-1"/><path d="M8 8.67H1.33"/><path d="M6 6.67l2 2-2 2"/></svg>',
+      nextSibling: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M13.33 13.33a1.33 1.33 0 001.34-1.33V5.33A1.33 1.33 0 0013.33 4H8.07a1.33 1.33 0 01-1.08-.53l-.54-.8a1.33 1.33 0 00-1.08-.54H2.67a1.33 1.33 0 00-1.34 1.34V12a1.33 1.33 0 001.34 1.33h10.66z"/><path d="M8 10.67V6.67"/><path d="M10 8.67l-2 2-2-2"/></svg>',
+      layerDown: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 15.5v-3.17"/><path d="M6 13.5l2 2 2-2"/><path d="M1.33 6.93a.67.67 0 000 1.22l5.72 2.61a1.33 1.33 0 001.1 0l5.73-2.6a.67.67 0 000-1.22"/><path d="M8.55.72a1.33 1.33 0 00-1.1 0L1.73 3.32a.67.67 0 000 1.22l5.72 2.61a1.33 1.33 0 001.1 0l5.73-2.6a.67.67 0 000-1.22L8.55.72z"/></svg>',
+      collapse: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M4 9.33l1-1.93a1.33 1.33 0 011.16-.73H13.33a1.33 1.33 0 011.3 1.67l-1.03 4a1.36 1.36 0 01-1.3 1h-9.63a1.33 1.33 0 01-1.34-1.34V3.33A1.33 1.33 0 012.67 2h2.6a1.33 1.33 0 01.94.37l.54.8a1.33 1.33 0 001.08.53H12a1.33 1.33 0 011.33 1.33v1.64"/></svg>',
+      eyeOpen: '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M1.33 8s2-4.67 6.67-4.67S14.67 8 14.67 8s-2 4.67-6.67 4.67S1.33 8 1.33 8z"/><circle cx="8" cy="8" r="2"/></svg>',
+      lockOpen: '<svg width="12" height="12" viewBox="0 0 16 16"><rect x="2" y="7.33" width="12" height="7.33" rx="1.33"/><path d="M4.67 7.33V4.67a3.33 3.33 0 016.67 0v2.67"/></svg>',
+    };
+
+    // ===== STATE =====
+    let currentMode = 'navigate'; // 'navigate' | 'preflight'
+    let selectionMode = 'onPage';  // 'onPage' | 'onLayer'
+    let emojiSetIndex = 0;
+    let activeFilter = 'all';
+    const ignoredIds = new Set();
+    let currentAnchorId = 'bk2';
+    let previousBookmarkId = 'bk1';
+
+    // ===== DOM REFS =====
+    const plugin = document.getElementById('plugin');
+    const navView = document.getElementById('navigate-view');
+    const pfView = document.getElementById('preflight-view');
+    const modeToggle = document.getElementById('mode-toggle');
+    const toast = document.getElementById('toast');
+    const emojiGrid = document.getElementById('emoji-grid');
+    const emojiSetName = document.getElementById('emoji-set-name');
+    const bookmarksList = document.getElementById('bookmarks-list');
+    const movementGrid = document.getElementById('movement-grid');
+    const hierarchyGrid = document.getElementById('hierarchy-grid');
+    const errorList = document.getElementById('pf-error-list');
+    const pfCount = document.getElementById('pf-count');
+    const pfEmpty = document.getElementById('pf-empty');
+    const pfFixBanner = document.getElementById('pf-fix-banner');
+    const pfScan = document.getElementById('pf-scan');
+    const pfProgress = document.getElementById('pf-progress');
+    const pfProgressBar = document.getElementById('pf-progress-bar');
+
+    // ===== EMOJI GRID =====
+    function getEmojiSets() { return selectionMode === 'onPage' ? PAGE_EMOJI_SETS : LAYER_EMOJI_SETS; }
+
+    function renderEmojiGrid() {
+      const sets = getEmojiSets();
+      const set = sets[emojiSetIndex];
+      emojiSetName.textContent = set.name;
+      emojiGrid.innerHTML = '';
+      set.emojis.forEach(emoji => {
+        const btn = document.createElement('button');
+        btn.className = 'emoji-button';
+        btn.textContent = emoji;
+        btn.addEventListener('click', () => {
+          document.getElementById('anatomy-emoji').textContent = emoji;
+          document.getElementById('anatomy-emoji').style.display = 'inline-flex';
+          showToast(`Tag applied: ${emoji}`, 'success');
+        });
+        btn.addEventListener('mouseenter', () => {
+          document.getElementById('anatomy-emoji').textContent = emoji;
+          document.getElementById('anatomy-emoji').style.display = 'inline-flex';
+        });
+        btn.addEventListener('mouseleave', () => restoreAnatomyEmoji());
+        emojiGrid.appendChild(btn);
+      });
+    }
+
+    let currentEmoji = '\u{1F7E0}';
+    function restoreAnatomyEmoji() {
+      const el = document.getElementById('anatomy-emoji');
+      if (currentEmoji) { el.textContent = currentEmoji; el.style.display = 'inline-flex'; }
+      else { el.textContent = ''; el.style.display = 'none'; }
+    }
+
+    document.getElementById('emoji-prev').addEventListener('click', () => {
+      const sets = getEmojiSets();
+      emojiSetIndex = (emojiSetIndex - 1 + sets.length) % sets.length;
+      renderEmojiGrid();
+    });
+    document.getElementById('emoji-next').addEventListener('click', () => {
+      const sets = getEmojiSets();
+      emojiSetIndex = (emojiSetIndex + 1) % sets.length;
+      renderEmojiGrid();
+    });
+
+    // ===== BOOKMARKS =====
+    function renderBookmarks() {
+      bookmarksList.innerHTML = '';
+      MOCK_BOOKMARKS.forEach(bk => {
+        const item = document.createElement('div');
+        item.className = 'bookmark-item' +
+          (bk.id === currentAnchorId ? ' active' : '') +
+          (bk.id === previousBookmarkId ? ' recent' : '');
+        item.innerHTML = `<div class="bookmark-dot"></div><span class="bookmark-name">${bk.name}</span><span class="bookmark-page">${bk.pageName}</span>`;
+        item.addEventListener('click', () => {
+          previousBookmarkId = currentAnchorId;
+          currentAnchorId = bk.id;
+          renderBookmarks();
+          showToast(`Jumped to: ${bk.name}`);
+        });
+        bookmarksList.appendChild(item);
+      });
+    }
+
+    // ===== CONTROLS GRIDS =====
+    function btn(icon, cls = '', disabled = false) {
+      return `<button class="nav-button ${cls}" ${disabled ? 'disabled' : ''}>${icon}</button>`;
+    }
+
+    function renderMovementGrid() {
+      const isDisabled = selectionMode === 'onPage';
+      movementGrid.innerHTML =
+        btn(ICONS.zoomIn, 'active-blue') + btn(ICONS.arrowUp, '', isDisabled) + btn(ICONS.delete, '', isDisabled) +
+        btn(ICONS.arrowLeft, '', isDisabled) + btn(ICONS.zoom100, 'active-blue') + btn(ICONS.arrowRight, '', isDisabled) +
+        btn(ICONS.zoomOut, 'active-blue') + btn(ICONS.arrowDown, '', isDisabled) + btn(ICONS.zoomFit, 'active-blue');
+    }
+
+    function renderHierarchyGrid() {
+      const isPage = selectionMode === 'onPage';
+      hierarchyGrid.innerHTML =
+        btn(ICONS.exit, '', isPage) + btn(ICONS.prevSibling, '', isPage) + btn(ICONS.layerUp, '', isPage) +
+        btn(ICONS.enter, 'active-gold') +
+        btn(ICONS.nextSibling, 'active-gold') +
+        btn(ICONS.layerDown, '', isPage) +
+        btn(ICONS.collapse, '', isPage) + btn(ICONS.eyeOpen, '', isPage) + btn(ICONS.lockOpen, '', isPage);
+    }
+
+    // ===== MODE TOGGLE (PAGE / LAYER simulation) =====
+    function setSelectionMode(mode) {
+      selectionMode = mode;
+      const badge = document.getElementById('mode-badge');
+      const hierBadge = document.getElementById('hierarchy-badge');
+      const label = mode === 'onPage' ? 'PAGE' : 'LAYER';
+      badge.textContent = label;
+      badge.dataset.mode = mode;
+      hierBadge.textContent = label;
+      hierBadge.dataset.mode = mode;
+
+      // Show/hide page-only actions
+      document.getElementById('page-actions-group').style.display = mode === 'onPage' ? 'flex' : 'none';
+      document.getElementById('indent-buttons').style.display = mode === 'onPage' ? 'flex' : 'none';
+
+      // Update emoji to layer type
+      emojiSetIndex = 0;
+      if (mode === 'onLayer') {
+        currentEmoji = '\u{1F7E5}';
+        document.getElementById('anatomy-emoji').textContent = currentEmoji;
+        document.getElementById('anatomy-date').style.display = 'none';
+        document.getElementById('anatomy-prefix').style.display = 'none';
+      } else {
+        currentEmoji = '\u{1F7E0}';
+        document.getElementById('anatomy-emoji').textContent = currentEmoji;
+        document.getElementById('anatomy-date').style.display = 'flex';
+        document.getElementById('anatomy-prefix').style.display = 'inline';
+      }
+
+      renderEmojiGrid();
+      renderMovementGrid();
+      renderHierarchyGrid();
+
+      // Enable/disable back/forward based on simulated history
+      document.getElementById('nav-back').disabled = mode === 'onPage';
+      document.getElementById('nav-forward').disabled = true;
+    }
+
+    // Click simulation: clicking inside plugin toggles layer selection
+    let layerSelected = false;
+    document.getElementById('navigate-view').addEventListener('dblclick', (e) => {
+      if (e.target.closest('.section-header') || e.target.closest('button')) return;
+      layerSelected = !layerSelected;
+      setSelectionMode(layerSelected ? 'onLayer' : 'onPage');
+      showToast(layerSelected ? 'Layer selected: Button/Primary' : 'Deselected (page mode)');
+    });
+
+    // ===== NAV / PREFLIGHT MODE SWITCH =====
+    function toggleMode() {
+      if (currentMode === 'navigate') {
+        currentMode = 'preflight';
+        navView.classList.remove('active');
+        pfView.classList.add('active');
+        modeToggle.textContent = 'PREFLIGHT';
+        modeToggle.classList.remove('nav-active');
+        modeToggle.classList.add('pf-active');
+        runScan();
+      } else {
+        currentMode = 'navigate';
+        pfView.classList.remove('active');
+        navView.classList.add('active');
+        modeToggle.textContent = 'NAV';
+        modeToggle.classList.remove('pf-active');
+        modeToggle.classList.add('nav-active');
+      }
+    }
+    modeToggle.addEventListener('click', toggleMode);
+
+    // ===== SECTION COLLAPSE =====
+    document.querySelectorAll('.section-header').forEach(header => {
+      header.addEventListener('click', (e) => {
+        if (e.target.closest('button') || e.target.closest('nav')) return;
+        const targetId = header.dataset.target;
+        const content = document.getElementById(targetId);
+        if (content) content.classList.toggle('collapsed');
+      });
+    });
+
+    // ===== SETTINGS =====
+    document.getElementById('settings-btn').addEventListener('click', () => {
+      document.getElementById('settings-overlay').classList.add('open');
+    });
+    document.getElementById('settings-close').addEventListener('click', () => {
+      document.getElementById('settings-overlay').classList.remove('open');
+    });
+    document.getElementById('settings-overlay').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('settings-overlay'))
+        document.getElementById('settings-overlay').classList.remove('open');
+    });
+
+    // Theme switching
+    document.getElementById('theme-selector').addEventListener('click', (e) => {
+      const option = e.target.closest('.theme-option');
+      if (!option) return;
+      let theme = option.dataset.theme;
+      if (theme === 'system') theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      plugin.dataset.theme = theme;
+      document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+      option.classList.add('active');
+      showToast(`Theme: ${option.querySelector('.theme-name').textContent}`, 'success');
+    });
+
+    // ===== PREFLIGHT LOGIC =====
+    function getFilteredErrors() {
+      return ERRORS.filter(e => activeFilter === 'all' || e.category === activeFilter);
+    }
+
+    function renderErrors() {
+      const filtered = getFilteredErrors();
+      const visible = filtered.filter(e => !ignoredIds.has(e.id));
+      const fixable = visible.filter(e => e.fixable);
+
+      errorList.innerHTML = '';
+      pfEmpty.classList.toggle('active', visible.length === 0);
+      pfFixBanner.style.display = fixable.length > 0 ? 'flex' : 'none';
+      document.querySelector('.pf-fix-count').textContent = `${fixable.length} auto-fixable`;
+      pfCount.textContent = visible.length;
+
+      visible.forEach(err => {
+        const card = document.createElement('div');
+        card.className = 'pf-card';
+        card.innerHTML = `
+          <div class="pf-card-header"><div class="pf-cat-dot ${err.category}"></div><span class="pf-node-name">${err.node}</span></div>
+          <div class="pf-card-detail">${err.detail}<br><span class="pf-card-value">${err.value}</span>${err.suggestion ? `<br><span style="color:var(--theme-success);font-size:10px;">&rarr; ${err.suggestion}</span>` : ''}</div>
+          <div class="pf-card-actions">
+            <button class="pf-action-btn" data-action="select" data-id="${err.id}">Select</button>
+            <button class="pf-action-btn fix${err.fixable ? '' : ' disabled'}" data-action="fix" data-id="${err.id}">Fix</button>
+            <button class="pf-action-btn" data-action="ignore" data-id="${err.id}" style="color:var(--theme-text-disabled)">Ignore</button>
+          </div>`;
+        errorList.appendChild(card);
+      });
+    }
+
+    errorList?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const err = ERRORS.find(e => e.id === id);
+      if (btn.dataset.action === 'select') showToast(`Selected: ${err.node}`);
+      if (btn.dataset.action === 'fix' && err.fixable) {
+        ERRORS.splice(ERRORS.indexOf(err), 1);
+        showToast(`Fixed: ${err.node} -> ${err.suggestion}`, 'success');
+        updateCounts(); renderErrors();
+      }
+      if (btn.dataset.action === 'ignore') { ignoredIds.add(id); showToast('Error ignored'); renderErrors(); }
+    });
+
+    pfFixBanner?.addEventListener('click', () => {
+      const fixable = getFilteredErrors().filter(e => e.fixable && !ignoredIds.has(e.id));
+      fixable.forEach(e => { const idx = ERRORS.indexOf(e); if (idx > -1) ERRORS.splice(idx, 1); });
+      showToast(`Fixed ${fixable.length} errors`, 'success');
+      updateCounts(); renderErrors();
+    });
+
+    function updateCounts() {
+      document.querySelectorAll('.pf-pill').forEach(pill => {
+        const f = pill.dataset.filter;
+        const count = f === 'all' ? ERRORS.filter(e => !ignoredIds.has(e.id)).length : ERRORS.filter(e => e.category === f && !ignoredIds.has(e.id)).length;
+        pill.querySelector('.pf-pill-count').textContent = count;
+      });
+    }
+
+    document.getElementById('pf-filters')?.addEventListener('click', (e) => {
+      const pill = e.target.closest('.pf-pill');
+      if (!pill) return;
+      document.querySelectorAll('.pf-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeFilter = pill.dataset.filter;
+      renderErrors();
+    });
+
+    function runScan() {
+      pfScan.classList.add('scanning');
+      pfProgress.classList.add('active');
+      pfProgressBar.style.width = '0%';
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 15 + 5;
+        if (progress >= 100) { progress = 100; clearInterval(interval);
+          setTimeout(() => { pfScan.classList.remove('scanning'); pfProgress.classList.remove('active'); showToast('Scan complete', 'success'); }, 300);
+        }
+        pfProgressBar.style.width = progress + '%';
+      }, 150);
+    }
+    pfScan?.addEventListener('click', runScan);
+
+    // ===== DATE BUTTON =====
+    document.getElementById('date-btn-mock')?.addEventListener('mouseenter', () => {
+      const d = document.getElementById('anatomy-date');
+      const now = new Date();
+      d.textContent = `${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} :`;
+      d.style.display = 'flex'; d.style.opacity = '1';
+    });
+    document.getElementById('date-btn-mock')?.addEventListener('mouseleave', () => {
+      const d = document.getElementById('anatomy-date');
+      d.style.opacity = '0.6';
+    });
+
+    // ===== TOAST =====
+    function showToast(msg, type = '') {
+      toast.textContent = msg;
+      toast.className = `toast show ${type}`;
+      setTimeout(() => { toast.className = 'toast'; }, 1500);
+    }
+
+    // ===== INIT =====
+    renderEmojiGrid();
+    renderBookmarks();
+    renderMovementGrid();
+    renderHierarchyGrid();
+    renderErrors();
+
+    // Double-click hint
+    setTimeout(() => showToast('Double-click content to toggle PAGE/LAYER'), 1200);
+  </script>
+</body>
+</html>

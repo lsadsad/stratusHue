@@ -1,4 +1,16 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.00001 7.99999C2.00001 9.18668 2.3519 10.3467 3.01119 11.3334C3.67048 12.3201 4.60755 13.0891 5.7039 13.5433C6.80026 13.9974 8.00666 14.1162 9.17054 13.8847C10.3344 13.6532 11.4035 13.0817 12.2426 12.2426C13.0818 11.4035 13.6532 10.3344 13.8847 9.17054C14.1162 8.00665 13.9974 6.80025 13.5433 5.7039C13.0891 4.60754 12.3201 3.67047 11.3334 3.01118C10.3467 2.35189 9.18669 2 8 2C6.32 2 4.71334 2.66667 3.50667 3.82666L2.00001 5.33333" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M1.99992 2V5.33333H5.33325" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- @license lucide-static v0.577.0 - ISC -->
+<svg
+  class="lucide lucide-rotate-ccw"
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+  <path d="M3 3v5h5" />
 </svg>

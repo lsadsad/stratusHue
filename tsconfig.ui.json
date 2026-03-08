@@ -11,6 +11,13 @@
     "strict": true,
     "noEmit": true
   },
-  "include": ["src/ui.ts", "src/types/**/*.d.ts"],
+  "include": [
+    "src/ui.ts",
+    "src/ui/shared/**/*.ts",
+    "src/ui/navigate/**/*.ts",
+    "src/ui/lint/**/*.ts",
+    "src/ui/scaffold/**/*.ts",
+    "src/types/**/*.d.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

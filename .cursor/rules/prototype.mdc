@@ -1,0 +1,70 @@
+---
+description: Prototype system — how plugin.html is built, synced, and structured
+alwaysApply: true
+---
+
+# Prototype System
+
+`prototype/plugin.html` is **not hand-authored** — it is a generated file produced by patching the compiled `dist/ui.html` with a Figma mock shim. Never edit it directly; regenerate it instead.
+
+## Sync command
+
+```bash
+npm run sync:prototype                  # full build (npm run build) then patch
+npm run sync:prototype -- --no-build   # patch only — skip rebuild, use when only editing shim.js
+```
+
+### What `scripts/sync-prototype.js` does
+
+1. Runs `npm run build` (skipped with `--no-build`)
+2. Reads `dist/ui.html` (the fresh build artifact)
+3. Injects `prototype/shim.js` as a `<script>` block before `</head>`
+4. Wraps `<main class="scrollable-content">` … `</footer>` in `<div id="plugin-chrome">` with a simulated Figma title bar (logo base64-encoded from `assets/12.27 _ logo.png` at patch time)
+5. Writes the result to `prototype/plugin.html`
+
+## Canonical source files
+
+| File | Role |
+|---|---|
+| `prototype/shim.js` | **Edit this** — source of truth for mock data, postMessage handling, control panel, CSS overrides |
+| `scripts/sync-prototype.js` | Patch script — reads `dist/ui.html` + `shim.js`, writes `plugin.html` |
+| `prototype/plugin.html` | **Generated output — do not edit** |
+
+## What the shim does
+
+### `parent.postMessage` interception
+Instead of a blanket no-op, the shim intercepts specific outbound messages and responds:
+- `toggle-width` → resizes `#plugin-chrome`, `main`, and `footer` between 240 px ↔ 188 px (matching `figma.ui.resize`)
+- `toggle-controls` → echoes back a `controls-setting` message so `ui.ts` can update controls visibility
+
+All other outbound messages are silently dropped.
+
+### CSS overrides (injected into `<head>`)
+- `html` gets a light gray background (`#e8e8e8`)
+- `body` becomes `display: flex; flex-direction: row` for side-by-side plugin + control panel layout
+- `#plugin-chrome` is a 240 px wide flex column card with shadow and `border-radius: 10px`
+- `#plugin-title-bar` is always white (Figma chrome convention)
+- `main.scrollable-content` and `footer` use `var(--color-background-main)` so all themes paint correctly
+
+### Mock messages (fired 300 ms after `DOMContentLoaded`)
+`theme-preference`, `ui-section-states`, `selection-state`, `emoji-navigation-state`, `bookmarks`, `navigation-state`, `controls-setting`, `controls-group-settings`, `navigation-context-update`, `nudge-settings`, `update-layout-state`
+
+### Control panel (`#ctrl-panel`)
+Appended to `<body>` as a sidebar next to `#plugin-chrome`.
+- **Theme** buttons: `figma-dark` / `figma-light` / `boilerplate` / `cybertron` — calls `document.documentElement.setAttribute('data-theme', key)` directly
+- **State** buttons: `Layer Selected` / `No Selection` — fires the relevant mock sandbox messages
+- A `MutationObserver` on `data-theme` keeps control-panel button active states in sync when the theme is changed from the Settings panel inside the plugin
+
+### Settings overlay
+A `MutationObserver` watches `#settings-overlay` for the `open` class. When it opens, the overlay is repositioned via inline styles to match `#plugin-chrome`'s exact bounding rect, confining the modal to the card rather than the full browser viewport.
+
+## Theme switching
+
+The control panel and the plugin's own Settings panel both change `data-theme` on `<html>`. They stay in sync automatically via the `MutationObserver` described above. All five themes work because `prototype/plugin.html` embeds the full compiled `src/styles.css`.
+
+## Serving locally
+
+```bash
+npx serve prototype   # or any static server pointed at the prototype/ folder
+```
+Then open `http://localhost:3000/plugin.html`.

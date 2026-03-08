@@ -1,11 +1,16 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_1621_183639)">
-<path d="M12 10.6665L14.6667 7.99984L12 5.33317" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M1.33325 8L14.6666 8" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
-<defs>
-<clipPath id="clip0_1621_183639">
-<rect width="16" height="16" fill="white" transform="translate(0 16) rotate(-90)"/>
-</clipPath>
-</defs>
+<!-- @license lucide-static v0.577.0 - ISC -->
+<svg
+  class="lucide lucide-arrow-right"
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M5 12h14" />
+  <path d="m12 5 7 7-7 7" />
 </svg>

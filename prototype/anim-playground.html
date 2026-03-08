@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SVG Animation Playground — stratusHue</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #1a1a1a;
+    --surface:  #242424;
+    --card:     #2c2c2c;
+    --border:   #383838;
+    --text:     #e0e0e0;
+    --muted:    #888;
+    --accent:   #18a0fb;
+    --danger:   #f24822;
+    --success:  #1bc47d;
+    --icon:     white;
+    --pill-h:   28px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    font-size: 12px;
+    min-height: 100vh;
+    padding: 32px 24px 64px;
+  }
+
+  h1 { font-size: 18px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.3px; }
+  .subtitle { color: var(--muted); font-size: 11px; margin-bottom: 32px; }
+
+  /* ── section ── */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── grid of cards ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .card:hover { border-color: #555; background: #323232; }
+  .card:active { background: #2a2a2a; }
+
+  .icon-wrap {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: var(--surface);
+  }
+
+  .card-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.4;
+  }
+  .card-tag {
+    font-size: 9px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--accent);
+  }
+
+  /* ── inline SVGs inherit currentColor ── */
+  .icon-wrap svg { display: block; }
+
+  /* ── animation legend ── */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  /* ════════════════════════════════════
+     ANIMATION DEFINITIONS
+     ════════════════════════════════════ */
+
+  /* 1. Press / tap feedback — scale down then snap back */
+  @keyframes press {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(0.78); }
+    70%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  .anim-press:active svg,
+  .demo-press svg { animation: press 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+  /* 2. Directional nudge — arrow icons feel like they "push" */
+  @keyframes nudge-up    { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-3px)} 70%{transform:translateY(1px)} }
+  @keyframes nudge-down  { 0%,100%{transform:translateY(0)} 40%{transform:translateY(3px)}  70%{transform:translateY(-1px)} }
+  @keyframes nudge-left  { 0%,100%{transform:translateX(0)} 40%{transform:translateX(-3px)} 70%{transform:translateX(1px)} }
+  @keyframes nudge-right { 0%,100%{transform:translateX(0)} 40%{transform:translateX(3px)}  70%{transform:translateX(-1px)} }
+
+  .anim-nudge-up:active    svg, .demo-nudge-up    svg { animation: nudge-up    0.28s ease-out; }
+  .anim-nudge-down:active  svg, .demo-nudge-down  svg { animation: nudge-down  0.28s ease-out; }
+  .anim-nudge-left:active  svg, .demo-nudge-left  svg { animation: nudge-left  0.28s ease-out; }
+  .anim-nudge-right:active svg, .demo-nudge-right svg { animation: nudge-right 0.28s ease-out; }
+
+  /* 3. Shake — for destructive / error actions */
+  @keyframes shake {
+    0%,100%{ transform: translateX(0) }
+    15%    { transform: translateX(-3px) }
+    30%    { transform: translateX(3px) }
+    45%    { transform: translateX(-2.5px) }
+    60%    { transform: translateX(2.5px) }
+    75%    { transform: translateX(-1.5px) }
+    90%    { transform: translateX(1.5px) }
+  }
+  .anim-shake:active svg, .demo-shake svg { animation: shake 0.45s ease-out; }
+
+  /* 4. Spin — for refresh / loading */
+  @keyframes spin-once { to { transform: rotate(360deg); } }
+  .anim-spin:active svg, .demo-spin svg { animation: spin-once 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  /* 5. Bounce-in — for success / save actions (bookmark pin drop) */
+  @keyframes bounce-in {
+    0%   { transform: translateY(-6px) scale(0.85); opacity: 0.6; }
+    60%  { transform: translateY(2px) scale(1.05); opacity: 1; }
+    80%  { transform: translateY(-1px) scale(0.98); }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .anim-bounce:active svg, .demo-bounce svg { animation: bounce-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+  /* 6. Draw-on stroke (uses stroke-dashoffset trick) */
+  @keyframes draw {
+    from { stroke-dashoffset: 60; opacity: 0.5; }
+    to   { stroke-dashoffset: 0;  opacity: 1; }
+  }
+  .anim-draw:active svg path, .demo-draw svg path {
+    stroke-dasharray: 60;
+    animation: draw 0.4s ease-out forwards;
+  }
+
+  /* 7. Pulse ring — hover attention */
+  @keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0 rgba(24,160,251,0.5); }
+    70%  { box-shadow: 0 0 0 6px rgba(24,160,251,0);  }
+    100% { box-shadow: 0 0 0 0 rgba(24,160,251,0);   }
+  }
+  .anim-pulse .icon-wrap:hover, .demo-pulse .icon-wrap {
+    animation: pulse-ring 0.7s ease-out;
+  }
+
+  /* ── demo triggers (auto-loop for showcase) ── */
+  .demo-press    svg { animation: press       1.8s cubic-bezier(0.34,1.56,0.64,1) infinite; animation-delay: 0.5s; }
+  .demo-nudge-up svg { animation: nudge-up    1.8s ease-out infinite; animation-delay: 0.8s; }
+  .demo-nudge-left svg { animation: nudge-left 1.8s ease-out infinite; animation-delay: 0.3s; }
+  .demo-shake    svg { animation: shake       2.2s ease-out infinite; animation-delay: 1s; }
+  .demo-spin     svg { animation: spin-once   1.8s cubic-bezier(0.4,0,0.2,1) infinite; animation-delay: 0.2s; }
+  .demo-bounce   svg { animation: bounce-in   2s cubic-bezier(0.34,1.56,0.64,1) infinite; animation-delay: 0.6s; }
+  .demo-draw svg path {
+    stroke-dasharray: 60;
+    animation: draw 2s ease-out infinite; animation-delay: 0.4s;
+  }
+
+  /* disable for reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  /* ── notes ── */
+  .note {
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 12px;
+    line-height: 1.6;
+  }
+  .note strong { color: var(--text); }
+
+  .tag-css  { background: rgba(24,160,251,0.12); border-color: rgba(24,160,251,0.3); color: var(--accent); }
+  .tag-svg  { background: rgba(27,196,125,0.12); border-color: rgba(27,196,125,0.3); color: var(--success); }
+</style>
+</head>
+<body>
+
+<h1>SVG Animation Playground</h1>
+<p class="subtitle">Hover a card to preview · Click / tap to trigger · Looping demos shown in each section</p>
+
+<!-- ─── LEGEND ─── -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> CSS only — works with existing <code>&lt;img&gt;</code> SVGs, zero file changes</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--success)"></div> Animated SVG — needs a change inside the .svg file</div>
+</div>
+
+<div class="note" style="margin-bottom:28px; border-color: rgba(24,160,251,0.3); background: rgba(24,160,251,0.06);">
+  <strong style="color:var(--accent)">How it works with your existing SVGs:</strong><br>
+  Sections 1–5 animate the <code>&lt;img&gt;</code> tag or its wrapper element — your SVG files don't change at all.
+  They're treating the SVG like a bitmap that gets carried along for the ride.<br><br>
+  Section 6 (draw-on stroke) is the only one that needs to reach inside the SVG paths.
+  That requires either embedding a <code>&lt;style&gt;</code> block inside the <code>.svg</code> file,
+  or switching from <code>&lt;img&gt;</code> to inline <code>&lt;svg&gt;</code> markup at build time.
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 1: PRESS / TAP FEEDBACK
+     Best for: every button — confirms the click
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">1 · Press feedback — scale bounce <span class="card-tag tag-css">CSS</span></div>
+  <div class="grid">
+
+    <div class="card anim-press demo-press">
+      <div class="icon-wrap">
+        <!-- Zoom In -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15.5 15.5L11.6 11.6" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 13A6 6 0 1 0 7 1a6 6 0 0 0 0 12Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 5v4M5 7h4" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Zoom In</span>
+    </div>
+
+    <div class="card anim-press" style="animation-delay:0.3s">
+      <div class="icon-wrap">
+        <!-- Zoom Out -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15.5 15.5L11.6 11.6" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 13A6 6 0 1 0 7 1a6 6 0 0 0 0 12Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 7h4" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Zoom Out</span>
+    </div>
+
+    <div class="card anim-press">
+      <div class="icon-wrap">
+        <!-- Zoom 100% -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15.5 15.5L11.6 11.6" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 13A6 6 0 1 0 7 1a6 6 0 0 0 0 12Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6.5 7H7.5M7.5 7V5M7.5 7V9" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Zoom 100%</span>
+    </div>
+
+    <div class="card anim-press">
+      <div class="icon-wrap">
+        <!-- Fit / zoom selection -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 5V2h3M15 5V2h-3M1 11v3h3M15 11v3h-3" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="5" y="5" width="6" height="6" rx="1" stroke="white" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Fit to Selection</span>
+    </div>
+
+  </div>
+  <div class="note"><strong>How it works:</strong> A single <code>@keyframes press</code> rule in styles.css — scale down to 0.78, overshoot to 1.08, settle at 1. Applied via <code>:active svg</code>. No SVG changes needed.</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 2: DIRECTIONAL NUDGE
+     Best for: arrow buttons — motion echoes intent
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">2 · Directional nudge — arrows feel like they push <span class="card-tag tag-css">CSS</span></div>
+  <div class="grid">
+
+    <div class="card anim-nudge-up demo-nudge-up">
+      <div class="icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5.333 4L8 1.333 10.667 4" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 14.667V1.333" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Arrow Up</span>
+    </div>
+
+    <div class="card anim-nudge-down">
+      <div class="icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.667 12L8 14.667 5.333 12" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 1.333V14.667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Arrow Down</span>
+    </div>
+
+    <div class="card anim-nudge-left demo-nudge-left">
+      <div class="icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 5.333L1.333 8 4 10.667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14.667 8H1.333" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Arrow Left</span>
+    </div>
+
+    <div class="card anim-nudge-right">
+      <div class="icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5.333L14.667 8 12 10.667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1.333 8H14.667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Arrow Right</span>
+    </div>
+
+  </div>
+  <div class="note"><strong>How it works:</strong> Each arrow gets a matching <code>nudge-up / nudge-down / nudge-left / nudge-right</code> keyframe — translates 3px in the arrow's direction then springs back. Applied per button ID in styles.css.</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 3: SHAKE (destructive)
+     Best for: Delete / backspace / remove tag
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">3 · Shake — confirms destructive actions <span class="card-tag tag-css">CSS</span></div>
+  <div class="grid">
+
+    <div class="card anim-shake demo-shake">
+      <div class="icon-wrap">
+        <!-- Delete / backspace -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 6L12 10" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 6L8 10" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13 13c1.105 0 2-.895 2-2V5c0-1.105-.895-2-2-2H6.773c-.498 0-.977.185-1.345.52L1.314 7.26a1 1 0 0 0 0 1.48l4.114 3.74c.368.335.847.52 1.345.52H13Z" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Backspace / Clear</span>
+    </div>
+
+    <div class="card anim-shake">
+      <div class="icon-wrap">
+        <!-- Remove tag -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="8" r="6" stroke="white" stroke-linecap="round"/>
+          <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="white" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Remove Tag</span>
+    </div>
+
+  </div>
+  <div class="note"><strong>How it works:</strong> Rapid left-right translate with decreasing amplitude. The mechanical "no" gesture reinforces that something was deleted. Fires once on click, not on hover.</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 4: SPIN (refresh / loading)
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">4 · Spin — for refresh and anchor sync <span class="card-tag tag-css">CSS</span></div>
+  <div class="grid">
+
+    <div class="card anim-spin demo-spin">
+      <div class="icon-wrap">
+        <!-- Anchor refresh -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 8A6 6 0 0 1 2.5 12.5" stroke="white" stroke-width="1.25" stroke-linecap="round"/>
+          <path d="M2 8A6 6 0 0 1 13.5 3.5" stroke="white" stroke-width="1.25" stroke-linecap="round"/>
+          <path d="M14 5V8h-3" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 11v-3h3" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Refresh / Sync</span>
+    </div>
+
+    <div class="card anim-spin">
+      <div class="icon-wrap">
+        <!-- Settings -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="8" r="2.5" stroke="white" stroke-linecap="round"/>
+          <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.414 1.414M11.536 11.536l1.414 1.414M3.05 12.95l1.414-1.414M11.536 4.464l1.414-1.414" stroke="white" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Settings</span>
+    </div>
+
+  </div>
+  <div class="note"><strong>How it works:</strong> <code>rotate(360deg)</code> with a ease-in-out curve so it accelerates and decelerates — feels like a real physical cog rather than a mechanical spinner.</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 5: BOUNCE-IN (bookmark drop)
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">5 · Bounce-in — for save / add actions <span class="card-tag tag-css">CSS</span></div>
+  <div class="grid">
+
+    <div class="card anim-bounce demo-bounce">
+      <div class="icon-wrap">
+        <!-- Anchor / bookmark -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 14.667V5.333" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3.333 8H1.333C1.333 9.768 2.036 11.464 3.286 12.714 4.536 13.964 6.232 14.667 8 14.667c1.768 0 3.464-.703 4.714-1.953C13.964 11.464 14.667 9.768 14.667 8H12.667" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="8" cy="3.333" r="2" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Save Bookmark</span>
+    </div>
+
+    <div class="card anim-bounce">
+      <div class="icon-wrap">
+        <!-- Add page -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 3v10M3 8h10" stroke="white" stroke-width="1.25" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Add / Create</span>
+    </div>
+
+  </div>
+  <div class="note"><strong>How it works:</strong> Starts above (translateY -6px, scaled down), drops with overshoot, settles. Mimics gravity — reinforces "something was placed".</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 6: DRAW-ON (SVG stroke trick)
+     Requires animated SVG (Sub-approach A)
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">6 · Draw-on stroke — icon traces itself on action <span class="card-tag tag-svg">Animated SVG</span></div>
+  <div class="grid">
+
+    <div class="card anim-draw demo-draw">
+      <div class="icon-wrap">
+        <!-- Folder Enter with arrow -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.333 5V3.333A1.333 1.333 0 0 1 2.667 2H5.267c.457 0 .896.193 1.205.534L7.2 3.4A1.333 1.333 0 0 0 8.147 4H13.333A1.333 1.333 0 0 1 14.667 5.333V12A1.333 1.333 0 0 1 13.333 13.333H2.667A1.333 1.333 0 0 1 1.333 12.333" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 8.667H1.333" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 6.667L8 8.667 6 10.667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Enter Folder</span>
+    </div>
+
+    <div class="card anim-draw">
+      <div class="icon-wrap">
+        <!-- Nav back arrow -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5.375 11.75L1 7.375l4.375-4.375" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15 12.625v-1.75A4 4 0 0 0 11 7.375H1" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Nav Back</span>
+    </div>
+
+  </div>
+  <div class="note"><strong>How it works:</strong> <code>stroke-dasharray</code> sets the stroke length; <code>stroke-dashoffset</code> animates from that length to 0 — the path "draws itself". This lives inside the SVG file (Sub-approach A). The CSS class <code>anim-draw</code> just triggers it. <strong>Click / hover a card to see it fire.</strong></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     COMPARISON: SAME ICON, 3 APPROACHES
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Same icon — 3 different motion personalities</div>
+  <div class="grid">
+
+    <div class="card anim-press">
+      <div class="icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5.333 4L8 1.333 10.667 4" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 14.667V1.333" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Press bounce</span>
+      <span class="card-tag tag-css">CSS</span>
+    </div>
+
+    <div class="card anim-nudge-up">
+      <div class="icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5.333 4L8 1.333 10.667 4" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 14.667V1.333" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Directional nudge</span>
+      <span class="card-tag tag-css">CSS</span>
+    </div>
+
+    <div class="card anim-draw">
+      <div class="icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5.333 4L8 1.333 10.667 4" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 14.667V1.333" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="card-label">Draw-on stroke</span>
+      <span class="card-tag tag-svg">SVG</span>
+    </div>
+
+  </div>
+  <div class="note"><strong>Try clicking all three.</strong> Press bounce works for any button. Directional nudge adds semantic meaning. Draw-on is best for transitions or "appearing" states — a bit heavy for a simple click.</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HOW IT CONNECTS TO THE REAL CODE
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">How these connect to your real code</div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+
+    <div class="note" style="border-color:rgba(24,160,251,0.3); background:rgba(24,160,251,0.06);">
+      <strong style="color:var(--accent)">Sections 1–5 · CSS only</strong><br><br>
+      Your <code>ui.html</code> stays exactly as-is.<br>
+      Your <code>assets/*.svg</code> files stay exactly as-is.<br><br>
+      We add <code>@keyframes</code> to <code>styles.css</code> and wire them to button selectors like:<br><br>
+      <code style="display:block; background:#111; padding:8px; border-radius:4px; line-height:1.7">
+        #nav-up-btn:active .nav-icon {<br>
+        &nbsp;&nbsp;animation: nudge-up 0.28s ease-out;<br>
+        }<br>
+        #refresh-anchors:active .icon {<br>
+        &nbsp;&nbsp;animation: spin-once 0.5s ease-in-out;<br>
+        }
+      </code><br>
+      One <code>npm run build</code> and it's live in the plugin.
+    </div>
+
+    <div class="note" style="border-color:rgba(27,196,125,0.3); background:rgba(27,196,125,0.06);">
+      <strong style="color:var(--success)">Section 6 · Animated SVG (draw-on)</strong><br><br>
+      We add a <code>&lt;style&gt;</code> block + <code>@keyframes</code> <em>inside</em> the <code>.svg</code> file.
+      The animation is self-contained and plays when the SVG is displayed — even as a base64 <code>&lt;img&gt;</code>.<br><br>
+      <code style="display:block; background:#111; padding:8px; border-radius:4px; line-height:1.7">
+        &lt;!-- inside ICO-navBack.svg --&gt;<br>
+        &lt;style&gt;<br>
+        &nbsp;&nbsp;.arrow { animation: draw 0.4s ease-out; }<br>
+        &nbsp;&nbsp;@keyframes draw {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;from { stroke-dashoffset: 60; }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;to   { stroke-dashoffset: 0; }<br>
+        &nbsp;&nbsp;}<br>
+        &lt;/style&gt;
+      </code><br>
+      Prototype preview: open <code>assets/ICO-navBack.svg</code> directly in a browser tab — the animation runs there first, no build needed.
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FIGMA EXPORT → INLINE-READY: THE 4 FIXES
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">What Figma exports vs what you need for inline</div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+
+    <div class="note" style="border-color:rgba(242,72,34,0.3); background:rgba(242,72,34,0.05); font-size:10px;">
+      <strong style="color:#f24822">❌ Figma export (4 problems)</strong>
+      <pre style="margin-top:10px; line-height:1.8; color:#ccc; font-size:9.5px; white-space:pre-wrap"><span style="background:rgba(242,72,34,0.2); border-radius:2px">&lt;svg width="16" height="16"</span> viewBox="0 0 16 16"
+     fill="none" xmlns="..."&gt;
+
+  <span style="background:rgba(242,72,34,0.2); border-radius:2px">&lt;g clip-path="url(#clip0_1848_191524)"&gt;</span>
+
+    &lt;path d="M15.5 15.5L11.6..."
+      <span style="background:rgba(242,72,34,0.2); border-radius:2px">stroke="white"</span>
+      stroke-linecap="round"/&gt;
+
+  &lt;/g&gt;
+
+  <span style="background:rgba(242,72,34,0.2); border-radius:2px">&lt;defs&gt;
+    &lt;clipPath id="clip0_1848_191524"&gt;
+      &lt;rect width="16" height="16" fill="white"/&gt;
+    &lt;/clipPath&gt;
+  &lt;/defs&gt;</span>
+
+&lt;/svg&gt;</pre>
+      <div style="margin-top:8px; line-height:1.9">
+        <span style="color:#f24822">①</span> <code>width/height</code> on root — locks icon size, CSS can't resize it<br>
+        <span style="color:#f24822">②</span> <code>clip-path="url(#...)"</code> wrapper — Figma-only ID that conflicts when multiple inline SVGs are on the same page<br>
+        <span style="color:#f24822">③</span> <code>stroke="white"</code> — hardcoded, theme-blind<br>
+        <span style="color:#f24822">④</span> <code>&lt;defs&gt;&lt;clipPath&gt;</code> block — redundant (just clips to viewBox), must be removed along with ②
+      </div>
+    </div>
+
+    <div class="note" style="border-color:rgba(27,196,125,0.3); background:rgba(27,196,125,0.05); font-size:10px;">
+      <strong style="color:#1bc47d">✅ Inline-ready (4 fixes applied)</strong>
+      <pre style="margin-top:10px; line-height:1.8; color:#ccc; font-size:9.5px; white-space:pre-wrap">&lt;svg viewBox="0 0 16 16"
+     fill="none" xmlns="..."&gt;
+
+  &lt;path d="M15.5 15.5L11.6..."
+    <span style="background:rgba(27,196,125,0.2); border-radius:2px">stroke="currentColor"</span>
+    stroke-linecap="round"/&gt;
+
+&lt;/svg&gt;</pre>
+      <div style="margin-top:8px; line-height:1.9">
+        <span style="color:#1bc47d">①</span> <code>width/height</code> removed — CSS controls size via container<br>
+        <span style="color:#1bc47d">②</span> <code>&lt;g clip-path&gt;</code> wrapper removed — paths promoted to root<br>
+        <span style="color:#1bc47d">③</span> <code>stroke="currentColor"</code> — inherits from CSS <code>color:</code> property<br>
+        <span style="color:#1bc47d">④</span> entire <code>&lt;defs&gt;</code> block removed — no orphaned IDs
+      </div>
+    </div>
+  </div>
+
+  <div class="note" style="border-color:rgba(24,160,251,0.25); background:rgba(24,160,251,0.04); font-size:10px;">
+    <strong>Lucide is already ✅ on 3 of 4.</strong> When you copy from the Lucide website or <code>lucide-static</code> package,
+    icons already use <code>stroke="currentColor"</code>, have no clipPath IDs, and no <code>&lt;defs&gt;</code>.
+    The only thing to remove is <code>width="24" height="24"</code> from the root <code>&lt;svg&gt;</code>.
+    That's a one-second edit — no Figma step needed at all.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     LIVE DEMO: LOCKED WHITE vs currentColor
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Live demo — theme-locked vs theme-aware</div>
+
+  <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap">
+    <span style="font-size:10px; color:var(--muted); align-self:center; margin-right:4px">Switch icon color:</span>
+    <button onclick="setIconColor('white')"    style="padding:4px 12px; border-radius:4px; border:1px solid #555; background:#333; color:white;   font-size:10px; cursor:pointer">White (default)</button>
+    <button onclick="setIconColor('#18a0fb')"  style="padding:4px 12px; border-radius:4px; border:1px solid #555; background:#333; color:#18a0fb; font-size:10px; cursor:pointer">Accent blue</button>
+    <button onclick="setIconColor('#1bc47d')"  style="padding:4px 12px; border-radius:4px; border:1px solid #555; background:#333; color:#1bc47d; font-size:10px; cursor:pointer">Success green</button>
+    <button onclick="setIconColor('#f24822')"  style="padding:4px 12px; border-radius:4px; border:1px solid #555; background:#333; color:#f24822; font-size:10px; cursor:pointer">Danger red</button>
+    <button onclick="setIconColor('#a78bfa')"  style="padding:4px 12px; border-radius:4px; border:1px solid #555; background:#333; color:#a78bfa; font-size:10px; cursor:pointer">Cybertron purple</button>
+    <button onclick="setIconColor('#333')"     style="padding:4px 12px; border-radius:4px; border:1px solid #555; background:#e0e0e0; color:#333;  font-size:10px; cursor:pointer">Dark (light theme)</button>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+
+    <!-- LOCKED -->
+    <div>
+      <div style="font-size:10px; color:var(--muted); margin-bottom:8px">
+        <span style="color:#f24822">●</span> stroke="white" — locked, ignores color buttons above
+      </div>
+      <div style="display:flex; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; flex-wrap:wrap">
+        <!-- locked white icons as img base64 equivalent — just inline with hardcoded white -->
+        <div class="icon-wrap">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <path d="M15.5 15.5L11.6 11.6" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 13A6 6 0 1 0 7 1a6 6 0 0 0 0 12Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 5v4M5 7h4" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="icon-wrap">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <path d="M5.333 4L8 1.333 10.667 4" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 14.667V1.333" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="icon-wrap">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <path d="M8 14.667V5.333" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.333 8H1.333C1.333 9.768 2.036 11.464 3.286 12.714 4.536 13.964 6.232 14.667 8 14.667c1.768 0 3.464-.703 4.714-1.953C13.964 11.464 14.667 9.768 14.667 8H12.667" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="8" cy="3.333" r="2" stroke="white" stroke-width="1.25"/>
+          </svg>
+        </div>
+        <div class="icon-wrap">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <path d="M8 6L12 10M12 6L8 10" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13 13c1.105 0 2-.895 2-2V5c0-1.105-.895-2-2-2H6.773c-.498 0-.977.185-1.345.52L1.314 7.26a1 1 0 0 0 0 1.48l4.114 3.74c.368.335.847.52 1.345.52H13Z" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div style="width:100%; font-size:9px; color:var(--muted); margin-top:4px">Always white — ignores CSS color, ignores theme</div>
+      </div>
+    </div>
+
+    <!-- CURRENTCOLOR -->
+    <div>
+      <div style="font-size:10px; color:var(--muted); margin-bottom:8px">
+        <span style="color:#1bc47d">●</span> stroke="currentColor" — theme-aware, responds to buttons above
+      </div>
+      <div id="live-icons" style="display:flex; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; flex-wrap:wrap; color:white">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <path d="M15.5 15.5L11.6 11.6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 13A6 6 0 1 0 7 1a6 6 0 0 0 0 12Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 5v4M5 7h4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="icon-wrap">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <path d="M5.333 4L8 1.333 10.667 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 14.667V1.333" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="icon-wrap">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <path d="M8 14.667V5.333" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.333 8H1.333C1.333 9.768 2.036 11.464 3.286 12.714 4.536 13.964 6.232 14.667 8 14.667c1.768 0 3.464-.703 4.714-1.953C13.964 11.464 14.667 9.768 14.667 8H12.667" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="8" cy="3.333" r="2" stroke="currentColor" stroke-width="1.25"/>
+          </svg>
+        </div>
+        <div class="icon-wrap">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <path d="M8 6L12 10M12 6L8 10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13 13c1.105 0 2-.895 2-2V5c0-1.105-.895-2-2-2H6.773c-.498 0-.977.185-1.345.52L1.314 7.26a1 1 0 0 0 0 1.48l4.114 3.74c.368.335.847.52 1.345.52H13Z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div style="width:100%; font-size:9px; color:var(--muted); margin-top:4px">Responds to <code>color:</code> from any parent — CSS variable, theme class, hover state</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note" style="margin-top:12px">
+    <strong>In practice this means:</strong> a disabled button sets <code>opacity: 0.4</code> and the icon dims automatically.
+    A hover state sets <code>color: var(--theme-accent)</code> and the icon goes blue. A light theme sets
+    <code>color: #1a1a1a</code> and the icon goes dark. Zero extra CSS per icon, zero SVG variants to maintain.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     LUCIDE WORKFLOW
+     ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Lucide export workflow — 3 sources, 1 edit each</div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px">
+
+    <div class="note">
+      <strong>From lucide.dev website</strong><br><br>
+      1. Find icon → click <strong>Copy SVG</strong><br>
+      2. Paste into <code>assets/ICO-name.svg</code><br>
+      3. Remove <code>width="24" height="24"</code> from <code>&lt;svg&gt;</code><br>
+      4. Done ✅<br><br>
+      <span style="color:var(--muted)">Already has <code>currentColor</code>, no clipPath, no IDs to worry about.</span>
+    </div>
+
+    <div class="note">
+      <strong>From Figma (editing Lucide)</strong><br><br>
+      1. Export as SVG from Figma<br>
+      2. Remove <code>width/height</code> from <code>&lt;svg&gt;</code><br>
+      3. Remove <code>&lt;g clip-path="url(#...)"&gt;</code> wrapper<br>
+      4. Remove entire <code>&lt;defs&gt;</code> block<br>
+      5. <code>stroke="white"</code> → <code>stroke="currentColor"</code><br>
+      6. Done ✅
+    </div>
+
+    <div class="note">
+      <strong>From lucide-static (npm)</strong><br><br>
+      <code style="background:#111; display:block; padding:6px; border-radius:4px; margin-bottom:8px">npm i lucide-static -D</code>
+      Reference directly in build:<br>
+      <code style="background:#111; display:block; padding:6px; border-radius:4px; margin:6px 0; font-size:9px">node_modules/lucide-static/icons/search.svg</code>
+      No download, no paste, no edit.<br>
+      Just reference by name in <code>ui.html</code>.<br><br>
+      <span style="color:var(--muted)">Ideal for new features where icons are chosen during dev, not design.</span>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="note" style="margin-top: 32px; font-size: 11px;">
+  <strong>Next step:</strong> Tell me which animations feel right for which buttons, or ask to adjust timing / intensity / easing — I'll refine them here first, then write the final CSS into <code>styles.css</code> and the SVG files.
+</div>
+
+<script>
+function setIconColor(color) {
+  document.getElementById('live-icons').style.color = color;
+}
+</script>
+
+</body>
+</html>

@@ -5,7 +5,23 @@
       "Bash(npm run build:*)",
       "Bash(npm run clean:*)",
       "Bash(ls:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:www.figma.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:forum.figma.com)",
+      "WebFetch(domain:developers.figma.com)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git log:*)",
+      "Bash(gh pr create:*)",
+      "Bash(done)",
+      "Bash(git status -u)",
+      "Bash(git status -u --short)",
+      "Bash(git stash drop stash@{0})",
+      "Bash(cp node_modules/lucide-static/icons/clipboard-paste.svg assets/ICO-clipboardPaste.svg && cp node_modules/lucide-static/icons/code-xml.svg assets/ICO-codeXml.svg)",
+      "Bash(npm run sync:prototype 2>&1)",
+      "Bash(npm run type-check 2>&1)"
     ]
   }
 }

@@ -162,11 +162,9 @@ describe('UI State Persistence', () => {
   });
 
   describe('getSectionState', () => {
-    it('should return saved expanded state', () => {
+    it('should return saved expanded state', async () => {
       const sectionId = 'tags-header';
-      (global as any).uiSectionStates = {
-        [sectionId]: { expanded: false, lastModified: Date.now() }
-      };
+      await saveUISectionState(sectionId, false);
 
       const result = getSectionState(sectionId);
 
@@ -179,8 +177,9 @@ describe('UI State Persistence', () => {
       expect(result).toBe(true);
     });
 
-    it('should return default expanded state when no saved state exists', () => {
-      (global as any).uiSectionStates = {};
+    it('should return default expanded state when no saved state exists', async () => {
+      mockClientStorage.getAsync.mockResolvedValue(null);
+      await loadUISectionStates();
 
       const result = getSectionState('tags-header');
 

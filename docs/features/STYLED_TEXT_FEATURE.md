@@ -4,7 +4,51 @@
 Add a Styled Text group to the Controls section that allows designers to paste rich text from the web into Figma with formatting preserved, and copy styled Figma text layers as HTML to the clipboard. When copying text from a browser and pasting it into Figma natively, all formatting is stripped — bold, italic, colors, font sizes, links, and list structure are lost. This feature bridges that gap by parsing clipboard HTML and applying styles via Figma's range-based text API.
 
 ## Status
-🟡 Not yet implemented — specification only
+⏸ **Paused / Hidden** — code is fully implemented but the section is disabled until clipboard issues are resolved.
+
+To re-enable: flip `styledText: false → true` in four places:
+- `src/ui.ts` → `let groupStyledTextVisible = false`
+- `src/code.ts` → `defaultGroups.styledText`, `stored.styledText ?? false`, error-fallback groups object
+- `prototype/shim.js` → `controls-group-settings` mock
+
+## Known Blockers
+
+### 1. Paste — `navigator.clipboard` unavailable in Figma's web iframe
+Figma's plugin iframe sandbox does not expose the Clipboard API (`navigator.clipboard` is `undefined`).
+The primary `navigator.clipboard.read()` path throws immediately and falls back to the
+`contenteditable + execCommand('paste')` approach. However, `execCommand('paste')` is also
+blocked in Figma's sandboxed iframe (returns `false`), meaning **the Paste button does nothing**
+in the Figma web client. A user-facing "clipboard not available" notification fires, but no text
+is pasted. This may work in the Figma desktop app (Electron), which has a different security model.
+
+**To investigate:** Test on the Figma desktop app to confirm whether `execCommand('paste')` or
+`navigator.clipboard.read()` works there. If not, the paste flow requires a fundamentally
+different approach — possibly a text input field the user explicitly pastes into, which then
+triggers the parse-and-send flow without relying on programmatic clipboard access.
+
+### 2. Copy — `execCommand('copy')` fallback works but only copies plain text
+The `navigator.clipboard.write()` path with `ClipboardItem({ 'text/html': ... })` also fails
+(same sandbox restriction). The fallback uses `execCommand('copy')` with a `copy` event interceptor
+to set `text/html` and `text/plain` on the clipboard — this works, but needs testing to confirm
+rich-text paste actually preserves formatting in Google Docs / Notion / Slack.
+
+### 3. `aria-hidden` + focus conflict in paste fallback
+When `execCommand('paste')` fails (which it does in Figma web), the `#styled-text-clipboard` div
+briefly receives focus and then has `aria-hidden` restored. The browser logs an accessibility
+violation. The current fix calls `blur()` before restoring `aria-hidden`, but the violation still
+appears in some Figma sessions — likely a timing issue with when the browser commits the attribute
+vs. when focus is transferred. The entire contenteditable-based paste approach should be replaced.
+
+## Strategic Context
+
+### Mode: Navigate
+Styled Text is a **Navigate** mode feature — a productivity tool for active design work. It sits alongside Bookmarks, Emoji Tags, Sizing Modes, and other controls that help designers work efficiently within a file.
+
+Content teams use this during the design phase to import formatted copy from Docs/Notion/Confluence and export styled text back for review. The primary workflow is mid-flight content iteration.
+
+> **Future integration note**: Styled Text could eventually become part of a **Scaffold** workflow — seeding template pages with real content during project kickoff. This is a natural extension but not the initial placement.
+
+See also: `docs/features/DESIGN_LINT_FEATURE.md` for the full three-mode framework (Scaffold / Navigate / Validate).
 
 ## Motivation
 

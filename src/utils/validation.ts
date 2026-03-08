@@ -58,7 +58,7 @@ export const debouncedStateValidation = debounce(async () => {
 
 // ===== TARGETED BOOKMARK NAME UPDATE =====
 // Track changed node IDs for batching
-let changedNodeIds = new Set<string>();
+const changedNodeIds = new Set<string>();
 let updateTimer: ReturnType<typeof setTimeout> | null = null;
 
 /**
