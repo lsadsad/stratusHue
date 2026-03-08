@@ -891,7 +891,7 @@ body.touch-active .kofi-button:hover {
   --figma-color-bg-brand: rgba(24, 160, 251, 0.1);
   --figma-color-bg-selected: rgba(24, 160, 251, 0.2);
   --figma-color-bg-hover: rgba(255, 255, 255, 0.1);
-  --figma-color-bg-disabled: rgba(255, 255, 255, 0.05);
+  --figma-color-bg-disabled: rgba(255, 255, 255, 0.02);
   --figma-color-text-disabled: rgba(255, 255, 255, 0.3);
   --figma-color-icon: #ffffff;
   --figma-color-icon-secondary: #cccccc;
@@ -1420,6 +1420,25 @@ body.touch-active .kofi-button:hover {
 [data-theme="figma-light"] .nav-button.nav-button-sizing .nav-icon svg,
 [data-theme="light"] .nav-button.nav-button-sizing .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.75);
+}
+
+/* Light theme disabled state: muted neutral dark icons */
+[data-theme="figma-light"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-action:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-layer:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-delete:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-action:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-layer:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-delete:disabled .nav-icon svg {
+  filter: brightness(0) saturate(0%);
+  opacity: 0.4;
 }
 
 /* Emoji nav arrows in light mode - match section header text color (dark) */
@@ -2559,7 +2578,7 @@ h3 {
 }
 
 .header-nav-btn:disabled {
-  opacity: 0.4;
+  opacity: 1;
   cursor: not-allowed;
   background: var(--theme-interactive-disabled);
 }
@@ -2589,6 +2608,11 @@ h3 {
 }
 
 .header-nav-btn:disabled .icon svg {
+  opacity: 0.4;
+}
+
+/* Higher specificity override: ensure disabled opacity wins over theme-specific active rules */
+[data-theme] .header-nav-btn:disabled .icon svg {
   opacity: 0.4;
 }
 
@@ -3758,17 +3782,16 @@ h3 {
   --nav-border-contrast: #e6e7e9;
 }
 
-/* Light theme: disabled buttons at 0.4 opacity land at ~1.6:1 contrast on white.
-   Raise to 0.65 so inactive icons remain legible (~4:1).
-   Specificity 0,4,0 beats the .nav-button.nav-button-*:disabled (0,3,0) type rules. */
+/* Disabled state: button container stays at full opacity; icon SVG carries the visual muting.
+   This matches the sizing-mode buttons pattern (cycle-width/height also use opacity:1 on the
+   button so their labels remain legible). Visual signal lives in .nav-icon svg { opacity:0.4 }. */
 [data-theme="figma-light"] .nav-button.nav-button:disabled,
 [data-theme="light"] .nav-button.nav-button:disabled {
-  opacity: 0.65;
+  opacity: 1;
 }
 
 .nav-button:disabled {
-  /* Maintain 3:1 contrast ratio for disabled state */
-  opacity: 0.6;
+  opacity: 1;
   color: var(--theme-text-disabled);
   background: var(--theme-interactive-disabled) !important;
   border-color: transparent;
@@ -3780,7 +3803,7 @@ h3 {
 }
 
 .nav-button:disabled {
-  opacity: 0.4;
+  opacity: 1;
   cursor: not-allowed;
   background: var(--theme-interactive-disabled) !important;
   color: var(--theme-text-disabled);
@@ -3846,7 +3869,7 @@ h3 {
 
 .nav-button.nav-button-arrow:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3871,7 +3894,7 @@ h3 {
 
 .nav-button.nav-button-zoom:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3896,7 +3919,7 @@ h3 {
 
 .nav-button.nav-button-hierarchy:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3922,7 +3945,7 @@ h3 {
 
 .nav-button.nav-button-action:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3947,7 +3970,7 @@ h3 {
 
 .nav-button.nav-button-layer:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3972,7 +3995,7 @@ h3 {
 
 .nav-button.nav-button-sizing:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3997,7 +4020,7 @@ h3 {
 
 .nav-button.nav-button-delete:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -4088,7 +4111,9 @@ h3 {
 .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
 .nav-button.nav-button-action:disabled .nav-icon svg,
 .nav-button.nav-button-layer:disabled .nav-icon svg,
-.nav-button.nav-button-sizing:disabled .nav-icon svg {
+.nav-button.nav-button-sizing:disabled .nav-icon svg,
+.nav-button.nav-button-delete:disabled .nav-icon svg {
+  filter: brightness(0) saturate(0%) invert(100%);
   opacity: 0.4;
 }
 
@@ -4167,8 +4192,10 @@ h3 {
 [data-theme="cybertron"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
 [data-theme="cybertron"] .nav-button.nav-button-action:disabled .nav-icon svg,
 [data-theme="cybertron"] .nav-button.nav-button-layer:disabled .nav-icon svg,
-[data-theme="cybertron"] .nav-button.nav-button-sizing:disabled .nav-icon svg {
-  opacity: 0.3;
+[data-theme="cybertron"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="cybertron"] .nav-button.nav-button-delete:disabled .nav-icon svg {
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.4;
 }
 
 /* ===== FIGMA-DARK THEME: BRIGHT CONTROL ICONS ===== */
@@ -4271,19 +4298,23 @@ h3 {
 [data-theme="figma-dark"] .nav-button.nav-button-action:disabled .nav-icon svg,
 [data-theme="figma-dark"] .nav-button.nav-button-layer:disabled .nav-icon svg,
 [data-theme="figma-dark"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="figma-dark"] .nav-button.nav-button-delete:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-action:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-layer:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-delete:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-action:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-layer:disabled .nav-icon svg,
-[data-theme="boilerplate"] .nav-button.nav-button-sizing:disabled .nav-icon svg {
-  opacity: 0.3;
+[data-theme="boilerplate"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-delete:disabled .nav-icon svg {
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.4;
 }
 
 /* Controls Header - match other section headers */
@@ -6239,6 +6270,27 @@ i.grip {
   opacity: 1 !important;
 }
 
+/* Disabled state overrides — (1,3,1) specificity beats (1,2,1) active theme rules */
+[data-theme="figma-dark"] #back-btn:disabled .icon svg,
+[data-theme="figma-dark"] #forward-btn:disabled .icon svg,
+[data-theme="dark"] #back-btn:disabled .icon svg,
+[data-theme="dark"] #forward-btn:disabled .icon svg,
+[data-theme="boilerplate"] #back-btn:disabled .icon svg,
+[data-theme="boilerplate"] #forward-btn:disabled .icon svg,
+[data-theme="cybertron"] #back-btn:disabled .icon svg,
+[data-theme="cybertron"] #forward-btn:disabled .icon svg {
+  filter: brightness(0) saturate(0%) invert(100%) !important;
+  opacity: 0.4 !important;
+}
+
+[data-theme="figma-light"] #back-btn:disabled .icon svg,
+[data-theme="figma-light"] #forward-btn:disabled .icon svg,
+[data-theme="light"] #back-btn:disabled .icon svg,
+[data-theme="light"] #forward-btn:disabled .icon svg {
+  filter: brightness(0) saturate(0%) !important;
+  opacity: 0.4 !important;
+}
+
 /* END COLOR-CODED QUICK ACTION BUTTONS */
 
 #quick-actions #refresh-anchors:hover {
@@ -7237,7 +7289,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .nav-button:disabled {
-  opacity: 0.5;
+  opacity: 1;
   cursor: not-allowed;
   background: var(--theme-bg-secondary);
   color: var(--theme-text-disabled);
@@ -7988,7 +8040,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
             <button id="layer-down" class="nav-button nav-button-layer" role="gridcell" aria-colindex="3"
               aria-label="Send backward. Shift: send to back" aria-describedby="layer-down-desc" data-tooltip="Send Backward · ⇧Back" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="1"
               data-grid-col="2" tabindex="-1">
-              <span class="nav-icon" aria-hidden="true"><svg class="lucide lucide-send-to-back" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect x="14" y="14" rx="2" /> <rect x="2" y="2" rx="2" /> <path d="M7 14v1a2 2 0 0 0 2 2h1" /> <path d="M14 7h1a2 2 0 0 1 2 2v1" /> </svg></span>
+              <span class="nav-icon" aria-hidden="true"><svg class="lucide lucide-send-to-back" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect x="14" y="14" width="8" height="8" rx="2" /> <rect x="2" y="2" width="8" height="8" rx="2" /> <path d="M7 14v1a2 2 0 0 0 2 2h1" /> <path d="M14 7h1a2 2 0 0 1 2 2v1" /> </svg></span>
               <span class="nav-label">Backward</span>
               <span id="layer-down-desc" class="sr-only">Send layer backward in stack. Hold Shift to send to back</span>
             </button>
@@ -8005,13 +8057,13 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
             <button id="nav-hide" class="nav-button nav-button-sizing" role="gridcell" aria-colindex="2"
               aria-label="Toggle visibility (Cmd/Ctrl+Shift+H)" aria-describedby="nav-hide-desc"
               data-tooltip="Hide/Show (⌘⇧H)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="1" tabindex="-1">
-              <span class="nav-icon" aria-hidden="true"><svg class="lucide lucide-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" /> </svg></span>
+              <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M1.33325 8.00006C1.33325 8.00006 3.33325 3.33339 7.99992 3.33339C12.6666 3.33339 14.6666 8.00006 14.6666 8.00006C14.6666 8.00006 12.6666 12.6667 7.99992 12.6667C3.33325 12.6667 1.33325 8.00006 1.33325 8.00006Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/> <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/> </svg></span>
               <span id="nav-hide-desc" class="sr-only">Toggle visibility of selected layers</span>
             </button>
             <button id="nav-lock" class="nav-button nav-button-sizing" role="gridcell" aria-colindex="3"
               aria-label="Toggle lock (Cmd/Ctrl+Shift+L)" aria-describedby="nav-lock-desc"
               data-tooltip="Lock/Unlock (⌘⇧L)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled data-grid-row="2" data-grid-col="2" tabindex="-1">
-              <span class="nav-icon" aria-hidden="true"><svg class="lucide lucide-lock-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 9.9-1" /> </svg></span>
+              <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M12.6667 7.3335H3.33333C2.59695 7.3335 2 7.93045 2 8.66683V13.3335C2 14.0699 2.59695 14.6668 3.33333 14.6668H12.6667C13.403 14.6668 14 14.0699 14 13.3335V8.66683C14 7.93045 13.403 7.3335 12.6667 7.3335Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/> <path d="M4.66675 7.3335V4.66683C4.66675 3.78277 5.01794 2.93493 5.64306 2.30981C6.26818 1.68469 7.11603 1.3335 8.00008 1.3335C8.88414 1.3335 9.73198 1.68469 10.3571 2.30981C10.9822 2.93493 11.3334 3.78277 11.3334 4.66683V7.3335" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/> </svg></span>
               <span id="nav-lock-desc" class="sr-only">Toggle lock state of selected layers</span>
             </button>
           </div>
@@ -9425,10 +9477,10 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
 
   // src/ui/shared/icons.ts
-  var ICON_EYE_OPEN = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuMzMzMjUgOC4wMDAwNkMxLjMzMzI1IDguMDAwMDYgMy4zMzMyNSAzLjMzMzM5IDcuOTk5OTIgMy4zMzMzOUMxMi42NjY2IDMuMzMzMzkgMTQuNjY2NiA4LjAwMDA2IDE0LjY2NjYgOC4wMDAwNkMxNC42NjY2IDguMDAwMDYgMTIuNjY2NiAxMi42NjY3IDcuOTk5OTIgMTIuNjY2N0MzLjMzMzI1IDEyLjY2NjcgMS4zMzMyNSA4LjAwMDA2IDEuMzMzMjUgOC4wMDAwNloiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSIyIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K";
-  var ICON_EYE_CLOSED = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkuNDEzMjUgOS40MTMzOUM5LjIzMDA3IDkuNjA5OTkgOS4wMDkzNSA5Ljc2NzQzIDguNzY0MDUgOS44NzY1OEM4LjUxODc1IDkuOTg1NzIgOC4yNTM5MSAxMC4wNDQ0IDcuOTg1MzkgMTAuMDQ5MkM3LjcxNjg3IDEwLjA1NCA3LjQ1MDA5IDEwLjAwNDkgNy4yMDEwMyA5LjkwNDczQzYuOTUxOTcgOS44MDQ1OCA2LjcyNTc2IDkuNjU1MzQgNi41MzUyMSA5LjQ2NDc5QzYuMzQ0NjYgOS4yNzQyNCA2LjE5NTQyIDkuMDQ4MDMgNi4wOTUyNyA4Ljc5ODk3QzUuOTk1MTIgOC41NDk5MSA1Ljk0NTk2IDguMjgzMTMgNS45NTA3NiA4LjAxNDYxQzUuOTU1NTYgNy43NDYwOSA2LjAxNDI4IDcuNDgxMjUgNi4xMjM0MiA3LjIzNTk1QzYuMjMyNTcgNi45OTA2NSA2LjM5MDAxIDYuNzY5OTMgNi41ODY1OSA2LjU4NjczTTExLjk1OTkgMTEuOTYwMUMxMC44MjAzIDEyLjgyODcgOS40MzI2NyAxMy4zMDk5IDcuOTk5OTIgMTMuMzMzNEMzLjMzMzI1IDEzLjMzMzQgMS4zMzMyNSA4LjAwMDA2IDEuMzMzMjUgOC4wMDAwNkMyLjE2MzYzIDYuNDU0NjcgMy4zMTQwOCA1LjEwNDQ3IDQuNzA2NTkgNC4wNDAwNkwxMS45NTk5IDExLjk2MDFaTTYuNTk5OTIgMi44MjY3M0M3LjA1ODgxIDIuNzE5MzYgNy41Mjg2MyAyLjY2NTY0IDcuOTk5OTIgMi42NjY3M0MxMi42NjY2IDIuNjY2NzMgMTQuNjY2NiA4LjAwMDA2IDE0LjY2NjYgOC4wMDAwNkMxNC4yNjAzIDguNzU3MTMgMTMuNzY0MyA5LjQ2OTg5IDEzLjE4NjYgMTAuMTIwMUw2LjU5OTkyIDIuODI2NzNaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMS4zMzMyNSAxLjMzMzM5TDE0LjY2NjYgMTQuNjY2NyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==";
-  var ICON_LOCK_OPEN = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjY2NjcgNy4zMzM1SDMuMzMzMzNDMi41OTY5NSA3LjMzMzUgMiA3LjkzMDQ1IDIgOC42NjY4M1YxMy4zMzM1QzIgMTQuMDY5OSAyLjU5Njk1IDE0LjY2NjggMy4zMzMzMyAxNC42NjY4SDEyLjY2NjdDMTMuNDAzIDE0LjY2NjggMTQgMTQuMDY5OSAxNCAxMy4zMzM1VjguNjY2ODNDMTQgNy45MzA0NSAxMy40MDMgNy4zMzM1IDEyLjY2NjcgNy4zMzM1WiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik00LjY2Njc1IDcuMzMzNVY0LjY2NjgzQzQuNjY2NzUgMy43ODI3NyA1LjAxNzk0IDIuOTM0OTMgNS42NDMwNiAyLjMwOTgxQzYuMjY4MTggMS42ODQ2OSA3LjExNjAzIDEuMzMzNSA4LjAwMDA4IDEuMzMzNUM4Ljg4NDE0IDEuMzMzNSA5LjczMTk4IDEuNjg0NjkgMTAuMzU3MSAyLjMwOTgxQzEwLjk4MjIgMi45MzQ5MyAxMS4zMzM0IDMuNzgyNzcgMTEuMzMzNCA0LjY2NjgzVjcuMzMzNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=";
-  var ICON_LOCK_CLOSED = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjY2NjcgNy4zMzM1SDMuMzMzMzNDMi41OTY5NSA3LjMzMzUgMiA3LjkzMDQ1IDIgOC42NjY4M1YxMy4zMzM1QzIgMTQuMDY5OSAyLjU5Njk1IDE0LjY2NjggMy4zMzMzMyAxNC42NjY4SDEyLjY2NjdDMTMuNDAzIDE0LjY2NjggMTQgMTQuMDY5OSAxNCAxMy4zMzM1VjguNjY2ODNDMTQgNy45MzA0NSAxMy40MDMgNy4zMzM1IDEyLjY2NjcgNy4zMzM1WiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik00LjY2Njc1IDcuMzMzNDRWNC42NjY3N0M0LjY2NTkyIDMuODQwMTMgNC45NzIyNyAzLjA0MjY4IDUuNTI2MzMgMi40MjkyMUM2LjA4MDM5IDEuODE1NzUgNi44NDI2NCAxLjQzMDA0IDcuNjY1MDkgMS4zNDY5NkM4LjQ4NzU0IDEuMjYzODkgOS4zMTE1MSAxLjQ4OTM3IDkuOTc3MDcgMS45Nzk2NEMxMC42NDI2IDIuNDY5OTIgMTEuMTAyMyAzLjE5IDExLjI2NjcgNC4wMDAxIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==";
+  var ICON_EYE_OPEN = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.33325 8.00006C1.33325 8.00006 3.33325 3.33339 7.99992 3.33339C12.6666 3.33339 14.6666 8.00006 14.6666 8.00006C14.6666 8.00006 12.6666 12.6667 7.99992 12.6667C3.33325 12.6667 1.33325 8.00006 1.33325 8.00006Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICON_EYE_CLOSED = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.41325 9.41339C9.23007 9.60999 9.00935 9.76743 8.76405 9.87658C8.51875 9.98572 8.25391 10.0444 7.98539 10.0492C7.71687 10.054 7.45009 10.0049 7.20103 9.90473C6.95197 9.80458 6.72576 9.65534 6.53521 9.46479C6.34466 9.27424 6.19542 9.04803 6.09527 8.79897C5.99512 8.54991 5.94596 8.28313 5.95076 8.01461C5.95556 7.74609 6.01428 7.48125 6.12342 7.23595C6.23257 6.99065 6.39001 6.76993 6.58659 6.58673M11.9599 11.9601C10.8203 12.8287 9.43267 13.3099 7.99992 13.3334C3.33325 13.3334 1.33325 8.00006 1.33325 8.00006C2.16363 6.45467 3.31408 5.10447 4.70659 4.04006L11.9599 11.9601ZM6.59992 2.82673C7.05881 2.71936 7.52863 2.66564 7.99992 2.66673C12.6666 2.66673 14.6666 8.00006 14.6666 8.00006C14.2603 8.75713 13.7643 9.46989 13.1866 10.1201L6.59992 2.82673Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.33325 1.33339L14.6666 14.6667" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICON_LOCK_OPEN = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.6667 7.3335H3.33333C2.59695 7.3335 2 7.93045 2 8.66683V13.3335C2 14.0699 2.59695 14.6668 3.33333 14.6668H12.6667C13.403 14.6668 14 14.0699 14 13.3335V8.66683C14 7.93045 13.403 7.3335 12.6667 7.3335Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.66675 7.3335V4.66683C4.66675 3.78277 5.01794 2.93493 5.64306 2.30981C6.26818 1.68469 7.11603 1.3335 8.00008 1.3335C8.88414 1.3335 9.73198 1.68469 10.3571 2.30981C10.9822 2.93493 11.3334 3.78277 11.3334 4.66683V7.3335" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICON_LOCK_CLOSED = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.6667 7.3335H3.33333C2.59695 7.3335 2 7.93045 2 8.66683V13.3335C2 14.0699 2.59695 14.6668 3.33333 14.6668H12.6667C13.403 14.6668 14 14.0699 14 13.3335V8.66683C14 7.93045 13.403 7.3335 12.6667 7.3335Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.66675 7.33344V4.66677C4.66592 3.84013 4.97227 3.04268 5.52633 2.42921C6.08039 1.81575 6.84264 1.43004 7.66509 1.34696C8.48754 1.26389 9.31151 1.48937 9.97707 1.97964C10.6426 2.46992 11.1023 3.19 11.2667 4.0001" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   // src/ui/navigate/anatomy.ts
   var emojiPreviewResetTimer = null;
@@ -9674,31 +9726,31 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     const hideBtn = document.getElementById("nav-hide");
     const lockBtn = document.getElementById("nav-lock");
     if (hideBtn) {
-      const iconImg = hideBtn.querySelector(".nav-icon img");
-      if (iconImg) {
-        if (selectionVisible === false) {
-          iconImg.src = ICON_EYE_CLOSED;
-          hideBtn.setAttribute("aria-label", "Show layers (Cmd/Ctrl+Shift+H)");
-          hideBtn.setAttribute("data-tooltip", "Show (\u2318\u21E7H)");
-        } else {
-          iconImg.src = ICON_EYE_OPEN;
-          hideBtn.setAttribute("aria-label", "Hide layers (Cmd/Ctrl+Shift+H)");
-          hideBtn.setAttribute("data-tooltip", "Hide (\u2318\u21E7H)");
-        }
+      const iconSpan = hideBtn.querySelector(".nav-icon");
+      if (selectionVisible === false) {
+        if (iconSpan)
+          iconSpan.innerHTML = ICON_EYE_CLOSED;
+        hideBtn.setAttribute("aria-label", "Show layers (Cmd/Ctrl+Shift+H)");
+        hideBtn.setAttribute("data-tooltip", "Show (\u2318\u21E7H)");
+      } else {
+        if (iconSpan)
+          iconSpan.innerHTML = ICON_EYE_OPEN;
+        hideBtn.setAttribute("aria-label", "Hide layers (Cmd/Ctrl+Shift+H)");
+        hideBtn.setAttribute("data-tooltip", "Hide (\u2318\u21E7H)");
       }
     }
     if (lockBtn) {
-      const iconImg = lockBtn.querySelector(".nav-icon img");
-      if (iconImg) {
-        if (selectionLocked === true) {
-          iconImg.src = ICON_LOCK_CLOSED;
-          lockBtn.setAttribute("aria-label", "Unlock layers (Cmd/Ctrl+Shift+L)");
-          lockBtn.setAttribute("data-tooltip", "Unlock (\u2318\u21E7L)");
-        } else {
-          iconImg.src = ICON_LOCK_OPEN;
-          lockBtn.setAttribute("aria-label", "Lock layers (Cmd/Ctrl+Shift+L)");
-          lockBtn.setAttribute("data-tooltip", "Lock (\u2318\u21E7L)");
-        }
+      const iconSpan = lockBtn.querySelector(".nav-icon");
+      if (selectionLocked === true) {
+        if (iconSpan)
+          iconSpan.innerHTML = ICON_LOCK_CLOSED;
+        lockBtn.setAttribute("aria-label", "Unlock layers (Cmd/Ctrl+Shift+L)");
+        lockBtn.setAttribute("data-tooltip", "Unlock (\u2318\u21E7L)");
+      } else {
+        if (iconSpan)
+          iconSpan.innerHTML = ICON_LOCK_OPEN;
+        lockBtn.setAttribute("aria-label", "Lock layers (Cmd/Ctrl+Shift+L)");
+        lockBtn.setAttribute("data-tooltip", "Lock (\u2318\u21E7L)");
       }
     }
   }

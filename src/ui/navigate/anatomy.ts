@@ -230,34 +230,30 @@ export function updateVisibilityLockIcons(
   const lockBtn = document.getElementById('nav-lock');
 
   if (hideBtn) {
-    const iconImg = hideBtn.querySelector('.nav-icon img') as HTMLImageElement;
-    if (iconImg) {
-      // Show closed eye if all layers are hidden, open eye otherwise (including mixed state)
-      if (selectionVisible === false) {
-        iconImg.src = ICON_EYE_CLOSED;
-        hideBtn.setAttribute('aria-label', 'Show layers (Cmd/Ctrl+Shift+H)');
-        hideBtn.setAttribute('data-tooltip', 'Show (⌘⇧H)');
-      } else {
-        iconImg.src = ICON_EYE_OPEN;
-        hideBtn.setAttribute('aria-label', 'Hide layers (Cmd/Ctrl+Shift+H)');
-        hideBtn.setAttribute('data-tooltip', 'Hide (⌘⇧H)');
-      }
+    const iconSpan = hideBtn.querySelector('.nav-icon');
+    // Show closed eye if all layers are hidden, open eye otherwise (including mixed state)
+    if (selectionVisible === false) {
+      if (iconSpan) iconSpan.innerHTML = ICON_EYE_CLOSED;
+      hideBtn.setAttribute('aria-label', 'Show layers (Cmd/Ctrl+Shift+H)');
+      hideBtn.setAttribute('data-tooltip', 'Show (⌘⇧H)');
+    } else {
+      if (iconSpan) iconSpan.innerHTML = ICON_EYE_OPEN;
+      hideBtn.setAttribute('aria-label', 'Hide layers (Cmd/Ctrl+Shift+H)');
+      hideBtn.setAttribute('data-tooltip', 'Hide (⌘⇧H)');
     }
   }
 
   if (lockBtn) {
-    const iconImg = lockBtn.querySelector('.nav-icon img') as HTMLImageElement;
-    if (iconImg) {
-      // Show closed lock if all layers are locked, open lock otherwise (including mixed state)
-      if (selectionLocked === true) {
-        iconImg.src = ICON_LOCK_CLOSED;
-        lockBtn.setAttribute('aria-label', 'Unlock layers (Cmd/Ctrl+Shift+L)');
-        lockBtn.setAttribute('data-tooltip', 'Unlock (⌘⇧L)');
-      } else {
-        iconImg.src = ICON_LOCK_OPEN;
-        lockBtn.setAttribute('aria-label', 'Lock layers (Cmd/Ctrl+Shift+L)');
-        lockBtn.setAttribute('data-tooltip', 'Lock (⌘⇧L)');
-      }
+    const iconSpan = lockBtn.querySelector('.nav-icon');
+    // Show closed lock if all layers are locked, open lock otherwise (including mixed state)
+    if (selectionLocked === true) {
+      if (iconSpan) iconSpan.innerHTML = ICON_LOCK_CLOSED;
+      lockBtn.setAttribute('aria-label', 'Unlock layers (Cmd/Ctrl+Shift+L)');
+      lockBtn.setAttribute('data-tooltip', 'Unlock (⌘⇧L)');
+    } else {
+      if (iconSpan) iconSpan.innerHTML = ICON_LOCK_OPEN;
+      lockBtn.setAttribute('aria-label', 'Lock layers (Cmd/Ctrl+Shift+L)');
+      lockBtn.setAttribute('data-tooltip', 'Lock (⌘⇧L)');
     }
   }
 }

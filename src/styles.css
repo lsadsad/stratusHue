@@ -884,7 +884,7 @@ body.touch-active .kofi-button:hover {
   --figma-color-bg-brand: rgba(24, 160, 251, 0.1);
   --figma-color-bg-selected: rgba(24, 160, 251, 0.2);
   --figma-color-bg-hover: rgba(255, 255, 255, 0.1);
-  --figma-color-bg-disabled: rgba(255, 255, 255, 0.05);
+  --figma-color-bg-disabled: rgba(255, 255, 255, 0.02);
   --figma-color-text-disabled: rgba(255, 255, 255, 0.3);
   --figma-color-icon: #ffffff;
   --figma-color-icon-secondary: #cccccc;
@@ -1413,6 +1413,25 @@ body.touch-active .kofi-button:hover {
 [data-theme="figma-light"] .nav-button.nav-button-sizing .nav-icon svg,
 [data-theme="light"] .nav-button.nav-button-sizing .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.75);
+}
+
+/* Light theme disabled state: muted neutral dark icons */
+[data-theme="figma-light"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-action:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-layer:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="figma-light"] .nav-button.nav-button-delete:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-action:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-layer:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="light"] .nav-button.nav-button-delete:disabled .nav-icon svg {
+  filter: brightness(0) saturate(0%);
+  opacity: 0.4;
 }
 
 /* Emoji nav arrows in light mode - match section header text color (dark) */
@@ -2552,7 +2571,7 @@ h3 {
 }
 
 .header-nav-btn:disabled {
-  opacity: 0.4;
+  opacity: 1;
   cursor: not-allowed;
   background: var(--theme-interactive-disabled);
 }
@@ -2582,6 +2601,11 @@ h3 {
 }
 
 .header-nav-btn:disabled .icon svg {
+  opacity: 0.4;
+}
+
+/* Higher specificity override: ensure disabled opacity wins over theme-specific active rules */
+[data-theme] .header-nav-btn:disabled .icon svg {
   opacity: 0.4;
 }
 
@@ -3751,17 +3775,16 @@ h3 {
   --nav-border-contrast: #e6e7e9;
 }
 
-/* Light theme: disabled buttons at 0.4 opacity land at ~1.6:1 contrast on white.
-   Raise to 0.65 so inactive icons remain legible (~4:1).
-   Specificity 0,4,0 beats the .nav-button.nav-button-*:disabled (0,3,0) type rules. */
+/* Disabled state: button container stays at full opacity; icon SVG carries the visual muting.
+   This matches the sizing-mode buttons pattern (cycle-width/height also use opacity:1 on the
+   button so their labels remain legible). Visual signal lives in .nav-icon svg { opacity:0.4 }. */
 [data-theme="figma-light"] .nav-button.nav-button:disabled,
 [data-theme="light"] .nav-button.nav-button:disabled {
-  opacity: 0.65;
+  opacity: 1;
 }
 
 .nav-button:disabled {
-  /* Maintain 3:1 contrast ratio for disabled state */
-  opacity: 0.6;
+  opacity: 1;
   color: var(--theme-text-disabled);
   background: var(--theme-interactive-disabled) !important;
   border-color: transparent;
@@ -3773,7 +3796,7 @@ h3 {
 }
 
 .nav-button:disabled {
-  opacity: 0.4;
+  opacity: 1;
   cursor: not-allowed;
   background: var(--theme-interactive-disabled) !important;
   color: var(--theme-text-disabled);
@@ -3839,7 +3862,7 @@ h3 {
 
 .nav-button.nav-button-arrow:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3864,7 +3887,7 @@ h3 {
 
 .nav-button.nav-button-zoom:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3889,7 +3912,7 @@ h3 {
 
 .nav-button.nav-button-hierarchy:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3915,7 +3938,7 @@ h3 {
 
 .nav-button.nav-button-action:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3940,7 +3963,7 @@ h3 {
 
 .nav-button.nav-button-layer:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3965,7 +3988,7 @@ h3 {
 
 .nav-button.nav-button-sizing:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -3990,7 +4013,7 @@ h3 {
 
 .nav-button.nav-button-delete:disabled {
   border-color: transparent !important;
-  opacity: 0.4;
+  opacity: 1;
   background: var(--theme-interactive-disabled) !important;
 }
 
@@ -4081,7 +4104,9 @@ h3 {
 .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
 .nav-button.nav-button-action:disabled .nav-icon svg,
 .nav-button.nav-button-layer:disabled .nav-icon svg,
-.nav-button.nav-button-sizing:disabled .nav-icon svg {
+.nav-button.nav-button-sizing:disabled .nav-icon svg,
+.nav-button.nav-button-delete:disabled .nav-icon svg {
+  filter: brightness(0) saturate(0%) invert(100%);
   opacity: 0.4;
 }
 
@@ -4160,8 +4185,10 @@ h3 {
 [data-theme="cybertron"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
 [data-theme="cybertron"] .nav-button.nav-button-action:disabled .nav-icon svg,
 [data-theme="cybertron"] .nav-button.nav-button-layer:disabled .nav-icon svg,
-[data-theme="cybertron"] .nav-button.nav-button-sizing:disabled .nav-icon svg {
-  opacity: 0.3;
+[data-theme="cybertron"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="cybertron"] .nav-button.nav-button-delete:disabled .nav-icon svg {
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.4;
 }
 
 /* ===== FIGMA-DARK THEME: BRIGHT CONTROL ICONS ===== */
@@ -4264,19 +4291,23 @@ h3 {
 [data-theme="figma-dark"] .nav-button.nav-button-action:disabled .nav-icon svg,
 [data-theme="figma-dark"] .nav-button.nav-button-layer:disabled .nav-icon svg,
 [data-theme="figma-dark"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="figma-dark"] .nav-button.nav-button-delete:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-action:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-layer:disabled .nav-icon svg,
 [data-theme="dark"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="dark"] .nav-button.nav-button-delete:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-arrow:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-zoom:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-hierarchy:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-action:disabled .nav-icon svg,
 [data-theme="boilerplate"] .nav-button.nav-button-layer:disabled .nav-icon svg,
-[data-theme="boilerplate"] .nav-button.nav-button-sizing:disabled .nav-icon svg {
-  opacity: 0.3;
+[data-theme="boilerplate"] .nav-button.nav-button-sizing:disabled .nav-icon svg,
+[data-theme="boilerplate"] .nav-button.nav-button-delete:disabled .nav-icon svg {
+  filter: brightness(0) saturate(0%) invert(100%);
+  opacity: 0.4;
 }
 
 /* Controls Header - match other section headers */
@@ -6232,6 +6263,27 @@ i.grip {
   opacity: 1 !important;
 }
 
+/* Disabled state overrides — (1,3,1) specificity beats (1,2,1) active theme rules */
+[data-theme="figma-dark"] #back-btn:disabled .icon svg,
+[data-theme="figma-dark"] #forward-btn:disabled .icon svg,
+[data-theme="dark"] #back-btn:disabled .icon svg,
+[data-theme="dark"] #forward-btn:disabled .icon svg,
+[data-theme="boilerplate"] #back-btn:disabled .icon svg,
+[data-theme="boilerplate"] #forward-btn:disabled .icon svg,
+[data-theme="cybertron"] #back-btn:disabled .icon svg,
+[data-theme="cybertron"] #forward-btn:disabled .icon svg {
+  filter: brightness(0) saturate(0%) invert(100%) !important;
+  opacity: 0.4 !important;
+}
+
+[data-theme="figma-light"] #back-btn:disabled .icon svg,
+[data-theme="figma-light"] #forward-btn:disabled .icon svg,
+[data-theme="light"] #back-btn:disabled .icon svg,
+[data-theme="light"] #forward-btn:disabled .icon svg {
+  filter: brightness(0) saturate(0%) !important;
+  opacity: 0.4 !important;
+}
+
 /* END COLOR-CODED QUICK ACTION BUTTONS */
 
 #quick-actions #refresh-anchors:hover {
@@ -7230,7 +7282,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .nav-button:disabled {
-  opacity: 0.5;
+  opacity: 1;
   cursor: not-allowed;
   background: var(--theme-bg-secondary);
   color: var(--theme-text-disabled);
