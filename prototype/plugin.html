@@ -8259,6 +8259,265 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     return a;
   };
 
+  // src/ui/shared/lottie.ts
+  var activeLottieAnimations = /* @__PURE__ */ new Map();
+  function initializeLottieAnimation(config) {
+    try {
+      console.log("Lottie animation disabled for debugging");
+      const animation = null;
+      if (config.name) {
+        activeLottieAnimations.set(config.name, animation);
+      }
+      console.log("\u2728 Lottie animation initialized:", config.name || "unnamed");
+      return animation;
+    } catch (error) {
+      console.error("\u274C Failed to initialize Lottie animation:", error);
+      return null;
+    }
+  }
+  function loadLottieFromElement(element) {
+    const lottieData = element.getAttribute("data-lottie");
+    if (!lottieData) {
+      console.warn("No Lottie data found on element");
+      return null;
+    }
+    try {
+      const animationData = JSON.parse(lottieData.replace(/&#39;/g, "'"));
+      const animationName = element.getAttribute("data-lottie-name") || `lottie-${element.id || Date.now()}`;
+      return initializeLottieAnimation({
+        container: element,
+        animationData,
+        renderer: element.getAttribute("data-lottie-renderer") || "svg",
+        loop: element.getAttribute("data-lottie-loop") !== "false",
+        autoplay: element.getAttribute("data-lottie-autoplay") !== "false",
+        name: animationName
+      });
+    } catch (error) {
+      console.error("\u274C Failed to parse Lottie data:", error);
+      return null;
+    }
+  }
+  function initializeAllLottieElements() {
+    const lottieElements = document.querySelectorAll("[data-lottie]");
+    console.log(`\u{1F3AC} Found ${lottieElements.length} Lottie elements to initialize`);
+    lottieElements.forEach((element) => {
+      loadLottieFromElement(element);
+    });
+  }
+  function destroyAllLottieAnimations() {
+    activeLottieAnimations.forEach((animation, name) => {
+      animation.destroy();
+      console.log("\u{1F5D1}\uFE0F Destroyed Lottie animation:", name);
+    });
+    activeLottieAnimations.clear();
+  }
+
+  // src/ui/shared/send-message.ts
+  function sendMessage(type, data = {}) {
+    parent.postMessage({ pluginMessage: __spreadValues({ type }, data) }, "*");
+  }
+
+  // src/ui/shared/layout.ts
+  var _isAutoFitEnabled = true;
+  var _lastAutoFitHeight = 0;
+  var _currentToggleMode = "onPage";
+  function getIsAutoFitEnabled() {
+    return _isAutoFitEnabled;
+  }
+  function setIsAutoFitEnabled(v) {
+    _isAutoFitEnabled = v;
+  }
+  function setLastAutoFitHeight(v) {
+    _lastAutoFitHeight = v;
+  }
+  function getCurrentToggleMode() {
+    return _currentToggleMode;
+  }
+  function updateToggleState(hasLayerSelected) {
+    const newMode = hasLayerSelected ? "onLayer" : "onPage";
+    if (_currentToggleMode !== newMode) {
+      _currentToggleMode = newMode;
+      updateToggleUI();
+    }
+  }
+  function updateToggleUI() {
+    const modeAffordances = document.querySelectorAll(".mode-affordance");
+    const modeLabel = _currentToggleMode === "onPage" ? "PAGE" : "LAYER";
+    modeAffordances.forEach((affordance) => {
+      affordance.textContent = modeLabel;
+      affordance.setAttribute("data-mode", _currentToggleMode);
+    });
+    const pageActionsGroup = document.getElementById("page-actions-group");
+    if (pageActionsGroup) {
+      pageActionsGroup.style.display = _currentToggleMode === "onPage" ? "inline-flex" : "none";
+    }
+    const buttonsRight = document.querySelector(".buttons-right");
+    if (buttonsRight) {
+      buttonsRight.style.display = _currentToggleMode === "onPage" ? "flex" : "none";
+    }
+    const anatomyPrefix = document.querySelector(".anatomy-prefix");
+    if (anatomyPrefix) {
+      anatomyPrefix.style.display = _currentToggleMode === "onPage" ? "inline-flex" : "none";
+    }
+    const ICON_PAGE_UP = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgMi41QzIgMS4zOTU0MyAyLjg5NTQzIDAuNSA0IDAuNUg5LjIzMDA5QzkuNzI1NjQgMC41IDEwLjIwMzUgMC42ODM5NjkgMTAuNTcxMiAxLjAxNjI1TDEzLjM0MTEgMy41MTk4MkMxMy43NjA2IDMuODk5MDEgMTQgNC40MzgwNyAxNCA1LjAwMzU3VjEzLjVDMTQgMTQuNjA0NiAxMy4xMDQ2IDE1LjUgMTIgMTUuNUg0QzIuODk1NDMgMTUuNSAyIDE0LjYwNDYgMiAxMy41VjIuNVoiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOS41IDFWNEM5LjUgNC41NTIyOCA5Ljk0NzcyIDUgMTAuNSA1SDEzLjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCA3LjY2NjVWMTEuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDkuNjY2NUw4IDcuNjY2NUwxMCA5LjY2NjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=";
+    const ICON_PAGE_DOWN = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgMi41QzIgMS4zOTU0MyAyLjg5NTQzIDAuNSA0IDAuNUg5LjIzMDA5QzkuNzI1NjQgMC41IDEwLjIwMzUgMC42ODM5NjkgMTAuNTcxMiAxLjAxNjI1TDEzLjM0MTEgMy41MTk4MkMxMy43NjA2IDMuODk5MDEgMTQgNC40MzgwNyAxNCA1LjAwMzU3VjEzLjVDMTQgMTQuNjA0NiAxMy4xMDQ2IDE1LjUgMTIgMTUuNUg0QzIuODk1NDMgMTUuNSAyIDE0LjYwNDYgMiAxMy41VjIuNVoiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOS41IDFWNEM5LjUgNC41NTIyOCA5Ljk0NzcyIDUgMTAuNSA1SDEzLjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCAxMS42NjY1VjcuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDkuNjY2NUw4IDExLjY2NjVMMTAgOS42NjY1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+";
+    const ICON_PAGE_ENTER = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIgN1YyLjVDMiAxLjM5NTQzIDIuODk1NDMgMC41IDQgMC41SDkuMjMwMDlDOS43MjU2NCAwLjUgMTAuMjAzNSAwLjY4Mzk2OSAxMC41NzEyIDEuMDE2MjVMMTMuMzQxMSAzLjUxOTgyQzEzLjc2MDYgMy44OTkwMSAxNCA0LjQzODA3IDE0IDUuMDAzNTdWMTMuNUMxNCAxNC42MDQ2IDEzLjEwNDYgMTUuNSAxMiAxNS41SDRDMS44OTU0MyAxNS41IDIgMTQuNjA0NiAyIDEzLjVWMTIuNzUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOS41IDFWNEM5LjUgNC41NTIyOCA5Ljk0NzcyIDUgMTAuNSA1SDEzLjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOSAxMEwyIDEwIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTcgOEw5IDEwTDcgMTIiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=";
+    const ICON_FOLDER_UP = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzLjMzMzMgMTMuMzMzM0MxMy42ODY5IDEzLjMzMzMgMTQuMDI2IDEzLjE5MjkgMTQuMjc2MSAxMi45NDI4QzE0LjUyNjEgMTIuNjkyOCAxNC42NjY2IDEyLjM1MzYgMTQuNjY2NiAxMlY1LjMzMzMzQzE0LjY2NjYgNC45Nzk3MSAxNC41MjYxIDQuNjQwNTcgMTQuMjc2MSA0LjM5MDUzQzE0LjAyNiA0LjE0MDQ4IDEzLjY4NjkgNCAxMy4zMzMzIDRIOC4wNjY1OUM3Ljg0MzYgNC4wMDIxOSA3LjYyMzYyIDMuOTQ4NDEgNy40MjY3OSAzLjg0MzU5QzcuMjI5OTYgMy43Mzg3NyA3LjA2MjU2IDMuNTg2MjUgNi45Mzk5MiAzLjRMNi4zOTk5MiAyLjZDNi4yNzg1MSAyLjQxNTY1IDYuMTEzMjQgMi4yNjQzMiA1LjkxODkyIDIuMTU5NkM1LjcyNDYgMi4wNTQ4OCA1LjUwNzMzIDIuMDAwMDQgNS4yODY1OSAySDIuNjY2NTlDMi4zMTI5NiAyIDEuOTczODIgMi4xNDA0OCAxLjcyMzc4IDIuMzkwNTJDMS40NzM3MyAyLjY0MDU3IDEuMzMzMjUgMi45Nzk3MSAxLjMzMzI1IDMuMzMzMzNWMTJDMS4zMzMyNSAxMi4zNTM2IDEuNDczNzMgMTIuNjkyOCAxLjcyMzc4IDEyLjk0MjhDMS45NzM4MiAxMy4xOTI5IDIuMzEyOTYgMTMuMzMzMyAyLjY2NjU5IDEzLjMzMzNIMTMuMzMzM1oiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCA2LjY2NjVWMTAuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDguNjY2NUw4IDYuNjY2NUwxMCA4LjY2NjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=";
+    const ICON_FOLDER_DOWN = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzLjMzMzMgMTMuMzMzM0MxMy42ODY5IDEzLjMzMzMgMTQuMDI2IDEzLjE5MjkgMTQuMjc2MSAxMi45NDI4QzE0LjUyNjEgMTIuNjkyOCAxNC42NjY2IDEyLjM1MzYgMTQuNjY2NiAxMlY1LjMzMzMzQzE0LjY2NjYgNC45Nzk3MSAxNC41MjYxIDQuNjQwNTcgMTQuMjc2MSA0LjM5MDUzQzE0LjAyNiA0LjE0MDQ4IDEzLjY4NjkgNCAxMy4zMzMzIDRIOC4wNjY1OUM3Ljg0MzYgNC4wMDIxOSA3LjYyMzYyIDMuOTQ4NDEgNy40MjY3OSAzLjg0MzU5QzcuMjI5OTYgMy43Mzg3NyA3LjA2MjU2IDMuNTg2MjUgNi45Mzk5MiAzLjRMNi4zOTk5MiAyLjZDNi4yNzg1MSAyLjQxNTY1IDYuMTEzMjQgMi4yNjQzMiA1LjkxODkyIDIuMTU5NkM1LjcyNDYgMi4wNTQ4OCA1LjUwNzMzIDIuMDAwMDQgNS4yODY1OSAySDIuNjY2NTlDMi4zMTI5NiAyIDEuOTczODIgMi4xNDA0OCAxLjcyMzc4IDIuMzkwNTJDMS40NzM3MyAyLjY0MDU3IDEuMzMzMjUgMi45Nzk3MSAxLjMzMzI1IDMuMzMzMzNWMTJDMS4zMzMyNSAxMi4zNTM2IDEuNDczNzMgMTIuNjkyOCAxLjcyMzc4IDEyLjk0MjhDMS45NzM4MiAxMy4xOTI5IDIuMzEyOTYgMTMuMzMzMyAyLjY2NjU5IDEzLjMzMzNIMTMuMzMzM1oiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCAxMC42NjY1VjYuNjY2NSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMCA4LjY2NjVMOCAxMC42NjY1TDYgOC42NjY1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+";
+    const ICON_FOLDER_ENTER = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuMzMzMjUgNS4wMDAwNlYzLjMzMzRDMS4zMzMyNSAyLjk3OTc4IDEuNDczNzMgMi42NDA2NCAxLjcyMzc4IDIuMzkwNTlDMS45NzM4MiAyLjE0MDU0IDIuMzEyOTYgMi4wMDAwNiAyLjY2NjU5IDIuMDAwMDZINS4yNjY1OUM1LjQ4OTU4IDEuOTk3ODggNS43MDk1NiAyLjA1MTY2IDUuOTA2MzkgMi4xNTY0OEM2LjEwMzIyIDIuMjYxMyA2LjI3MDYxIDIuNDEzODEgNi4zOTMyNSAyLjYwMDA2TDYuOTMzMjUgMy40MDAwNkM3LjA1NDY2IDMuNTg0NDIgNy4yMTk5NCAzLjczNTc0IDcuNDE0MjUgMy44NDA0N0M3LjYwODU3IDMuOTQ1MTkgNy44MjU4NSA0LjAwMDAzIDguMDQ2NTkgNC4wMDAwNkgxMy4zMzMzQzEzLjY4NjkgNC4wMDAwNiAxNC4wMjYgNC4xNDA1NCAxNC4yNzYxIDQuMzkwNTlDMTQuNTI2MSA0LjY0MDY0IDE0LjY2NjYgNC45Nzk3OCAxNC42NjY2IDUuMzMzNFYxMi4wMDAxQzE0LjY2NjYgMTIuMzUzNyAxNC41MjYxIDEyLjY5MjggMTQuMjc2MSAxMi45NDI5QzE0LjAyNiAxMy4xOTI5IDEzLjY4NjkgMTMuMzMzNCAxMy4zMzMzIDEzLjMzMzRIMi42NjY1OUMyLjM2MzggMTMuMzQzIDIuMDY2NzcgMTMuMjQ5MiAxLjgyNDQyIDEzLjA2NzRDMS41ODIwNyAxMi44ODU2IDEuNDA4ODQgMTIuNjI2OCAxLjMzMzI1IDEyLjMzMzQiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOCA4LjY2NjVIMS4zMzMzMyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik02IDYuNjY2NUw4IDguNjY2NUw2IDEwLjY2NjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=";
+    const iconSwaps = [
+      { buttonId: "nav-prev", pageIcon: ICON_PAGE_UP, layerIcon: ICON_FOLDER_UP },
+      { buttonId: "nav-next", pageIcon: ICON_PAGE_DOWN, layerIcon: ICON_FOLDER_DOWN },
+      { buttonId: "nav-enter", pageIcon: ICON_PAGE_ENTER, layerIcon: ICON_FOLDER_ENTER }
+    ];
+    iconSwaps.forEach(({ buttonId, pageIcon, layerIcon }) => {
+      const button = document.getElementById(buttonId);
+      const iconImg = button == null ? void 0 : button.querySelector(".nav-icon img");
+      if (iconImg) {
+        iconImg.src = _currentToggleMode === "onPage" ? pageIcon : layerIcon;
+      }
+    });
+  }
+  function computeFitHeight() {
+    const main = document.querySelector("main.scrollable-content");
+    const footer = document.getElementById("footer");
+    if (!main || !footer) {
+      return 400;
+    }
+    let totalContentHeight = 0;
+    let previousMarginBottom = 0;
+    let previousWasSticky = false;
+    const children = Array.from(main.children);
+    for (const child of children) {
+      const childStyle = window.getComputedStyle(child);
+      const isSticky = childStyle.position === "sticky";
+      const marginTop = parseInt(childStyle.marginTop, 10) || 0;
+      const marginBottom = parseInt(childStyle.marginBottom, 10) || 0;
+      const childHeight = isSticky ? child.getBoundingClientRect().height : child.offsetHeight;
+      let effectiveMargin;
+      if (isSticky || previousWasSticky) {
+        effectiveMargin = previousMarginBottom + marginTop;
+      } else {
+        effectiveMargin = Math.max(previousMarginBottom, marginTop);
+      }
+      totalContentHeight += childHeight + effectiveMargin;
+      previousMarginBottom = marginBottom;
+      previousWasSticky = isSticky;
+    }
+    totalContentHeight += previousMarginBottom;
+    const mainStyle = window.getComputedStyle(main);
+    const mainPaddingTop = parseInt(mainStyle.paddingTop, 10) || 0;
+    const mainPaddingBottom = parseInt(mainStyle.paddingBottom, 10) || 0;
+    const mainMarginTop = parseInt(mainStyle.marginTop, 10) || 0;
+    const mainMarginBottom = parseInt(mainStyle.marginBottom, 10) || 0;
+    const footerHeight = footer.offsetHeight || 20;
+    const totalHeight = totalContentHeight + mainPaddingTop + mainPaddingBottom + mainMarginTop + mainMarginBottom + footerHeight;
+    const collapsedCount = children.filter((c) => c.classList.contains("collapsed")).length;
+    if (Math.abs(totalHeight - _lastAutoFitHeight) > 3) {
+      console.log("Auto-fit height (collapsed-aware):", {
+        totalContentHeight,
+        mainPaddingTop,
+        mainPaddingBottom,
+        mainMarginTop,
+        mainMarginBottom,
+        footerHeight,
+        totalHeight,
+        collapsedSections: collapsedCount
+      });
+    }
+    return Math.ceil(totalHeight);
+  }
+  var scrollBehaviorDebounceTimer = null;
+  function updateScrollBehavior() {
+    if (scrollBehaviorDebounceTimer) {
+      clearTimeout(scrollBehaviorDebounceTimer);
+    }
+    scrollBehaviorDebounceTimer = window.setTimeout(() => {
+      updateScrollBehaviorImmediate();
+      scrollBehaviorDebounceTimer = null;
+    }, 50);
+  }
+  function updateScrollBehaviorImmediate() {
+    const main = document.querySelector("main.scrollable-content");
+    if (!main)
+      return;
+    const containerHeight = main.clientHeight;
+    const contentHeight = main.scrollHeight;
+    if (contentHeight <= containerHeight) {
+      main.classList.add("no-scroll");
+    } else {
+      main.classList.remove("no-scroll");
+    }
+    if (_isAutoFitEnabled) {
+      const newHeight = computeFitHeight();
+      if (Math.abs(newHeight - _lastAutoFitHeight) > 3) {
+        console.log("Auto-fit: adjusting height from", _lastAutoFitHeight, "to", newHeight);
+        sendMessage("resize-ui", { height: newHeight });
+        _lastAutoFitHeight = newHeight;
+      }
+    }
+  }
+
+  // src/ui/shared/cleanup.ts
+  var activeTimers = /* @__PURE__ */ new Set();
+  var originalSetTimeout = window.setTimeout;
+  var originalSetInterval = window.setInterval;
+  window.setTimeout = function(callback, delay, ...args) {
+    const timerId = originalSetTimeout.call(window, (...callbackArgs) => {
+      activeTimers.delete(timerId);
+      if (typeof callback === "function") {
+        callback.apply(this, callbackArgs);
+      }
+    }, delay || 0);
+    activeTimers.add(timerId);
+    return timerId;
+  };
+  window.setInterval = function(callback, delay, ...args) {
+    const timerId = originalSetInterval.call(window, (...callbackArgs) => {
+      if (typeof callback === "function") {
+        callback.apply(this, callbackArgs);
+      }
+    }, delay || 0);
+    activeTimers.add(timerId);
+    return timerId;
+  };
+  function clearAllTimers() {
+    activeTimers.forEach((timerId) => {
+      clearTimeout(timerId);
+      clearInterval(timerId);
+    });
+    activeTimers.clear();
+  }
+  function removeAllEventListeners() {
+    console.log("Event listener cleanup skipped (prototype override disabled)");
+  }
+  var nonEssentialOperationsPaused = false;
+  function pauseNonEssentialOperations() {
+    if (nonEssentialOperationsPaused)
+      return;
+    nonEssentialOperationsPaused = true;
+    console.log("\u23F8\uFE0F Pausing non-essential operations (tab hidden)");
+    activeLottieAnimations.forEach((animation) => {
+      if (animation.isPaused === false) {
+        animation.pause();
+      }
+    });
+    const scrollUpdateInterval = setInterval(updateScrollBehavior, 1e3);
+    activeTimers.add(scrollUpdateInterval);
+  }
+  function resumeNonEssentialOperations() {
+    if (!nonEssentialOperationsPaused)
+      return;
+    nonEssentialOperationsPaused = false;
+    console.log("\u25B6\uFE0F Resuming non-essential operations (tab visible)");
+    activeLottieAnimations.forEach((animation) => {
+      if (animation.isPaused === true) {
+        animation.play();
+      }
+    });
+    updateScrollBehavior();
+  }
+
   // src/core/theme-manager.ts
   var SystemThemeDetector = class {
     // Debounce system theme changes
@@ -8582,1614 +8841,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     }
   };
 
-  // src/ui.ts
-  var ICON_EYE_OPEN = '<svg class="lucide lucide-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
-  var ICON_EYE_CLOSED = '<svg class="lucide lucide-eye-off" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>';
-  var ICON_LOCK_OPEN = '<svg class="lucide lucide-lock-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" rx="2" ry="2" width="18" height="11"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>';
-  var ICON_LOCK_CLOSED = '<svg class="lucide lucide-lock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" rx="2" ry="2" width="18" height="11"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
-  console.log("\u{1F50D} Script executing, DOM ready state:", document.readyState);
-  window.addEventListener("error", (event) => {
-    console.error("\u{1F6A8} Global error caught:", event.error || event.message);
-    event.preventDefault();
-  });
-  window.addEventListener("unhandledrejection", (event) => {
-    console.error("\u{1F6A8} Unhandled promise rejection:", event.reason);
-    event.preventDefault();
-  });
-  var activeLottieAnimations = /* @__PURE__ */ new Map();
-  var uiSectionStatesFromPlugin = {};
-  var currentToggleMode = "onPage";
-  var isAutoFitEnabled = true;
-  var lastAutoFitHeight = 0;
-  var isWidthCompact = false;
-  function sendMessage(type, data = {}) {
-    parent.postMessage({ pluginMessage: __spreadValues({ type }, data) }, "*");
-  }
-  var canvasHintTimeout = null;
-  function showCanvasHint() {
-    const hint = document.getElementById("canvas-hint");
-    if (!hint)
-      return;
-    if (canvasHintTimeout !== null) {
-      clearTimeout(canvasHintTimeout);
-    }
-    hint.classList.add("visible");
-    canvasHintTimeout = window.setTimeout(() => {
-      hint.classList.remove("visible");
-      canvasHintTimeout = null;
-    }, 2500);
-  }
-  function handlePluginMessage(event) {
-    var _a, _b, _c, _d, _e;
-    const message = event.data.pluginMessage;
-    if (!message)
-      return;
-    console.log("\u{1F4E5} Received message from plugin:", message.type, message);
-    switch (message.type) {
-      case "selection-state":
-        const emojis = message.hasLayerSelected ? message.layerEmojis : message.pageEmojis;
-        if (emojis) {
-          updateEmojiButtons(emojis);
-        }
-        updateToggleState(message.hasLayerSelected);
-        updateAnatomySection(message.hasLayerSelected, message.pageName, message.selectedLayerName);
-        updateVisibilityLockIcons(message.selectionVisible, message.selectionLocked);
-        break;
-      case "bookmarks":
-        updateBookmarksList(
-          message.bookmarks,
-          message.currentAnchorId,
-          message.previousBookmarkId,
-          message.isInsideAnchor
-        );
-        break;
-      case "navigation-state":
-        updateNavigationButtons(message.canGoBack, message.canGoForward);
-        break;
-      case "emoji-navigation-state":
-        updateEmojiSetIndicator(message.setName, message.currentSetIndex, message.totalSets);
-        break;
-      case "error":
-        console.error("Plugin error:", message.message);
-        break;
-      case "success":
-        console.log("Plugin success:", message.message);
-        break;
-      case "ui-section-states":
-        uiSectionStatesFromPlugin = message.states || {};
-        restoreUISectionStates();
-        break;
-      case "navigation-context-update":
-        navigationContext = message.context;
-        updateControlButtons(navigationContext);
-        break;
-      case "controls-setting":
-        controlsEnabled = message.enabled;
-        updateControlsVisibility(controlsEnabled);
-        break;
-      case "controls-group-settings":
-        if (message.groups) {
-          groupMovementZoomVisible = (_a = message.groups.movementZoom) != null ? _a : true;
-          groupHierarchyVisible = (_b = message.groups.hierarchy) != null ? _b : true;
-          groupSizingModesVisible = (_c = message.groups.sizingModes) != null ? _c : true;
-          groupStyledTextVisible = (_d = message.groups.styledText) != null ? _d : true;
-          updateGroupTogglesUI();
-          applyGroupVisibility();
-        }
-        break;
-      case "nudge-settings":
-        updateNudgeSettingsUI(message.smallNudge, message.bigNudge);
-        break;
-      case "navigation-action-result":
-        announceNavigationResult({
-          success: message.success,
-          message: message.message
-        });
-        break;
-      case "update-layout-state":
-        updateLayoutSizingButtons(message.horizontal, message.vertical);
-        break;
-      case "update-styled-text-state":
-        updateStyledTextButtons(!!message.hasTextNode);
-        break;
-      case "styled-text-html": {
-        const styledHtml = message.html;
-        if (styledHtml) {
-          const notifySuccess = () => sendMessage("notify", { message: "\u2713 Styled text copied to clipboard" });
-          const notifyFail = () => sendMessage("notify", { message: "Copy failed \u2014 clipboard unavailable" });
-          const copyViaExecCommand = () => {
-            const onCopy = (e) => {
-              var _a2, _b2;
-              e.preventDefault();
-              (_a2 = e.clipboardData) == null ? void 0 : _a2.setData("text/html", styledHtml);
-              (_b2 = e.clipboardData) == null ? void 0 : _b2.setData("text/plain", styledHtml);
-            };
-            document.addEventListener("copy", onCopy, { once: true });
-            const ta = document.createElement("textarea");
-            ta.value = styledHtml;
-            ta.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none";
-            document.body.appendChild(ta);
-            ta.select();
-            const ok = document.execCommand("copy");
-            document.body.removeChild(ta);
-            if (!ok)
-              document.removeEventListener("copy", onCopy);
-            return ok;
-          };
-          if ((_e = navigator.clipboard) == null ? void 0 : _e.write) {
-            navigator.clipboard.write([
-              new ClipboardItem({ "text/html": new Blob([styledHtml], { type: "text/html" }) })
-            ]).then(notifySuccess).catch(() => {
-              copyViaExecCommand() ? notifySuccess() : notifyFail();
-            });
-          } else {
-            copyViaExecCommand() ? notifySuccess() : notifyFail();
-          }
-        }
-        break;
-      }
-    }
-  }
-  function updateToggleState(hasLayerSelected) {
-    const newMode = hasLayerSelected ? "onLayer" : "onPage";
-    if (currentToggleMode !== newMode) {
-      currentToggleMode = newMode;
-      updateToggleUI();
-    }
-  }
-  function updateToggleUI() {
-    const modeAffordances = document.querySelectorAll(".mode-affordance");
-    const modeLabel = currentToggleMode === "onPage" ? "PAGE" : "LAYER";
-    modeAffordances.forEach((affordance) => {
-      affordance.textContent = modeLabel;
-      affordance.setAttribute("data-mode", currentToggleMode);
-    });
-    const pageActionsGroup = document.getElementById("page-actions-group");
-    if (pageActionsGroup) {
-      pageActionsGroup.style.display = currentToggleMode === "onPage" ? "inline-flex" : "none";
-    }
-    const buttonsRight = document.querySelector(".buttons-right");
-    if (buttonsRight) {
-      buttonsRight.style.display = currentToggleMode === "onPage" ? "flex" : "none";
-    }
-    const anatomyPrefix = document.querySelector(".anatomy-prefix");
-    if (anatomyPrefix) {
-      anatomyPrefix.style.display = currentToggleMode === "onPage" ? "inline-flex" : "none";
-    }
-    const ICON_PAGE_UP = '<svg class="lucide lucide-file-up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>';
-    const ICON_PAGE_DOWN = '<svg class="lucide lucide-file-down" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>';
-    const ICON_PAGE_ENTER = '<svg class="lucide lucide-file-input" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M2 15h10"/><path d="m9 18 3-3-3-3"/></svg>';
-    const ICON_FOLDER_UP = '<svg class="lucide lucide-folder-up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="m9 13 3-3 3 3"/></svg>';
-    const ICON_FOLDER_DOWN = '<svg class="lucide lucide-folder-down" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="m15 13-3 3-3-3"/></svg>';
-    const ICON_FOLDER_ENTER = '<svg class="lucide lucide-folder-input" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1"/><path d="M2 13h10"/><path d="m9 16 3-3-3-3"/></svg>';
-    const iconSwaps = [
-      { buttonId: "nav-prev", pageIcon: ICON_PAGE_UP, layerIcon: ICON_FOLDER_UP },
-      { buttonId: "nav-next", pageIcon: ICON_PAGE_DOWN, layerIcon: ICON_FOLDER_DOWN },
-      { buttonId: "nav-enter", pageIcon: ICON_PAGE_ENTER, layerIcon: ICON_FOLDER_ENTER }
-    ];
-    iconSwaps.forEach(({ buttonId, pageIcon, layerIcon }) => {
-      const button = document.getElementById(buttonId);
-      const iconEl = button == null ? void 0 : button.querySelector(".nav-icon");
-      if (iconEl) {
-        iconEl.innerHTML = currentToggleMode === "onPage" ? pageIcon : layerIcon;
-      }
-    });
-  }
-  function computeFitHeight() {
-    const main = document.querySelector("main.scrollable-content");
-    const footer = document.getElementById("footer");
-    if (!main || !footer) {
-      return 400;
-    }
-    let totalContentHeight = 0;
-    let previousMarginBottom = 0;
-    let previousWasSticky = false;
-    const children = Array.from(main.children);
-    for (const child of children) {
-      const childStyle = window.getComputedStyle(child);
-      const isSticky = childStyle.position === "sticky";
-      const marginTop = parseInt(childStyle.marginTop, 10) || 0;
-      const marginBottom = parseInt(childStyle.marginBottom, 10) || 0;
-      const childHeight = isSticky ? child.getBoundingClientRect().height : child.offsetHeight;
-      let effectiveMargin;
-      if (isSticky || previousWasSticky) {
-        effectiveMargin = previousMarginBottom + marginTop;
-      } else {
-        effectiveMargin = Math.max(previousMarginBottom, marginTop);
-      }
-      totalContentHeight += childHeight + effectiveMargin;
-      previousMarginBottom = marginBottom;
-      previousWasSticky = isSticky;
-    }
-    totalContentHeight += previousMarginBottom;
-    const mainStyle = window.getComputedStyle(main);
-    const mainPaddingTop = parseInt(mainStyle.paddingTop, 10) || 0;
-    const mainPaddingBottom = parseInt(mainStyle.paddingBottom, 10) || 0;
-    const mainMarginTop = parseInt(mainStyle.marginTop, 10) || 0;
-    const mainMarginBottom = parseInt(mainStyle.marginBottom, 10) || 0;
-    const footerHeight = footer.offsetHeight || 20;
-    const totalHeight = totalContentHeight + mainPaddingTop + mainPaddingBottom + mainMarginTop + mainMarginBottom + footerHeight;
-    const collapsedCount = children.filter((c) => c.classList.contains("collapsed")).length;
-    if (Math.abs(totalHeight - lastAutoFitHeight) > 3) {
-      console.log("Auto-fit height (collapsed-aware):", {
-        totalContentHeight,
-        mainPaddingTop,
-        mainPaddingBottom,
-        mainMarginTop,
-        mainMarginBottom,
-        footerHeight,
-        totalHeight,
-        collapsedSections: collapsedCount
-      });
-    }
-    return Math.ceil(totalHeight);
-  }
-  var scrollBehaviorDebounceTimer = null;
-  function updateScrollBehavior() {
-    if (scrollBehaviorDebounceTimer) {
-      clearTimeout(scrollBehaviorDebounceTimer);
-    }
-    scrollBehaviorDebounceTimer = window.setTimeout(() => {
-      updateScrollBehaviorImmediate();
-      scrollBehaviorDebounceTimer = null;
-    }, 50);
-  }
-  function updateScrollBehaviorImmediate() {
-    const main = document.querySelector("main.scrollable-content");
-    if (!main)
-      return;
-    const containerHeight = main.clientHeight;
-    const contentHeight = main.scrollHeight;
-    if (contentHeight <= containerHeight) {
-      main.classList.add("no-scroll");
-    } else {
-      main.classList.remove("no-scroll");
-    }
-    if (isAutoFitEnabled) {
-      const newHeight = computeFitHeight();
-      if (Math.abs(newHeight - lastAutoFitHeight) > 3) {
-        console.log("Auto-fit: adjusting height from", lastAutoFitHeight, "to", newHeight);
-        sendMessage("resize-ui", { height: newHeight });
-        lastAutoFitHeight = newHeight;
-      }
-    }
-  }
-  var tooltipState = {
-    element: null,
-    showTimer: null,
-    hideTimer: null,
-    currentTarget: null
-  };
-  function getTooltipElement() {
-    if (tooltipState.element)
-      return tooltipState.element;
-    let el = document.getElementById("tooltip");
-    if (!el) {
-      el = document.createElement("div");
-      el.id = "tooltip";
-      el.className = "tooltip";
-      document.body.appendChild(el);
-    }
-    tooltipState.element = el;
-    return el;
-  }
-  function positionTooltip(target) {
-    const tip = getTooltipElement();
-    const rect = target.getBoundingClientRect();
-    const margin = 8;
-    tip.style.visibility = "hidden";
-    tip.classList.add("visible");
-    const tipWidth = tip.offsetWidth;
-    const tipHeight = tip.offsetHeight;
-    tip.classList.remove("visible");
-    tip.style.visibility = "";
-    const placementPref = (target.getAttribute("data-tooltip-placement") || "").toLowerCase();
-    let top;
-    let left;
-    if (placementPref === "top-of-container") {
-      const containerSelector = target.getAttribute("data-tooltip-container");
-      let container = null;
-      if (containerSelector) {
-        container = target.closest(containerSelector);
-      } else {
-        container = target.closest(".tag-grid-container");
-      }
-      if (container) {
-        const containerRect = container.getBoundingClientRect();
-        top = containerRect.top - tipHeight - margin;
-        left = rect.left + rect.width / 2 - tipWidth / 2;
-      } else {
-        top = rect.top - tipHeight - margin;
-        left = rect.left + rect.width / 2 - tipWidth / 2;
-      }
-      const minLeft = 8;
-      const maxLeft = Math.max(minLeft, window.innerWidth - tipWidth - 8);
-      left = Math.min(Math.max(left, minLeft), maxLeft);
-      const minTop = 8;
-      top = Math.max(top, minTop);
-    } else if (placementPref === "left" || placementPref === "left-group") {
-      top = rect.top + rect.height / 2 - tipHeight / 2;
-      if (placementPref === "left-group") {
-        const groupParent = target.parentElement;
-        if (groupParent) {
-          const groupRect = groupParent.getBoundingClientRect();
-          left = groupRect.left - tipWidth - margin;
-        } else {
-          left = rect.left - tipWidth - margin;
-        }
-      } else {
-        left = rect.left - tipWidth - margin;
-      }
-      const minTop = 8;
-      const maxTop = Math.max(minTop, window.innerHeight - tipHeight - 8);
-      top = Math.min(Math.max(top, minTop), maxTop);
-    } else if (placementPref === "right" || placementPref === "right-group") {
-      top = rect.top + rect.height / 2 - tipHeight / 2;
-      if (placementPref === "right-group") {
-        const groupParent = target.parentElement;
-        if (groupParent) {
-          const groupRect = groupParent.getBoundingClientRect();
-          left = groupRect.right + margin;
-        } else {
-          left = rect.right + margin;
-        }
-      } else {
-        left = rect.right + margin;
-      }
-      const minTop = 8;
-      const maxTop = Math.max(minTop, window.innerHeight - tipHeight - 8);
-      top = Math.min(Math.max(top, minTop), maxTop);
-    } else {
-      let placeAbove;
-      if (placementPref === "below") {
-        placeAbove = false;
-      } else if (placementPref === "above") {
-        placeAbove = true;
-      } else {
-        placeAbove = rect.top >= tipHeight + margin;
-      }
-      top = placeAbove ? rect.top - tipHeight - margin : rect.bottom + margin;
-      left = rect.left + rect.width / 2 - tipWidth / 2;
-      const minLeft = 8;
-      const maxLeft = Math.max(minLeft, window.innerWidth - tipWidth - 8);
-      left = Math.min(Math.max(left, minLeft), maxLeft);
-    }
-    tip.style.top = `${Math.round(top)}px`;
-    tip.style.left = `${Math.round(left)}px`;
-  }
-  function showTooltip(target, immediate = false) {
-    const preferred = target.getAttribute("data-tooltip");
-    const label = preferred || target.getAttribute("aria-label") || target.getAttribute("title");
-    if (!label)
-      return;
-    const tip = getTooltipElement();
-    tip.textContent = label;
-    if (tooltipState.hideTimer) {
-      clearTimeout(tooltipState.hideTimer);
-      tooltipState.hideTimer = null;
-    }
-    const doShow = () => {
-      tooltipState.currentTarget = target;
-      positionTooltip(target);
-      tip.classList.add("visible");
-    };
-    if (immediate) {
-      doShow();
-    } else {
-      const customDelay = target.getAttribute("data-tooltip-delay");
-      const delay = customDelay ? parseInt(customDelay, 10) : 200;
-      tooltipState.showTimer = window.setTimeout(doShow, delay);
-    }
-  }
-  function hideTooltip(immediate = false) {
-    const tip = getTooltipElement();
-    const doHide = () => {
-      tip.classList.remove("visible");
-      tooltipState.currentTarget = null;
-    };
-    if (tooltipState.showTimer) {
-      clearTimeout(tooltipState.showTimer);
-      tooltipState.showTimer = null;
-    }
-    if (immediate) {
-      doHide();
-    } else {
-      tooltipState.hideTimer = window.setTimeout(doHide, 100);
-    }
-  }
-  function attachTooltip(target) {
-    target.addEventListener("mouseenter", () => showTooltip(target));
-    target.addEventListener("mouseleave", () => hideTooltip());
-    target.addEventListener("focus", () => showTooltip(target, true));
-    target.addEventListener("blur", () => hideTooltip());
-    target.addEventListener("mousedown", () => hideTooltip(true));
-  }
-  function initializeQuickActionTooltips() {
-    const targets = document.querySelectorAll(".action-btn");
-    targets.forEach((el) => attachTooltip(el));
-    const headerNavBtns = document.querySelectorAll(".header-nav-btn");
-    headerNavBtns.forEach((el) => attachTooltip(el));
-    const emojiNavBtns = document.querySelectorAll(".emoji-nav-btn");
-    emojiNavBtns.forEach((el) => attachTooltip(el));
-    const footerTargets = document.querySelectorAll(".footer-icon-btn");
-    footerTargets.forEach((el) => attachTooltip(el));
-    const navButtons = document.querySelectorAll(".nav-button");
-    navButtons.forEach((el) => attachTooltip(el));
-    window.addEventListener("scroll", () => hideTooltip(true));
-    window.addEventListener("resize", () => hideTooltip(true));
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape")
-        hideTooltip(true);
-    });
-    document.addEventListener("mousedown", (e) => {
-      if (e.target.closest("button")) {
-        hideTooltip(true);
-      }
-    });
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Tab") {
-        e.preventDefault();
-      }
-    });
-    document.addEventListener("click", (e) => {
-      const target = e.target;
-      if (target.closest("button")) {
-        setTimeout(() => {
-          var _a;
-          (_a = document.activeElement) == null ? void 0 : _a.blur();
-        }, 10);
-      }
-    });
-  }
-  var emojiPreviewResetTimer = null;
-  function resetAnatomyEmoji(anatomyEmoji) {
-    const el = anatomyEmoji;
-    if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
-      el.textContent = currentAnatomyState.emoji;
-      el.style.display = "inline-flex";
-      el.style.opacity = "1";
-    } else {
-      el.textContent = "";
-      el.style.display = "none";
-    }
-    el.classList.remove("preview-mode");
-  }
-  function updateEmojiButtons(emojis) {
-    const container = document.getElementById("color-emoji-buttons");
-    if (!container)
-      return;
-    const anatomyEmoji = document.querySelector(".anatomy-emoji");
-    container.innerHTML = "";
-    emojis.forEach((emoji) => {
-      const button = document.createElement("button");
-      button.className = "emoji-button";
-      button.textContent = emoji;
-      button.addEventListener("click", () => {
-        console.log("Emoji clicked:", emoji);
-        sendMessage("add-emoji", { emoji });
-        showCanvasHint();
-      });
-      button.addEventListener("mouseenter", () => {
-        if (emojiPreviewResetTimer !== null) {
-          clearTimeout(emojiPreviewResetTimer);
-          emojiPreviewResetTimer = null;
-        }
-        if (anatomyEmoji) {
-          anatomyEmoji.textContent = emoji;
-          anatomyEmoji.style.display = "inline-flex";
-          anatomyEmoji.style.opacity = "1";
-          anatomyEmoji.classList.add("preview-mode");
-        }
-      });
-      button.addEventListener("mouseleave", () => {
-        if (emojiPreviewResetTimer !== null) {
-          clearTimeout(emojiPreviewResetTimer);
-        }
-        emojiPreviewResetTimer = window.setTimeout(() => {
-          emojiPreviewResetTimer = null;
-          if (anatomyEmoji) {
-            resetAnatomyEmoji(anatomyEmoji);
-          }
-        }, 80);
-      });
-      container.appendChild(button);
-    });
-    setTimeout(updateScrollBehavior, 50);
-  }
-  var currentAnatomyState = {
-    emoji: "",
-    date: "12.29",
-    hasDate: false,
-    hasPrefix: false,
-    isLayerMode: false
-  };
-  function parsePageTitle(name) {
-    if (!name)
-      return { emoji: null, date: null, hasPrefix: false };
-    const hasPrefix = name.includes("\u21B3");
-    const colonIndex = name.indexOf(":");
-    const beforeColon = colonIndex >= 0 ? name.slice(0, colonIndex) : name;
-    const dateMatch = beforeColon.match(/\b(\d{2}\.\d{2})\b/);
-    const date = dateMatch ? dateMatch[1] : null;
-    const allEmojis = [
-      "\u{1F534}",
-      "\u{1F7E0}",
-      "\u{1F7E1}",
-      "\u{1F7E2}",
-      "\u{1F535}",
-      "\u{1F7E3}",
-      "\u26AB\uFE0F",
-      "\u26AA\uFE0F",
-      // Page circles
-      "\u{1F7E5}",
-      "\u{1F7E7}",
-      "\u{1F7E8}",
-      "\u{1F7E9}",
-      "\u{1F7E6}",
-      "\u{1F7EA}",
-      "\u2B1B",
-      "\u2B1C",
-      // Layer squares
-      "\u{1F3F7}\uFE0F",
-      "\u{1F4CC}",
-      "\u{1F3AF}",
-      "\u{1F4A1}",
-      "\u2B50",
-      "\u{1F525}",
-      "\u{1F48E}",
-      "\u{1F3A8}",
-      // Tools
-      "\u{1F6A7}",
-      "\u2705",
-      "\u{1F440}",
-      "\u{1F680}",
-      "\u{1F6AB}",
-      "\u{1FAA6}",
-      "\u{1F4F1}",
-      // Status
-      "\u{1F446}",
-      "\u{1F447}",
-      "\u{1F448}",
-      "\u{1F449}",
-      "\u261D\uFE0F",
-      "\u{1F44D}",
-      "\u{1F44E}",
-      "\u270B"
-      // Hands
-    ];
-    let emoji = null;
-    for (const e of allEmojis) {
-      const emojiVariants = [e, e.replace(/\uFE0F/g, ""), e + "\uFE0F"];
-      for (const variant of emojiVariants) {
-        if (beforeColon.includes(variant)) {
-          emoji = e;
-          break;
-        }
-      }
-      if (emoji)
-        break;
-    }
-    return { emoji, date, hasPrefix };
-  }
-  function parseLayerName(name) {
-    if (!name)
-      return { emoji: null, date: null };
-    const dateMatch = name.match(/\b(\d{2}\.\d{2})\s*:/);
-    const date = dateMatch ? dateMatch[1] : null;
-    const allEmojis = [
-      "\u{1F7E5}",
-      "\u{1F7E7}",
-      "\u{1F7E8}",
-      "\u{1F7E9}",
-      "\u{1F7E6}",
-      "\u{1F7EA}",
-      "\u2B1B",
-      "\u2B1C",
-      // Layer squares
-      "\u{1F534}",
-      "\u{1F7E0}",
-      "\u{1F7E1}",
-      "\u{1F7E2}",
-      "\u{1F535}",
-      "\u{1F7E3}",
-      "\u26AB\uFE0F",
-      "\u26AA\uFE0F",
-      // Page circles (can be used on layers too)
-      "\u{1F3F7}\uFE0F",
-      "\u{1F4CC}",
-      "\u{1F3AF}",
-      "\u{1F4A1}",
-      "\u2B50",
-      "\u{1F525}",
-      "\u{1F48E}",
-      "\u{1F3A8}",
-      // Tools
-      "\u{1F6A7}",
-      "\u2705",
-      "\u{1F440}",
-      "\u{1F680}",
-      "\u{1F6AB}",
-      "\u{1FAA6}",
-      "\u{1F4F1}",
-      // Status
-      "\u{1F446}",
-      "\u{1F447}",
-      "\u{1F448}",
-      "\u{1F449}",
-      "\u261D\uFE0F",
-      "\u{1F44D}",
-      "\u{1F44E}",
-      "\u270B"
-      // Hands
-    ];
-    let emoji = null;
-    for (const e of allEmojis) {
-      const emojiVariants = [e, e.replace(/\uFE0F/g, ""), e + "\uFE0F"];
-      for (const variant of emojiVariants) {
-        if (name.startsWith(variant + " ") || name.startsWith(variant)) {
-          emoji = e;
-          break;
-        }
-      }
-      if (emoji)
-        break;
-    }
-    return { emoji, date };
-  }
-  function getTodayDate() {
-    const now = /* @__PURE__ */ new Date();
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const dd = String(now.getDate()).padStart(2, "0");
-    return `${mm}.${dd}`;
-  }
-  function updateAnatomySection(isLayerMode, pageName, layerName) {
-    const anatomyEmoji = document.querySelector(".anatomy-emoji");
-    const anatomyDate = document.querySelector(".anatomy-date");
-    const anatomyPrefix = document.querySelector(".anatomy-prefix");
-    if (!anatomyEmoji || !anatomyDate || !anatomyPrefix)
-      return;
-    const parsed = isLayerMode && layerName ? parseLayerName(layerName) : parsePageTitle(pageName || "");
-    currentAnatomyState.emoji = parsed.emoji || "";
-    currentAnatomyState.date = parsed.date || getTodayDate();
-    currentAnatomyState.hasDate = parsed.date !== null;
-    currentAnatomyState.hasPrefix = "hasPrefix" in parsed ? Boolean(parsed.hasPrefix) : false;
-    currentAnatomyState.isLayerMode = isLayerMode;
-    if (isLayerMode) {
-      anatomyPrefix.style.display = "none";
-    } else if (currentAnatomyState.hasPrefix) {
-      anatomyPrefix.style.display = "inline-flex";
-      anatomyPrefix.style.opacity = "0.6";
-    } else {
-      anatomyPrefix.style.display = "none";
-    }
-    if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
-      anatomyEmoji.textContent = currentAnatomyState.emoji;
-      anatomyEmoji.style.display = "inline-flex";
-      anatomyEmoji.style.opacity = "1";
-    } else {
-      anatomyEmoji.textContent = "";
-      anatomyEmoji.style.display = "none";
-      anatomyEmoji.style.opacity = "1";
-    }
-    if (currentAnatomyState.hasDate) {
-      anatomyDate.textContent = `${currentAnatomyState.date} :`;
-      anatomyDate.style.display = "flex";
-      anatomyDate.style.opacity = "0.6";
-    } else {
-      anatomyDate.textContent = "";
-      anatomyDate.style.display = "none";
-    }
-  }
-  function updateVisibilityLockIcons(selectionVisible, selectionLocked) {
-    const hideBtn = document.getElementById("nav-hide");
-    const lockBtn = document.getElementById("nav-lock");
-    if (hideBtn) {
-      const iconEl = hideBtn.querySelector(".nav-icon");
-      if (iconEl) {
-        if (selectionVisible === false) {
-          iconEl.innerHTML = ICON_EYE_CLOSED;
-          hideBtn.setAttribute("aria-label", "Show layers (Cmd/Ctrl+Shift+H)");
-          hideBtn.setAttribute("data-tooltip", "Show (\u2318\u21E7H)");
-        } else {
-          iconEl.innerHTML = ICON_EYE_OPEN;
-          hideBtn.setAttribute("aria-label", "Hide layers (Cmd/Ctrl+Shift+H)");
-          hideBtn.setAttribute("data-tooltip", "Hide (\u2318\u21E7H)");
-        }
-      }
-    }
-    if (lockBtn) {
-      const iconEl = lockBtn.querySelector(".nav-icon");
-      if (iconEl) {
-        if (selectionLocked === true) {
-          iconEl.innerHTML = ICON_LOCK_CLOSED;
-          lockBtn.setAttribute("aria-label", "Unlock layers (Cmd/Ctrl+Shift+L)");
-          lockBtn.setAttribute("data-tooltip", "Unlock (\u2318\u21E7L)");
-        } else {
-          iconEl.innerHTML = ICON_LOCK_OPEN;
-          lockBtn.setAttribute("aria-label", "Lock layers (Cmd/Ctrl+Shift+L)");
-          lockBtn.setAttribute("data-tooltip", "Lock (\u2318\u21E7L)");
-        }
-      }
-    }
-  }
-  function initializeLottieAnimation(config) {
-    try {
-      console.log("Lottie animation disabled for debugging");
-      const animation = null;
-      if (config.name) {
-        activeLottieAnimations.set(config.name, animation);
-      }
-      console.log("\u2728 Lottie animation initialized:", config.name || "unnamed");
-      return animation;
-    } catch (error) {
-      console.error("\u274C Failed to initialize Lottie animation:", error);
-      return null;
-    }
-  }
-  function loadLottieFromElement(element) {
-    const lottieData = element.getAttribute("data-lottie");
-    if (!lottieData) {
-      console.warn("No Lottie data found on element");
-      return null;
-    }
-    try {
-      const animationData = JSON.parse(lottieData.replace(/&#39;/g, "'"));
-      const animationName = element.getAttribute("data-lottie-name") || `lottie-${element.id || Date.now()}`;
-      return initializeLottieAnimation({
-        container: element,
-        animationData,
-        renderer: element.getAttribute("data-lottie-renderer") || "svg",
-        loop: element.getAttribute("data-lottie-loop") !== "false",
-        autoplay: element.getAttribute("data-lottie-autoplay") !== "false",
-        name: animationName
-      });
-    } catch (error) {
-      console.error("\u274C Failed to parse Lottie data:", error);
-      return null;
-    }
-  }
-  function initializeAllLottieElements() {
-    const lottieElements = document.querySelectorAll("[data-lottie]");
-    console.log(`\u{1F3AC} Found ${lottieElements.length} Lottie elements to initialize`);
-    lottieElements.forEach((element) => {
-      loadLottieFromElement(element);
-    });
-  }
-  function destroyAllLottieAnimations() {
-    activeLottieAnimations.forEach((animation, name) => {
-      animation.destroy();
-      console.log("\u{1F5D1}\uFE0F Destroyed Lottie animation:", name);
-    });
-    activeLottieAnimations.clear();
-  }
-  function initializePlugin() {
-    console.log("\u{1F680} Initializing plugin functionality...");
-    initializeSystemThemeDetection();
-    initializeThemePerformanceMonitoring();
-    console.log("\u{1F4E4} Sending ui-ready message");
-    sendMessage("ui-ready");
-    console.log("\u{1F4E4} Requesting theme preference from plugin");
-    sendMessage("get-theme-preference");
-    updateToggleUI();
-    updateAutoFitButtonState();
-    initializeAllLottieElements();
-    updateScrollBehavior();
-    if (isAutoFitEnabled) {
-      setTimeout(() => {
-        const initialHeight = computeFitHeight();
-        console.log("Initial auto-fit: setting height to", initialHeight);
-        sendMessage("resize-ui", { height: initialHeight });
-        lastAutoFitHeight = initialHeight;
-      }, 100);
-    }
-    setupCleanupHandlers();
-    initializeControls();
-    requestUISectionStates();
-    if (typeof window.figma === "undefined") {
-      console.log("\u{1F3AD} Running in browser mode - loading mock emoji data");
-      setTimeout(() => {
-        const PAGE_EMOJI_SETS = [
-          { name: "Colors", emojis: ["\u{1F534}", "\u{1F7E0}", "\u{1F7E1}", "\u{1F7E2}", "\u{1F535}", "\u{1F7E3}", "\u26AB\uFE0F", "\u26AA\uFE0F"] },
-          { name: "Tools", emojis: ["\u{1F3F7}\uFE0F", "\u{1F4CC}", "\u{1F3AF}", "\u{1F4A1}", "\u2B50", "\u{1F525}", "\u{1F48E}", "\u{1F3A8}"] },
-          { name: "Status", emojis: ["\u{1F6A7}", "\u2705", "\u{1F440}", "\u{1F680}", "\u{1F6AB}", "\u{1FAA6}", "\u2B50", "\u{1F4F1}"] },
-          { name: "Hands", emojis: ["\u{1F446}", "\u{1F447}", "\u{1F448}", "\u{1F449}", "\u261D\uFE0F", "\u{1F44D}", "\u{1F44E}", "\u270B"] }
-        ];
-        updateEmojiButtons(PAGE_EMOJI_SETS[0].emojis);
-        const emojiIndicator = document.getElementById("emoji-set-indicator");
-        if (emojiIndicator) {
-          const setName = emojiIndicator.querySelector(".set-name");
-          if (setName)
-            setName.textContent = PAGE_EMOJI_SETS[0].name;
-        }
-        console.log("\u2705 Mock emoji data loaded for browser preview");
-      }, 100);
-    }
-    console.log("\u2705 Plugin initialization complete - waiting for emoji data from plugin");
-  }
-  function requestUISectionStates() {
-    try {
-      sendMessage("get-ui-section-states");
-    } catch (error) {
-      console.error("Failed to request UI section states:", error);
-    }
-  }
-  async function restoreUISectionStates() {
-    try {
-      await new Promise((r) => setTimeout(r, 0));
-      const collapsibleHeaders = document.querySelectorAll(".section-header.collapsible");
-      collapsibleHeaders.forEach((header) => {
-        var _a, _b;
-        const sectionId = header.id;
-        const targetId = header.getAttribute("data-target");
-        const target = targetId ? document.getElementById(targetId) : null;
-        if (!target || !sectionId)
-          return;
-        const shouldExpand = (_b = (_a = uiSectionStatesFromPlugin[sectionId]) == null ? void 0 : _a.expanded) != null ? _b : true;
-        header.setAttribute("aria-expanded", String(shouldExpand));
-        if (!shouldExpand) {
-          target.classList.add("collapsed");
-        } else {
-          target.classList.remove("collapsed");
-        }
-      });
-      console.log("\u2705 UI section states restored");
-    } catch (error) {
-      console.error("Failed to restore UI section states:", error);
-    }
-  }
-  function setupEventListeners() {
-    setupAccessibilitySupport();
-    const backBtn = document.getElementById("back-btn");
-    const forwardBtn = document.getElementById("forward-btn");
-    const clearBtn = document.getElementById("clear-color");
-    const saveBtn = document.getElementById("save-bookmark");
-    const dateBtn = document.getElementById("date-btn");
-    const newPageBtn = document.getElementById("new-page-btn");
-    const indentTitleBtn = document.getElementById("indent-title-btn");
-    const outdentTitleBtn = document.getElementById("outdent-title-btn");
-    const pageActionsGroup = document.getElementById("page-actions-group");
-    const settingsBtn = document.getElementById("settings-btn");
-    const settingsOverlay = document.getElementById("settings-overlay");
-    const settingsCloseBtn = document.getElementById("settings-close");
-    const emojiNavLeft = document.getElementById("emoji-nav-left");
-    const emojiNavRight = document.getElementById("emoji-nav-right");
-    const refreshAnchorsBtn = document.getElementById("refresh-anchors");
-    const widthToggleBtn = document.getElementById("footer-width-toggle");
-    const resizeHandle = document.getElementById("footer-resize");
-    const collapsibleHeaders = Array.from(document.querySelectorAll(".section-header.collapsible"));
-    if (backBtn) {
-      backBtn.addEventListener("click", () => {
-        console.log("Back clicked");
-        sendMessage("go-back");
-      });
-    }
-    if (forwardBtn) {
-      forwardBtn.addEventListener("click", () => {
-        console.log("Forward clicked");
-        sendMessage("go-forward");
-      });
-    }
-    if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        console.log("Clear clicked");
-        sendMessage("clear-emoji");
-      });
-      clearBtn.addEventListener("mouseenter", () => {
-        const anatomyEmoji = document.querySelector(".anatomy-emoji");
-        if (anatomyEmoji && currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
-          anatomyEmoji.style.opacity = "0.3";
-          anatomyEmoji.classList.add("preview-mode");
-        }
-      });
-      clearBtn.addEventListener("mouseleave", () => {
-        const anatomyEmoji = document.querySelector(".anatomy-emoji");
-        if (anatomyEmoji) {
-          if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
-            anatomyEmoji.style.opacity = "1";
-          }
-          anatomyEmoji.classList.remove("preview-mode");
-        }
-      });
-    }
-    if (saveBtn) {
-      saveBtn.addEventListener("click", () => {
-        console.log("Save bookmark clicked");
-        sendMessage("save-bookmark");
-      });
-    }
-    if (dateBtn) {
-      dateBtn.addEventListener("click", () => {
-        console.log("Date button clicked");
-        sendMessage("add-date");
-      });
-      dateBtn.addEventListener("mouseenter", () => {
-        const anatomyDate = document.querySelector(".anatomy-date");
-        if (anatomyDate) {
-          const today = getTodayDate();
-          anatomyDate.textContent = `${today} :`;
-          anatomyDate.style.display = "flex";
-          anatomyDate.style.opacity = "1";
-          anatomyDate.classList.add("preview-mode");
-        }
-      });
-      dateBtn.addEventListener("mouseleave", () => {
-        const anatomyDate = document.querySelector(".anatomy-date");
-        if (anatomyDate) {
-          if (currentAnatomyState.hasDate) {
-            anatomyDate.textContent = `${currentAnatomyState.date} :`;
-            anatomyDate.style.display = "flex";
-            anatomyDate.style.opacity = "0.6";
-          } else {
-            anatomyDate.textContent = "";
-            anatomyDate.style.display = "none";
-          }
-          anatomyDate.classList.remove("preview-mode");
-        }
-      });
-    }
-    if (newPageBtn) {
-      newPageBtn.addEventListener("click", () => {
-        console.log("New Page clicked");
-        sendMessage("create-new-page");
-      });
-      newPageBtn.addEventListener("mouseenter", () => {
-        const anatomyDate = document.querySelector(".anatomy-date");
-        const anatomyEmoji = document.querySelector(".anatomy-emoji");
-        const modeAffordance = document.querySelector(".mode-affordance");
-        if (anatomyDate) {
-          const today = getTodayDate();
-          anatomyDate.textContent = `${today} :`;
-          anatomyDate.style.display = "flex";
-          anatomyDate.style.opacity = "1";
-          anatomyDate.classList.add("preview-mode");
-        }
-        if (anatomyEmoji) {
-          anatomyEmoji.dataset.prevContent = anatomyEmoji.textContent || "";
-          anatomyEmoji.dataset.prevDisplay = anatomyEmoji.style.display;
-          anatomyEmoji.textContent = "";
-          anatomyEmoji.style.display = "none";
-        }
-        if (modeAffordance) {
-          modeAffordance.dataset.prevMode = modeAffordance.dataset.mode || "onPage";
-          modeAffordance.dataset.mode = "onPage";
-          modeAffordance.textContent = "PAGE";
-          modeAffordance.classList.add("preview-mode");
-        }
-      });
-      newPageBtn.addEventListener("mouseleave", () => {
-        const anatomyDate = document.querySelector(".anatomy-date");
-        const anatomyEmoji = document.querySelector(".anatomy-emoji");
-        const modeAffordance = document.querySelector(".mode-affordance");
-        if (anatomyDate) {
-          if (currentAnatomyState.hasDate) {
-            anatomyDate.textContent = `${currentAnatomyState.date} :`;
-            anatomyDate.style.display = "flex";
-            anatomyDate.style.opacity = "0.6";
-          } else {
-            anatomyDate.textContent = "";
-            anatomyDate.style.display = "none";
-          }
-          anatomyDate.classList.remove("preview-mode");
-        }
-        if (anatomyEmoji) {
-          if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
-            anatomyEmoji.textContent = currentAnatomyState.emoji;
-            anatomyEmoji.style.display = "inline-flex";
-            anatomyEmoji.style.opacity = "1";
-          } else {
-            anatomyEmoji.textContent = "";
-            anatomyEmoji.style.display = "none";
-          }
-        }
-        if (modeAffordance) {
-          const prevMode = modeAffordance.dataset.prevMode || "onPage";
-          modeAffordance.dataset.mode = prevMode;
-          modeAffordance.textContent = prevMode === "onPage" ? "PAGE" : "LAYER";
-          modeAffordance.classList.remove("preview-mode");
-        }
-      });
-    }
-    if (indentTitleBtn) {
-      indentTitleBtn.addEventListener("click", () => {
-        console.log("Indent title clicked");
-        sendMessage("indent-title");
-      });
-      indentTitleBtn.addEventListener("mouseenter", () => {
-        const anatomyPrefix = document.querySelector(".anatomy-prefix");
-        if (anatomyPrefix && currentToggleMode === "onPage") {
-          anatomyPrefix.style.display = "inline-flex";
-          anatomyPrefix.style.opacity = "1";
-          anatomyPrefix.classList.add("preview-mode");
-        }
-      });
-      indentTitleBtn.addEventListener("mouseleave", () => {
-        const anatomyPrefix = document.querySelector(".anatomy-prefix");
-        if (anatomyPrefix && currentToggleMode === "onPage") {
-          if (currentAnatomyState.hasPrefix) {
-            anatomyPrefix.style.display = "inline-flex";
-            anatomyPrefix.style.opacity = "0.6";
-          } else {
-            anatomyPrefix.style.display = "none";
-          }
-          anatomyPrefix.classList.remove("preview-mode");
-        }
-      });
-    }
-    if (outdentTitleBtn) {
-      outdentTitleBtn.addEventListener("click", () => {
-        console.log("Outdent title clicked");
-        sendMessage("outdent-title");
-      });
-      outdentTitleBtn.addEventListener("mouseenter", () => {
-        const anatomyPrefix = document.querySelector(".anatomy-prefix");
-        if (anatomyPrefix && currentToggleMode === "onPage") {
-          anatomyPrefix.style.display = "inline-flex";
-          anatomyPrefix.style.opacity = "1";
-          anatomyPrefix.classList.add("preview-mode");
-        }
-      });
-      outdentTitleBtn.addEventListener("mouseleave", () => {
-        const anatomyPrefix = document.querySelector(".anatomy-prefix");
-        if (anatomyPrefix && currentToggleMode === "onPage") {
-          if (currentAnatomyState.hasPrefix) {
-            anatomyPrefix.style.display = "inline-flex";
-            anatomyPrefix.style.opacity = "0.6";
-          } else {
-            anatomyPrefix.style.display = "none";
-          }
-          anatomyPrefix.classList.remove("preview-mode");
-        }
-      });
-    }
-    const updatePageActionsVisibility = () => {
-      if (!pageActionsGroup)
-        return;
-      const onPage = currentToggleMode === "onPage";
-      pageActionsGroup.style.display = onPage ? "inline-flex" : "none";
-    };
-    updatePageActionsVisibility();
-    const openSettings = () => {
-      if (!settingsOverlay)
-        return;
-      settingsOverlay.setAttribute("aria-hidden", "false");
-      settingsOverlay.classList.add("open");
-      const content = settingsOverlay.querySelector(".settings-content");
-      if (content)
-        content.focus();
-    };
-    const closeSettings = () => {
-      if (!settingsOverlay)
-        return;
-      settingsOverlay.setAttribute("aria-hidden", "true");
-      settingsOverlay.classList.remove("open");
-      if (settingsBtn instanceof HTMLElement)
-        settingsBtn.focus();
-    };
-    if (settingsBtn) {
-      settingsBtn.addEventListener("click", () => {
-        console.log("Open settings");
-        openSettings();
-      });
-    }
-    if (settingsCloseBtn) {
-      settingsCloseBtn.addEventListener("click", () => {
-        console.log("Close settings");
-        closeSettings();
-      });
-    }
-    if (settingsOverlay) {
-      settingsOverlay.addEventListener("click", (e) => {
-        if (e.target === settingsOverlay) {
-          closeSettings();
-        }
-      });
-    }
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        if (settingsOverlay && settingsOverlay.getAttribute("aria-hidden") === "false") {
-          closeSettings();
-        }
-      }
-    });
-    const exportDataBtn = document.getElementById("export-data-btn");
-    const importDataBtn = document.getElementById("import-data-btn");
-    if (exportDataBtn) {
-      exportDataBtn.addEventListener("click", () => {
-        console.log("Export data clicked");
-        sendMessage("export-plugin-data");
-      });
-    }
-    if (importDataBtn) {
-      importDataBtn.addEventListener("click", () => {
-        console.log("Import data clicked");
-        sendMessage("import-plugin-data");
-      });
-    }
-    if (emojiNavLeft) {
-      emojiNavLeft.addEventListener("click", (e) => {
-        e.stopPropagation();
-        console.log("Emoji set: previous");
-        sendMessage("navigate-emoji-set", { direction: "prev" });
-      });
-    }
-    if (emojiNavRight) {
-      emojiNavRight.addEventListener("click", (e) => {
-        e.stopPropagation();
-        console.log("Emoji set: next");
-        sendMessage("navigate-emoji-set", { direction: "next" });
-      });
-    }
-    if (refreshAnchorsBtn) {
-      refreshAnchorsBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        console.log("Refresh anchors clicked");
-        sendMessage("refresh-anchors");
-      });
-    }
-    if (widthToggleBtn) {
-      widthToggleBtn.addEventListener("click", () => {
-        console.log("Toggle width");
-        isWidthCompact = !isWidthCompact;
-        const scrollableContent = document.querySelector(".scrollable-content");
-        if (scrollableContent) {
-          if (isWidthCompact) {
-            scrollableContent.classList.add("compact-mode");
-            widthToggleBtn.classList.add("active");
-          } else {
-            scrollableContent.classList.remove("compact-mode");
-            widthToggleBtn.classList.remove("active");
-          }
-        }
-        sendMessage("toggle-width");
-      });
-      widthToggleBtn.addEventListener("mouseenter", () => {
-        widthToggleBtn.classList.add("hover-active");
-      });
-      widthToggleBtn.addEventListener("mouseleave", () => {
-        widthToggleBtn.classList.remove("hover-active");
-        widthToggleBtn.style.removeProperty("background");
-        widthToggleBtn.style.removeProperty("color");
-      });
-      widthToggleBtn.addEventListener("blur", () => {
-        widthToggleBtn.classList.remove("hover-active");
-        widthToggleBtn.style.removeProperty("background");
-        widthToggleBtn.style.removeProperty("color");
-      });
-    }
-    if (resizeHandle) {
-      resizeHandle.addEventListener("dblclick", () => {
-        isAutoFitEnabled = !isAutoFitEnabled;
-        updateAutoFitButtonState();
-        if (isAutoFitEnabled) {
-          const contentHeight = computeFitHeight();
-          console.log("Auto-fit enabled: adjusting height to", contentHeight);
-          sendMessage("resize-ui", { height: contentHeight });
-          lastAutoFitHeight = contentHeight;
-        } else {
-          console.log("Auto-fit disabled");
-        }
-      });
-      let isDragging = false;
-      let startY = 0;
-      let startHeight = 0;
-      const onMouseMove = (e) => {
-        if (!isDragging)
-          return;
-        const deltaY = e.clientY - startY;
-        const newHeight = Math.max(150, Math.round(startHeight + deltaY));
-        disableAutoFit("manual drag resize");
-        sendMessage("resize-ui", { height: newHeight });
-      };
-      const onMouseUp = () => {
-        if (!isDragging)
-          return;
-        isDragging = false;
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("mouseup", onMouseUp);
-      };
-      resizeHandle.addEventListener("mousedown", (e) => {
-        disableAutoFit("manual resize initiated");
-        isDragging = true;
-        startY = e.clientY;
-        startHeight = window.innerHeight;
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
-      });
-      resizeHandle.addEventListener("keydown", (e) => {
-        const step = 16;
-        if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-          const direction = e.key === "ArrowUp" ? -1 : 1;
-          const newHeight = Math.max(150, window.innerHeight + direction * step);
-          disableAutoFit("manual keyboard resize");
-          sendMessage("resize-ui", { height: newHeight });
-          e.preventDefault();
-        }
-      });
-    }
-    if (collapsibleHeaders.length > 0) {
-      const computeTarget = (header) => {
-        const targetId = header.getAttribute("data-target");
-        if (targetId)
-          return document.getElementById(targetId);
-        let sibling = header.nextElementSibling;
-        while (sibling && !sibling.classList.contains("collapsible-content")) {
-          sibling = sibling.nextElementSibling;
-        }
-        return sibling;
-      };
-      const toggleSection = (header, target) => {
-        const currentlyExpanded = header.getAttribute("aria-expanded") !== "false";
-        const nextExpanded = !currentlyExpanded;
-        header.setAttribute("aria-expanded", String(nextExpanded));
-        if (!nextExpanded) {
-          target.classList.add("collapsed");
-        } else {
-          target.classList.remove("collapsed");
-        }
-        const sectionId = header.id;
-        if (sectionId) {
-          sendMessage("save-ui-section-state", { sectionId, expanded: nextExpanded });
-        }
-        const onEnd = (e) => {
-          target.removeEventListener("transitionend", onEnd);
-          updateScrollBehavior();
-        };
-        target.addEventListener("transitionend", onEnd, { once: true });
-        window.setTimeout(() => {
-          updateScrollBehavior();
-        }, 350);
-      };
-      collapsibleHeaders.forEach((header) => {
-        const target = computeTarget(header);
-        if (!target)
-          return;
-        if (!header.getAttribute("aria-controls")) {
-          if (target.id)
-            header.setAttribute("aria-controls", target.id);
-        }
-        const onActivate = (e) => {
-          if (e)
-            e.preventDefault();
-          toggleSection(header, target);
-        };
-        header.addEventListener("click", onActivate);
-        header.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onActivate(e);
-          }
-        });
-      });
-    }
-    setupThemeSwitching();
-    const kofiBtnElement = document.getElementById("kofi-btn");
-    if (kofiBtnElement) {
-      kofiBtnElement.addEventListener("click", (e) => {
-        e.preventDefault();
-        console.log("Ko-fi button clicked");
-        sendMessage("open-kofi");
-      });
-    }
-    setupGlobalHoverStateManagement();
-    initializeQuickActionTooltips();
-  }
-  function setupGlobalHoverStateManagement() {
-    let touchActiveTimeout = null;
-    const activateTouch = () => {
-      document.body.classList.add("touch-active");
-      if (touchActiveTimeout) {
-        clearTimeout(touchActiveTimeout);
-        touchActiveTimeout = null;
-      }
-    };
-    const deactivateTouch = () => {
-      if (touchActiveTimeout) {
-        clearTimeout(touchActiveTimeout);
-      }
-      touchActiveTimeout = window.setTimeout(() => {
-        document.body.classList.remove("touch-active");
-        touchActiveTimeout = null;
-      }, 100);
-    };
-    document.addEventListener("mousedown", activateTouch, { passive: true });
-    document.addEventListener("touchstart", activateTouch, { passive: true });
-    document.addEventListener("mousemove", deactivateTouch, { passive: true });
-    document.addEventListener("mouseup", () => {
-      if (touchActiveTimeout) {
-        clearTimeout(touchActiveTimeout);
-      }
-      touchActiveTimeout = window.setTimeout(() => {
-        document.body.classList.remove("touch-active");
-        touchActiveTimeout = null;
-      }, 150);
-    }, { passive: true });
-    document.addEventListener("touchend", deactivateTouch, { passive: true });
-    document.addEventListener("dragend", deactivateTouch, { passive: true });
-    document.addEventListener("scroll", deactivateTouch, { passive: true, capture: true });
-  }
-  function updateBookmarksList(bookmarks, currentAnchorId, previousBookmarkId, isInsideAnchor) {
-    const bookmarkList = document.getElementById("bookmark-list");
-    const nullState = document.getElementById("anchors-null-state");
-    if (!bookmarkList || !nullState)
-      return;
-    bookmarkList.innerHTML = "";
-    if (bookmarks.length === 0) {
-      nullState.style.display = "flex";
-      nullState.setAttribute("aria-hidden", "false");
-      bookmarkList.style.display = "none";
-    } else {
-      nullState.style.display = "none";
-      nullState.setAttribute("aria-hidden", "true");
-      bookmarkList.style.display = "flex";
-      let dragStartIndex = null;
-      let isDragging = false;
-      let hoverIndex = null;
-      let insertAfter = false;
-      const dropIndicator = document.createElement("div");
-      dropIndicator.className = "drop-indicator";
-      bookmarkList.appendChild(dropIndicator);
-      const getItems = () => {
-        return Array.from(bookmarkList.querySelectorAll(".bookmark-item"));
-      };
-      const getItemIndex = (el) => {
-        const children = getItems();
-        return children.indexOf(el);
-      };
-      const buildOrderFromDom = () => {
-        return getItems().map((child) => child.dataset.id || "");
-      };
-      const handleDropReorder = (targetLi) => {
-        if (dragStartIndex === null)
-          return;
-        const from = dragStartIndex;
-        const baseIndex = getItemIndex(targetLi);
-        let to = baseIndex;
-        if (hoverIndex !== null && baseIndex === hoverIndex) {
-          to = insertAfter ? hoverIndex + 1 : hoverIndex;
-        }
-        const items = getItems();
-        if (from === -1)
-          return;
-        if (to < 0)
-          to = 0;
-        if (to > items.length)
-          to = items.length;
-        const draggedEl = items[from];
-        if (!draggedEl)
-          return;
-        const refItems = getItems();
-        const refNode = refItems[to] || dropIndicator.nextSibling || null;
-        bookmarkList.insertBefore(draggedEl, refNode);
-        const order = buildOrderFromDom().filter(Boolean);
-        if (order.length === bookmarks.length) {
-          sendMessage("reorder-bookmarks", { order });
-        }
-      };
-      bookmarks.forEach((bookmark) => {
-        const li = document.createElement("li");
-        li.className = "bookmark-item";
-        li.setAttribute("draggable", "true");
-        li.dataset.id = bookmark.id;
-        if (currentAnchorId && bookmark.id === currentAnchorId) {
-          li.classList.add("current-anchor");
-          if (isInsideAnchor)
-            li.classList.add("inside-anchor");
-        } else if (previousBookmarkId && bookmark.id === previousBookmarkId) {
-          li.classList.add("recent-history");
-        }
-        const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId ? '<svg class="lucide lucide-footprints recent-steps-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" /> <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" /> <path d="M16 17h4" /> <path d="M4 13h4" /> </svg>' : "";
-        li.innerHTML = `
-        <div class="bookmark-content">
-          <div class="bookmark-name">${bookmark.name}</div>
-          <div class="bookmark-page">${bookmark.pageName}</div>
-        </div>
-        ${recentHistoryIcon}
-        <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">
-          \u2715
-        </button>
-      `;
-        li.addEventListener("click", () => {
-          if (isDragging)
-            return;
-          sendMessage("jump-to-bookmark", { id: bookmark.id });
-          showCanvasHint();
-        });
-        const removeBtn = li.querySelector(".bookmark-remove");
-        if (removeBtn) {
-          removeBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            sendMessage("remove-bookmark", { id: bookmark.id });
-          });
-          removeBtn.addEventListener("mousedown", (e) => e.stopPropagation());
-          removeBtn.addEventListener("dragstart", (e) => e.stopPropagation());
-        }
-        li.addEventListener("dragstart", (e) => {
-          isDragging = true;
-          dragStartIndex = getItemIndex(li);
-          li.classList.add("dragging");
-          if (e.dataTransfer) {
-            e.dataTransfer.effectAllowed = "move";
-            e.dataTransfer.setData("text/plain", bookmark.id);
-          }
-          const listRect = bookmarkList.getBoundingClientRect();
-          const liRect = li.getBoundingClientRect();
-          dropIndicator.style.top = `${liRect.top - listRect.top}px`;
-          dropIndicator.classList.add("visible");
-        });
-        li.addEventListener("dragenter", (e) => {
-          e.preventDefault();
-          li.classList.add("drag-over");
-        });
-        li.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          const listRect = bookmarkList.getBoundingClientRect();
-          const liRect = li.getBoundingClientRect();
-          const mid = liRect.top + liRect.height / 2;
-          hoverIndex = getItemIndex(li);
-          insertAfter = e.clientY >= mid;
-          const y = insertAfter ? liRect.bottom : liRect.top;
-          dropIndicator.style.top = `${y - listRect.top}px`;
-          dropIndicator.classList.add("visible");
-        });
-        li.addEventListener("dragleave", () => {
-          li.classList.remove("drag-over");
-        });
-        li.addEventListener("drop", (e) => {
-          e.preventDefault();
-          li.classList.remove("drag-over");
-          handleDropReorder(li);
-          dropIndicator.classList.remove("visible");
-        });
-        li.addEventListener("dragend", () => {
-          isDragging = false;
-          dragStartIndex = null;
-          li.classList.remove("dragging");
-          hoverIndex = null;
-          insertAfter = false;
-          dropIndicator.classList.remove("visible");
-          setTimeout(updateScrollBehavior, 50);
-        });
-        bookmarkList.appendChild(li);
-      });
-      bookmarkList.addEventListener("dragover", (e) => {
-        if (!isDragging)
-          return;
-        e.preventDefault();
-        const items = getItems();
-        if (items.length === 0)
-          return;
-        const last = items[items.length - 1];
-        const listRect = bookmarkList.getBoundingClientRect();
-        const lastRect = last.getBoundingClientRect();
-        if (e.clientY > lastRect.bottom) {
-          hoverIndex = items.length - 1;
-          insertAfter = true;
-          dropIndicator.style.top = `${lastRect.bottom - listRect.top}px`;
-          dropIndicator.classList.add("visible");
-        }
-      });
-      bookmarkList.addEventListener("drop", () => {
-        dropIndicator.classList.remove("visible");
-      });
-    }
-    setTimeout(updateScrollBehavior, 50);
-  }
-  function updateNavigationButtons(canGoBack, canGoForward) {
-    const backBtn = document.getElementById("back-btn");
-    const forwardBtn = document.getElementById("forward-btn");
-    if (backBtn)
-      backBtn.disabled = !canGoBack;
-    if (forwardBtn)
-      forwardBtn.disabled = !canGoForward;
-  }
-  function updateLayoutSizingButtons(horizontal, vertical) {
-    const widthModeSpan = document.getElementById("width-mode");
-    const heightModeSpan = document.getElementById("height-mode");
-    const widthIcon = document.getElementById("width-icon");
-    const heightIcon = document.getElementById("height-icon");
-    const cycleWidthBtn = document.getElementById("cycle-width");
-    const cycleHeightBtn = document.getElementById("cycle-height");
-    const widthCaption = document.getElementById("width-caption");
-    const heightCaption = document.getElementById("height-caption");
-    const ICON_FIXED = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 6V10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 6V10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 8H15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    const ICON_HUG = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.5 5V11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M0.5 8H4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 10L4.5 8L2.5 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 5V11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 8H11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 6L11.5 8L13.5 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    const ICON_FILL = '<svg class="lucide lucide-arrow-left-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>';
-    const getSvgMarkup = (mode) => {
-      if (!mode || mode === "\u2014")
-        return ICON_FIXED;
-      const modeLower = mode.toLowerCase();
-      if (modeLower === "hug")
-        return ICON_HUG;
-      if (modeLower === "fill")
-        return ICON_FILL;
-      if (modeLower === "fixed")
-        return ICON_FIXED;
-      return ICON_FIXED;
-    };
-    if (widthModeSpan) {
-      widthModeSpan.textContent = horizontal || "\u2014";
-    }
-    if (heightModeSpan) {
-      heightModeSpan.textContent = vertical || "\u2014";
-    }
-    if (widthIcon) {
-      widthIcon.innerHTML = getSvgMarkup(horizontal);
-    }
-    if (heightIcon) {
-      heightIcon.innerHTML = getSvgMarkup(vertical);
-    }
-    const hasValidState = horizontal && horizontal !== "\u2014";
-    if (cycleWidthBtn) {
-      cycleWidthBtn.disabled = !hasValidState;
-    }
-    if (cycleHeightBtn) {
-      cycleHeightBtn.disabled = !hasValidState;
-    }
-    if (widthCaption) {
-      if (!hasValidState) {
-        widthCaption.textContent = "Width";
-      } else {
-        const widthMode = horizontal && horizontal !== "\u2014" ? horizontal : "Fixed";
-        widthCaption.textContent = widthMode.charAt(0).toUpperCase() + widthMode.slice(1).toLowerCase();
-      }
-    }
-    if (heightCaption) {
-      if (!hasValidState) {
-        heightCaption.textContent = "Height";
-      } else {
-        const heightMode = vertical && vertical !== "\u2014" ? vertical : "Fixed";
-        heightCaption.textContent = heightMode.charAt(0).toUpperCase() + heightMode.slice(1).toLowerCase();
-      }
-    }
-    if (!hasValidState) {
-      if (widthIcon) {
-        widthIcon.innerHTML = ICON_FIXED;
-      }
-      if (heightIcon) {
-        heightIcon.innerHTML = ICON_FIXED;
-      }
-    }
-  }
-  function updateEmojiSetIndicator(setName, currentIndex, totalSets) {
-    const indicator = document.getElementById("emoji-set-indicator");
-    if (indicator) {
-      const setNameElement = indicator.querySelector(".set-name");
-      if (setNameElement) {
-        setNameElement.textContent = setName;
-      }
-    }
-  }
-  function disableAutoFit(reason) {
-    if (isAutoFitEnabled) {
-      isAutoFitEnabled = false;
-      updateAutoFitButtonState();
-      console.log(`Auto-fit disabled${reason ? `: ${reason}` : ""}`);
-    }
-  }
-  function updateAutoFitButtonState() {
-    const resizeHandle = document.getElementById("footer-resize");
-    if (!resizeHandle)
-      return;
-    if (isAutoFitEnabled) {
-      resizeHandle.classList.add("auto-fit-active");
-      resizeHandle.setAttribute("aria-label", "Resize panel (double-click to disable auto-fit) - Auto-fit: ON");
-      resizeHandle.setAttribute("title", "Auto-fit: ON - Double-click to disable");
-    } else {
-      resizeHandle.classList.remove("auto-fit-active");
-      resizeHandle.setAttribute("aria-label", "Resize panel (double-click to enable auto-fit) - Auto-fit: OFF");
-      resizeHandle.setAttribute("title", "Auto-fit: OFF - Double-click to enable");
-    }
-  }
-  function resetFooterButtonStates() {
-    const footerButtons = document.querySelectorAll(".footer-icon-btn");
-    footerButtons.forEach((button) => {
-      const btn = button;
-      btn.classList.remove("hover-active");
-      btn.style.removeProperty("background");
-      btn.style.removeProperty("color");
-      btn.style.removeProperty("transform");
-    });
-  }
+  // src/ui/shared/theme-manager-ui.ts
   var themeManager;
   var isThemeInitialized = false;
   function initializeAccessibilityListeners() {
@@ -10758,320 +9410,586 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     const isLightTheme = effectiveTheme === "figma-light" || effectiveTheme === "light";
     metaColorScheme.content = isDarkTheme ? "dark" : "light";
   }
-  function handleDOMReady() {
-    console.log("\u{1F4C4} DOM ready, starting initialization sequence...");
-    initializePlugin();
-    setupEventListeners();
-    window.addEventListener("message", handlePluginMessage);
-    window.addEventListener("message", (event) => {
-      const msg = event.data && event.data.pluginMessage || null;
-      if (!msg)
-        return;
-      if (msg.type === "theme-preference") {
-        if (themeManager && isThemeInitialized) {
-          const themeData = msg.theme;
-          console.log("\u{1F4E5} Received theme preference from backend:", themeData);
-          if (themeManager) {
-            const beforeDebug = themeManager.getDebugInfo();
-            console.log("\u{1F50D} Theme state BEFORE loading preference:", beforeDebug);
-          }
-          if (msg.storageInfo) {
-            if (!msg.storageInfo.success) {
-              console.warn("Theme storage load failed:", msg.storageInfo.error);
-            }
-            if (msg.storageInfo.usedFallback) {
-              console.info("Theme preference loaded from fallback storage");
-            }
-          }
-          themeManager.loadThemePreference(themeData);
-          updateThemeUI();
-          if (themeManager) {
-            const afterDebug = themeManager.getDebugInfo();
-            console.log("\u{1F50D} Theme state AFTER loading preference:", afterDebug);
-          }
-          console.log("\u2705 Theme preference loaded and applied");
-        } else {
-          console.warn("\u26A0\uFE0F Received theme preference but theme manager not ready");
-        }
-      }
-    });
-    window.addEventListener("resize", () => {
-      setTimeout(updateScrollBehavior, 100);
-    });
-    window.addEventListener("systemThemeSync", (event) => {
-      const customEvent = event;
-      const { effectiveTheme, themeMode, systemTheme } = customEvent.detail;
-      console.log(`\u{1F504} System theme sync event: ${effectiveTheme} (mode: ${themeMode}, system: ${systemTheme})`);
-    });
-    window.addEventListener("themeChangeComplete", (event) => {
-      const customEvent = event;
-      const { effectiveTheme, themeMode, systemTheme, isSystemTheme } = customEvent.detail;
-      console.log(`\u2705 Theme change complete: ${effectiveTheme} (mode: ${themeMode}, system: ${systemTheme})`);
-      updateThemeRelatedComponents(effectiveTheme, themeMode, isSystemTheme);
-    });
-    const settingsOverlay = document.getElementById("settings-overlay");
-    if (settingsOverlay) {
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === "attributes" && mutation.attributeName === "aria-hidden") {
-            const isHidden = settingsOverlay.getAttribute("aria-hidden") === "true";
-            if (isHidden) {
-              hideThemePreview();
-            }
-          }
-        });
-      });
-      observer.observe(settingsOverlay, { attributes: true });
-    }
-    window.addEventListener("beforeunload", () => {
-      if (themeManager) {
-        themeManager.destroy();
-      }
-    });
-    window.addEventListener("blur", resetFooterButtonStates);
-    window.addEventListener("focus", resetFooterButtonStates);
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
-        setTimeout(resetFooterButtonStates, 100);
-      }
-    });
-    const footerCleanupInterval = setInterval(() => {
-      const footerButtons = document.querySelectorAll(".footer-icon-btn");
-      footerButtons.forEach((button) => {
-        const btn = button;
-        if (!btn.matches(":hover") && !btn.matches(":focus") && !btn.matches(":active")) {
-          btn.classList.remove("hover-active");
-          btn.style.removeProperty("background");
-          btn.style.removeProperty("color");
-          btn.style.removeProperty("transform");
-        }
-      });
-    }, 2e3);
-    activeTimers.add(footerCleanupInterval);
-  }
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", handleDOMReady);
-  } else {
-    handleDOMReady();
-  }
-  var themePerformanceMetrics = {
-    themeChanges: 0,
-    totalThemeChangeTime: 0,
-    averageThemeChangeTime: 0,
-    lastThemeChangeTime: 0,
-    slowThemeChanges: 0,
-    // Changes taking > 100ms
-    cacheHits: 0,
-    cacheMisses: 0
+
+  // src/ui/shared/icons.ts
+  var ICON_EYE_OPEN = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEuMzMzMjUgOC4wMDAwNkMxLjMzMzI1IDguMDAwMDYgMy4zMzMyNSAzLjMzMzM5IDcuOTk5OTIgMy4zMzMzOUMxMi42NjY2IDMuMzMzMzkgMTQuNjY2NiA4LjAwMDA2IDE0LjY2NjYgOC4wMDAwNkMxNC42NjY2IDguMDAwMDYgMTIuNjY2NiAxMi42NjY3IDcuOTk5OTIgMTIuNjY2N0MzLjMzMzI1IDEyLjY2NjcgMS4zMzMyNSA4LjAwMDA2IDEuMzMzMjUgOC4wMDAwNloiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSIyIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K";
+  var ICON_EYE_CLOSED = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkuNDEzMjUgOS40MTMzOUM5LjIzMDA3IDkuNjA5OTkgOS4wMDkzNSA5Ljc2NzQzIDguNzY0MDUgOS44NzY1OEM4LjUxODc1IDkuOTg1NzIgOC4yNTM5MSAxMC4wNDQ0IDcuOTg1MzkgMTAuMDQ5MkM3LjcxNjg3IDEwLjA1NCA3LjQ1MDA5IDEwLjAwNDkgNy4yMDEwMyA5LjkwNDczQzYuOTUxOTcgOS44MDQ1OCA2LjcyNTc2IDkuNjU1MzQgNi41MzUyMSA5LjQ2NDc5QzYuMzQ0NjYgOS4yNzQyNCA2LjE5NTQyIDkuMDQ4MDMgNi4wOTUyNyA4Ljc5ODk3QzUuOTk1MTIgOC41NDk5MSA1Ljk0NTk2IDguMjgzMTMgNS45NTA3NiA4LjAxNDYxQzUuOTU1NTYgNy43NDYwOSA2LjAxNDI4IDcuNDgxMjUgNi4xMjM0MiA3LjIzNTk1QzYuMjMyNTcgNi45OTA2NSA2LjM5MDAxIDYuNzY5OTMgNi41ODY1OSA2LjU4NjczTTExLjk1OTkgMTEuOTYwMUMxMC44MjAzIDEyLjgyODcgOS40MzI2NyAxMy4zMDk5IDcuOTk5OTIgMTMuMzMzNEMzLjMzMzI1IDEzLjMzMzQgMS4zMzMyNSA4LjAwMDA2IDEuMzMzMjUgOC4wMDAwNkMyLjE2MzYzIDYuNDU0NjcgMy4zMTQwOCA1LjEwNDQ3IDQuNzA2NTkgNC4wNDAwNkwxMS45NTk5IDExLjk2MDFaTTYuNTk5OTIgMi44MjY3M0M3LjA1ODgxIDIuNzE5MzYgNy41Mjg2MyAyLjY2NTY0IDcuOTk5OTIgMi42NjY3M0MxMi42NjY2IDIuNjY2NzMgMTQuNjY2NiA4LjAwMDA2IDE0LjY2NjYgOC4wMDAwNkMxNC4yNjAzIDguNzU3MTMgMTMuNzY0MyA5LjQ2OTg5IDEzLjE4NjYgMTAuMTIwMUw2LjU5OTkyIDIuODI2NzNaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMS4zMzMyNSAxLjMzMzM5TDE0LjY2NjYgMTQuNjY2NyIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==";
+  var ICON_LOCK_OPEN = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjY2NjcgNy4zMzM1SDMuMzMzMzNDMi41OTY5NSA3LjMzMzUgMiA3LjkzMDQ1IDIgOC42NjY4M1YxMy4zMzM1QzIgMTQuMDY5OSAyLjU5Njk1IDE0LjY2NjggMy4zMzMzMyAxNC42NjY4SDEyLjY2NjdDMTMuNDAzIDE0LjY2NjggMTQgMTQuMDY5OSAxNCAxMy4zMzM1VjguNjY2ODNDMTQgNy45MzA0NSAxMy40MDMgNy4zMzM1IDEyLjY2NjcgNy4zMzM1WiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik00LjY2Njc1IDcuMzMzNVY0LjY2NjgzQzQuNjY2NzUgMy43ODI3NyA1LjAxNzk0IDIuOTM0OTMgNS42NDMwNiAyLjMwOTgxQzYuMjY4MTggMS42ODQ2OSA3LjExNjAzIDEuMzMzNSA4LjAwMDA4IDEuMzMzNUM4Ljg4NDE0IDEuMzMzNSA5LjczMTk4IDEuNjg0NjkgMTAuMzU3MSAyLjMwOTgxQzEwLjk4MjIgMi45MzQ5MyAxMS4zMzM0IDMuNzgyNzcgMTEuMzMzNCA0LjY2NjgzVjcuMzMzNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=";
+  var ICON_LOCK_CLOSED = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjY2NjcgNy4zMzM1SDMuMzMzMzNDMi41OTY5NSA3LjMzMzUgMiA3LjkzMDQ1IDIgOC42NjY4M1YxMy4zMzM1QzIgMTQuMDY5OSAyLjU5Njk1IDE0LjY2NjggMy4zMzMzMyAxNC42NjY4SDEyLjY2NjdDMTMuNDAzIDE0LjY2NjggMTQgMTQuMDY5OSAxNCAxMy4zMzM1VjguNjY2ODNDMTQgNy45MzA0NSAxMy40MDMgNy4zMzM1IDEyLjY2NjcgNy4zMzM1WiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik00LjY2Njc1IDcuMzMzNDRWNC42NjY3N0M0LjY2NTkyIDMuODQwMTMgNC45NzIyNyAzLjA0MjY4IDUuNTI2MzMgMi40MjkyMUM2LjA4MDM5IDEuODE1NzUgNi44NDI2NCAxLjQzMDA0IDcuNjY1MDkgMS4zNDY5NkM4LjQ4NzU0IDEuMjYzODkgOS4zMTE1MSAxLjQ4OTM3IDkuOTc3MDcgMS45Nzk2NEMxMC42NDI2IDIuNDY5OTIgMTEuMTAyMyAzLjE5IDExLjI2NjcgNC4wMDAxIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==";
+
+  // src/ui/navigate/anatomy.ts
+  var emojiPreviewResetTimer = null;
+  var currentAnatomyState = {
+    emoji: "",
+    date: "12.29",
+    hasDate: false,
+    hasPrefix: false,
+    isLayerMode: false
   };
-  function initializeThemePerformanceMonitoring() {
-    if (themeManager) {
-      const originalApplyTheme = applyTheme;
-      window.applyTheme = function(effectiveTheme, skipTransition = false) {
-        const startTime = performance.now();
-        try {
-          const result = originalApplyTheme.call(this, effectiveTheme);
-          const endTime = performance.now();
-          const duration = endTime - startTime;
-          themePerformanceMetrics.themeChanges++;
-          themePerformanceMetrics.totalThemeChangeTime += duration;
-          themePerformanceMetrics.averageThemeChangeTime = themePerformanceMetrics.totalThemeChangeTime / themePerformanceMetrics.themeChanges;
-          themePerformanceMetrics.lastThemeChangeTime = duration;
-          if (duration > 100) {
-            themePerformanceMetrics.slowThemeChanges++;
-            console.warn(`Slow theme change detected: ${duration.toFixed(2)}ms for theme ${effectiveTheme}`);
+  function resetAnatomyEmoji(anatomyEmoji) {
+    const el = anatomyEmoji;
+    if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+      el.textContent = currentAnatomyState.emoji;
+      el.style.display = "inline-flex";
+      el.style.opacity = "1";
+    } else {
+      el.textContent = "";
+      el.style.display = "none";
+    }
+    el.classList.remove("preview-mode");
+  }
+  function updateEmojiButtons(emojis) {
+    const container = document.getElementById("color-emoji-buttons");
+    if (!container)
+      return;
+    const anatomyEmoji = document.querySelector(".anatomy-emoji");
+    container.innerHTML = "";
+    emojis.forEach((emoji) => {
+      const button = document.createElement("button");
+      button.className = "emoji-button";
+      button.textContent = emoji;
+      button.addEventListener("click", () => {
+        console.log("Emoji clicked:", emoji);
+        sendMessage("add-emoji", { emoji });
+        showCanvasHint();
+      });
+      button.addEventListener("mouseenter", () => {
+        if (emojiPreviewResetTimer !== null) {
+          clearTimeout(emojiPreviewResetTimer);
+          emojiPreviewResetTimer = null;
+        }
+        if (anatomyEmoji) {
+          anatomyEmoji.textContent = emoji;
+          anatomyEmoji.style.display = "inline-flex";
+          anatomyEmoji.style.opacity = "1";
+          anatomyEmoji.classList.add("preview-mode");
+        }
+      });
+      button.addEventListener("mouseleave", () => {
+        if (emojiPreviewResetTimer !== null) {
+          clearTimeout(emojiPreviewResetTimer);
+        }
+        emojiPreviewResetTimer = window.setTimeout(() => {
+          emojiPreviewResetTimer = null;
+          if (anatomyEmoji) {
+            resetAnatomyEmoji(anatomyEmoji);
           }
-          if (themePerformanceMetrics.themeChanges % 10 === 0) {
-            console.log("Theme Performance Metrics:", {
-              changes: themePerformanceMetrics.themeChanges,
-              averageTime: `${themePerformanceMetrics.averageThemeChangeTime.toFixed(2)}ms`,
-              slowChanges: themePerformanceMetrics.slowThemeChanges,
-              lastChange: `${themePerformanceMetrics.lastThemeChangeTime.toFixed(2)}ms`
-            });
-          }
-          return result;
-        } catch (error) {
-          console.error("Theme application error:", error);
-          throw error;
+        }, 80);
+      });
+      container.appendChild(button);
+    });
+    setTimeout(updateScrollBehavior, 50);
+  }
+  function parsePageTitle(name) {
+    if (!name)
+      return { emoji: null, date: null, hasPrefix: false };
+    const hasPrefix = name.includes("\u21B3");
+    const colonIndex = name.indexOf(":");
+    const beforeColon = colonIndex >= 0 ? name.slice(0, colonIndex) : name;
+    const dateMatch = beforeColon.match(/\b(\d{2}\.\d{2})\b/);
+    const date = dateMatch ? dateMatch[1] : null;
+    const allEmojis = [
+      "\u{1F534}",
+      "\u{1F7E0}",
+      "\u{1F7E1}",
+      "\u{1F7E2}",
+      "\u{1F535}",
+      "\u{1F7E3}",
+      "\u26AB\uFE0F",
+      "\u26AA\uFE0F",
+      // Page circles
+      "\u{1F7E5}",
+      "\u{1F7E7}",
+      "\u{1F7E8}",
+      "\u{1F7E9}",
+      "\u{1F7E6}",
+      "\u{1F7EA}",
+      "\u2B1B",
+      "\u2B1C",
+      // Layer squares
+      "\u{1F3F7}\uFE0F",
+      "\u{1F4CC}",
+      "\u{1F3AF}",
+      "\u{1F4A1}",
+      "\u2B50",
+      "\u{1F525}",
+      "\u{1F48E}",
+      "\u{1F3A8}",
+      // Tools
+      "\u{1F6A7}",
+      "\u2705",
+      "\u{1F440}",
+      "\u{1F680}",
+      "\u{1F6AB}",
+      "\u{1FAA6}",
+      "\u{1F4F1}",
+      // Status
+      "\u{1F446}",
+      "\u{1F447}",
+      "\u{1F448}",
+      "\u{1F449}",
+      "\u261D\uFE0F",
+      "\u{1F44D}",
+      "\u{1F44E}",
+      "\u270B"
+      // Hands
+    ];
+    let emoji = null;
+    for (const e of allEmojis) {
+      const emojiVariants = [e, e.replace(/\uFE0F/g, ""), e + "\uFE0F"];
+      for (const variant of emojiVariants) {
+        if (beforeColon.includes(variant)) {
+          emoji = e;
+          break;
+        }
+      }
+      if (emoji)
+        break;
+    }
+    return { emoji, date, hasPrefix };
+  }
+  function parseLayerName(name) {
+    if (!name)
+      return { emoji: null, date: null };
+    const dateMatch = name.match(/\b(\d{2}\.\d{2})\s*:/);
+    const date = dateMatch ? dateMatch[1] : null;
+    const allEmojis = [
+      "\u{1F7E5}",
+      "\u{1F7E7}",
+      "\u{1F7E8}",
+      "\u{1F7E9}",
+      "\u{1F7E6}",
+      "\u{1F7EA}",
+      "\u2B1B",
+      "\u2B1C",
+      // Layer squares
+      "\u{1F534}",
+      "\u{1F7E0}",
+      "\u{1F7E1}",
+      "\u{1F7E2}",
+      "\u{1F535}",
+      "\u{1F7E3}",
+      "\u26AB\uFE0F",
+      "\u26AA\uFE0F",
+      // Page circles (can be used on layers too)
+      "\u{1F3F7}\uFE0F",
+      "\u{1F4CC}",
+      "\u{1F3AF}",
+      "\u{1F4A1}",
+      "\u2B50",
+      "\u{1F525}",
+      "\u{1F48E}",
+      "\u{1F3A8}",
+      // Tools
+      "\u{1F6A7}",
+      "\u2705",
+      "\u{1F440}",
+      "\u{1F680}",
+      "\u{1F6AB}",
+      "\u{1FAA6}",
+      "\u{1F4F1}",
+      // Status
+      "\u{1F446}",
+      "\u{1F447}",
+      "\u{1F448}",
+      "\u{1F449}",
+      "\u261D\uFE0F",
+      "\u{1F44D}",
+      "\u{1F44E}",
+      "\u270B"
+      // Hands
+    ];
+    let emoji = null;
+    for (const e of allEmojis) {
+      const emojiVariants = [e, e.replace(/\uFE0F/g, ""), e + "\uFE0F"];
+      for (const variant of emojiVariants) {
+        if (name.startsWith(variant + " ") || name.startsWith(variant)) {
+          emoji = e;
+          break;
+        }
+      }
+      if (emoji)
+        break;
+    }
+    return { emoji, date };
+  }
+  function getTodayDate() {
+    const now = /* @__PURE__ */ new Date();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    return `${mm}.${dd}`;
+  }
+  function updateAnatomySection(isLayerMode, pageName, layerName) {
+    const anatomyEmoji = document.querySelector(".anatomy-emoji");
+    const anatomyDate = document.querySelector(".anatomy-date");
+    const anatomyPrefix = document.querySelector(".anatomy-prefix");
+    if (!anatomyEmoji || !anatomyDate || !anatomyPrefix)
+      return;
+    const parsed = isLayerMode && layerName ? parseLayerName(layerName) : parsePageTitle(pageName || "");
+    currentAnatomyState.emoji = parsed.emoji || "";
+    currentAnatomyState.date = parsed.date || getTodayDate();
+    currentAnatomyState.hasDate = parsed.date !== null;
+    currentAnatomyState.hasPrefix = "hasPrefix" in parsed ? parsed.hasPrefix : false;
+    currentAnatomyState.isLayerMode = isLayerMode;
+    if (isLayerMode) {
+      anatomyPrefix.style.display = "none";
+    } else if (currentAnatomyState.hasPrefix) {
+      anatomyPrefix.style.display = "inline-flex";
+      anatomyPrefix.style.opacity = "0.6";
+    } else {
+      anatomyPrefix.style.display = "none";
+    }
+    if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+      anatomyEmoji.textContent = currentAnatomyState.emoji;
+      anatomyEmoji.style.display = "inline-flex";
+      anatomyEmoji.style.opacity = "1";
+    } else {
+      anatomyEmoji.textContent = "";
+      anatomyEmoji.style.display = "none";
+      anatomyEmoji.style.opacity = "1";
+    }
+    if (currentAnatomyState.hasDate) {
+      anatomyDate.textContent = `${currentAnatomyState.date} :`;
+      anatomyDate.style.display = "flex";
+      anatomyDate.style.opacity = "0.6";
+    } else {
+      anatomyDate.textContent = "";
+      anatomyDate.style.display = "none";
+    }
+  }
+  function updateVisibilityLockIcons(selectionVisible, selectionLocked) {
+    const hideBtn = document.getElementById("nav-hide");
+    const lockBtn = document.getElementById("nav-lock");
+    if (hideBtn) {
+      const iconImg = hideBtn.querySelector(".nav-icon img");
+      if (iconImg) {
+        if (selectionVisible === false) {
+          iconImg.src = ICON_EYE_CLOSED;
+          hideBtn.setAttribute("aria-label", "Show layers (Cmd/Ctrl+Shift+H)");
+          hideBtn.setAttribute("data-tooltip", "Show (\u2318\u21E7H)");
+        } else {
+          iconImg.src = ICON_EYE_OPEN;
+          hideBtn.setAttribute("aria-label", "Hide layers (Cmd/Ctrl+Shift+H)");
+          hideBtn.setAttribute("data-tooltip", "Hide (\u2318\u21E7H)");
+        }
+      }
+    }
+    if (lockBtn) {
+      const iconImg = lockBtn.querySelector(".nav-icon img");
+      if (iconImg) {
+        if (selectionLocked === true) {
+          iconImg.src = ICON_LOCK_CLOSED;
+          lockBtn.setAttribute("aria-label", "Unlock layers (Cmd/Ctrl+Shift+L)");
+          lockBtn.setAttribute("data-tooltip", "Unlock (\u2318\u21E7L)");
+        } else {
+          iconImg.src = ICON_LOCK_OPEN;
+          lockBtn.setAttribute("aria-label", "Lock layers (Cmd/Ctrl+Shift+L)");
+          lockBtn.setAttribute("data-tooltip", "Lock (\u2318\u21E7L)");
+        }
+      }
+    }
+  }
+  var _showCanvasHintFn = null;
+  function registerShowCanvasHint(fn) {
+    _showCanvasHintFn = fn;
+  }
+  function showCanvasHint() {
+    if (_showCanvasHintFn)
+      _showCanvasHintFn();
+  }
+
+  // src/ui/navigate/bookmarks-ui.ts
+  var _isAutoFitEnabled2 = true;
+  var _showCanvasHintFn2 = null;
+  function registerShowCanvasHintBookmarks(fn) {
+    _showCanvasHintFn2 = fn;
+  }
+  function showCanvasHint2() {
+    if (_showCanvasHintFn2)
+      _showCanvasHintFn2();
+  }
+  var _disableAutoFitFn = null;
+  function registerDisableAutoFit(fn) {
+    _disableAutoFitFn = fn;
+  }
+  function updateBookmarksList(bookmarks, currentAnchorId, previousBookmarkId, isInsideAnchor) {
+    const bookmarkList = document.getElementById("bookmark-list");
+    const nullState = document.getElementById("anchors-null-state");
+    if (!bookmarkList || !nullState)
+      return;
+    bookmarkList.innerHTML = "";
+    if (bookmarks.length === 0) {
+      nullState.style.display = "flex";
+      nullState.setAttribute("aria-hidden", "false");
+      bookmarkList.style.display = "none";
+    } else {
+      nullState.style.display = "none";
+      nullState.setAttribute("aria-hidden", "true");
+      bookmarkList.style.display = "flex";
+      let dragStartIndex = null;
+      let isDragging = false;
+      let hoverIndex = null;
+      let insertAfter = false;
+      const dropIndicator = document.createElement("div");
+      dropIndicator.className = "drop-indicator";
+      bookmarkList.appendChild(dropIndicator);
+      const getItems = () => {
+        return Array.from(bookmarkList.querySelectorAll(".bookmark-item"));
+      };
+      const getItemIndex = (el) => {
+        const children = getItems();
+        return children.indexOf(el);
+      };
+      const buildOrderFromDom = () => {
+        return getItems().map((child) => child.dataset.id || "");
+      };
+      const handleDropReorder = (targetLi) => {
+        if (dragStartIndex === null)
+          return;
+        const from = dragStartIndex;
+        const baseIndex = getItemIndex(targetLi);
+        let to = baseIndex;
+        if (hoverIndex !== null && baseIndex === hoverIndex) {
+          to = insertAfter ? hoverIndex + 1 : hoverIndex;
+        }
+        const items = getItems();
+        if (from === -1)
+          return;
+        if (to < 0)
+          to = 0;
+        if (to > items.length)
+          to = items.length;
+        const draggedEl = items[from];
+        if (!draggedEl)
+          return;
+        const refItems = getItems();
+        const refNode = refItems[to] || dropIndicator.nextSibling || null;
+        bookmarkList.insertBefore(draggedEl, refNode);
+        const order = buildOrderFromDom().filter(Boolean);
+        if (order.length === bookmarks.length) {
+          sendMessage("reorder-bookmarks", { order });
         }
       };
-    }
-    if ("memory" in performance) {
-      const memoryMonitorInterval = setInterval(() => {
-        const memInfo = performance.memory;
-        const usedMB = memInfo.usedJSHeapSize / (1024 * 1024);
-        const limitMB = memInfo.jsHeapSizeLimit / (1024 * 1024);
-        const usagePercent = memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit * 100;
-        if (usagePercent > 70) {
-          console.error("\u{1F6A8} CRITICAL memory usage:", {
-            used: `${usedMB.toFixed(2)}MB`,
-            limit: `${limitMB.toFixed(2)}MB`,
-            percentage: `${usagePercent.toFixed(1)}%`,
-            status: "Critical - possible memory leak!"
-          });
-        } else if (usagePercent > 50) {
-          console.warn("\u26A0\uFE0F High memory usage detected:", {
-            used: `${usedMB.toFixed(2)}MB`,
-            limit: `${limitMB.toFixed(2)}MB`,
-            percentage: `${usagePercent.toFixed(1)}%`,
-            status: "Warning - monitor closely"
-          });
+      bookmarks.forEach((bookmark) => {
+        const li = document.createElement("li");
+        li.className = "bookmark-item";
+        li.setAttribute("draggable", "true");
+        li.dataset.id = bookmark.id;
+        if (currentAnchorId && bookmark.id === currentAnchorId) {
+          li.classList.add("current-anchor");
+          if (isInsideAnchor)
+            li.classList.add("inside-anchor");
+        } else if (previousBookmarkId && bookmark.id === previousBookmarkId) {
+          li.classList.add("recent-history");
         }
-      }, 3e4);
-      activeTimers.add(memoryMonitorInterval);
+        const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId ? '<svg class="lucide lucide-footprints recent-steps-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" /> <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" /> <path d="M16 17h4" /> <path d="M4 13h4" /> </svg>' : "";
+        li.innerHTML = `
+        <div class="bookmark-content">
+          <div class="bookmark-name">${bookmark.name}</div>
+          <div class="bookmark-page">${bookmark.pageName}</div>
+        </div>
+        ${recentHistoryIcon}
+        <button class="bookmark-remove" aria-label="Remove anchor" title="Remove">
+          \u2715
+        </button>
+      `;
+        li.addEventListener("click", () => {
+          if (isDragging)
+            return;
+          sendMessage("jump-to-bookmark", { id: bookmark.id });
+          showCanvasHint2();
+        });
+        const removeBtn = li.querySelector(".bookmark-remove");
+        if (removeBtn) {
+          removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sendMessage("remove-bookmark", { id: bookmark.id });
+          });
+          removeBtn.addEventListener("mousedown", (e) => e.stopPropagation());
+          removeBtn.addEventListener("dragstart", (e) => e.stopPropagation());
+        }
+        li.addEventListener("dragstart", (e) => {
+          isDragging = true;
+          dragStartIndex = getItemIndex(li);
+          li.classList.add("dragging");
+          if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", bookmark.id);
+          }
+          const listRect = bookmarkList.getBoundingClientRect();
+          const liRect = li.getBoundingClientRect();
+          dropIndicator.style.top = `${liRect.top - listRect.top}px`;
+          dropIndicator.classList.add("visible");
+        });
+        li.addEventListener("dragenter", (e) => {
+          e.preventDefault();
+          li.classList.add("drag-over");
+        });
+        li.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          const listRect = bookmarkList.getBoundingClientRect();
+          const liRect = li.getBoundingClientRect();
+          const mid = liRect.top + liRect.height / 2;
+          hoverIndex = getItemIndex(li);
+          insertAfter = e.clientY >= mid;
+          const y = insertAfter ? liRect.bottom : liRect.top;
+          dropIndicator.style.top = `${y - listRect.top}px`;
+          dropIndicator.classList.add("visible");
+        });
+        li.addEventListener("dragleave", () => {
+          li.classList.remove("drag-over");
+        });
+        li.addEventListener("drop", (e) => {
+          e.preventDefault();
+          li.classList.remove("drag-over");
+          handleDropReorder(li);
+          dropIndicator.classList.remove("visible");
+        });
+        li.addEventListener("dragend", () => {
+          isDragging = false;
+          dragStartIndex = null;
+          li.classList.remove("dragging");
+          hoverIndex = null;
+          insertAfter = false;
+          dropIndicator.classList.remove("visible");
+          setTimeout(updateScrollBehavior, 50);
+        });
+        bookmarkList.appendChild(li);
+      });
+      bookmarkList.addEventListener("dragover", (e) => {
+        if (!isDragging)
+          return;
+        e.preventDefault();
+        const items = getItems();
+        if (items.length === 0)
+          return;
+        const last = items[items.length - 1];
+        const listRect = bookmarkList.getBoundingClientRect();
+        const lastRect = last.getBoundingClientRect();
+        if (e.clientY > lastRect.bottom) {
+          hoverIndex = items.length - 1;
+          insertAfter = true;
+          dropIndicator.style.top = `${lastRect.bottom - listRect.top}px`;
+          dropIndicator.classList.add("visible");
+        }
+      });
+      bookmarkList.addEventListener("drop", () => {
+        dropIndicator.classList.remove("visible");
+      });
     }
+    setTimeout(updateScrollBehavior, 50);
   }
-  function setupCleanupHandlers() {
-    window.addEventListener("beforeunload", () => {
-      console.log("\u{1F9F9} Cleaning up theme system resources...");
-      if (themeManager) {
-        themeManager.destroy();
-      }
-      destroyAllLottieAnimations();
-      clearAllTimers();
-      removeAllEventListeners();
-      console.log("\u2705 Cleanup complete");
-    });
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        pauseNonEssentialOperations();
-      } else {
-        resumeNonEssentialOperations();
-      }
-    });
+  function updateNavigationButtons(canGoBack, canGoForward) {
+    const backBtn = document.getElementById("back-btn");
+    const forwardBtn = document.getElementById("forward-btn");
+    if (backBtn)
+      backBtn.disabled = !canGoBack;
+    if (forwardBtn)
+      forwardBtn.disabled = !canGoForward;
   }
-  var activeTimers = /* @__PURE__ */ new Set();
-  var originalSetTimeout = window.setTimeout;
-  var originalSetInterval = window.setInterval;
-  window.setTimeout = function(callback, delay, ...args) {
-    const timerId = originalSetTimeout.call(window, (...callbackArgs) => {
-      activeTimers.delete(timerId);
-      if (typeof callback === "function") {
-        callback.apply(this, callbackArgs);
-      }
-    }, delay || 0);
-    activeTimers.add(timerId);
-    return timerId;
-  };
-  window.setInterval = function(callback, delay, ...args) {
-    const timerId = originalSetInterval.call(window, (...callbackArgs) => {
-      if (typeof callback === "function") {
-        callback.apply(this, callbackArgs);
-      }
-    }, delay || 0);
-    activeTimers.add(timerId);
-    return timerId;
-  };
-  function clearAllTimers() {
-    activeTimers.forEach((timerId) => {
-      clearTimeout(timerId);
-      clearInterval(timerId);
-    });
-    activeTimers.clear();
-  }
-  function removeAllEventListeners() {
-    console.log("Event listener cleanup skipped (prototype override disabled)");
-  }
-  var nonEssentialOperationsPaused = false;
-  function pauseNonEssentialOperations() {
-    if (nonEssentialOperationsPaused)
-      return;
-    nonEssentialOperationsPaused = true;
-    console.log("\u23F8\uFE0F Pausing non-essential operations (tab hidden)");
-    activeLottieAnimations.forEach((animation) => {
-      if (animation.isPaused === false) {
-        animation.pause();
-      }
-    });
-    const scrollUpdateInterval = setInterval(updateScrollBehavior, 1e3);
-    activeTimers.add(scrollUpdateInterval);
-  }
-  function resumeNonEssentialOperations() {
-    if (!nonEssentialOperationsPaused)
-      return;
-    nonEssentialOperationsPaused = false;
-    console.log("\u25B6\uFE0F Resuming non-essential operations (tab visible)");
-    activeLottieAnimations.forEach((animation) => {
-      if (animation.isPaused === true) {
-        animation.play();
-      }
-    });
-    updateScrollBehavior();
-  }
-  function optimizeThemeVariableInheritance() {
-    const optimizationStyle = document.createElement("style");
-    optimizationStyle.id = "theme-optimization-styles";
-    optimizationStyle.textContent = `
-    /* Performance optimization: reduce CSS custom property lookups */
-    .theme-optimized {
-      /* Pre-calculate commonly used theme combinations */
-      --optimized-border: 1px solid var(--theme-border-primary);
-      --optimized-hover-bg: var(--theme-bg-hover);
-      --optimized-text-color: var(--theme-text-primary);
-      --optimized-transition: background-color 150ms ease-out, border-color 150ms ease-out;
-    }
-    
-    /* Optimize frequently used button styles */
-    .theme-optimized .btn-base {
-      background: var(--optimized-hover-bg);
-      border: var(--optimized-border);
-      color: var(--optimized-text-color);
-      transition: var(--optimized-transition);
-    }
-    
-    /* Use contain property to limit style recalculation scope */
-    .theme-container {
-      contain: layout style;
-    }
-    
-    /* Optimize for GPU acceleration on theme changes */
-    .theme-gpu-optimized {
-      transform: translateZ(0);
-      backface-visibility: hidden;
-      perspective: 1000px;
-    }
-  `;
-    document.head.appendChild(optimizationStyle);
-    document.documentElement.classList.add("theme-optimized");
-    document.body.classList.add("theme-container", "theme-gpu-optimized");
-  }
-  document.addEventListener("DOMContentLoaded", () => {
-    optimizeThemeVariableInheritance();
-  });
-  window.getThemePerformanceMetrics = () => themePerformanceMetrics;
-  window.resetThemePerformanceMetrics = () => {
-    themePerformanceMetrics = {
-      themeChanges: 0,
-      totalThemeChangeTime: 0,
-      averageThemeChangeTime: 0,
-      lastThemeChangeTime: 0,
-      slowThemeChanges: 0,
-      cacheHits: 0,
-      cacheMisses: 0
+  function updateLayoutSizingButtons(horizontal, vertical) {
+    const widthModeSpan = document.getElementById("width-mode");
+    const heightModeSpan = document.getElementById("height-mode");
+    const widthIcon = document.getElementById("width-icon");
+    const heightIcon = document.getElementById("height-icon");
+    const cycleWidthBtn = document.getElementById("cycle-width");
+    const cycleHeightBtn = document.getElementById("cycle-height");
+    const widthCaption = document.getElementById("width-caption");
+    const heightCaption = document.getElementById("height-caption");
+    const ICON_FIXED = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEgNlYxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNSA2VjEwIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEgOEgxNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=";
+    const ICON_HUG = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYgNVYxMSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMCA1VjExIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEgOEg1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTMgMTBMNSA4TDMgNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNSA4SDExIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEzIDZMMTEgOEwxMyAxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=";
+    const ICON_FILL = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjY2NjcgOEgxNC42NjY3IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEyLjY2NjcgMTBMMTQuNjY2NyA4TDEyLjY2NjcgNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMS4zMzMzIDhIMS4zMzMyNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0zLjMzMzI1IDZMMS4zMzMyNSA4TDMuMzMzMjUgMTAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K";
+    const getIconDataUri = (mode) => {
+      if (!mode || mode === "\u2014")
+        return ICON_FIXED;
+      const modeLower = mode.toLowerCase();
+      if (modeLower === "hug")
+        return ICON_HUG;
+      if (modeLower === "fill")
+        return ICON_FILL;
+      if (modeLower === "fixed")
+        return ICON_FIXED;
+      return ICON_FIXED;
     };
-  };
-  window.debugTheme = () => {
-    if (!themeManager) {
-      console.log("\u274C Theme manager not initialized");
-      return;
+    if (widthModeSpan) {
+      widthModeSpan.textContent = horizontal || "\u2014";
     }
-    console.log("=== Theme Debug Info ===");
-    const debugInfo = themeManager.getDebugInfo();
-    console.log("Theme Mode:", debugInfo.currentThemeMode);
-    console.log("System Theme:", debugInfo.systemTheme);
-    console.log("Effective Theme:", debugInfo.effectiveTheme);
-    console.log("Media Query Matches (dark):", debugInfo.mediaQueryMatches);
-    console.log("Cache Valid:", debugInfo.cacheValid);
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    console.log("Direct Media Query Check:", mediaQuery.matches);
-    const htmlTheme = document.documentElement.getAttribute("data-theme");
-    console.log("HTML data-theme:", htmlTheme);
-    console.log("=== End Debug ===");
-    return debugInfo;
-  };
-  if (typeof window !== "undefined") {
-    window.getThemeManager = () => themeManager;
+    if (heightModeSpan) {
+      heightModeSpan.textContent = vertical || "\u2014";
+    }
+    if (widthIcon) {
+      widthIcon.src = getIconDataUri(horizontal);
+    }
+    if (heightIcon) {
+      heightIcon.src = getIconDataUri(vertical);
+    }
+    const hasValidState = horizontal && horizontal !== "\u2014";
+    if (cycleWidthBtn) {
+      cycleWidthBtn.disabled = !hasValidState;
+    }
+    if (cycleHeightBtn) {
+      cycleHeightBtn.disabled = !hasValidState;
+    }
+    if (widthCaption) {
+      if (!hasValidState) {
+        widthCaption.textContent = "Width";
+      } else {
+        const widthMode = horizontal && horizontal !== "\u2014" ? horizontal : "Fixed";
+        widthCaption.textContent = widthMode.charAt(0).toUpperCase() + widthMode.slice(1).toLowerCase();
+      }
+    }
+    if (heightCaption) {
+      if (!hasValidState) {
+        heightCaption.textContent = "Height";
+      } else {
+        const heightMode = vertical && vertical !== "\u2014" ? vertical : "Fixed";
+        heightCaption.textContent = heightMode.charAt(0).toUpperCase() + heightMode.slice(1).toLowerCase();
+      }
+    }
+    if (!hasValidState) {
+      if (widthIcon) {
+        widthIcon.src = ICON_FIXED;
+      }
+      if (heightIcon) {
+        heightIcon.src = ICON_FIXED;
+      }
+    }
   }
+  function updateEmojiSetIndicator(setName, currentIndex, totalSets) {
+    const indicator = document.getElementById("emoji-set-indicator");
+    if (indicator) {
+      const setNameElement = indicator.querySelector(".set-name");
+      if (setNameElement) {
+        setNameElement.textContent = setName;
+      }
+    }
+  }
+  function updateAutoFitButtonState() {
+    const resizeHandle = document.getElementById("footer-resize");
+    if (!resizeHandle)
+      return;
+    if (_isAutoFitEnabled2) {
+      resizeHandle.classList.add("auto-fit-active");
+      resizeHandle.setAttribute("aria-label", "Resize panel (double-click to disable auto-fit) - Auto-fit: ON");
+      resizeHandle.setAttribute("title", "Auto-fit: ON - Double-click to disable");
+    } else {
+      resizeHandle.classList.remove("auto-fit-active");
+      resizeHandle.setAttribute("aria-label", "Resize panel (double-click to enable auto-fit) - Auto-fit: OFF");
+      resizeHandle.setAttribute("title", "Auto-fit: OFF - Double-click to enable");
+    }
+  }
+  function resetFooterButtonStates() {
+    const footerButtons = document.querySelectorAll(".footer-icon-btn");
+    footerButtons.forEach((button) => {
+      const btn = button;
+      btn.classList.remove("hover-active");
+      btn.style.removeProperty("background");
+      btn.style.removeProperty("color");
+      btn.style.removeProperty("transform");
+    });
+  }
+
+  // src/ui/navigate/controls-ui.ts
   var navigationContext = {
     hasSelection: false,
     canEnter: false,
@@ -11086,9 +10004,29 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   var groupMovementZoomVisible = true;
   var groupHierarchyVisible = true;
   var groupSizingModesVisible = true;
-  var groupStyledTextVisible = false;
   var smallNudgeAmount = 1;
   var bigNudgeAmount = 8;
+  function setGroupMovementZoomVisible(v) {
+    groupMovementZoomVisible = v;
+  }
+  function setGroupHierarchyVisible(v) {
+    groupHierarchyVisible = v;
+  }
+  function setGroupSizingModesVisible(v) {
+    groupSizingModesVisible = v;
+  }
+  function setSmallNudgeAmount(v) {
+    smallNudgeAmount = v;
+  }
+  function setBigNudgeAmount(v) {
+    bigNudgeAmount = v;
+  }
+  function setControlsEnabled(v) {
+    controlsEnabled = v;
+  }
+  function setNavigationContext(ctx) {
+    navigationContext = ctx;
+  }
   function updateControlButtons(context) {
     const enterBtn = document.getElementById("nav-enter");
     const exitBtn = document.getElementById("nav-exit");
@@ -11297,7 +10235,6 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     const movementZoomGroup = document.getElementById("movement-zoom-group");
     const hierarchyGroup = document.getElementById("hierarchy-group");
     const sizingModesGroup = document.getElementById("sizing-modes-group");
-    const styledTextGroup = document.getElementById("styled-text-group");
     if (movementZoomGroup) {
       movementZoomGroup.style.display = groupMovementZoomVisible ? "" : "none";
     }
@@ -11307,24 +10244,289 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     if (sizingModesGroup) {
       sizingModesGroup.style.display = groupSizingModesVisible ? "" : "none";
     }
-    if (styledTextGroup) {
-      styledTextGroup.style.display = groupStyledTextVisible ? "" : "none";
-    }
   }
   function updateGroupTogglesUI() {
     const toggleMovementZoom = document.getElementById("toggle-movement-zoom");
     const toggleHierarchy = document.getElementById("toggle-hierarchy");
     const toggleSizingModes = document.getElementById("toggle-sizing-modes");
-    const toggleStyledText = document.getElementById("toggle-styled-text");
     if (toggleMovementZoom)
       toggleMovementZoom.checked = groupMovementZoomVisible;
     if (toggleHierarchy)
       toggleHierarchy.checked = groupHierarchyVisible;
     if (toggleSizingModes)
       toggleSizingModes.checked = groupSizingModesVisible;
-    if (toggleStyledText)
-      toggleStyledText.checked = groupStyledTextVisible;
   }
+
+  // src/ui/navigate/settings-ui.ts
+  function setupControlsSettings() {
+    const controlsToggle = document.getElementById("controls-toggle");
+    if (controlsToggle) {
+      controlsToggle.addEventListener("change", () => {
+        const enabled = controlsToggle.checked;
+        console.log("Controls setting changed:", enabled);
+        sendMessage("toggle-controls", { enabled });
+      });
+    }
+    setupGroupToggle("toggle-movement-zoom", "movementZoom");
+    setupGroupToggle("toggle-hierarchy", "hierarchy");
+    setupGroupToggle("toggle-sizing-modes", "sizingModes");
+  }
+  function setupGroupToggle(toggleId, groupKey) {
+    const toggle = document.getElementById(toggleId);
+    if (toggle) {
+      toggle.addEventListener("change", () => {
+        const visible = toggle.checked;
+        switch (groupKey) {
+          case "movementZoom":
+            setGroupMovementZoomVisible(visible);
+            break;
+          case "hierarchy":
+            setGroupHierarchyVisible(visible);
+            break;
+          case "sizingModes":
+            setGroupSizingModesVisible(visible);
+            break;
+        }
+        applyGroupVisibility();
+        sendMessage("set-controls-group-visibility", {
+          groups: {
+            movementZoom: groupMovementZoomVisible,
+            hierarchy: groupHierarchyVisible,
+            sizingModes: groupSizingModesVisible
+          }
+        });
+      });
+    }
+  }
+  function setupNudgeSettings() {
+    const smallNudgeInput = document.getElementById("small-nudge-input");
+    const bigNudgeInput = document.getElementById("big-nudge-input");
+    if (smallNudgeInput) {
+      smallNudgeInput.addEventListener("change", () => {
+        const value = parseInt(smallNudgeInput.value, 10);
+        if (!isNaN(value) && value >= 1 && value <= 100) {
+          setSmallNudgeAmount(value);
+          sendMessage("set-nudge-settings", { smallNudge: smallNudgeAmount, bigNudge: bigNudgeAmount });
+        } else {
+          smallNudgeInput.value = String(smallNudgeAmount);
+        }
+      });
+    }
+    if (bigNudgeInput) {
+      bigNudgeInput.addEventListener("change", () => {
+        const value = parseInt(bigNudgeInput.value, 10);
+        if (!isNaN(value) && value >= 1 && value <= 100) {
+          setBigNudgeAmount(value);
+          sendMessage("set-nudge-settings", { smallNudge: smallNudgeAmount, bigNudge: bigNudgeAmount });
+        } else {
+          bigNudgeInput.value = String(bigNudgeAmount);
+        }
+      });
+    }
+  }
+  function updateNudgeSettingsUI(small, big) {
+    setSmallNudgeAmount(small);
+    setBigNudgeAmount(big);
+    const smallNudgeInput = document.getElementById("small-nudge-input");
+    const bigNudgeInput = document.getElementById("big-nudge-input");
+    if (smallNudgeInput) {
+      smallNudgeInput.value = String(small);
+    }
+    if (bigNudgeInput) {
+      bigNudgeInput.value = String(big);
+    }
+  }
+
+  // src/ui/shared/tooltip-manager.ts
+  var tooltipState = {
+    element: null,
+    showTimer: null,
+    hideTimer: null,
+    currentTarget: null
+  };
+  function getTooltipElement() {
+    if (tooltipState.element)
+      return tooltipState.element;
+    let el = document.getElementById("tooltip");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "tooltip";
+      el.className = "tooltip";
+      document.body.appendChild(el);
+    }
+    tooltipState.element = el;
+    return el;
+  }
+  function positionTooltip(target) {
+    const tip = getTooltipElement();
+    const rect = target.getBoundingClientRect();
+    const margin = 8;
+    tip.style.visibility = "hidden";
+    tip.classList.add("visible");
+    const tipWidth = tip.offsetWidth;
+    const tipHeight = tip.offsetHeight;
+    tip.classList.remove("visible");
+    tip.style.visibility = "";
+    const placementPref = (target.getAttribute("data-tooltip-placement") || "").toLowerCase();
+    let top;
+    let left;
+    if (placementPref === "top-of-container") {
+      const containerSelector = target.getAttribute("data-tooltip-container");
+      let container = null;
+      if (containerSelector) {
+        container = target.closest(containerSelector);
+      } else {
+        container = target.closest(".tag-grid-container");
+      }
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        top = containerRect.top - tipHeight - margin;
+        left = rect.left + rect.width / 2 - tipWidth / 2;
+      } else {
+        top = rect.top - tipHeight - margin;
+        left = rect.left + rect.width / 2 - tipWidth / 2;
+      }
+      const minLeft = 8;
+      const maxLeft = Math.max(minLeft, window.innerWidth - tipWidth - 8);
+      left = Math.min(Math.max(left, minLeft), maxLeft);
+      const minTop = 8;
+      top = Math.max(top, minTop);
+    } else if (placementPref === "left" || placementPref === "left-group") {
+      top = rect.top + rect.height / 2 - tipHeight / 2;
+      if (placementPref === "left-group") {
+        const groupParent = target.parentElement;
+        if (groupParent) {
+          const groupRect = groupParent.getBoundingClientRect();
+          left = groupRect.left - tipWidth - margin;
+        } else {
+          left = rect.left - tipWidth - margin;
+        }
+      } else {
+        left = rect.left - tipWidth - margin;
+      }
+      const minTop = 8;
+      const maxTop = Math.max(minTop, window.innerHeight - tipHeight - 8);
+      top = Math.min(Math.max(top, minTop), maxTop);
+    } else if (placementPref === "right" || placementPref === "right-group") {
+      top = rect.top + rect.height / 2 - tipHeight / 2;
+      if (placementPref === "right-group") {
+        const groupParent = target.parentElement;
+        if (groupParent) {
+          const groupRect = groupParent.getBoundingClientRect();
+          left = groupRect.right + margin;
+        } else {
+          left = rect.right + margin;
+        }
+      } else {
+        left = rect.right + margin;
+      }
+      const minTop = 8;
+      const maxTop = Math.max(minTop, window.innerHeight - tipHeight - 8);
+      top = Math.min(Math.max(top, minTop), maxTop);
+    } else {
+      let placeAbove;
+      if (placementPref === "below") {
+        placeAbove = false;
+      } else if (placementPref === "above") {
+        placeAbove = true;
+      } else {
+        placeAbove = rect.top >= tipHeight + margin;
+      }
+      top = placeAbove ? rect.top - tipHeight - margin : rect.bottom + margin;
+      left = rect.left + rect.width / 2 - tipWidth / 2;
+      const minLeft = 8;
+      const maxLeft = Math.max(minLeft, window.innerWidth - tipWidth - 8);
+      left = Math.min(Math.max(left, minLeft), maxLeft);
+    }
+    tip.style.top = `${Math.round(top)}px`;
+    tip.style.left = `${Math.round(left)}px`;
+  }
+  function showTooltip(target, immediate = false) {
+    const preferred = target.getAttribute("data-tooltip");
+    const label = preferred || target.getAttribute("aria-label") || target.getAttribute("title");
+    if (!label)
+      return;
+    const tip = getTooltipElement();
+    tip.textContent = label;
+    if (tooltipState.hideTimer) {
+      clearTimeout(tooltipState.hideTimer);
+      tooltipState.hideTimer = null;
+    }
+    const doShow = () => {
+      tooltipState.currentTarget = target;
+      positionTooltip(target);
+      tip.classList.add("visible");
+    };
+    if (immediate) {
+      doShow();
+    } else {
+      const customDelay = target.getAttribute("data-tooltip-delay");
+      const delay = customDelay ? parseInt(customDelay, 10) : 200;
+      tooltipState.showTimer = window.setTimeout(doShow, delay);
+    }
+  }
+  function hideTooltip(immediate = false) {
+    const tip = getTooltipElement();
+    const doHide = () => {
+      tip.classList.remove("visible");
+      tooltipState.currentTarget = null;
+    };
+    if (tooltipState.showTimer) {
+      clearTimeout(tooltipState.showTimer);
+      tooltipState.showTimer = null;
+    }
+    if (immediate) {
+      doHide();
+    } else {
+      tooltipState.hideTimer = window.setTimeout(doHide, 100);
+    }
+  }
+  function attachTooltip(target) {
+    target.addEventListener("mouseenter", () => showTooltip(target));
+    target.addEventListener("mouseleave", () => hideTooltip());
+    target.addEventListener("focus", () => showTooltip(target, true));
+    target.addEventListener("blur", () => hideTooltip());
+    target.addEventListener("mousedown", () => hideTooltip(true));
+  }
+  function initializeQuickActionTooltips() {
+    const targets = document.querySelectorAll(".action-btn");
+    targets.forEach((el) => attachTooltip(el));
+    const headerNavBtns = document.querySelectorAll(".header-nav-btn");
+    headerNavBtns.forEach((el) => attachTooltip(el));
+    const emojiNavBtns = document.querySelectorAll(".emoji-nav-btn");
+    emojiNavBtns.forEach((el) => attachTooltip(el));
+    const footerTargets = document.querySelectorAll(".footer-icon-btn");
+    footerTargets.forEach((el) => attachTooltip(el));
+    const navButtons = document.querySelectorAll(".nav-button");
+    navButtons.forEach((el) => attachTooltip(el));
+    window.addEventListener("scroll", () => hideTooltip(true));
+    window.addEventListener("resize", () => hideTooltip(true));
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape")
+        hideTooltip(true);
+    });
+    document.addEventListener("mousedown", (e) => {
+      if (e.target.closest("button")) {
+        hideTooltip(true);
+      }
+    });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+      }
+    });
+    document.addEventListener("click", (e) => {
+      const target = e.target;
+      if (target.closest("button")) {
+        setTimeout(() => {
+          var _a;
+          (_a = document.activeElement) == null ? void 0 : _a.blur();
+        }, 10);
+      }
+    });
+  }
+
+  // src/ui/shared/accessibility.ts
   function setupAccessibilitySupport() {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const handleReducedMotionChange = (e) => {
@@ -11368,6 +10570,606 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   function enhanceScreenReaderAnnouncements(enhanced) {
     window.enhancedAnnouncements = enhanced;
   }
+
+  // src/ui/navigate/navigate-ui.ts
+  var uiSectionStatesFromPlugin = {};
+  function setUISectionStatesFromPlugin(states) {
+    uiSectionStatesFromPlugin = states;
+  }
+  var isWidthCompact = false;
+  var _showCanvasHintFn3 = null;
+  function registerShowCanvasHintNavigate(fn) {
+    _showCanvasHintFn3 = fn;
+  }
+  function showCanvasHint3() {
+    if (_showCanvasHintFn3)
+      _showCanvasHintFn3();
+  }
+  var _disableAutoFitFn2 = null;
+  function registerDisableAutoFitNavigate(fn) {
+    _disableAutoFitFn2 = fn;
+  }
+  function disableAutoFit(reason) {
+    if (_disableAutoFitFn2)
+      _disableAutoFitFn2(reason);
+  }
+  function initializePlugin() {
+    console.log("\u{1F680} Initializing plugin functionality...");
+    initializeSystemThemeDetectionNavigate();
+    initializeThemePerformanceMonitoringNavigate();
+    console.log("\u{1F4E4} Sending ui-ready message");
+    sendMessage("ui-ready");
+    console.log("\u{1F4E4} Requesting theme preference from plugin");
+    sendMessage("get-theme-preference");
+    updateToggleUI();
+    updateAutoFitButtonState();
+    initializeAllLottieElements();
+    updateScrollBehavior();
+    if (getIsAutoFitEnabled()) {
+      setTimeout(() => {
+        const initialHeight = computeFitHeight();
+        console.log("Initial auto-fit: setting height to", initialHeight);
+        sendMessage("resize-ui", { height: initialHeight });
+        setLastAutoFitHeight(initialHeight);
+      }, 100);
+    }
+    setupCleanupHandlersNavigate();
+    initializeControls();
+    requestUISectionStates();
+    if (typeof window.figma === "undefined") {
+      console.log("\u{1F3AD} Running in browser mode - loading mock emoji data");
+      setTimeout(() => {
+        const PAGE_EMOJI_SETS = [
+          { name: "Colors", emojis: ["\u{1F534}", "\u{1F7E0}", "\u{1F7E1}", "\u{1F7E2}", "\u{1F535}", "\u{1F7E3}", "\u26AB\uFE0F", "\u26AA\uFE0F"] },
+          { name: "Tools", emojis: ["\u{1F3F7}\uFE0F", "\u{1F4CC}", "\u{1F3AF}", "\u{1F4A1}", "\u2B50", "\u{1F525}", "\u{1F48E}", "\u{1F3A8}"] },
+          { name: "Status", emojis: ["\u{1F6A7}", "\u2705", "\u{1F440}", "\u{1F680}", "\u{1F6AB}", "\u{1FAA6}", "\u2B50", "\u{1F4F1}"] },
+          { name: "Hands", emojis: ["\u{1F446}", "\u{1F447}", "\u{1F448}", "\u{1F449}", "\u261D\uFE0F", "\u{1F44D}", "\u{1F44E}", "\u270B"] }
+        ];
+        updateEmojiButtonsNavigate(PAGE_EMOJI_SETS[0].emojis);
+        const emojiIndicator = document.getElementById("emoji-set-indicator");
+        if (emojiIndicator) {
+          const setName = emojiIndicator.querySelector(".set-name");
+          if (setName)
+            setName.textContent = PAGE_EMOJI_SETS[0].name;
+        }
+        console.log("\u2705 Mock emoji data loaded for browser preview");
+      }, 100);
+    }
+    console.log("\u2705 Plugin initialization complete - waiting for emoji data from plugin");
+  }
+  var _updateEmojiButtonsFn = null;
+  function registerUpdateEmojiButtons(fn) {
+    _updateEmojiButtonsFn = fn;
+  }
+  function updateEmojiButtonsNavigate(emojis) {
+    if (_updateEmojiButtonsFn)
+      _updateEmojiButtonsFn(emojis);
+  }
+  var _initializeSystemThemeDetectionFn = null;
+  function registerInitializeSystemThemeDetection(fn) {
+    _initializeSystemThemeDetectionFn = fn;
+  }
+  function initializeSystemThemeDetectionNavigate() {
+    if (_initializeSystemThemeDetectionFn)
+      _initializeSystemThemeDetectionFn();
+  }
+  var _initializeThemePerformanceMonitoringFn = null;
+  function registerInitializeThemePerformanceMonitoring(fn) {
+    _initializeThemePerformanceMonitoringFn = fn;
+  }
+  function initializeThemePerformanceMonitoringNavigate() {
+    if (_initializeThemePerformanceMonitoringFn)
+      _initializeThemePerformanceMonitoringFn();
+  }
+  var _setupCleanupHandlersFn = null;
+  function registerSetupCleanupHandlers(fn) {
+    _setupCleanupHandlersFn = fn;
+  }
+  function setupCleanupHandlersNavigate() {
+    if (_setupCleanupHandlersFn)
+      _setupCleanupHandlersFn();
+  }
+  function requestUISectionStates() {
+    try {
+      sendMessage("get-ui-section-states");
+    } catch (error) {
+      console.error("Failed to request UI section states:", error);
+    }
+  }
+  async function restoreUISectionStates() {
+    try {
+      await new Promise((r) => setTimeout(r, 0));
+      const collapsibleHeaders = document.querySelectorAll(".section-header.collapsible");
+      collapsibleHeaders.forEach((header) => {
+        var _a, _b;
+        const sectionId = header.id;
+        const targetId = header.getAttribute("data-target");
+        const target = targetId ? document.getElementById(targetId) : null;
+        if (!target || !sectionId)
+          return;
+        const shouldExpand = (_b = (_a = uiSectionStatesFromPlugin[sectionId]) == null ? void 0 : _a.expanded) != null ? _b : true;
+        header.setAttribute("aria-expanded", String(shouldExpand));
+        if (!shouldExpand) {
+          target.classList.add("collapsed");
+        } else {
+          target.classList.remove("collapsed");
+        }
+      });
+      console.log("\u2705 UI section states restored");
+    } catch (error) {
+      console.error("Failed to restore UI section states:", error);
+    }
+  }
+  function setupEventListeners() {
+    setupAccessibilitySupport();
+    const backBtn = document.getElementById("back-btn");
+    const forwardBtn = document.getElementById("forward-btn");
+    const clearBtn = document.getElementById("clear-color");
+    const saveBtn = document.getElementById("save-bookmark");
+    const dateBtn = document.getElementById("date-btn");
+    const newPageBtn = document.getElementById("new-page-btn");
+    const indentTitleBtn = document.getElementById("indent-title-btn");
+    const outdentTitleBtn = document.getElementById("outdent-title-btn");
+    const pageActionsGroup = document.getElementById("page-actions-group");
+    const settingsBtn = document.getElementById("settings-btn");
+    const settingsOverlay = document.getElementById("settings-overlay");
+    const settingsCloseBtn = document.getElementById("settings-close");
+    const emojiNavLeft = document.getElementById("emoji-nav-left");
+    const emojiNavRight = document.getElementById("emoji-nav-right");
+    const refreshAnchorsBtn = document.getElementById("refresh-anchors");
+    const widthToggleBtn = document.getElementById("footer-width-toggle");
+    const resizeHandle = document.getElementById("footer-resize");
+    const collapsibleHeaders = Array.from(document.querySelectorAll(".section-header.collapsible"));
+    if (backBtn) {
+      backBtn.addEventListener("click", () => {
+        console.log("Back clicked");
+        sendMessage("go-back");
+      });
+    }
+    if (forwardBtn) {
+      forwardBtn.addEventListener("click", () => {
+        console.log("Forward clicked");
+        sendMessage("go-forward");
+      });
+    }
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        console.log("Clear clicked");
+        sendMessage("clear-emoji");
+      });
+      clearBtn.addEventListener("mouseenter", () => {
+        const anatomyEmoji = document.querySelector(".anatomy-emoji");
+        if (anatomyEmoji && currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+          anatomyEmoji.style.opacity = "0.3";
+          anatomyEmoji.classList.add("preview-mode");
+        }
+      });
+      clearBtn.addEventListener("mouseleave", () => {
+        const anatomyEmoji = document.querySelector(".anatomy-emoji");
+        if (anatomyEmoji) {
+          if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+            anatomyEmoji.style.opacity = "1";
+          }
+          anatomyEmoji.classList.remove("preview-mode");
+        }
+      });
+    }
+    if (saveBtn) {
+      saveBtn.addEventListener("click", () => {
+        console.log("Save bookmark clicked");
+        sendMessage("save-bookmark");
+      });
+    }
+    if (dateBtn) {
+      dateBtn.addEventListener("click", () => {
+        console.log("Date button clicked");
+        sendMessage("add-date");
+      });
+      dateBtn.addEventListener("mouseenter", () => {
+        const anatomyDate = document.querySelector(".anatomy-date");
+        if (anatomyDate) {
+          const today = getTodayDate();
+          anatomyDate.textContent = `${today} :`;
+          anatomyDate.style.display = "flex";
+          anatomyDate.style.opacity = "1";
+          anatomyDate.classList.add("preview-mode");
+        }
+      });
+      dateBtn.addEventListener("mouseleave", () => {
+        const anatomyDate = document.querySelector(".anatomy-date");
+        if (anatomyDate) {
+          if (currentAnatomyState.hasDate) {
+            anatomyDate.textContent = `${currentAnatomyState.date} :`;
+            anatomyDate.style.display = "flex";
+            anatomyDate.style.opacity = "0.6";
+          } else {
+            anatomyDate.textContent = "";
+            anatomyDate.style.display = "none";
+          }
+          anatomyDate.classList.remove("preview-mode");
+        }
+      });
+    }
+    if (newPageBtn) {
+      newPageBtn.addEventListener("click", () => {
+        console.log("New Page clicked");
+        sendMessage("create-new-page");
+      });
+      newPageBtn.addEventListener("mouseenter", () => {
+        const anatomyDate = document.querySelector(".anatomy-date");
+        const anatomyEmoji = document.querySelector(".anatomy-emoji");
+        const modeAffordance = document.querySelector(".mode-affordance");
+        if (anatomyDate) {
+          const today = getTodayDate();
+          anatomyDate.textContent = `${today} :`;
+          anatomyDate.style.display = "flex";
+          anatomyDate.style.opacity = "1";
+          anatomyDate.classList.add("preview-mode");
+        }
+        if (anatomyEmoji) {
+          anatomyEmoji.dataset.prevContent = anatomyEmoji.textContent || "";
+          anatomyEmoji.dataset.prevDisplay = anatomyEmoji.style.display;
+          anatomyEmoji.textContent = "";
+          anatomyEmoji.style.display = "none";
+        }
+        if (modeAffordance) {
+          modeAffordance.dataset.prevMode = modeAffordance.dataset.mode || "onPage";
+          modeAffordance.dataset.mode = "onPage";
+          modeAffordance.textContent = "PAGE";
+          modeAffordance.classList.add("preview-mode");
+        }
+      });
+      newPageBtn.addEventListener("mouseleave", () => {
+        const anatomyDate = document.querySelector(".anatomy-date");
+        const anatomyEmoji = document.querySelector(".anatomy-emoji");
+        const modeAffordance = document.querySelector(".mode-affordance");
+        if (anatomyDate) {
+          if (currentAnatomyState.hasDate) {
+            anatomyDate.textContent = `${currentAnatomyState.date} :`;
+            anatomyDate.style.display = "flex";
+            anatomyDate.style.opacity = "0.6";
+          } else {
+            anatomyDate.textContent = "";
+            anatomyDate.style.display = "none";
+          }
+          anatomyDate.classList.remove("preview-mode");
+        }
+        if (anatomyEmoji) {
+          if (currentAnatomyState.emoji && currentAnatomyState.emoji.trim().length > 0) {
+            anatomyEmoji.textContent = currentAnatomyState.emoji;
+            anatomyEmoji.style.display = "inline-flex";
+            anatomyEmoji.style.opacity = "1";
+          } else {
+            anatomyEmoji.textContent = "";
+            anatomyEmoji.style.display = "none";
+          }
+        }
+        if (modeAffordance) {
+          const prevMode = modeAffordance.dataset.prevMode || "onPage";
+          modeAffordance.dataset.mode = prevMode;
+          modeAffordance.textContent = prevMode === "onPage" ? "PAGE" : "LAYER";
+          modeAffordance.classList.remove("preview-mode");
+        }
+      });
+    }
+    if (indentTitleBtn) {
+      indentTitleBtn.addEventListener("click", () => {
+        console.log("Indent title clicked");
+        sendMessage("indent-title");
+      });
+      indentTitleBtn.addEventListener("mouseenter", () => {
+        const anatomyPrefix = document.querySelector(".anatomy-prefix");
+        if (anatomyPrefix && getCurrentToggleMode() === "onPage") {
+          anatomyPrefix.style.display = "inline-flex";
+          anatomyPrefix.style.opacity = "1";
+          anatomyPrefix.classList.add("preview-mode");
+        }
+      });
+      indentTitleBtn.addEventListener("mouseleave", () => {
+        const anatomyPrefix = document.querySelector(".anatomy-prefix");
+        if (anatomyPrefix && getCurrentToggleMode() === "onPage") {
+          if (currentAnatomyState.hasPrefix) {
+            anatomyPrefix.style.display = "inline-flex";
+            anatomyPrefix.style.opacity = "0.6";
+          } else {
+            anatomyPrefix.style.display = "none";
+          }
+          anatomyPrefix.classList.remove("preview-mode");
+        }
+      });
+    }
+    if (outdentTitleBtn) {
+      outdentTitleBtn.addEventListener("click", () => {
+        console.log("Outdent title clicked");
+        sendMessage("outdent-title");
+      });
+      outdentTitleBtn.addEventListener("mouseenter", () => {
+        const anatomyPrefix = document.querySelector(".anatomy-prefix");
+        if (anatomyPrefix && getCurrentToggleMode() === "onPage") {
+          anatomyPrefix.style.display = "inline-flex";
+          anatomyPrefix.style.opacity = "1";
+          anatomyPrefix.classList.add("preview-mode");
+        }
+      });
+      outdentTitleBtn.addEventListener("mouseleave", () => {
+        const anatomyPrefix = document.querySelector(".anatomy-prefix");
+        if (anatomyPrefix && getCurrentToggleMode() === "onPage") {
+          if (currentAnatomyState.hasPrefix) {
+            anatomyPrefix.style.display = "inline-flex";
+            anatomyPrefix.style.opacity = "0.6";
+          } else {
+            anatomyPrefix.style.display = "none";
+          }
+          anatomyPrefix.classList.remove("preview-mode");
+        }
+      });
+    }
+    const updatePageActionsVisibility = () => {
+      if (!pageActionsGroup)
+        return;
+      const onPage = getCurrentToggleMode() === "onPage";
+      pageActionsGroup.style.display = onPage ? "inline-flex" : "none";
+    };
+    updatePageActionsVisibility();
+    const openSettings = () => {
+      if (!settingsOverlay)
+        return;
+      settingsOverlay.setAttribute("aria-hidden", "false");
+      settingsOverlay.classList.add("open");
+      const content = settingsOverlay.querySelector(".settings-content");
+      if (content)
+        content.focus();
+    };
+    const closeSettings = () => {
+      if (!settingsOverlay)
+        return;
+      settingsOverlay.setAttribute("aria-hidden", "true");
+      settingsOverlay.classList.remove("open");
+      if (settingsBtn instanceof HTMLElement)
+        settingsBtn.focus();
+    };
+    if (settingsBtn) {
+      settingsBtn.addEventListener("click", () => {
+        console.log("Open settings");
+        openSettings();
+      });
+    }
+    if (settingsCloseBtn) {
+      settingsCloseBtn.addEventListener("click", () => {
+        console.log("Close settings");
+        closeSettings();
+      });
+    }
+    if (settingsOverlay) {
+      settingsOverlay.addEventListener("click", (e) => {
+        if (e.target === settingsOverlay) {
+          closeSettings();
+        }
+      });
+    }
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (settingsOverlay && settingsOverlay.getAttribute("aria-hidden") === "false") {
+          closeSettings();
+        }
+      }
+    });
+    const exportDataBtn = document.getElementById("export-data-btn");
+    const importDataBtn = document.getElementById("import-data-btn");
+    if (exportDataBtn) {
+      exportDataBtn.addEventListener("click", () => {
+        console.log("Export data clicked");
+        sendMessage("export-plugin-data");
+      });
+    }
+    if (importDataBtn) {
+      importDataBtn.addEventListener("click", () => {
+        console.log("Import data clicked");
+        sendMessage("import-plugin-data");
+      });
+    }
+    if (emojiNavLeft) {
+      emojiNavLeft.addEventListener("click", (e) => {
+        e.stopPropagation();
+        console.log("Emoji set: previous");
+        sendMessage("navigate-emoji-set", { direction: "prev" });
+      });
+    }
+    if (emojiNavRight) {
+      emojiNavRight.addEventListener("click", (e) => {
+        e.stopPropagation();
+        console.log("Emoji set: next");
+        sendMessage("navigate-emoji-set", { direction: "next" });
+      });
+    }
+    if (refreshAnchorsBtn) {
+      refreshAnchorsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        console.log("Refresh anchors clicked");
+        sendMessage("refresh-anchors");
+      });
+    }
+    if (widthToggleBtn) {
+      widthToggleBtn.addEventListener("click", () => {
+        console.log("Toggle width");
+        isWidthCompact = !isWidthCompact;
+        const scrollableContent = document.querySelector(".scrollable-content");
+        if (scrollableContent) {
+          if (isWidthCompact) {
+            scrollableContent.classList.add("compact-mode");
+            widthToggleBtn.classList.add("active");
+          } else {
+            scrollableContent.classList.remove("compact-mode");
+            widthToggleBtn.classList.remove("active");
+          }
+        }
+        sendMessage("toggle-width");
+      });
+      widthToggleBtn.addEventListener("mouseenter", () => {
+        widthToggleBtn.classList.add("hover-active");
+      });
+      widthToggleBtn.addEventListener("mouseleave", () => {
+        widthToggleBtn.classList.remove("hover-active");
+        widthToggleBtn.style.removeProperty("background");
+        widthToggleBtn.style.removeProperty("color");
+      });
+      widthToggleBtn.addEventListener("blur", () => {
+        widthToggleBtn.classList.remove("hover-active");
+        widthToggleBtn.style.removeProperty("background");
+        widthToggleBtn.style.removeProperty("color");
+      });
+    }
+    if (resizeHandle) {
+      resizeHandle.addEventListener("dblclick", () => {
+        setIsAutoFitEnabled(!getIsAutoFitEnabled());
+        updateAutoFitButtonState();
+        if (getIsAutoFitEnabled()) {
+          const contentHeight = computeFitHeight();
+          console.log("Auto-fit enabled: adjusting height to", contentHeight);
+          sendMessage("resize-ui", { height: contentHeight });
+          setLastAutoFitHeight(contentHeight);
+        } else {
+          console.log("Auto-fit disabled");
+        }
+      });
+      let isDragging = false;
+      let startY = 0;
+      let startHeight = 0;
+      const onMouseMove = (e) => {
+        if (!isDragging)
+          return;
+        const deltaY = e.clientY - startY;
+        const newHeight = Math.max(150, Math.round(startHeight + deltaY));
+        disableAutoFit("manual drag resize");
+        sendMessage("resize-ui", { height: newHeight });
+      };
+      const onMouseUp = () => {
+        if (!isDragging)
+          return;
+        isDragging = false;
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+      };
+      resizeHandle.addEventListener("mousedown", (e) => {
+        disableAutoFit("manual resize initiated");
+        isDragging = true;
+        startY = e.clientY;
+        startHeight = window.innerHeight;
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      });
+      resizeHandle.addEventListener("keydown", (e) => {
+        const step = 16;
+        if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+          const direction = e.key === "ArrowUp" ? -1 : 1;
+          const newHeight = Math.max(150, window.innerHeight + direction * step);
+          disableAutoFit("manual keyboard resize");
+          sendMessage("resize-ui", { height: newHeight });
+          e.preventDefault();
+        }
+      });
+    }
+    if (collapsibleHeaders.length > 0) {
+      const computeTarget = (header) => {
+        const targetId = header.getAttribute("data-target");
+        if (targetId)
+          return document.getElementById(targetId);
+        let sibling = header.nextElementSibling;
+        while (sibling && !sibling.classList.contains("collapsible-content")) {
+          sibling = sibling.nextElementSibling;
+        }
+        return sibling;
+      };
+      const toggleSection = (header, target) => {
+        const currentlyExpanded = header.getAttribute("aria-expanded") !== "false";
+        const nextExpanded = !currentlyExpanded;
+        header.setAttribute("aria-expanded", String(nextExpanded));
+        if (!nextExpanded) {
+          target.classList.add("collapsed");
+        } else {
+          target.classList.remove("collapsed");
+        }
+        const sectionId = header.id;
+        if (sectionId) {
+          sendMessage("save-ui-section-state", { sectionId, expanded: nextExpanded });
+        }
+        const onEnd = (_e) => {
+          target.removeEventListener("transitionend", onEnd);
+          updateScrollBehavior();
+        };
+        target.addEventListener("transitionend", onEnd, { once: true });
+        window.setTimeout(() => {
+          updateScrollBehavior();
+        }, 350);
+      };
+      collapsibleHeaders.forEach((header) => {
+        const target = computeTarget(header);
+        if (!target)
+          return;
+        if (!header.getAttribute("aria-controls")) {
+          if (target.id)
+            header.setAttribute("aria-controls", target.id);
+        }
+        const onActivate = (e) => {
+          if (e)
+            e.preventDefault();
+          toggleSection(header, target);
+        };
+        header.addEventListener("click", onActivate);
+        header.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onActivate(e);
+          }
+        });
+      });
+    }
+    setupThemeSwitching();
+    const kofiBtnElement = document.getElementById("kofi-btn");
+    if (kofiBtnElement) {
+      kofiBtnElement.addEventListener("click", (e) => {
+        e.preventDefault();
+        console.log("Ko-fi button clicked");
+        sendMessage("open-kofi");
+      });
+    }
+    setupGlobalHoverStateManagement();
+    initializeQuickActionTooltips();
+  }
+  function setupGlobalHoverStateManagement() {
+    let touchActiveTimeout = null;
+    const activateTouch = () => {
+      document.body.classList.add("touch-active");
+      if (touchActiveTimeout) {
+        clearTimeout(touchActiveTimeout);
+        touchActiveTimeout = null;
+      }
+    };
+    const deactivateTouch = () => {
+      if (touchActiveTimeout) {
+        clearTimeout(touchActiveTimeout);
+      }
+      touchActiveTimeout = window.setTimeout(() => {
+        document.body.classList.remove("touch-active");
+        touchActiveTimeout = null;
+      }, 100);
+    };
+    document.addEventListener("mousedown", activateTouch, { passive: true });
+    document.addEventListener("touchstart", activateTouch, { passive: true });
+    document.addEventListener("mousemove", deactivateTouch, { passive: true });
+    document.addEventListener("mouseup", () => {
+      if (touchActiveTimeout) {
+        clearTimeout(touchActiveTimeout);
+      }
+      touchActiveTimeout = window.setTimeout(() => {
+        document.body.classList.remove("touch-active");
+        touchActiveTimeout = null;
+      }, 150);
+    }, { passive: true });
+    document.addEventListener("touchend", deactivateTouch, { passive: true });
+    document.addEventListener("dragend", deactivateTouch, { passive: true });
+    document.addEventListener("scroll", deactivateTouch, { passive: true, capture: true });
+  }
   function setupControls() {
     const enterBtn = document.getElementById("nav-enter");
     const exitBtn = document.getElementById("nav-exit");
@@ -11390,7 +11192,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         console.log("Navigation: Expand container");
         announceNavigationResult({ success: true, message: "Attempting to expand container" });
         sendMessage("navigation-action", { action: "enter" });
-        showCanvasHint();
+        showCanvasHint3();
       });
     }
     if (exitBtn) {
@@ -11398,7 +11200,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         console.log("Navigation: Exit container");
         announceNavigationResult({ success: true, message: "Attempting to exit container" });
         sendMessage("navigation-action", { action: "exit" });
-        showCanvasHint();
+        showCanvasHint3();
       });
     }
     if (prevBtn) {
@@ -11406,7 +11208,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         console.log("Navigation: Previous sibling (UP in layers panel)");
         announceNavigationResult({ success: true, message: "Navigating to previous sibling" });
         sendMessage("navigation-action", { action: "prev-sibling" });
-        showCanvasHint();
+        showCanvasHint3();
       });
     }
     if (nextBtn) {
@@ -11414,7 +11216,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         console.log("Navigation: Next sibling (DOWN in layers panel)");
         announceNavigationResult({ success: true, message: "Navigating to next sibling" });
         sendMessage("navigation-action", { action: "next-sibling" });
-        showCanvasHint();
+        showCanvasHint3();
       });
     }
     if (collapseBtn) {
@@ -11422,7 +11224,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         console.log("Navigation: Toggle collapse");
         announceNavigationResult({ success: true, message: "Toggling container collapse state" });
         sendMessage("navigation-action", { action: "toggle-collapse" });
-        showCanvasHint();
+        showCanvasHint3();
       });
     }
     const hideBtn = document.getElementById("nav-hide");
@@ -11581,7 +11383,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       [null, null, null],
       // Row 0: Exit, Prev, (empty)
       [null, null, null],
-      // Row 1: Collapse, Next, Enter  
+      // Row 1: Collapse, Next, Enter
       [null, null, null]
       // Row 2: GotoComponent, (empty), (empty)
     ];
@@ -11771,266 +11573,10 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       liveRegion.textContent = announcement;
     }, 50);
   }
-  function setupControlsSettings() {
-    const controlsToggle = document.getElementById("controls-toggle");
-    if (controlsToggle) {
-      controlsToggle.addEventListener("change", () => {
-        const enabled = controlsToggle.checked;
-        console.log("Controls setting changed:", enabled);
-        sendMessage("toggle-controls", { enabled });
-      });
-    }
-    setupGroupToggle("toggle-movement-zoom", "movementZoom");
-    setupGroupToggle("toggle-hierarchy", "hierarchy");
-    setupGroupToggle("toggle-sizing-modes", "sizingModes");
-    setupGroupToggle("toggle-styled-text", "styledText");
-  }
-  function setupGroupToggle(toggleId, groupKey) {
-    const toggle = document.getElementById(toggleId);
-    if (toggle) {
-      toggle.addEventListener("change", () => {
-        const visible = toggle.checked;
-        switch (groupKey) {
-          case "movementZoom":
-            groupMovementZoomVisible = visible;
-            break;
-          case "hierarchy":
-            groupHierarchyVisible = visible;
-            break;
-          case "sizingModes":
-            groupSizingModesVisible = visible;
-            break;
-          case "styledText":
-            groupStyledTextVisible = visible;
-            break;
-        }
-        applyGroupVisibility();
-        sendMessage("set-controls-group-visibility", {
-          groups: {
-            movementZoom: groupMovementZoomVisible,
-            hierarchy: groupHierarchyVisible,
-            sizingModes: groupSizingModesVisible,
-            styledText: groupStyledTextVisible
-          }
-        });
-      });
-    }
-  }
-  function setupNudgeSettings() {
-    const smallNudgeInput = document.getElementById("small-nudge-input");
-    const bigNudgeInput = document.getElementById("big-nudge-input");
-    if (smallNudgeInput) {
-      smallNudgeInput.addEventListener("change", () => {
-        const value = parseInt(smallNudgeInput.value, 10);
-        if (!isNaN(value) && value >= 1 && value <= 100) {
-          smallNudgeAmount = value;
-          sendMessage("set-nudge-settings", { smallNudge: smallNudgeAmount, bigNudge: bigNudgeAmount });
-        } else {
-          smallNudgeInput.value = String(smallNudgeAmount);
-        }
-      });
-    }
-    if (bigNudgeInput) {
-      bigNudgeInput.addEventListener("change", () => {
-        const value = parseInt(bigNudgeInput.value, 10);
-        if (!isNaN(value) && value >= 1 && value <= 100) {
-          bigNudgeAmount = value;
-          sendMessage("set-nudge-settings", { smallNudge: smallNudgeAmount, bigNudge: bigNudgeAmount });
-        } else {
-          bigNudgeInput.value = String(bigNudgeAmount);
-        }
-      });
-    }
-  }
-  function updateNudgeSettingsUI(small, big) {
-    smallNudgeAmount = small;
-    bigNudgeAmount = big;
-    const smallNudgeInput = document.getElementById("small-nudge-input");
-    const bigNudgeInput = document.getElementById("big-nudge-input");
-    if (smallNudgeInput) {
-      smallNudgeInput.value = String(small);
-    }
-    if (bigNudgeInput) {
-      bigNudgeInput.value = String(big);
-    }
-  }
-  function parseColor(str) {
-    const s = str.trim();
-    const rgb = s.match(/^rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-    if (rgb) {
-      return { r: parseInt(rgb[1]) / 255, g: parseInt(rgb[2]) / 255, b: parseInt(rgb[3]) / 255 };
-    }
-    const hex = s.match(/^#([0-9a-fA-F]{3,6})$/);
-    if (hex) {
-      let h = hex[1];
-      if (h.length === 3)
-        h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
-      const n = parseInt(h, 16);
-      return { r: (n >> 16 & 255) / 255, g: (n >> 8 & 255) / 255, b: (n & 255) / 255 };
-    }
-    return void 0;
-  }
-  function parseHTMLToSegments(html) {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const segments = [];
-    function walkNode(node, style) {
-      var _a;
-      if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.textContent || "";
-        if (text) {
-          segments.push(__spreadValues({ characters: text }, style));
-        }
-        return;
-      }
-      if (node.nodeType !== Node.ELEMENT_NODE)
-        return;
-      const el = node;
-      const tag = el.tagName.toLowerCase();
-      if (["p", "div", "h1", "h2", "h3", "h4", "h5", "h6", "li"].includes(tag)) {
-        if (segments.length > 0) {
-          segments.push(__spreadValues({ characters: "\n" }, style));
-        }
-      }
-      if (tag === "br") {
-        segments.push(__spreadValues({ characters: "\n" }, style));
-        return;
-      }
-      const next = __spreadValues({}, style);
-      if (tag === "b" || tag === "strong")
-        next.bold = true;
-      if (tag === "i" || tag === "em")
-        next.italic = true;
-      if (tag === "u")
-        next.underline = true;
-      if (tag === "li") {
-        segments.push(__spreadValues({ characters: "\u2022 " }, next));
-      }
-      if (tag === "a") {
-        next.link = el.getAttribute("href") || void 0;
-      }
-      if (["h1", "h2", "h3", "h4", "h5", "h6"].includes(tag)) {
-        next.bold = true;
-        const sizes = { h1: 32, h2: 24, h3: 20, h4: 18, h5: 16, h6: 14 };
-        next.fontSize = sizes[tag];
-      }
-      const inlineStyle = el.style;
-      if (inlineStyle) {
-        if (/^(bold|[6-9]\d{2})$/.test(inlineStyle.fontWeight))
-          next.bold = true;
-        if (inlineStyle.fontStyle === "italic")
-          next.italic = true;
-        if ((_a = inlineStyle.textDecoration) == null ? void 0 : _a.includes("underline"))
-          next.underline = true;
-        if (inlineStyle.fontSize) {
-          const px = parseFloat(inlineStyle.fontSize);
-          if (!isNaN(px))
-            next.fontSize = Math.round(px);
-        }
-        if (inlineStyle.color) {
-          const c = parseColor(inlineStyle.color);
-          if (c)
-            next.color = c;
-        }
-      }
-      for (const child of Array.from(el.childNodes)) {
-        walkNode(child, next);
-      }
-    }
-    walkNode(doc.body, { bold: false, italic: false, underline: false });
-    while (segments.length > 0 && segments[0].characters.trim() === "")
-      segments.shift();
-    while (segments.length > 0 && segments[segments.length - 1].characters.trim() === "")
-      segments.pop();
-    return segments;
-  }
-  function updateStyledTextButtons(hasTextNode) {
-    const copyBtn = document.getElementById("copy-styled");
-    if (copyBtn) {
-      copyBtn.disabled = !hasTextNode;
-    }
-  }
-  function setupStyledTextControls() {
-    const pasteBtn = document.getElementById("paste-styled");
-    const copyBtn = document.getElementById("copy-styled");
-    const replaceToggle = document.getElementById("styled-text-replace");
-    const clipboardDiv = document.getElementById("styled-text-clipboard");
-    const toggleLabel = document.querySelector(".styled-text-toggle");
-    if (toggleLabel) {
-      attachTooltip(toggleLabel);
-    }
-    if (replaceToggle) {
-      replaceToggle.addEventListener("change", () => {
-        replaceToggle.setAttribute("aria-checked", String(replaceToggle.checked));
-      });
-    }
-    if (pasteBtn && clipboardDiv) {
-      pasteBtn.addEventListener("click", async () => {
-        var _a;
-        const doSend = (html, plain) => {
-          var _a2;
-          const segments = html ? parseHTMLToSegments(html) : plain ? [{ characters: plain }] : [];
-          if (segments.length === 0) {
-            sendMessage("notify", { message: "No text found in clipboard" });
-            return;
-          }
-          sendMessage("paste-styled-text", {
-            segments,
-            replaceSelected: (_a2 = replaceToggle == null ? void 0 : replaceToggle.checked) != null ? _a2 : false
-          });
-        };
-        try {
-          if (!((_a = navigator.clipboard) == null ? void 0 : _a.read))
-            throw new Error("no clipboard api");
-          const items = await navigator.clipboard.read();
-          let html = "";
-          let plain = "";
-          for (const item of items) {
-            if (!html && item.types.includes("text/html")) {
-              html = await (await item.getType("text/html")).text();
-            }
-            if (!plain && item.types.includes("text/plain")) {
-              plain = await (await item.getType("text/plain")).text();
-            }
-          }
-          doSend(html, plain);
-        } catch (_err) {
-          const restoreClipboardDiv = () => {
-            clipboardDiv.blur();
-            clipboardDiv.setAttribute("aria-hidden", "true");
-            clipboardDiv.innerHTML = "";
-          };
-          clipboardDiv.innerHTML = "";
-          clipboardDiv.removeAttribute("aria-hidden");
-          clipboardDiv.focus();
-          const handlePaste = (e) => {
-            var _a2, _b;
-            e.preventDefault();
-            clipboardDiv.removeEventListener("paste", handlePaste);
-            const html = ((_a2 = e.clipboardData) == null ? void 0 : _a2.getData("text/html")) || "";
-            const plain = ((_b = e.clipboardData) == null ? void 0 : _b.getData("text/plain")) || "";
-            restoreClipboardDiv();
-            doSend(html, plain);
-          };
-          clipboardDiv.addEventListener("paste", handlePaste);
-          if (!document.execCommand("paste")) {
-            clipboardDiv.removeEventListener("paste", handlePaste);
-            restoreClipboardDiv();
-            sendMessage("notify", { message: "Clipboard access unavailable \u2014 try copying again" });
-          }
-        }
-      });
-    }
-    if (copyBtn) {
-      copyBtn.addEventListener("click", () => {
-        sendMessage("copy-styled-text", {});
-      });
-    }
-  }
   function initializeControls() {
     setupControls();
     setupControlsSettings();
     setupNudgeSettings();
-    setupStyledTextControls();
     initializeAccessibilityFeatures();
     sendMessage("get-controls-setting");
     sendMessage("get-controls-group-settings");
@@ -12256,6 +11802,373 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     console.log("\n\u2705 Accessibility tests completed. Check console for detailed results.");
   }
   window.runAccessibilityTests = runAccessibilityTests;
+
+  // src/ui.ts
+  console.log("\u{1F50D} Script executing, DOM ready state:", document.readyState);
+  window.addEventListener("error", (event) => {
+    console.error("\u{1F6A8} Global error caught:", event.error || event.message);
+    event.preventDefault();
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error("\u{1F6A8} Unhandled promise rejection:", event.reason);
+    event.preventDefault();
+  });
+  var canvasHintTimeout = null;
+  function showCanvasHint4() {
+    const hint = document.getElementById("canvas-hint");
+    if (!hint)
+      return;
+    if (canvasHintTimeout !== null) {
+      clearTimeout(canvasHintTimeout);
+    }
+    hint.classList.add("visible");
+    canvasHintTimeout = window.setTimeout(() => {
+      hint.classList.remove("visible");
+      canvasHintTimeout = null;
+    }, 2500);
+  }
+  function disableAutoFit2(reason) {
+    setIsAutoFitEnabled(false);
+    updateAutoFitButtonState();
+    console.log(`Auto-fit disabled${reason ? `: ${reason}` : ""}`);
+  }
+  function handlePluginMessage(event) {
+    var _a, _b, _c;
+    const message = event.data.pluginMessage;
+    if (!message)
+      return;
+    console.log("\u{1F4E5} Received message from plugin:", message.type, message);
+    switch (message.type) {
+      case "selection-state":
+        const emojis = message.hasLayerSelected ? message.layerEmojis : message.pageEmojis;
+        if (emojis) {
+          updateEmojiButtons(emojis);
+        }
+        updateToggleState(message.hasLayerSelected);
+        updateAnatomySection(message.hasLayerSelected, message.pageName, message.selectedLayerName);
+        updateVisibilityLockIcons(message.selectionVisible, message.selectionLocked);
+        break;
+      case "bookmarks":
+        updateBookmarksList(
+          message.bookmarks,
+          message.currentAnchorId,
+          message.previousBookmarkId,
+          message.isInsideAnchor
+        );
+        break;
+      case "navigation-state":
+        updateNavigationButtons(message.canGoBack, message.canGoForward);
+        break;
+      case "emoji-navigation-state":
+        updateEmojiSetIndicator(message.setName, message.currentSetIndex, message.totalSets);
+        break;
+      case "error":
+        console.error("Plugin error:", message.message);
+        break;
+      case "success":
+        console.log("Plugin success:", message.message);
+        break;
+      case "ui-section-states":
+        setUISectionStatesFromPlugin(message.states || {});
+        restoreUISectionStates();
+        break;
+      case "navigation-context-update":
+        setNavigationContext(message.context);
+        updateControlButtons(message.context);
+        break;
+      case "controls-setting":
+        setControlsEnabled(message.enabled);
+        updateControlsVisibility(message.enabled);
+        break;
+      case "controls-group-settings":
+        if (message.groups) {
+          const groups = message.groups;
+          setGroupMovementZoomVisible((_a = groups.movementZoom) != null ? _a : true);
+          setGroupHierarchyVisible((_b = groups.hierarchy) != null ? _b : true);
+          setGroupSizingModesVisible((_c = groups.sizingModes) != null ? _c : true);
+          updateGroupTogglesUI();
+          applyGroupVisibility();
+        }
+        break;
+      case "nudge-settings":
+        updateNudgeSettingsUI(message.smallNudge, message.bigNudge);
+        break;
+      case "navigation-action-result":
+        announceNavigationResult({
+          success: message.success,
+          message: message.message
+        });
+        break;
+      case "update-layout-state":
+        updateLayoutSizingButtons(message.horizontal, message.vertical);
+        break;
+    }
+  }
+  var themePerformanceMetrics = {
+    themeChanges: 0,
+    totalThemeChangeTime: 0,
+    averageThemeChangeTime: 0,
+    lastThemeChangeTime: 0,
+    slowThemeChanges: 0,
+    // Changes taking > 100ms
+    cacheHits: 0,
+    cacheMisses: 0
+  };
+  function initializeThemePerformanceMonitoring() {
+    if (themeManager) {
+      const originalApplyTheme = applyTheme;
+      window.applyTheme = function(effectiveTheme, skipTransition = false) {
+        const startTime = performance.now();
+        try {
+          const result = originalApplyTheme.call(this, effectiveTheme);
+          const endTime = performance.now();
+          const duration = endTime - startTime;
+          themePerformanceMetrics.themeChanges++;
+          themePerformanceMetrics.totalThemeChangeTime += duration;
+          themePerformanceMetrics.averageThemeChangeTime = themePerformanceMetrics.totalThemeChangeTime / themePerformanceMetrics.themeChanges;
+          themePerformanceMetrics.lastThemeChangeTime = duration;
+          if (duration > 100) {
+            themePerformanceMetrics.slowThemeChanges++;
+            console.warn(`Slow theme change detected: ${duration.toFixed(2)}ms for theme ${effectiveTheme}`);
+          }
+          if (themePerformanceMetrics.themeChanges % 10 === 0) {
+            console.log("Theme Performance Metrics:", {
+              changes: themePerformanceMetrics.themeChanges,
+              averageTime: `${themePerformanceMetrics.averageThemeChangeTime.toFixed(2)}ms`,
+              slowChanges: themePerformanceMetrics.slowThemeChanges,
+              lastChange: `${themePerformanceMetrics.lastThemeChangeTime.toFixed(2)}ms`
+            });
+          }
+          return result;
+        } catch (error) {
+          console.error("Theme application error:", error);
+          throw error;
+        }
+      };
+    }
+    if ("memory" in performance) {
+      const memoryMonitorInterval = setInterval(() => {
+        const memInfo = performance.memory;
+        const usedMB = memInfo.usedJSHeapSize / (1024 * 1024);
+        const limitMB = memInfo.jsHeapSizeLimit / (1024 * 1024);
+        const usagePercent = memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit * 100;
+        if (usagePercent > 70) {
+          console.error("\u{1F6A8} CRITICAL memory usage:", {
+            used: `${usedMB.toFixed(2)}MB`,
+            limit: `${limitMB.toFixed(2)}MB`,
+            percentage: `${usagePercent.toFixed(1)}%`,
+            status: "Critical - possible memory leak!"
+          });
+        } else if (usagePercent > 50) {
+          console.warn("\u26A0\uFE0F High memory usage detected:", {
+            used: `${usedMB.toFixed(2)}MB`,
+            limit: `${limitMB.toFixed(2)}MB`,
+            percentage: `${usagePercent.toFixed(1)}%`,
+            status: "Warning - monitor closely"
+          });
+        }
+      }, 3e4);
+      activeTimers.add(memoryMonitorInterval);
+    }
+  }
+  function setupCleanupHandlers() {
+    window.addEventListener("beforeunload", () => {
+      console.log("\u{1F9F9} Cleaning up theme system resources...");
+      if (themeManager) {
+        themeManager.destroy();
+      }
+      destroyAllLottieAnimations();
+      clearAllTimers();
+      removeAllEventListeners();
+      console.log("\u2705 Cleanup complete");
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        pauseNonEssentialOperations();
+      } else {
+        resumeNonEssentialOperations();
+      }
+    });
+  }
+  function optimizeThemeVariableInheritance() {
+    const optimizationStyle = document.createElement("style");
+    optimizationStyle.id = "theme-optimization-styles";
+    optimizationStyle.textContent = `
+    /* Performance optimization: reduce CSS custom property lookups */
+    .theme-optimized {
+      /* Pre-calculate commonly used theme combinations */
+      --optimized-border: 1px solid var(--theme-border-primary);
+      --optimized-hover-bg: var(--theme-bg-hover);
+      --optimized-text-color: var(--theme-text-primary);
+      --optimized-transition: background-color 150ms ease-out, border-color 150ms ease-out;
+    }
+
+    /* Optimize frequently used button styles */
+    .theme-optimized .btn-base {
+      background: var(--optimized-hover-bg);
+      border: var(--optimized-border);
+      color: var(--optimized-text-color);
+      transition: var(--optimized-transition);
+    }
+
+    /* Use contain property to limit style recalculation scope */
+    .theme-container {
+      contain: layout style;
+    }
+
+    /* Optimize for GPU acceleration on theme changes */
+    .theme-gpu-optimized {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
+  `;
+    document.head.appendChild(optimizationStyle);
+    document.documentElement.classList.add("theme-optimized");
+    document.body.classList.add("theme-container", "theme-gpu-optimized");
+  }
+  function handleDOMReady() {
+    console.log("\u{1F4C4} DOM ready, starting initialization sequence...");
+    registerShowCanvasHintNavigate(showCanvasHint4);
+    registerDisableAutoFitNavigate(disableAutoFit2);
+    registerShowCanvasHintBookmarks(showCanvasHint4);
+    registerDisableAutoFit(disableAutoFit2);
+    registerInitializeSystemThemeDetection(initializeSystemThemeDetection);
+    registerInitializeThemePerformanceMonitoring(initializeThemePerformanceMonitoring);
+    registerSetupCleanupHandlers(setupCleanupHandlers);
+    registerUpdateEmojiButtons(updateEmojiButtons);
+    registerShowCanvasHint(showCanvasHint4);
+    initializePlugin();
+    setupEventListeners();
+    window.addEventListener("message", handlePluginMessage);
+    window.addEventListener("message", (event) => {
+      const msg = event.data && event.data.pluginMessage || null;
+      if (!msg)
+        return;
+      if (msg.type === "theme-preference") {
+        if (themeManager && isThemeInitialized) {
+          const themeData = msg.theme;
+          console.log("\u{1F4E5} Received theme preference from backend:", themeData);
+          if (themeManager) {
+            const beforeDebug = themeManager.getDebugInfo();
+            console.log("\u{1F50D} Theme state BEFORE loading preference:", beforeDebug);
+          }
+          if (msg.storageInfo) {
+            if (!msg.storageInfo.success) {
+              console.warn("Theme storage load failed:", msg.storageInfo.error);
+            }
+            if (msg.storageInfo.usedFallback) {
+              console.info("Theme preference loaded from fallback storage");
+            }
+          }
+          themeManager.loadThemePreference(themeData);
+          updateThemeUI();
+          if (themeManager) {
+            const afterDebug = themeManager.getDebugInfo();
+            console.log("\u{1F50D} Theme state AFTER loading preference:", afterDebug);
+          }
+          console.log("\u2705 Theme preference loaded and applied");
+        } else {
+          console.warn("\u26A0\uFE0F Received theme preference but theme manager not ready");
+        }
+      }
+    });
+    window.addEventListener("resize", () => {
+      setTimeout(updateScrollBehavior, 100);
+    });
+    window.addEventListener("systemThemeSync", (event) => {
+      const customEvent = event;
+      const { effectiveTheme, themeMode, systemTheme } = customEvent.detail;
+      console.log(`\u{1F504} System theme sync event: ${effectiveTheme} (mode: ${themeMode}, system: ${systemTheme})`);
+    });
+    window.addEventListener("themeChangeComplete", (event) => {
+      const customEvent = event;
+      const { effectiveTheme, themeMode, systemTheme, isSystemTheme } = customEvent.detail;
+      console.log(`\u2705 Theme change complete: ${effectiveTheme} (mode: ${themeMode}, system: ${systemTheme})`);
+      updateThemeRelatedComponents(effectiveTheme, themeMode, isSystemTheme);
+    });
+    const settingsOverlay = document.getElementById("settings-overlay");
+    if (settingsOverlay) {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === "attributes" && mutation.attributeName === "aria-hidden") {
+            const isHidden = settingsOverlay.getAttribute("aria-hidden") === "true";
+            if (isHidden) {
+              hideThemePreview();
+            }
+          }
+        });
+      });
+      observer.observe(settingsOverlay, { attributes: true });
+    }
+    window.addEventListener("beforeunload", () => {
+      if (themeManager) {
+        themeManager.destroy();
+      }
+    });
+    window.addEventListener("blur", resetFooterButtonStates);
+    window.addEventListener("focus", resetFooterButtonStates);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        setTimeout(resetFooterButtonStates, 100);
+      }
+    });
+    const footerCleanupInterval = setInterval(() => {
+      const footerButtons = document.querySelectorAll(".footer-icon-btn");
+      footerButtons.forEach((button) => {
+        const btn = button;
+        if (!btn.matches(":hover") && !btn.matches(":focus") && !btn.matches(":active")) {
+          btn.classList.remove("hover-active");
+          btn.style.removeProperty("background");
+          btn.style.removeProperty("color");
+          btn.style.removeProperty("transform");
+        }
+      });
+    }, 2e3);
+    activeTimers.add(footerCleanupInterval);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", handleDOMReady);
+  } else {
+    handleDOMReady();
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    optimizeThemeVariableInheritance();
+  });
+  window.getThemePerformanceMetrics = () => themePerformanceMetrics;
+  window.resetThemePerformanceMetrics = () => {
+    themePerformanceMetrics = {
+      themeChanges: 0,
+      totalThemeChangeTime: 0,
+      averageThemeChangeTime: 0,
+      lastThemeChangeTime: 0,
+      slowThemeChanges: 0,
+      cacheHits: 0,
+      cacheMisses: 0
+    };
+  };
+  window.debugTheme = () => {
+    if (!themeManager) {
+      console.log("\u274C Theme manager not initialized");
+      return;
+    }
+    console.log("=== Theme Debug Info ===");
+    const debugInfo = themeManager.getDebugInfo();
+    console.log("Theme Mode:", debugInfo.currentThemeMode);
+    console.log("System Theme:", debugInfo.systemTheme);
+    console.log("Effective Theme:", debugInfo.effectiveTheme);
+    console.log("Media Query Matches (dark):", debugInfo.mediaQueryMatches);
+    console.log("Cache Valid:", debugInfo.cacheValid);
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    console.log("Direct Media Query Check:", mediaQuery.matches);
+    const htmlTheme = document.documentElement.getAttribute("data-theme");
+    console.log("HTML data-theme:", htmlTheme);
+    console.log("=== End Debug ===");
+    return debugInfo;
+  };
+  if (typeof window !== "undefined") {
+    window.getThemeManager = () => themeManager;
+  }
 })();
 //# sourceMappingURL=ui.js.map
 </script>
