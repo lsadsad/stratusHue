@@ -3624,71 +3624,34 @@ h3 {
 
 /* ===== STYLED TEXT SECTION ===== */
 
-/* "Replace selected" toggle switch */
-.styled-text-toggle {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+/* Paste area textarea — hidden until Paste button is clicked */
+.styled-text-paste-area {
+  display: none;
   width: 100%;
+  box-sizing: border-box;
   margin-top: var(--spacing-sm);
-  cursor: pointer;
-  user-select: none;
-}
-
-.styled-text-toggle input[type="checkbox"] {
-  position: relative;
-  appearance: none;
-  -webkit-appearance: none;
-  width: 28px;
-  height: 16px;
-  min-width: 28px;
-  border-radius: var(--border-radius-pill);
-  background: var(--theme-interactive-disabled);
+  padding: var(--spacing-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-primary);
+  background: var(--theme-bg-secondary);
   border: 1px solid var(--theme-border-primary);
-  cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  border-radius: var(--border-radius-sm);
+  resize: none;
+  outline: none;
+  transition: border-color var(--transition-fast);
 }
 
-.styled-text-toggle input[type="checkbox"]::after {
-  content: '';
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--theme-text-secondary);
-  top: 2px;
-  left: 2px;
-  transition: transform var(--transition-fast), background var(--transition-fast);
+.styled-text-paste-area.visible {
+  display: block;
 }
 
-.styled-text-toggle input[type="checkbox"]:checked {
-  background: rgba(111, 176, 255, 0.25);
+.styled-text-paste-area:focus {
   border-color: var(--theme-info);
 }
 
-.styled-text-toggle input[type="checkbox"]:checked::after {
-  transform: translateX(12px);
-  background: var(--theme-info);
-}
-
-.styled-text-toggle input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--theme-info);
-  outline-offset: 2px;
-}
-
-.toggle-label {
-  font-size: var(--font-size-xs);
-  color: var(--theme-text-secondary);
-  line-height: 1.3;
-}
-
-/* Styled Text hint */
-.styled-text-hint {
-  font-size: var(--font-size-xs);
-  color: var(--theme-text-secondary);
-  text-align: center;
-  margin: var(--spacing-xs) 0 0;
-  opacity: 0.6;
+.styled-text-paste-area::placeholder {
+  color: var(--theme-text-muted);
   font-style: italic;
 }
 
@@ -5189,16 +5152,52 @@ i.grip {
 }
 
 .setting-label-small {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--spacing-sm);
-  align-items: start;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-md);
-  text-transform: none;
-  letter-spacing: normal;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Pill toggle switch */
+.setting-label-small input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 28px;
+  height: 16px;
+  border-radius: var(--border-radius-pill);
+  background: var(--figma-color-border, rgba(255,255,255,0.15));
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background var(--transition-fast);
+}
+
+.setting-label-small input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  top: 2px;
+  left: 2px;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.setting-label-small input[type="checkbox"]:checked {
+  background: var(--figma-color-border-brand, #18a0fb);
+}
+
+.setting-label-small input[type="checkbox"]:checked::before {
+  transform: translateX(12px);
+  background: #fff;
 }
 
 .setting-description {
@@ -5209,12 +5208,12 @@ i.grip {
 
 .checkbox-description {
   line-height: 1.3;
-  grid-column: 2;
+  flex: 1;
 }
 
 /* Controls group sub-toggles */
 .controls-group-toggles {
-  padding-left: 22px;
+  padding-left: 0;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -7587,7 +7586,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       // All control groups visible
       sendPluginMsg({
         type: 'controls-group-settings',
-        groups: { movementZoom: true, hierarchy: true, sizingModes: true, styledText: false }
+        groups: { movementZoom: true, hierarchy: true, sizingModes: true, styledText: true }
       });
 
       // Navigation context (page mode — no layer selected)
@@ -8111,10 +8110,10 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
             <button id="paste-styled" class="nav-button nav-button-zoom"
               aria-label="Paste styled text from clipboard" aria-describedby="paste-styled-desc"
-              data-tooltip="Paste Styled" data-tooltip-placement="top-of-container" data-tooltip-delay="600" tabindex="-1">
+              data-tooltip="Paste Styled — click then Cmd+V" data-tooltip-placement="top-of-container" data-tooltip-delay="600" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><svg class="lucide lucide-clipboard-paste" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M11 14h10" /> <path d="M16 4h2a2 2 0 0 1 2 2v1.344" /> <path d="m17 18 4-4-4-4" /> <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 1.793-1.113" /> <rect x="8" y="2" width="8" height="4" rx="1" /> </svg></span>
               <span class="nav-label">Paste</span>
-              <span id="paste-styled-desc" class="sr-only">Read HTML from clipboard and create a styled text layer in Figma</span>
+              <span id="paste-styled-desc" class="sr-only">Click to open paste area, then paste your text with Cmd+V</span>
             </button>
             <button id="copy-styled" class="nav-button nav-button-arrow"
               aria-label="Copy selected text layer as HTML" aria-describedby="copy-styled-desc"
@@ -8127,18 +8126,10 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
             <div class="nav-caption" aria-hidden="true">Copy</div>
           </div>
 
-          <label class="styled-text-toggle" data-tooltip="Replace the selected text layer instead of creating a new one" data-tooltip-delay="800">
-            <input type="checkbox" id="styled-text-replace" role="switch" aria-checked="false"
-              aria-label="Replace selected text layer on paste" tabindex="-1">
-            <span class="toggle-label">Replace selected</span>
-          </label>
-
-          <p class="styled-text-hint" aria-hidden="true">Copy from web, then click Paste</p>
+          <textarea id="styled-text-paste-area" class="styled-text-paste-area"
+            placeholder="Paste here (Cmd+V)…" aria-label="Paste area — paste your copied text here"
+            tabindex="-1" rows="3"></textarea>
         </div>
-
-        <!-- Hidden contenteditable div for clipboard HTML access -->
-        <div id="styled-text-clipboard" contenteditable="true" aria-hidden="true" tabindex="-1"
-          style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;"></div>
       </div>
     </section>
   </main>
@@ -8206,28 +8197,28 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
           <!-- Controls Section Toggle -->
           <div class="setting-item">
             <label class="setting-label-small">
-              <input type="checkbox" id="controls-toggle" checked tabindex="-1">
               <span class="checkbox-description">Enable layer navigation, element movement, zoom, and actions</span>
+              <input type="checkbox" id="controls-toggle" checked tabindex="-1">
             </label>
           </div>
 
           <!-- Per-group visibility toggles -->
           <div id="controls-group-toggles" class="setting-item controls-group-toggles">
             <label class="setting-label-small sub-toggle">
-              <input type="checkbox" id="toggle-movement-zoom" checked tabindex="-1">
               <span class="checkbox-description">Movement & Zoom</span>
+              <input type="checkbox" id="toggle-movement-zoom" checked tabindex="-1">
             </label>
             <label class="setting-label-small sub-toggle">
-              <input type="checkbox" id="toggle-hierarchy" checked tabindex="-1">
               <span class="checkbox-description">Hierarchy</span>
+              <input type="checkbox" id="toggle-hierarchy" checked tabindex="-1">
             </label>
             <label class="setting-label-small sub-toggle">
-              <input type="checkbox" id="toggle-sizing-modes" checked tabindex="-1">
               <span class="checkbox-description">Sizing Modes</span>
+              <input type="checkbox" id="toggle-sizing-modes" checked tabindex="-1">
             </label>
             <label class="setting-label-small sub-toggle">
-              <input type="checkbox" id="toggle-styled-text" checked tabindex="-1">
               <span class="checkbox-description">Styled Text</span>
+              <input type="checkbox" id="toggle-styled-text" checked tabindex="-1">
             </label>
           </div>
         </div>
@@ -10069,6 +10060,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   var groupMovementZoomVisible = true;
   var groupHierarchyVisible = true;
   var groupSizingModesVisible = true;
+  var groupStyledTextVisible = false;
   var smallNudgeAmount = 1;
   var bigNudgeAmount = 8;
   function setGroupMovementZoomVisible(v) {
@@ -10079,6 +10071,9 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
   function setGroupSizingModesVisible(v) {
     groupSizingModesVisible = v;
+  }
+  function setGroupStyledTextVisible(v) {
+    groupStyledTextVisible = v;
   }
   function setSmallNudgeAmount(v) {
     smallNudgeAmount = v;
@@ -10300,6 +10295,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     const movementZoomGroup = document.getElementById("movement-zoom-group");
     const hierarchyGroup = document.getElementById("hierarchy-group");
     const sizingModesGroup = document.getElementById("sizing-modes-group");
+    const styledTextGroup = document.getElementById("styled-text-group");
     if (movementZoomGroup) {
       movementZoomGroup.style.display = groupMovementZoomVisible ? "" : "none";
     }
@@ -10309,17 +10305,23 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     if (sizingModesGroup) {
       sizingModesGroup.style.display = groupSizingModesVisible ? "" : "none";
     }
+    if (styledTextGroup) {
+      styledTextGroup.style.display = groupStyledTextVisible ? "" : "none";
+    }
   }
   function updateGroupTogglesUI() {
     const toggleMovementZoom = document.getElementById("toggle-movement-zoom");
     const toggleHierarchy = document.getElementById("toggle-hierarchy");
     const toggleSizingModes = document.getElementById("toggle-sizing-modes");
+    const toggleStyledText = document.getElementById("toggle-styled-text");
     if (toggleMovementZoom)
       toggleMovementZoom.checked = groupMovementZoomVisible;
     if (toggleHierarchy)
       toggleHierarchy.checked = groupHierarchyVisible;
     if (toggleSizingModes)
       toggleSizingModes.checked = groupSizingModesVisible;
+    if (toggleStyledText)
+      toggleStyledText.checked = groupStyledTextVisible;
   }
 
   // src/ui/navigate/settings-ui.ts
@@ -10335,6 +10337,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     setupGroupToggle("toggle-movement-zoom", "movementZoom");
     setupGroupToggle("toggle-hierarchy", "hierarchy");
     setupGroupToggle("toggle-sizing-modes", "sizingModes");
+    setupGroupToggle("toggle-styled-text", "styledText");
   }
   function setupGroupToggle(toggleId, groupKey) {
     const toggle = document.getElementById(toggleId);
@@ -10351,13 +10354,17 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
           case "sizingModes":
             setGroupSizingModesVisible(visible);
             break;
+          case "styledText":
+            setGroupStyledTextVisible(visible);
+            break;
         }
         applyGroupVisibility();
         sendMessage("set-controls-group-visibility", {
           groups: {
             movementZoom: groupMovementZoomVisible,
             hierarchy: groupHierarchyVisible,
-            sizingModes: groupSizingModesVisible
+            sizingModes: groupSizingModesVisible,
+            styledText: groupStyledTextVisible
           }
         });
       });
@@ -11435,6 +11442,44 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         sendMessage("cycle-layout-sizing", { axis: "vertical" });
       });
     }
+    const pasteStyledBtn = document.getElementById("paste-styled");
+    const copyStyledBtn = document.getElementById("copy-styled");
+    const pasteArea = document.getElementById("styled-text-paste-area");
+    if (pasteStyledBtn && pasteArea) {
+      pasteStyledBtn.addEventListener("click", () => {
+        const isVisible = pasteArea.classList.contains("visible");
+        if (isVisible) {
+          pasteArea.classList.remove("visible");
+        } else {
+          pasteArea.classList.add("visible");
+          pasteArea.focus();
+        }
+      });
+      pasteArea.addEventListener("paste", (e) => {
+        var _a, _b, _c, _d;
+        e.preventDefault();
+        const html = (_b = (_a = e.clipboardData) == null ? void 0 : _a.getData("text/html")) != null ? _b : "";
+        const plain = (_d = (_c = e.clipboardData) == null ? void 0 : _c.getData("text/plain")) != null ? _d : "";
+        const segments = html ? parseHTMLToSegments(html) : plain ? [{ characters: plain }] : [];
+        if (segments.length > 0) {
+          sendMessage("paste-styled-text", { segments, replaceSelected: false });
+        }
+        pasteArea.classList.remove("visible");
+        pasteArea.value = "";
+      });
+      pasteArea.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          pasteArea.classList.remove("visible");
+          pasteArea.value = "";
+          pasteStyledBtn.focus();
+        }
+      });
+    }
+    if (copyStyledBtn) {
+      copyStyledBtn.addEventListener("click", () => {
+        sendMessage("copy-styled-text");
+      });
+    }
     if (controlsGrid) {
       setupControlsKeyboardSupport(controlsGrid);
     }
@@ -11867,6 +11912,98 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     console.log("\n\u2705 Accessibility tests completed. Check console for detailed results.");
   }
   window.runAccessibilityTests = runAccessibilityTests;
+  function parseColor(css) {
+    const rgbMatch = css.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (rgbMatch) {
+      return { r: parseInt(rgbMatch[1]) / 255, g: parseInt(rgbMatch[2]) / 255, b: parseInt(rgbMatch[3]) / 255 };
+    }
+    const hexMatch = css.match(/^#([0-9a-f]{6})$/i);
+    if (hexMatch) {
+      const h = hexMatch[1];
+      return { r: parseInt(h.slice(0, 2), 16) / 255, g: parseInt(h.slice(2, 4), 16) / 255, b: parseInt(h.slice(4, 6), 16) / 255 };
+    }
+    const shortHex = css.match(/^#([0-9a-f]{3})$/i);
+    if (shortHex) {
+      const h = shortHex[1];
+      return { r: parseInt(h[0] + h[0], 16) / 255, g: parseInt(h[1] + h[1], 16) / 255, b: parseInt(h[2] + h[2], 16) / 255 };
+    }
+    return void 0;
+  }
+  function parseHTMLToSegments(html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const segments = [];
+    function walk(node, styles) {
+      var _a, _b;
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = (_a = node.textContent) != null ? _a : "";
+        if (text)
+          segments.push(__spreadValues({ characters: text }, styles));
+        return;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE)
+        return;
+      const el = node;
+      const tag = el.tagName.toLowerCase();
+      const inherited = __spreadValues({}, styles);
+      if (tag === "b" || tag === "strong")
+        inherited.bold = true;
+      if (tag === "i" || tag === "em")
+        inherited.italic = true;
+      if (tag === "u")
+        inherited.underline = true;
+      if (tag === "a")
+        inherited.link = el.href || void 0;
+      const headingMatch = tag.match(/^h([1-6])$/);
+      if (headingMatch) {
+        inherited.bold = true;
+        const sizes = [32, 24, 20, 18, 16, 14];
+        inherited.fontSize = sizes[parseInt(headingMatch[1]) - 1];
+      }
+      const fw = el.style.fontWeight;
+      if (fw === "bold" || parseInt(fw) >= 700)
+        inherited.bold = true;
+      if (el.style.fontStyle === "italic")
+        inherited.italic = true;
+      if ((_b = el.style.textDecoration) == null ? void 0 : _b.includes("underline"))
+        inherited.underline = true;
+      const cssColor = el.style.color;
+      if (cssColor) {
+        const c = parseColor(cssColor);
+        if (c)
+          inherited.color = c;
+      }
+      const cssFontSize = el.style.fontSize;
+      if (cssFontSize) {
+        const px = parseFloat(cssFontSize);
+        if (px > 0)
+          inherited.fontSize = px;
+      }
+      if (tag === "br") {
+        segments.push(__spreadValues({ characters: "\n" }, styles));
+        return;
+      }
+      const isBlock = /^(p|div|h[1-6]|blockquote|pre)$/.test(tag);
+      if (tag === "li" && segments.length > 0)
+        segments.push(__spreadValues({ characters: "\u2022 " }, inherited));
+      for (const child of Array.from(node.childNodes))
+        walk(child, inherited);
+      if ((isBlock || tag === "li") && segments.length > 0) {
+        const last = segments[segments.length - 1];
+        if (!last.characters.endsWith("\n"))
+          segments.push(__spreadValues({ characters: "\n" }, inherited));
+      }
+    }
+    walk(doc.body, {});
+    while (segments.length > 0 && segments[segments.length - 1].characters.trim() === "") {
+      segments.pop();
+    }
+    return segments;
+  }
+  function updateStyledTextButtons(hasTextNode) {
+    const copyBtn = document.getElementById("copy-styled");
+    if (copyBtn)
+      copyBtn.disabled = !hasTextNode;
+  }
 
   // src/ui.ts
   console.log("\u{1F50D} Script executing, DOM ready state:", document.readyState);
@@ -11898,7 +12035,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     console.log(`Auto-fit disabled${reason ? `: ${reason}` : ""}`);
   }
   function handlePluginMessage(event) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d, _e;
     const message = event.data.pluginMessage;
     if (!message)
       return;
@@ -11951,6 +12088,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
           setGroupMovementZoomVisible((_a = groups.movementZoom) != null ? _a : true);
           setGroupHierarchyVisible((_b = groups.hierarchy) != null ? _b : true);
           setGroupSizingModesVisible((_c = groups.sizingModes) != null ? _c : true);
+          setGroupStyledTextVisible((_d = groups.styledText) != null ? _d : false);
           updateGroupTogglesUI();
           applyGroupVisibility();
         }
@@ -11967,7 +12105,40 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       case "update-layout-state":
         updateLayoutSizingButtons(message.horizontal, message.vertical);
         break;
+      case "update-styled-text-state":
+        updateStyledTextButtons(message.hasTextNode);
+        break;
+      case "styled-text-html": {
+        const html = message.html;
+        const plain = html.replace(/<[^>]+>/g, "");
+        if ((_e = navigator.clipboard) == null ? void 0 : _e.write) {
+          const item = new ClipboardItem({
+            "text/html": new Blob([html], { type: "text/html" }),
+            "text/plain": new Blob([plain], { type: "text/plain" })
+          });
+          navigator.clipboard.write([item]).catch(() => copyHTMLFallback(html, plain));
+        } else {
+          copyHTMLFallback(html, plain);
+        }
+        break;
+      }
     }
+  }
+  function copyHTMLFallback(html, plain) {
+    const ta = document.createElement("textarea");
+    ta.value = plain;
+    ta.style.cssText = "position:fixed;left:-9999px;top:-9999px";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.addEventListener("copy", (e) => {
+      var _a, _b;
+      e.preventDefault();
+      (_a = e.clipboardData) == null ? void 0 : _a.setData("text/html", html);
+      (_b = e.clipboardData) == null ? void 0 : _b.setData("text/plain", plain);
+    }, { once: true });
+    document.execCommand("copy");
+    document.body.removeChild(ta);
   }
   var themePerformanceMetrics = {
     themeChanges: 0,

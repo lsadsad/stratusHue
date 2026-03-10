@@ -1059,6 +1059,49 @@ export function setupControls(): void {
     });
   }
 
+  // Styled text buttons
+  const pasteStyledBtn = document.getElementById('paste-styled') as HTMLButtonElement | null;
+  const copyStyledBtn = document.getElementById('copy-styled') as HTMLButtonElement | null;
+  const pasteArea = document.getElementById('styled-text-paste-area') as HTMLTextAreaElement | null;
+
+  if (pasteStyledBtn && pasteArea) {
+    pasteStyledBtn.addEventListener('click', () => {
+      const isVisible = pasteArea.classList.contains('visible');
+      if (isVisible) {
+        pasteArea.classList.remove('visible');
+      } else {
+        pasteArea.classList.add('visible');
+        pasteArea.focus();
+      }
+    });
+
+    pasteArea.addEventListener('paste', (e: ClipboardEvent) => {
+      e.preventDefault();
+      const html = e.clipboardData?.getData('text/html') ?? '';
+      const plain = e.clipboardData?.getData('text/plain') ?? '';
+      const segments = html ? parseHTMLToSegments(html) : (plain ? [{ characters: plain }] : []);
+      if (segments.length > 0) {
+        sendMessage('paste-styled-text', { segments, replaceSelected: false });
+      }
+      pasteArea.classList.remove('visible');
+      pasteArea.value = '';
+    });
+
+    pasteArea.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        pasteArea.classList.remove('visible');
+        pasteArea.value = '';
+        pasteStyledBtn.focus();
+      }
+    });
+  }
+
+  if (copyStyledBtn) {
+    copyStyledBtn.addEventListener('click', () => {
+      sendMessage('copy-styled-text');
+    });
+  }
+
   // Add keyboard navigation support
   if (controlsGrid) {
     setupControlsKeyboardSupport(controlsGrid as HTMLElement);
@@ -1719,3 +1762,101 @@ export function runAccessibilityTests(): void {
 
 // Re-export what the shell's handleDOMReady needs from navigate-ui
 export { updateControlButtons, resetFooterButtonStates, activeTimers };
+
+// ===== STYLED TEXT HELPERS =====
+
+interface StyledTextSegmentUI {
+  characters: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  fontSize?: number;
+  color?: { r: number; g: number; b: number };
+  link?: string;
+}
+
+function parseColor(css: string): { r: number; g: number; b: number } | undefined {
+  const rgbMatch = css.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (rgbMatch) {
+    return { r: parseInt(rgbMatch[1]) / 255, g: parseInt(rgbMatch[2]) / 255, b: parseInt(rgbMatch[3]) / 255 };
+  }
+  const hexMatch = css.match(/^#([0-9a-f]{6})$/i);
+  if (hexMatch) {
+    const h = hexMatch[1];
+    return { r: parseInt(h.slice(0, 2), 16) / 255, g: parseInt(h.slice(2, 4), 16) / 255, b: parseInt(h.slice(4, 6), 16) / 255 };
+  }
+  const shortHex = css.match(/^#([0-9a-f]{3})$/i);
+  if (shortHex) {
+    const h = shortHex[1];
+    return { r: parseInt(h[0] + h[0], 16) / 255, g: parseInt(h[1] + h[1], 16) / 255, b: parseInt(h[2] + h[2], 16) / 255 };
+  }
+  return undefined;
+}
+
+function parseHTMLToSegments(html: string): StyledTextSegmentUI[] {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const segments: StyledTextSegmentUI[] = [];
+
+  function walk(node: Node, styles: Partial<StyledTextSegmentUI>): void {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent ?? '';
+      if (text) segments.push({ characters: text, ...styles });
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+    const el = node as HTMLElement;
+    const tag = el.tagName.toLowerCase();
+    const inherited: Partial<StyledTextSegmentUI> = { ...styles };
+
+    // Semantic tags
+    if (tag === 'b' || tag === 'strong') inherited.bold = true;
+    if (tag === 'i' || tag === 'em') inherited.italic = true;
+    if (tag === 'u') inherited.underline = true;
+    if (tag === 'a') inherited.link = (el as HTMLAnchorElement).href || undefined;
+
+    // Headings
+    const headingMatch = tag.match(/^h([1-6])$/);
+    if (headingMatch) {
+      inherited.bold = true;
+      const sizes = [32, 24, 20, 18, 16, 14];
+      inherited.fontSize = sizes[parseInt(headingMatch[1]) - 1];
+    }
+
+    // Inline CSS
+    const fw = el.style.fontWeight;
+    if (fw === 'bold' || parseInt(fw) >= 700) inherited.bold = true;
+    if (el.style.fontStyle === 'italic') inherited.italic = true;
+    if (el.style.textDecoration?.includes('underline')) inherited.underline = true;
+    const cssColor = el.style.color;
+    if (cssColor) { const c = parseColor(cssColor); if (c) inherited.color = c; }
+    const cssFontSize = el.style.fontSize;
+    if (cssFontSize) { const px = parseFloat(cssFontSize); if (px > 0) inherited.fontSize = px; }
+
+    if (tag === 'br') { segments.push({ characters: '\n', ...styles }); return; }
+
+    const isBlock = /^(p|div|h[1-6]|blockquote|pre)$/.test(tag);
+    if (tag === 'li' && segments.length > 0) segments.push({ characters: '• ', ...inherited });
+
+    for (const child of Array.from(node.childNodes)) walk(child, inherited);
+
+    if ((isBlock || tag === 'li') && segments.length > 0) {
+      const last = segments[segments.length - 1];
+      if (!last.characters.endsWith('\n')) segments.push({ characters: '\n', ...inherited });
+    }
+  }
+
+  walk(doc.body, {});
+
+  // Trim trailing newline segments
+  while (segments.length > 0 && segments[segments.length - 1].characters.trim() === '') {
+    segments.pop();
+  }
+
+  return segments;
+}
+
+export function updateStyledTextButtons(hasTextNode: boolean): void {
+  const copyBtn = document.getElementById('copy-styled') as HTMLButtonElement | null;
+  if (copyBtn) copyBtn.disabled = !hasTextNode;
+}

@@ -4,11 +4,13 @@ import {
   groupMovementZoomVisible,
   groupHierarchyVisible,
   groupSizingModesVisible,
+  groupStyledTextVisible,
   smallNudgeAmount,
   bigNudgeAmount,
   setGroupMovementZoomVisible,
   setGroupHierarchyVisible,
   setGroupSizingModesVisible,
+  setGroupStyledTextVisible,
   setSmallNudgeAmount,
   setBigNudgeAmount
 } from './controls-ui';
@@ -29,6 +31,7 @@ export function setupControlsSettings(): void {
   setupGroupToggle('toggle-movement-zoom', 'movementZoom');
   setupGroupToggle('toggle-hierarchy', 'hierarchy');
   setupGroupToggle('toggle-sizing-modes', 'sizingModes');
+  setupGroupToggle('toggle-styled-text', 'styledText');
 }
 
 // Setup a single group visibility toggle
@@ -42,6 +45,7 @@ export function setupGroupToggle(toggleId: string, groupKey: string): void {
         case 'movementZoom': setGroupMovementZoomVisible(visible); break;
         case 'hierarchy': setGroupHierarchyVisible(visible); break;
         case 'sizingModes': setGroupSizingModesVisible(visible); break;
+        case 'styledText': setGroupStyledTextVisible(visible); break;
       }
       applyGroupVisibility();
       // Persist via plugin
@@ -49,7 +53,8 @@ export function setupGroupToggle(toggleId: string, groupKey: string): void {
         groups: {
           movementZoom: groupMovementZoomVisible,
           hierarchy: groupHierarchyVisible,
-          sizingModes: groupSizingModesVisible
+          sizingModes: groupSizingModesVisible,
+          styledText: groupStyledTextVisible
         }
       });
     });

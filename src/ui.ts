@@ -55,6 +55,7 @@ import {
   setGroupMovementZoomVisible,
   setGroupHierarchyVisible,
   setGroupSizingModesVisible,
+  setGroupStyledTextVisible,
   updateControlButtons,
   updateControlsVisibility,
   updateGroupTogglesUI,
@@ -72,7 +73,8 @@ import {
   registerInitializeSystemThemeDetection,
   registerInitializeThemePerformanceMonitoring,
   registerSetupCleanupHandlers,
-  registerUpdateEmojiButtons
+  registerUpdateEmojiButtons,
+  updateStyledTextButtons
 } from './ui/navigate/navigate-ui';
 
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
@@ -181,10 +183,11 @@ function handlePluginMessage(event: MessageEvent): void {
       break;
     case 'controls-group-settings':
       if (message.groups) {
-        const groups = message.groups as { movementZoom?: boolean; hierarchy?: boolean; sizingModes?: boolean };
+        const groups = message.groups as { movementZoom?: boolean; hierarchy?: boolean; sizingModes?: boolean; styledText?: boolean };
         setGroupMovementZoomVisible(groups.movementZoom ?? true);
         setGroupHierarchyVisible(groups.hierarchy ?? true);
         setGroupSizingModesVisible(groups.sizingModes ?? true);
+        setGroupStyledTextVisible(groups.styledText ?? false);
         updateGroupTogglesUI();
         applyGroupVisibility();
       }
@@ -202,7 +205,40 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'update-layout-state':
       updateLayoutSizingButtons(message.horizontal, message.vertical);
       break;
+    case 'update-styled-text-state':
+      updateStyledTextButtons(message.hasTextNode as boolean);
+      break;
+    case 'styled-text-html': {
+      const html = message.html as string;
+      const plain = html.replace(/<[^>]+>/g, '');
+      if (navigator.clipboard?.write) {
+        const item = new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([plain], { type: 'text/plain' })
+        });
+        navigator.clipboard.write([item]).catch(() => copyHTMLFallback(html, plain));
+      } else {
+        copyHTMLFallback(html, plain);
+      }
+      break;
+    }
   }
+}
+
+function copyHTMLFallback(html: string, plain: string): void {
+  const ta = document.createElement('textarea');
+  ta.value = plain;
+  ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  document.addEventListener('copy', (e: ClipboardEvent) => {
+    e.preventDefault();
+    e.clipboardData?.setData('text/html', html);
+    e.clipboardData?.setData('text/plain', plain);
+  }, { once: true });
+  document.execCommand('copy');
+  document.body.removeChild(ta);
 }
 
 // ===== PERFORMANCE MONITORING AND OPTIMIZATION =====
