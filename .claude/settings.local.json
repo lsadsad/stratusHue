@@ -21,7 +21,9 @@
       "Bash(git stash drop stash@{0})",
       "Bash(cp node_modules/lucide-static/icons/clipboard-paste.svg assets/ICO-clipboardPaste.svg && cp node_modules/lucide-static/icons/code-xml.svg assets/ICO-codeXml.svg)",
       "Bash(npm run sync:prototype 2>&1)",
-      "Bash(npm run type-check 2>&1)"
+      "Bash(npm run type-check 2>&1)",
+      "Bash(grep -r \"it\\(\\\\|it.only\\(\\\\|describe\\(\" src/test/*.test.ts)",
+      "Bash(npm run sync:prototype -- --no-build)"
     ]
   }
 }
