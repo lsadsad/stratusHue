@@ -561,6 +561,27 @@ function handleDOMReady(): void {
   activeTimers.add(footerCleanupInterval);
 }
 
+// ===== MODE ROUTING =====
+// Phase 2 readiness: lazy-load Lint and Scaffold UI code only when activated.
+// Navigate loads eagerly (it's the default mode). Inactive mode code never runs.
+
+let activeMode: 'navigate' | 'lint' | 'scaffold' = 'navigate';
+
+async function activateMode(mode: typeof activeMode): Promise<void> {
+  activeMode = mode;
+  if (mode === 'lint') {
+    const { initializeLintUI } = await import('./ui/lint/lint-ui');
+    initializeLintUI();
+  } else if (mode === 'scaffold') {
+    const { initializeScaffoldUI } = await import('./ui/scaffold/scaffold-ui');
+    initializeScaffoldUI();
+  }
+  // TODO Phase 2: toggle <main> blocks, update footer tab state
+}
+
+// Export for use by message handler once mode toggle is wired (Phase 2)
+(window as any).activateMode = activateMode;
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', handleDOMReady);
