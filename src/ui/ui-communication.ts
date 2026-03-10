@@ -4,7 +4,7 @@
 // Handles all communication between plugin and UI
 
 import type { Bookmark } from '../core/types';
-import { getBookmarks, currentAnchorState, recentHistoryState, canGoBack, canGoForward, navigationHistory, historyIndex } from '../core/state';
+import { getBookmarks, currentAnchorState, recentHistoryState } from '../core/state';
 import { getNavigationState, hasAnySelectionEntry } from '../features/navigation';
 import { getCurrentEmojiSet, getEmojiNavigationState } from '../features/emoji-manager';
 
@@ -30,7 +30,7 @@ export function sendSelectionStateToUI(): void {
 
   // Get current page name and selected layer name for anatomy display
   const pageName = figma.currentPage.name;
-  const selectedLayerName = hasLayerSelected && selectedLayers[0] ? (selectedLayers[0] as any).name : null;
+  const selectedLayerName = hasLayerSelected && selectedLayers[0] ? selectedLayers[0].name : null;
 
   // Determine visibility and lock state of selection
   // If all selected layers share the same state, use that; otherwise use 'mixed'

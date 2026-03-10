@@ -7,7 +7,7 @@ export let emojiPreviewResetTimer: number | null = null;
 
 // ===== ANATOMY SECTION UTILITIES =====
 // Store current anatomy state for hover previews
-export let currentAnatomyState = {
+export const currentAnatomyState = {
   emoji: '',
   date: '12.29',
   hasDate: false,

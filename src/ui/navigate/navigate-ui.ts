@@ -2,7 +2,6 @@ import { sendMessage } from '../shared/send-message';
 import {
   getCurrentToggleMode,
   getIsAutoFitEnabled,
-  getLastAutoFitHeight,
   setLastAutoFitHeight,
   computeFitHeight,
   updateScrollBehavior,
@@ -103,6 +102,7 @@ export function initializePlugin(): void {
   requestUISectionStates();
 
   // Check if running in browser (no Figma API) and populate mock data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (typeof (window as any).figma === 'undefined') {
     console.log('🎭 Running in browser mode - loading mock emoji data');
     setTimeout(() => {
@@ -1280,6 +1280,7 @@ export function announceButtonState(button: HTMLButtonElement): void {
   const isDisabled = button.disabled;
   const shortcut = button.dataset.shortcut || '';
   const buttonId = button.id;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const enhanced = (window as any).enhancedAnnouncements || false;
 
   // Get contextual information based on button type
@@ -1703,6 +1704,7 @@ export function testKeyboardNavigation(): void {
 }
 
 // Expose testing function for manual testing
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).testNavigationAccessibility = testNavigationAccessibility;
 
 // Manual accessibility testing function for development
@@ -1758,6 +1760,7 @@ export function runAccessibilityTests(): void {
 }
 
 // Expose manual testing function
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).runAccessibilityTests = runAccessibilityTests;
 
 // Re-export what the shell's handleDOMReady needs from navigate-ui

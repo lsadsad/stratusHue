@@ -7,11 +7,14 @@ const originalSetTimeout = window.setTimeout;
 const originalSetInterval = window.setInterval;
 
 // Override setTimeout to track timers
-(window as any).setTimeout = function (callback: TimerHandler, delay?: number, ...args: any[]): ReturnType<typeof setTimeout> {
-  const timerId = originalSetTimeout.call(window, (...callbackArgs: any[]) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).setTimeout = function (callback: TimerHandler, delay?: number, ..._args: unknown[]): ReturnType<typeof setTimeout> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const timerId = originalSetTimeout.call(window, (...callbackArgs: unknown[]) => {
     activeTimers.delete(timerId);
     if (typeof callback === 'function') {
-      callback.apply(this, callbackArgs);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (callback as (...args: unknown[]) => void).apply(this, callbackArgs);
     }
   }, delay || 0);
   activeTimers.add(timerId);
@@ -19,10 +22,13 @@ const originalSetInterval = window.setInterval;
 };
 
 // Override setInterval to track timers
-(window as any).setInterval = function (callback: TimerHandler, delay?: number, ...args: any[]): ReturnType<typeof setInterval> {
-  const timerId = originalSetInterval.call(window, (...callbackArgs: any[]) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).setInterval = function (callback: TimerHandler, delay?: number, ..._args: unknown[]): ReturnType<typeof setInterval> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const timerId = originalSetInterval.call(window, (...callbackArgs: unknown[]) => {
     if (typeof callback === 'function') {
-      callback.apply(this, callbackArgs);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (callback as (...args: unknown[]) => void).apply(this, callbackArgs);
     }
   }, delay || 0);
   activeTimers.add(timerId);

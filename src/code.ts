@@ -53,6 +53,9 @@ import {
   ErrorType
 } from './core/error-handling';
 
+// Figma layer nodes have an 'expanded' property not in plugin typings.
+type WithExpanded = { expanded: boolean };
+
 // ===== VIEWPORT ANIMATION =====
 /**
  * Smoothly lerp the viewport to center on target nodes
@@ -628,7 +631,7 @@ const handleResizeElements = withErrorBoundary(async (direction: 'up' | 'down' |
 
   for (const node of selection) {
     // Only resize nodes that have width and height properties and support resize
-    if ('resize' in node && typeof (node as any).resize === 'function') {
+    if ('resize' in node && typeof (node as SceneNode & { resize?: unknown }).resize === 'function') {
       const resizableNode = node as SceneNode & { resize: (width: number, height: number) => void; width: number; height: number };
       let newWidth = resizableNode.width;
       let newHeight = resizableNode.height;
@@ -1063,10 +1066,10 @@ const handleAddDate = withErrorBoundary(async () => {
     let updatedCount = 0;
     for (const node of selection) {
       if ('name' in node) {
-        const oldName = (node as any).name as string;
+        const oldName = (node as SceneNode & { name: string }).name;
         const newName = addOrReplaceDateInLayerName(oldName);
         if (newName !== oldName) {
-          (node as any).name = newName;
+          (node as SceneNode & { name: string }).name = newName;
           updatedCount++;
         }
       }
@@ -1272,7 +1275,7 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
     const isSiblingAction = action === 'next-sibling' || action === 'prev-sibling';
     const isEnterAction = action === 'enter';
     const isSingleEnter = isEnterAction && figma.currentPage.selection.length === 1;
-    const isMultipleEnter = isEnterAction && figma.currentPage.selection.length > 1;
+    const _isMultipleEnter = isEnterAction && figma.currentPage.selection.length > 1;
     
     // Sibling actions and single selection Enter need expansion prevention
     // Multiple selection Enter should NOT have expansion prevention (containers should expand)
@@ -1280,7 +1283,7 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
 
     if (result.newSelection) {
       // For navigation actions that should preserve expansion states
-      const nodesToRestore: Array<{ node: any, wasExpanded: boolean }> = [];
+      const nodesToRestore: Array<{ node: SceneNode & WithExpanded, wasExpanded: boolean }> = [];
 
       if (needsExpansionControl && result.newSelection.length > 0) {
         if (isSingleEnter) {
@@ -1288,8 +1291,8 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
           result.newSelection.forEach(child => {
             if ('expanded' in child) {
               nodesToRestore.push({
-                node: child,
-                wasExpanded: (child as any).expanded
+                node: child as SceneNode & WithExpanded,
+                wasExpanded: (child as SceneNode & WithExpanded).expanded
               });
             }
           });
@@ -1299,8 +1302,8 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
 
           if ('expanded' in selectedNode) {
             nodesToRestore.push({
-              node: selectedNode,
-              wasExpanded: (selectedNode as any).expanded
+              node: selectedNode as SceneNode & WithExpanded,
+              wasExpanded: (selectedNode as SceneNode & WithExpanded).expanded
             });
           }
 
@@ -1308,8 +1311,8 @@ const handleNavigationAction = withErrorBoundary(async (action: import('./core/t
           while (currentParent && currentParent.type !== 'PAGE') {
             if ('expanded' in currentParent) {
               nodesToRestore.push({
-                node: currentParent,
-                wasExpanded: (currentParent as any).expanded
+                node: currentParent as SceneNode & WithExpanded,
+                wasExpanded: (currentParent as SceneNode & WithExpanded).expanded
               });
             }
             currentParent = currentParent.parent;
@@ -1677,7 +1680,7 @@ function sendLayoutStateToUI(): void {
   const selection = figma.currentPage.selection;
 
   if (selection.length === 1 && 'layoutSizingHorizontal' in selection[0]) {
-    const node = selection[0] as any;
+    const node = selection[0] as SceneNode & { layoutSizingHorizontal: string; layoutSizingVertical: string };
     figma.ui.postMessage({
       type: 'update-layout-state',
       horizontal: node.layoutSizingHorizontal,

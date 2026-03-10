@@ -135,7 +135,7 @@ function handlePluginMessage(event: MessageEvent): void {
   console.log('📥 Received message from plugin:', message.type, message);
 
   switch (message.type) {
-    case 'selection-state':
+    case 'selection-state': {
       // Handle emoji set updates based on selection
       const emojis = message.hasLayerSelected ? message.layerEmojis : message.pageEmojis;
       if (emojis) {
@@ -148,6 +148,7 @@ function handlePluginMessage(event: MessageEvent): void {
       // Update visibility and lock button icons based on selection state
       updateVisibilityLockIcons(message.selectionVisible, message.selectionLocked);
       break;
+    }
     case 'bookmarks':
       updateBookmarksList(
         message.bookmarks,
@@ -260,7 +261,8 @@ function initializeThemePerformanceMonitoring(): void {
     const originalApplyTheme = applyTheme;
 
     // Wrap applyTheme with performance monitoring
-    (window as any).applyTheme = function (effectiveTheme: EffectiveTheme, skipTransition = false) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).applyTheme = function (effectiveTheme: EffectiveTheme, _skipTransition = false) {
       const startTime = performance.now();
 
       try {
@@ -302,7 +304,8 @@ function initializeThemePerformanceMonitoring(): void {
   // Monitor memory usage periodically with tiered thresholds
   if ('memory' in performance) {
     const memoryMonitorInterval = setInterval(() => {
-      const memInfo = (performance as any).memory;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const memInfo = (performance as any).memory;
       const usedMB = memInfo.usedJSHeapSize / (1024 * 1024);
       const limitMB = memInfo.jsHeapSizeLimit / (1024 * 1024);
       const usagePercent = (memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit) * 100;
@@ -441,6 +444,7 @@ function handleDOMReady(): void {
 
   // Listen specifically for theme preference from backend
   window.addEventListener('message', (event: MessageEvent) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const msg = (event.data && (event.data as any).pluginMessage) || null;
     if (!msg) return;
     if (msg.type === 'theme-preference') {
@@ -580,6 +584,7 @@ async function activateMode(mode: typeof activeMode): Promise<void> {
 }
 
 // Export for use by message handler once mode toggle is wired (Phase 2)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).activateMode = activateMode;
 
 // Initialize when DOM is ready
@@ -595,7 +600,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Export performance metrics for debugging
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).getThemePerformanceMetrics = () => themePerformanceMetrics;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).resetThemePerformanceMetrics = () => {
   themePerformanceMetrics = {
     themeChanges: 0,
@@ -609,6 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
 };
 
 // Export theme debugging functions
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).debugTheme = () => {
   if (!themeManager) {
     console.log('❌ Theme manager not initialized');
@@ -638,5 +646,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export theme manager for debugging (will be set after initialization)
 if (typeof window !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).getThemeManager = () => themeManager;
 }

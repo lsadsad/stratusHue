@@ -444,6 +444,10 @@ export function getNavigationState(): { canGoBack: boolean; canGoForward: boolea
 import type { NavigationResult, NavigationContext, NavigationAction } from '../core/types';
 import { ErrorType, createError, handleError, withSyncErrorBoundary, validateSceneNode } from '../core/error-handling';
 
+// Figma layer nodes have an 'expanded' (layers panel open/closed) property that
+// exists at runtime but is missing from @figma/plugin-typings. Use this cast.
+type WithExpanded = { expanded: boolean };
+
 /**
  * Layer Navigation Handler
  * Provides functions for navigating through layer hierarchy
@@ -465,11 +469,12 @@ export class LayerNavigationHandler {
       console.log('=== ENTER CONTAINER DEBUG ===');
       
       // Validate input node
+      const _nodeId = node.id, _nodeTypeStr = node.type;
       if (!validateSceneNode(node)) {
         const error = createError(
           ErrorType.INVALID_CONTAINER,
           'Invalid node provided for container entry',
-          { nodeId: (node as any)?.id, nodeType: (node as any)?.type }
+          { nodeId: _nodeId, nodeType: _nodeTypeStr }
         );
         handleError(error);
         console.log('Result: Invalid node');
@@ -638,7 +643,7 @@ export class LayerNavigationHandler {
       nodes.forEach((node, i) => {
         const isContainer = LayerNavigationHandler.isContainer(node);
         const hasExpanded = 'expanded' in node;
-        const expandedValue = hasExpanded ? (node as any).expanded : 'N/A';
+        const expandedValue = hasExpanded ? (node as SceneNode & WithExpanded).expanded : 'N/A';
         console.log(`  [${i}] "${node.name}" (${node.type})`);
         console.log(`      - isContainer: ${isContainer}`);
         console.log(`      - hasExpandedProperty: ${hasExpanded}`);
@@ -647,7 +652,7 @@ export class LayerNavigationHandler {
 
       // Validate nodes and filter for expandable containers
       const expandedContainers: SceneNode[] = [];
-      const childContainersToCollapse: Array<{node: any, wasExpanded: boolean}> = [];
+      const childContainersToCollapse: Array<{node: SceneNode & WithExpanded, wasExpanded: boolean}> = [];
       let expandedCount = 0;
 
       for (const node of nodes) {
@@ -662,17 +667,17 @@ export class LayerNavigationHandler {
             // Before expanding, capture state of nested containers (children)
             if ('children' in node) {
               for (const child of node.children) {
-                if ('expanded' in child && typeof (child as any).expanded === 'boolean') {
+                if ('expanded' in child && typeof (child as SceneNode & WithExpanded).expanded === 'boolean') {
                   childContainersToCollapse.push({
-                    node: child,
-                    wasExpanded: (child as any).expanded
+                    node: child as SceneNode & WithExpanded,
+                    wasExpanded: (child as SceneNode & WithExpanded).expanded
                   });
                 }
               }
             }
 
             // Expand the container
-            (node as any).expanded = true;
+            (node as SceneNode & WithExpanded).expanded = true;
             expandedContainers.push(node);
             expandedCount++;
           }
@@ -991,11 +996,12 @@ export class LayerNavigationHandler {
   static navigateToSibling(node: SceneNode, direction: 'next' | 'prev'): NavigationResult {
     return withSyncErrorBoundary(() => {
       // Validate input node
+      const _siblingNodeId = node.id;
       if (!validateSceneNode(node)) {
         const error = createError(
           ErrorType.NO_SIBLINGS,
           'Invalid node provided for sibling navigation',
-          { nodeId: (node as any)?.id, direction }
+          { nodeId: _siblingNodeId, direction }
         );
         handleError(error);
         return {
@@ -1008,7 +1014,7 @@ export class LayerNavigationHandler {
       // Validate node is still accessible
       try {
         const nodeName = node.name;
-        const nodeType = node.type;
+        const _nodeType = node.type;
         
         // Find sibling with error handling
         let sibling: SceneNode | null = null;
@@ -1422,7 +1428,7 @@ export class LayerNavigationHandler {
       
       console.log(`Containers to collapse: ${containersToCollapse.length}`);
       containersToCollapse.forEach((c, i) => {
-        const expanded = 'expanded' in c ? (c as any).expanded : 'N/A';
+        const expanded = 'expanded' in c ? (c as SceneNode & WithExpanded).expanded : 'N/A';
         console.log(`  [${i}] "${c.name}" (${c.type}) - expanded: ${expanded}`);
       });
 
@@ -1453,7 +1459,7 @@ export class LayerNavigationHandler {
                 // Recursively collapse child's children first
                 count += collapseRecursively(child as SceneNode);
                 // Then collapse the child itself
-                (child as any).expanded = false;
+                (child as SceneNode & WithExpanded).expanded = false;
                 count++;
               }
             } catch (childError) {
@@ -2110,12 +2116,14 @@ export class LayerNavigationHandler {
     operation: () => T
   ): T {
     const startTime = performance.now();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const startMemory = (performance as any).memory?.usedJSHeapSize || 0;
-    
+
     try {
       const result = operation();
-      
+
       const endTime = performance.now();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const endMemory = (performance as any).memory?.usedJSHeapSize || 0;
       const duration = endTime - startTime;
       const memoryDelta = endMemory - startMemory;
@@ -2142,7 +2150,7 @@ export class LayerNavigationHandler {
   /**
    * Get user-friendly error message for navigation failures
    */
-  static getNavigationErrorMessage(errorType: ErrorType, context?: Record<string, unknown>): string {
+  static getNavigationErrorMessage(errorType: ErrorType, _context?: Record<string, unknown>): string {
     switch (errorType) {
       case ErrorType.NO_SELECTION:
         return 'Please select a layer to navigate from';
@@ -2529,7 +2537,7 @@ export class LayerNavigationHandler {
       case 'enter':
         return LayerNavigationHandler.enterMultipleContainers(visibleNodes);
       
-      default:
+      default: {
         // Unknown action for multiple selection
         let message = `Cannot ${(action as string).replace('-', ' ')} with multiple layers selected`;
         if (hasLockedNodes || hasHiddenNodes) {
@@ -2541,6 +2549,7 @@ export class LayerNavigationHandler {
           message,
           viewportUpdate: false
         };
+      }
     }
   }
 
@@ -2738,7 +2747,7 @@ export class LayerNavigationHandler {
 
     try {
       // Only check expanded property for supported container types
-      return 'expanded' in node && typeof (node as any).expanded === 'boolean';
+      return 'expanded' in node && typeof (node as SceneNode & WithExpanded).expanded === 'boolean';
     } catch (error) {
       console.warn(`Failed to check expanded property for ${node.type}:`, error);
       return false;
@@ -2806,8 +2815,8 @@ export class LayerNavigationHandler {
 
       // Check if parent is accessible and not locked
       try {
-        const parentType = parent.type;
-        const parentName = parent.name;
+        const _parentType = parent.type;
+        const _parentName = parent.name;
         
         // Check if parent is locked (cannot select locked parents)
         if ('locked' in parent && parent.locked) {
@@ -3286,7 +3295,7 @@ export class LayerNavigationHandler {
     }
 
     // Determine if we should collapse or expand based on current state
-    let expandedCount = 0;
+    let _expandedCount = 0;
     let accessibleContainers = 0;
     
     for (const container of containers) {
@@ -3294,7 +3303,7 @@ export class LayerNavigationHandler {
         if (LayerNavigationHandler.isExpandableContainer(container)) {
           accessibleContainers++;
           if ('expanded' in container && container.expanded) {
-            expandedCount++;
+            _expandedCount++;
           }
         }
       } catch (containerAccessError) {
@@ -3311,7 +3320,7 @@ export class LayerNavigationHandler {
       };
     }
     
-    const shouldCollapse = true; // Always collapse when button is pressed
+    const _shouldCollapse = true; // Always collapse when button is pressed
     
     // Apply collapse to top-level containers with error handling
     let successCount = 0;
@@ -3321,7 +3330,7 @@ export class LayerNavigationHandler {
       try {
         if (LayerNavigationHandler.isExpandableContainer(container)) {
           if ('expanded' in container) {
-            (container as any).expanded = false; // Always collapse
+            (container as SceneNode & WithExpanded).expanded = false; // Always collapse
           }
           successCount++;
         }

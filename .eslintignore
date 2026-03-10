@@ -4,9 +4,10 @@ plugin-ready/
 packages/
 node_modules/
 
-# Test files (excluded from tsconfig)
+# Test files and test infrastructure (excluded from tsconfig)
 **/*.test.ts
 **/*.spec.ts
+src/test/
 
 # Tools and scripts (not in tsconfig)
 tools/

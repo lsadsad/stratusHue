@@ -1,5 +1,4 @@
 import type { NavigationContext } from '../../types';
-import { sendMessage } from '../shared/send-message';
 
 // Navigation context state
 export let navigationContext: NavigationContext = {
@@ -48,7 +47,7 @@ export function updateControlButtons(context: NavigationContext): void {
   if (enterBtn) {
     const canEnter = context.canEnter;
     const isPageMode = !context.hasSelection;
-    const wasDisabled = enterBtn.disabled;
+    const _wasDisabled = enterBtn.disabled;
 
     enterBtn.disabled = !canEnter;
 

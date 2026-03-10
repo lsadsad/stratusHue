@@ -159,7 +159,7 @@ export class ThemeStorage {
   /**
    * Migrate legacy theme preferences to new format
    */
-  private static migrateThemePreference(stored: any): ThemePreference {
+  private static migrateThemePreference(stored: unknown): ThemePreference {
     // Handle legacy string themes
     if (typeof stored === 'string') {
       return {
@@ -170,17 +170,18 @@ export class ThemeStorage {
     
     // Handle objects that might need migration
     if (stored && typeof stored === 'object') {
+      const s = stored as Record<string, unknown>;
       // If it's already in the correct format, return as-is
-      if (stored.mode && stored.migrationVersion === this.CURRENT_MIGRATION_VERSION) {
+      if (s['mode'] && s['migrationVersion'] === this.CURRENT_MIGRATION_VERSION) {
         return stored as ThemePreference;
       }
-      
+
       // Migrate older object formats
-      const migratedMode = stored.mode ? this.validateThemeMode(stored.mode) : 'system';
-      
+      const migratedMode = s['mode'] ? this.validateThemeMode(s['mode']) : 'system';
+
       return {
         mode: migratedMode,
-        lastSystemTheme: stored.lastSystemTheme || undefined,
+        lastSystemTheme: s['lastSystemTheme'] as 'light' | 'dark' | undefined || undefined,
         migrationVersion: this.CURRENT_MIGRATION_VERSION
       };
     }
@@ -192,13 +193,13 @@ export class ThemeStorage {
   /**
    * Check if stored preference needs migration
    */
-  private static needsMigration(stored: any): boolean {
+  private static needsMigration(stored: unknown): boolean {
     if (typeof stored === 'string') {
       return true;
     }
     
     if (stored && typeof stored === 'object') {
-      return stored.migrationVersion !== this.CURRENT_MIGRATION_VERSION;
+      return (stored as Record<string, unknown>)['migrationVersion'] !== this.CURRENT_MIGRATION_VERSION;
     }
     
     return true;
@@ -227,7 +228,7 @@ export class ThemeStorage {
   /**
    * Validate and sanitize theme mode
    */
-  private static validateThemeMode(mode: any): ThemeMode {
+  private static validateThemeMode(mode: unknown): ThemeMode {
     const validModes: ThemeMode[] = ['system', 'light', 'dark', 'boilerplate', 'cybertron'];
     
     if (typeof mode === 'string' && validModes.includes(mode as ThemeMode)) {
