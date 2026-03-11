@@ -2,13 +2,17 @@
 // Populates #validate-main on first activation. Called lazily from ui.ts activateMode().
 
 import { sendMessage } from '../shared/send-message';
-import type { LintError } from '../../core/lint-types';
+import type { LintError, LintScope } from '../../core/lint-types';
 
 let _initialized = false;
 let _currentErrors: LintError[] = [];
 let _activeFilter = 'all';
 /** errorId of the most recently navigated-to item — drives the active highlight. */
 let _activeErrorId: string | null = null;
+/** Active scan scope — mirrors LintSettings.lintScope, restored on settings load. */
+let _currentScope: LintScope = 'selection';
+/** Emoji used in "tagged" scope mode — shown in the null-state hint. */
+let _currentScopeEmoji: string = '✅';
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
@@ -35,6 +39,31 @@ export function initializeLintUI(): void {
     </button>
   `;
   frag.appendChild(header);
+
+  // Scope selector — opt-in model: Selected | Tagged | Page
+  const scopeBar = document.createElement('div');
+  scopeBar.id = 'lint-scope-bar';
+  scopeBar.className = 'lint-scope-bar';
+  scopeBar.setAttribute('role', 'group');
+  scopeBar.setAttribute('aria-label', 'Scan scope');
+
+  const scopeOptions: Array<{ id: LintScope; label: string; title: string }> = [
+    { id: 'selection', label: 'Selected', title: 'Scan only selected frames and layers' },
+    { id: 'tagged',    label: 'Tagged',   title: `Scan only frames tagged with the scope emoji` },
+    { id: 'page',      label: 'Page',     title: 'Scan all layers on the current page' },
+  ];
+
+  scopeOptions.forEach(({ id, label, title }) => {
+    const btn = document.createElement('button');
+    btn.className = 'lint-scope-btn' + (id === _currentScope ? ' active' : '');
+    btn.dataset.scope = id;
+    btn.title = title;
+    btn.textContent = label;
+    btn.addEventListener('click', () => _setScope(id));
+    scopeBar.appendChild(btn);
+  });
+
+  frag.appendChild(scopeBar);
 
   // Filter pills
   const pills = document.createElement('div');
@@ -137,9 +166,53 @@ export function initializeLintUI(): void {
 // ── Scan ──────────────────────────────────────────────────────────────────────
 
 function requestLintScan(): void {
-  // Show scanning state
   _setView('scanning');
   sendMessage('lint-run-scan');
+}
+
+// ── Scope ─────────────────────────────────────────────────────────────────────
+
+/**
+ * Change the active scan scope.
+ * Updates the segmented control, persists via sandbox, and triggers a scan.
+ */
+function _setScope(scope: LintScope): void {
+  if (_currentScope === scope) return;
+  _currentScope = scope;
+  document.querySelectorAll<HTMLButtonElement>('.lint-scope-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.scope === scope);
+  });
+  _setView('scanning');
+  sendMessage('lint-set-scope', { scope });
+}
+
+// ── Null state (scope-aware) ──────────────────────────────────────────────────
+
+/**
+ * Show the null/empty state with messaging appropriate to the current scope.
+ * @param nodeCount — number of nodes that were actually scanned (from lint-results payload)
+ */
+function _setNullState(nodeCount: number): void {
+  const nullIcon = document.querySelector<HTMLElement>('.lint-null-icon');
+  const nullMsg  = document.querySelector<HTMLElement>('.lint-null-message');
+  const nullSub  = document.querySelector<HTMLElement>('.lint-null-sub');
+
+  if (nodeCount === 0 && _currentScope === 'selection') {
+    if (nullIcon) nullIcon.textContent = '↖';
+    if (nullMsg)  nullMsg.textContent  = 'Nothing selected';
+    if (nullSub)  nullSub.textContent  = 'Select a frame or layer on the canvas to scan';
+  } else if (nodeCount === 0 && _currentScope === 'tagged') {
+    if (nullIcon) nullIcon.textContent = '🏷';
+    if (nullMsg)  nullMsg.textContent  = 'No tagged frames';
+    if (nullSub)  nullSub.textContent  = `Add ${_currentScopeEmoji} to a frame name to include it`;
+  } else {
+    // nodeCount > 0 with no errors, or page scope with nothing
+    if (nullIcon) nullIcon.textContent = '✓';
+    if (nullMsg)  nullMsg.textContent  = 'No style errors found';
+    if (nullSub)  nullSub.textContent  = 'Click Scan to check again';
+  }
+
+  _setView('null');
 }
 
 // ── Filter ────────────────────────────────────────────────────────────────────
@@ -307,11 +380,15 @@ function _onIgnoreAll(): void {
 
 // ── Public API (called from ui.ts message handler) ────────────────────────────
 
-export function handleLintResults(errors: unknown[]): void {
+export function handleLintResults(errors: unknown[], nodeCount: number): void {
   _currentErrors = errors as LintError[];
   _renderErrors(_currentErrors);
   _updateBadge(_currentErrors.length);
-  _setView(_currentErrors.length === 0 ? 'null' : 'results');
+  if (_currentErrors.length === 0) {
+    _setNullState(nodeCount);
+  } else {
+    _setView('results');
+  }
   _applyFilter();
 }
 
@@ -387,6 +464,15 @@ function _setupLintSettings(): void {
       (e.currentTarget as HTMLInputElement).blur();
     }
   });
+
+  // Tagged scope emoji — update on blur or Enter
+  const emojiInput = document.getElementById('lint-scope-emoji') as HTMLInputElement | null;
+  emojiInput?.addEventListener('blur', () => _flushLintSettings());
+  emojiInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      (e.currentTarget as HTMLInputElement).blur();
+    }
+  });
 }
 
 function _flushLintSettings(): void {
@@ -405,6 +491,10 @@ function _flushLintSettings(): void {
     .map(s => s.trim())
     .filter(Boolean);
 
+  const lintScopeEmoji = ((document.getElementById('lint-scope-emoji') as HTMLInputElement | null)?.value ?? '✅').trim() || '✅';
+  // Sync local emoji state so null-state messages stay current
+  _currentScopeEmoji = lintScopeEmoji;
+
   sendMessage('lint-update-settings', {
     settings: {
       enableFill:    enabled('lint-toggle-fill'),
@@ -414,6 +504,7 @@ function _flushLintSettings(): void {
       enableRadius:  enabled('lint-toggle-radius'),
       allowedRadii:  allowedRadii.length > 0 ? allowedRadii : [0, 2, 4, 8, 16, 24, 100],
       skipLayerNames,
+      lintScopeEmoji,
     },
   });
 }
@@ -438,5 +529,21 @@ export function handleLintSettingsLoaded(settings: Record<string, unknown>): voi
   if (Array.isArray(settings.skipLayerNames)) {
     const skipInput = document.getElementById('lint-skip-names') as HTMLInputElement | null;
     if (skipInput) skipInput.value = (settings.skipLayerNames as string[]).join(', ');
+  }
+
+  // Restore scope selector
+  if (typeof settings.lintScope === 'string') {
+    const scope = settings.lintScope as LintScope;
+    _currentScope = scope;
+    document.querySelectorAll<HTMLButtonElement>('.lint-scope-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.scope === scope);
+    });
+  }
+
+  // Restore tagged emoji
+  if (typeof settings.lintScopeEmoji === 'string' && settings.lintScopeEmoji) {
+    _currentScopeEmoji = settings.lintScopeEmoji as string;
+    const emojiInput = document.getElementById('lint-scope-emoji') as HTMLInputElement | null;
+    if (emojiInput) emojiInput.value = _currentScopeEmoji;
   }
 }

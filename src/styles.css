@@ -7503,6 +7503,53 @@ body.compact-mode #mode-strip {
   color: var(--theme-text-primary);
 }
 
+/* Scope selector — segmented control */
+.lint-scope-bar {
+  display: flex;
+  padding: var(--spacing-sm) var(--spacing-xxl);
+  border-bottom: 1px solid var(--theme-border-primary);
+  flex-shrink: 0;
+}
+
+.lint-scope-btn {
+  flex: 1;
+  height: 24px;
+  margin-right: -1px; /* collapse shared borders */
+  position: relative;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-scope-btn:first-child {
+  border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+}
+
+.lint-scope-btn:last-child {
+  margin-right: 0;
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+}
+
+.lint-scope-btn:hover {
+  z-index: 1;
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-scope-btn.active {
+  z-index: 1;
+  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.15));
+  border-color: var(--figma-color-border-brand, #18a0fb);
+  color: var(--figma-color-border-brand, #18a0fb);
+}
+
 /* Filter pills */
 .lint-filter-pills {
   display: flex;

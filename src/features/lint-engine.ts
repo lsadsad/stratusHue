@@ -7,7 +7,7 @@
  * Designed to be lazy-imported from code.ts only when lint mode is active.
  */
 
-import type { LintError } from '../core/lint-types';
+import type { LintError, LintScope } from '../core/lint-types';
 import { getLintSettings, getIgnoredIds, loadIgnoredErrors } from '../core/lint-state';
 import { loadStyleCache, invalidateStyleCache } from './lint-styles';
 import { checkNode } from './lint-checks';
@@ -41,11 +41,24 @@ const YIELD_EVERY = 50;
 // ── Node collection ────────────────────────────────────────────────────────────
 
 /**
- * Collect all scannable leaf and container nodes on the current page.
- * Skips hidden nodes, locked nodes, connector/stamp nodes, and any node
- * (plus its entire subtree) whose name matches a skipLayerNames pattern.
+ * Collect all scannable nodes for the given scope.
+ *
+ * Scope modes:
+ *   selection — walk only the currently selected nodes (and their children).
+ *               Returns [] immediately if nothing is selected.
+ *   tagged    — walk only top-level page frames whose name contains scopeEmoji.
+ *               Returns [] if no matching frames exist.
+ *   page      — original behaviour: walk the entire current page.
+ *
+ * In all modes, hidden nodes, locked nodes, connector/stamp/washi-tape nodes,
+ * and nodes matching a skipPatterns entry (plus their subtrees) are excluded.
  */
-function collectNodes(page: PageNode, skipPatterns: string[]): SceneNode[] {
+function collectNodes(
+  page: PageNode,
+  skipPatterns: string[],
+  scope: LintScope,
+  scopeEmoji: string,
+): SceneNode[] {
   const result: SceneNode[] = [];
 
   // Lowercase patterns once for efficient repeated comparisons
@@ -58,22 +71,14 @@ function collectNodes(page: PageNode, skipPatterns: string[]): SceneNode[] {
   }
 
   function walk(node: SceneNode): void {
-    // Skip invisible nodes
     if ('visible' in node && !node.visible) return;
-
-    // Skip locked nodes (user explicitly excluded them from edits)
     if ('locked' in node && node.locked) return;
-
-    // Skip connector / stamp / etc (rarely have paint styles)
     if (node.type === 'CONNECTOR' || node.type === 'STAMP' ||
         node.type === 'WASHI_TAPE') return;
-
-    // Skip this node AND its entire subtree if name matches an exclusion pattern
     if (shouldSkip(node.name)) return;
 
     result.push(node);
 
-    // Recurse into children
     if ('children' in node) {
       for (const child of node.children) {
         walk(child as SceneNode);
@@ -81,8 +86,23 @@ function collectNodes(page: PageNode, skipPatterns: string[]): SceneNode[] {
     }
   }
 
-  for (const child of page.children) {
-    walk(child as SceneNode);
+  if (scope === 'selection') {
+    // Opt-in: scan only what the designer has selected
+    for (const node of figma.currentPage.selection) {
+      walk(node as SceneNode);
+    }
+  } else if (scope === 'tagged') {
+    // Opt-in: scan only top-level frames tagged with the scope emoji
+    for (const child of page.children) {
+      if ((child as SceneNode).name.includes(scopeEmoji)) {
+        walk(child as SceneNode);
+      }
+    }
+  } else {
+    // page scope — original behaviour
+    for (const child of page.children) {
+      walk(child as SceneNode);
+    }
   }
 
   return result;
@@ -109,7 +129,12 @@ export async function runLintScan(): Promise<void> {
 
   // 2. Collect nodes
   const page = figma.currentPage;
-  const nodes = collectNodes(page, settings.skipLayerNames ?? []);
+  const nodes = collectNodes(
+    page,
+    settings.skipLayerNames ?? [],
+    settings.lintScope ?? 'selection',
+    settings.lintScopeEmoji ?? '✅',
+  );
   const total = nodes.length;
 
   // 3. Warn if large file (non-blocking)

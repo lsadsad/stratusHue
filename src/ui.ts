@@ -226,7 +226,7 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'lint-results':
       if (lintUIInitialized) {
         import('./ui/lint/lint-ui').then(({ handleLintResults }) => {
-          handleLintResults(message.errors as unknown[]);
+          handleLintResults(message.errors as unknown[], message.nodeCount as number ?? 0);
         }).catch(console.error);
       }
       break;

@@ -450,14 +450,20 @@ figma.ui.onmessage = async (msg) => {
             }
             await persistPluginMode(mode);
             if (mode === 'lint') {
-              // Auto-scan on entry, but skip if file is too large
-              const nodeCount = figma.currentPage.findAll(() => true).length;
-              if (nodeCount > AUTO_SCAN_NODE_LIMIT) {
-                figma.ui.postMessage({ type: 'lint-large-file', nodeCount });
-              } else {
-                const { runLintScan } = await import('./features/lint-engine');
-                await runLintScan();
+              // Load settings to check scope before deciding whether to gate.
+              // Selection and tagged scopes are inherently bounded, so the
+              // large-file guard only applies to page scope.
+              const lintSettings = await loadLintSettings();
+              const lintScope = lintSettings.lintScope ?? 'selection';
+              if (lintScope === 'page') {
+                const nodeCount = figma.currentPage.findAll(() => true).length;
+                if (nodeCount > AUTO_SCAN_NODE_LIMIT) {
+                  figma.ui.postMessage({ type: 'lint-large-file', nodeCount });
+                  break;
+                }
               }
+              const { runLintScan } = await import('./features/lint-engine');
+              await runLintScan();
             }
           }
         }
@@ -473,6 +479,18 @@ figma.ui.onmessage = async (msg) => {
       case 'lint-cancel-scan': {
         const { cancelLintScan } = await import('./features/lint-engine');
         cancelLintScan();
+        break;
+      }
+
+      case 'lint-set-scope': {
+        if ('scope' in msg && typeof msg.scope === 'string') {
+          const scope = msg.scope;
+          if (scope === 'selection' || scope === 'tagged' || scope === 'page') {
+            await persistLintSettings({ lintScope: scope });
+            const { runLintScan } = await import('./features/lint-engine');
+            await runLintScan();
+          }
+        }
         break;
       }
 
