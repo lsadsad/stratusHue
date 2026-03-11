@@ -1,6 +1,6 @@
 {
   "name": "stratushue",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Your Figma Plugin",
   "main": "code.js",
   "type": "module",

@@ -283,7 +283,7 @@ export function resolveThemeAttribute(effectiveTheme: EffectiveTheme): string {
   }
 }
 
-export function persistThemeChange(effectiveTheme: EffectiveTheme): void {
+export function persistThemeChange(_effectiveTheme: EffectiveTheme): void {
   // Create theme preference object with current state
   const preference: ThemePreference = {
     mode: themeManager.currentTheme,
@@ -332,8 +332,6 @@ export function updateSystemThemeStatus(): void {
 
   if (currentMode === 'system') {
     // Show current system theme detection
-    const effectiveTheme = themeManager.getEffectiveTheme();
-    const themeLabel = effectiveTheme === 'figma-light' ? 'Light' : 'Dark';
     statusElement.textContent = '';
     statusElement.style.display = 'none';
 
@@ -583,9 +581,10 @@ export function resolvePreviewTheme(themeMode: ThemeMode): EffectiveTheme {
   if (!themeManager) return 'figma-dark';
 
   switch (themeMode) {
-    case 'system':
+    case 'system': {
       const systemTheme = themeManager.currentSystemTheme;
       return systemTheme === 'dark' ? 'figma-dark' : 'figma-light';
+    }
     case 'light':
       return 'light';
     case 'dark':
@@ -736,7 +735,7 @@ export function updateThemeAnimations(effectiveTheme: EffectiveTheme): void {
   }
 }
 
-export function updateThemeAccessibility(effectiveTheme: EffectiveTheme, isSystemTheme: boolean): void {
+export function updateThemeAccessibility(effectiveTheme: EffectiveTheme, _isSystemTheme: boolean): void {
   const htmlElement = document.documentElement;
 
   // Update high contrast mode support
@@ -835,7 +834,7 @@ export function validateThemeContrast(effectiveTheme: EffectiveTheme, isHighCont
 }
 
 // Simple contrast ratio calculation (approximation for validation)
-export function validateContrastRatio(foreground: string, background: string, minRatio: number): boolean {
+export function validateContrastRatio(foreground: string, background: string, _minRatio: number): boolean {
   // This is a simplified validation - in a real implementation, you'd use a proper color contrast library
   // For now, we'll do basic validation based on known good combinations
 
@@ -908,7 +907,6 @@ export function updateColorSchemeMeta(effectiveTheme: EffectiveTheme): void {
   // Dark themes: figma-dark, boilerplate, cybertron
   // Light themes: figma-light, light
   const isDarkTheme = effectiveTheme === 'figma-dark' || effectiveTheme === 'boilerplate' || effectiveTheme === 'cybertron';
-  const isLightTheme = effectiveTheme === 'figma-light' || effectiveTheme === 'light';
 
   metaColorScheme.content = isDarkTheme ? 'dark' : 'light';
 }

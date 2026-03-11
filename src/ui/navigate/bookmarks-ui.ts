@@ -1,5 +1,6 @@
 import { sendMessage } from '../shared/send-message';
-import { updateScrollBehavior, computeFitHeight } from '../shared/layout';
+import { updateScrollBehavior } from '../shared/layout';
+import type { Bookmark } from '../../core/types';
 
 // References to shell state (injected via setters)
 let _isAutoFitEnabled = true;
@@ -35,13 +36,13 @@ function disableAutoFit(reason?: string): void {
 }
 
 // UI state update functions
-export function updateUIState(data: any): void {
+export function updateUIState(data: unknown): void {
   // Update UI based on plugin state
   console.log('Updating UI state:', data);
 }
 
 export function updateBookmarksList(
-  bookmarks: any[],
+  bookmarks: Bookmark[],
   currentAnchorId?: string | null,
   previousBookmarkId?: string | null,
   isInsideAnchor?: boolean
@@ -336,7 +337,7 @@ export function updateLayoutSizingButtons(horizontal: string | undefined, vertic
   }
 }
 
-export function updateEmojiSetIndicator(setName: string, currentIndex: number, totalSets: number): void {
+export function updateEmojiSetIndicator(setName: string, _currentIndex: number, _totalSets: number): void {
   const indicator = document.getElementById('emoji-set-indicator');
   if (indicator) {
     const setNameElement = indicator.querySelector('.set-name');
@@ -350,8 +351,7 @@ export function updateEmojiSetIndicator(setName: string, currentIndex: number, t
 export function disableAutoFitLocal(reason?: string): void {
   if (_isAutoFitEnabled) {
     _isAutoFitEnabled = false;
-    updateAutoFitButtonState();
-    console.log(`Auto-fit disabled${reason ? `: ${reason}` : ''}`);
+    disableAutoFit(reason); // propagate to shell via registered callback
   }
 }
 

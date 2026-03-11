@@ -55,6 +55,7 @@ import {
   setGroupMovementZoomVisible,
   setGroupHierarchyVisible,
   setGroupSizingModesVisible,
+  setGroupStyledTextVisible,
   updateControlButtons,
   updateControlsVisibility,
   updateGroupTogglesUI,
@@ -72,8 +73,10 @@ import {
   registerInitializeSystemThemeDetection,
   registerInitializeThemePerformanceMonitoring,
   registerSetupCleanupHandlers,
-  registerUpdateEmojiButtons
+  registerUpdateEmojiButtons,
+  updateStyledTextButtons
 } from './ui/navigate/navigate-ui';
+import { sendMessage } from './ui/shared/send-message';
 
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
@@ -133,7 +136,7 @@ function handlePluginMessage(event: MessageEvent): void {
   console.log('📥 Received message from plugin:', message.type, message);
 
   switch (message.type) {
-    case 'selection-state':
+    case 'selection-state': {
       // Handle emoji set updates based on selection
       const emojis = message.hasLayerSelected ? message.layerEmojis : message.pageEmojis;
       if (emojis) {
@@ -146,6 +149,7 @@ function handlePluginMessage(event: MessageEvent): void {
       // Update visibility and lock button icons based on selection state
       updateVisibilityLockIcons(message.selectionVisible, message.selectionLocked);
       break;
+    }
     case 'bookmarks':
       updateBookmarksList(
         message.bookmarks,
@@ -181,10 +185,11 @@ function handlePluginMessage(event: MessageEvent): void {
       break;
     case 'controls-group-settings':
       if (message.groups) {
-        const groups = message.groups as { movementZoom?: boolean; hierarchy?: boolean; sizingModes?: boolean };
+        const groups = message.groups as { movementZoom?: boolean; hierarchy?: boolean; sizingModes?: boolean; styledText?: boolean };
         setGroupMovementZoomVisible(groups.movementZoom ?? true);
         setGroupHierarchyVisible(groups.hierarchy ?? true);
         setGroupSizingModesVisible(groups.sizingModes ?? true);
+        setGroupStyledTextVisible(groups.styledText ?? false);
         updateGroupTogglesUI();
         applyGroupVisibility();
       }
@@ -202,7 +207,48 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'update-layout-state':
       updateLayoutSizingButtons(message.horizontal, message.vertical);
       break;
+    case 'update-styled-text-state':
+      updateStyledTextButtons(message.hasTextNode as boolean);
+      break;
+    case 'plugin-mode-restored':
+      // Sandbox sends this on init with the persisted mode; restore UI to match.
+      applyRestoredMode(message.mode as string);
+      break;
+
+    // lint-progress / lint-results / lint-error-ignored / lint-cancelled
+    // wired in Phase 2 lint engine commit (lint-engine.ts)
+
+    case 'styled-text-html': {
+      const html = message.html as string;
+      const plain = html.replace(/<[^>]+>/g, '');
+      if (navigator.clipboard?.write) {
+        const item = new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([plain], { type: 'text/plain' })
+        });
+        navigator.clipboard.write([item]).catch(() => copyHTMLFallback(html, plain));
+      } else {
+        copyHTMLFallback(html, plain);
+      }
+      break;
+    }
   }
+}
+
+function copyHTMLFallback(html: string, plain: string): void {
+  const ta = document.createElement('textarea');
+  ta.value = plain;
+  ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  document.addEventListener('copy', (e: ClipboardEvent) => {
+    e.preventDefault();
+    e.clipboardData?.setData('text/html', html);
+    e.clipboardData?.setData('text/plain', plain);
+  }, { once: true });
+  document.execCommand('copy');
+  document.body.removeChild(ta);
 }
 
 // ===== PERFORMANCE MONITORING AND OPTIMIZATION =====
@@ -224,7 +270,8 @@ function initializeThemePerformanceMonitoring(): void {
     const originalApplyTheme = applyTheme;
 
     // Wrap applyTheme with performance monitoring
-    (window as any).applyTheme = function (effectiveTheme: EffectiveTheme, skipTransition = false) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).applyTheme = function (effectiveTheme: EffectiveTheme, _skipTransition = false) {
       const startTime = performance.now();
 
       try {
@@ -266,7 +313,8 @@ function initializeThemePerformanceMonitoring(): void {
   // Monitor memory usage periodically with tiered thresholds
   if ('memory' in performance) {
     const memoryMonitorInterval = setInterval(() => {
-      const memInfo = (performance as any).memory;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const memInfo = (performance as any).memory;
       const usedMB = memInfo.usedJSHeapSize / (1024 * 1024);
       const limitMB = memInfo.jsHeapSizeLimit / (1024 * 1024);
       const usagePercent = (memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit) * 100;
@@ -394,6 +442,9 @@ function handleDOMReady(): void {
   // Wire anatomy's showCanvasHint callback
   registerShowCanvasHintAnatomy(showCanvasHint);
 
+  // Wire mode strip tab buttons
+  setupModeStrip();
+
   // Initialize plugin functionality (includes system theme detection)
   initializePlugin();
 
@@ -405,6 +456,7 @@ function handleDOMReady(): void {
 
   // Listen specifically for theme preference from backend
   window.addEventListener('message', (event: MessageEvent) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const msg = (event.data && (event.data as any).pluginMessage) || null;
     if (!msg) return;
     if (msg.type === 'theme-preference') {
@@ -525,6 +577,73 @@ function handleDOMReady(): void {
   activeTimers.add(footerCleanupInterval);
 }
 
+// ===== MODE ROUTING =====
+// Lazy-load Lint and Scaffold UI code only when activated.
+// Navigate loads eagerly (it's the default). Inactive mode code never runs.
+
+let activeMode: 'navigate' | 'lint' | 'scaffold' = 'navigate';
+let lintUIInitialized = false;
+let scaffoldUIInitialized = false;
+
+async function activateMode(mode: typeof activeMode): Promise<void> {
+  if (mode === activeMode) return;
+  activeMode = mode;
+
+  // --- Toggle <main> blocks ---
+  const navigateMain = document.getElementById('navigate-main');
+  const validateMain = document.getElementById('validate-main');
+  if (navigateMain) navigateMain.hidden = mode !== 'navigate';
+  if (validateMain) validateMain.hidden = mode !== 'lint';
+  // (scaffold-main added in Phase 3)
+
+  // --- Update tab strip active state ---
+  document.querySelectorAll<HTMLButtonElement>('.mode-tab').forEach(tab => {
+    const isActive = tab.dataset.mode === mode || (mode === 'lint' && tab.dataset.mode === 'validate');
+    tab.classList.toggle('active', isActive);
+    tab.setAttribute('aria-selected', String(isActive));
+    tab.tabIndex = isActive ? 0 : -1;
+  });
+
+  // --- Lazy-init mode UI (only on first activation) ---
+  if (mode === 'lint' && !lintUIInitialized) {
+    lintUIInitialized = true;
+    const { initializeLintUI } = await import('./ui/lint/lint-ui');
+    initializeLintUI();
+  } else if (mode === 'scaffold' && !scaffoldUIInitialized) {
+    scaffoldUIInitialized = true;
+    const { initializeScaffoldUI } = await import('./ui/scaffold/scaffold-ui');
+    initializeScaffoldUI();
+  }
+
+  // --- Notify sandbox (persists mode, triggers auto-scan if lint) ---
+  sendMessage('set-plugin-mode', { mode });
+}
+
+// Wire mode strip tab clicks
+function setupModeStrip(): void {
+  document.querySelectorAll<HTMLButtonElement>('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const raw = tab.dataset.mode;
+      if (raw === 'navigate' || raw === 'validate' || raw === 'scaffold') {
+        // 'validate' tab maps to 'lint' internally
+        const mode = raw === 'validate' ? 'lint' : raw;
+        void activateMode(mode);
+      }
+    });
+  });
+}
+
+// Restore persisted mode on load (sandbox sends 'plugin-mode-restored')
+function applyRestoredMode(mode: string): void {
+  if (mode === 'lint' || mode === 'navigate' || mode === 'scaffold') {
+    void activateMode(mode);
+  }
+}
+
+// Exported for window.activateMode (debug) and message handler
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).activateMode = activateMode;
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', handleDOMReady);
@@ -538,7 +657,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Export performance metrics for debugging
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).getThemePerformanceMetrics = () => themePerformanceMetrics;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).resetThemePerformanceMetrics = () => {
   themePerformanceMetrics = {
     themeChanges: 0,
@@ -552,6 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
 };
 
 // Export theme debugging functions
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).debugTheme = () => {
   if (!themeManager) {
     console.log('❌ Theme manager not initialized');
@@ -581,5 +703,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export theme manager for debugging (will be set after initialization)
 if (typeof window !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).getThemeManager = () => themeManager;
 }

@@ -66,5 +66,6 @@ export function setupAccessibilitySupport(): void {
 // Enhanced screen reader announcements for accessibility
 export function enhanceScreenReaderAnnouncements(enhanced: boolean): void {
   // Store the preference for use in announcement functions
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).enhancedAnnouncements = enhanced;
 }

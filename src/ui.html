@@ -9,7 +9,20 @@
 </head>
 
 <body>
-  <main class="scrollable-content">
+  <!-- ===== MODE STRIP ===== -->
+  <nav id="mode-strip" role="tablist" aria-label="Plugin mode">
+    <button id="tab-navigate" class="mode-tab active" role="tab"
+      aria-selected="true" aria-controls="navigate-main" data-mode="navigate" tabindex="0">
+      Navigate
+    </button>
+    <button id="tab-validate" class="mode-tab" role="tab"
+      aria-selected="false" aria-controls="validate-main" data-mode="validate" tabindex="-1">
+      Validate
+    </button>
+  </nav>
+
+  <!-- ===== NAVIGATE MAIN ===== -->
+  <main id="navigate-main" class="scrollable-content" role="tabpanel" aria-labelledby="tab-navigate">
     <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="-1"
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
@@ -331,10 +344,10 @@
 
             <button id="paste-styled" class="nav-button nav-button-zoom"
               aria-label="Paste styled text from clipboard" aria-describedby="paste-styled-desc"
-              data-tooltip="Paste Styled" data-tooltip-placement="top-of-container" data-tooltip-delay="600" tabindex="-1">
+              data-tooltip="Paste Styled — click then Cmd+V" data-tooltip-placement="top-of-container" data-tooltip-delay="600" tabindex="-1">
               <span class="nav-icon" aria-hidden="true"><img src="./assets/ICO-clipboardPaste.svg" alt=""></span>
               <span class="nav-label">Paste</span>
-              <span id="paste-styled-desc" class="sr-only">Read HTML from clipboard and create a styled text layer in Figma</span>
+              <span id="paste-styled-desc" class="sr-only">Click to open paste area, then paste your text with Cmd+V</span>
             </button>
             <button id="copy-styled" class="nav-button nav-button-arrow"
               aria-label="Copy selected text layer as HTML" aria-describedby="copy-styled-desc"
@@ -347,20 +360,18 @@
             <div class="nav-caption" aria-hidden="true">Copy</div>
           </div>
 
-          <label class="styled-text-toggle" data-tooltip="Replace the selected text layer instead of creating a new one" data-tooltip-delay="800">
-            <input type="checkbox" id="styled-text-replace" role="switch" aria-checked="false"
-              aria-label="Replace selected text layer on paste" tabindex="-1">
-            <span class="toggle-label">Replace selected</span>
-          </label>
-
-          <p class="styled-text-hint" aria-hidden="true">Copy from web, then click Paste</p>
+          <textarea id="styled-text-paste-area" class="styled-text-paste-area"
+            placeholder="Paste here (Cmd+V)…" aria-label="Paste area — paste your copied text here"
+            tabindex="-1" rows="3"></textarea>
         </div>
-
-        <!-- Hidden contenteditable div for clipboard HTML access -->
-        <div id="styled-text-clipboard" contenteditable="true" aria-hidden="true" tabindex="-1"
-          style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;"></div>
       </div>
     </section>
+  </main>
+
+  <!-- ===== VALIDATE MAIN ===== -->
+  <main id="validate-main" class="scrollable-content" role="tabpanel"
+    aria-labelledby="tab-validate" hidden>
+    <!-- Populated by lint-ui.ts on first activation -->
   </main>
 
   <div id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-hidden="true">
@@ -426,28 +437,28 @@
           <!-- Controls Section Toggle -->
           <div class="setting-item">
             <label class="setting-label-small">
-              <input type="checkbox" id="controls-toggle" checked tabindex="-1">
               <span class="checkbox-description">Enable layer navigation, element movement, zoom, and actions</span>
+              <input type="checkbox" id="controls-toggle" checked tabindex="-1">
             </label>
           </div>
 
           <!-- Per-group visibility toggles -->
           <div id="controls-group-toggles" class="setting-item controls-group-toggles">
             <label class="setting-label-small sub-toggle">
-              <input type="checkbox" id="toggle-movement-zoom" checked tabindex="-1">
               <span class="checkbox-description">Movement & Zoom</span>
+              <input type="checkbox" id="toggle-movement-zoom" checked tabindex="-1">
             </label>
             <label class="setting-label-small sub-toggle">
-              <input type="checkbox" id="toggle-hierarchy" checked tabindex="-1">
               <span class="checkbox-description">Hierarchy</span>
+              <input type="checkbox" id="toggle-hierarchy" checked tabindex="-1">
             </label>
             <label class="setting-label-small sub-toggle">
-              <input type="checkbox" id="toggle-sizing-modes" checked tabindex="-1">
               <span class="checkbox-description">Sizing Modes</span>
+              <input type="checkbox" id="toggle-sizing-modes" checked tabindex="-1">
             </label>
             <label class="setting-label-small sub-toggle">
-              <input type="checkbox" id="toggle-styled-text" checked tabindex="-1">
               <span class="checkbox-description">Styled Text</span>
+              <input type="checkbox" id="toggle-styled-text" checked tabindex="-1">
             </label>
           </div>
         </div>

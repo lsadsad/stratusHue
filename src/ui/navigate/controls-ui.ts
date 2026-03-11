@@ -1,5 +1,4 @@
 import type { NavigationContext } from '../../types';
-import { sendMessage } from '../shared/send-message';
 
 // Navigation context state
 export let navigationContext: NavigationContext = {
@@ -20,6 +19,7 @@ export let controlsEnabled = true;
 export let groupMovementZoomVisible = true;
 export let groupHierarchyVisible = true;
 export let groupSizingModesVisible = true;
+export let groupStyledTextVisible = false;
 
 // Nudge settings (user-configurable)
 export let smallNudgeAmount = 1;
@@ -29,6 +29,7 @@ export let bigNudgeAmount = 8;
 export function setGroupMovementZoomVisible(v: boolean): void { groupMovementZoomVisible = v; }
 export function setGroupHierarchyVisible(v: boolean): void { groupHierarchyVisible = v; }
 export function setGroupSizingModesVisible(v: boolean): void { groupSizingModesVisible = v; }
+export function setGroupStyledTextVisible(v: boolean): void { groupStyledTextVisible = v; }
 export function setSmallNudgeAmount(v: number): void { smallNudgeAmount = v; }
 export function setBigNudgeAmount(v: number): void { bigNudgeAmount = v; }
 export function setControlsEnabled(v: boolean): void { controlsEnabled = v; }
@@ -46,7 +47,7 @@ export function updateControlButtons(context: NavigationContext): void {
   if (enterBtn) {
     const canEnter = context.canEnter;
     const isPageMode = !context.hasSelection;
-    const wasDisabled = enterBtn.disabled;
+    const _wasDisabled = enterBtn.disabled;
 
     enterBtn.disabled = !canEnter;
 
@@ -343,6 +344,7 @@ export function applyGroupVisibility(): void {
   const movementZoomGroup = document.getElementById('movement-zoom-group');
   const hierarchyGroup = document.getElementById('hierarchy-group');
   const sizingModesGroup = document.getElementById('sizing-modes-group');
+  const styledTextGroup = document.getElementById('styled-text-group');
 
   if (movementZoomGroup) {
     movementZoomGroup.style.display = groupMovementZoomVisible ? '' : 'none';
@@ -353,6 +355,9 @@ export function applyGroupVisibility(): void {
   if (sizingModesGroup) {
     sizingModesGroup.style.display = groupSizingModesVisible ? '' : 'none';
   }
+  if (styledTextGroup) {
+    styledTextGroup.style.display = groupStyledTextVisible ? '' : 'none';
+  }
 }
 
 // Update the group toggle checkboxes to reflect current state
@@ -360,8 +365,10 @@ export function updateGroupTogglesUI(): void {
   const toggleMovementZoom = document.getElementById('toggle-movement-zoom') as HTMLInputElement;
   const toggleHierarchy = document.getElementById('toggle-hierarchy') as HTMLInputElement;
   const toggleSizingModes = document.getElementById('toggle-sizing-modes') as HTMLInputElement;
+  const toggleStyledText = document.getElementById('toggle-styled-text') as HTMLInputElement;
 
   if (toggleMovementZoom) toggleMovementZoom.checked = groupMovementZoomVisible;
   if (toggleHierarchy) toggleHierarchy.checked = groupHierarchyVisible;
   if (toggleSizingModes) toggleSizingModes.checked = groupSizingModesVisible;
+  if (toggleStyledText) toggleStyledText.checked = groupStyledTextVisible;
 }

@@ -117,7 +117,7 @@ export class ThemeManager {
   private currentThemeMode: ThemeMode = 'system';
   private systemTheme: SystemTheme = 'dark';
   private themeChangeListeners: ((theme: EffectiveTheme) => void)[] = [];
-  private sendMessage: (type: string, data?: any) => void;
+  private sendMessage: (type: string, data?: Record<string, unknown>) => void;
   
   // Performance optimization caches
   private effectiveThemeCache: EffectiveTheme | null = null;
@@ -170,7 +170,7 @@ export class ThemeManager {
     }
   };
 
-  constructor(sendMessageFn: (type: string, data?: any) => void) {
+  constructor(sendMessageFn: (type: string, data?: Record<string, unknown>) => void) {
     this.sendMessage = sendMessageFn;
     this.systemDetector = new SystemThemeDetector();
     this.systemTheme = this.systemDetector.getCurrentSystemTheme();

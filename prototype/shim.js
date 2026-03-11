@@ -184,7 +184,7 @@
       // All control groups visible
       sendPluginMsg({
         type: 'controls-group-settings',
-        groups: { movementZoom: true, hierarchy: true, sizingModes: true, styledText: false }
+        groups: { movementZoom: true, hierarchy: true, sizingModes: true, styledText: true }
       });
 
       // Navigation context (page mode — no layer selected)
