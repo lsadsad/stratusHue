@@ -7719,3 +7719,79 @@ body.compact-mode #mode-strip {
   background: var(--theme-overlay-xweak);
   color: var(--theme-text-primary);
 }
+
+/* ===== LINT BATCH ACTION BAR ===== */
+
+.lint-batch-bar {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+}
+
+.lint-batch-btn {
+  flex: 1;
+  height: var(--button-height-sm);
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--theme-surface);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.lint-batch-btn:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-batch-btn--primary {
+  border-color: var(--color-blue-500, #3b82f6);
+  color: var(--color-blue-500, #3b82f6);
+}
+
+.lint-batch-btn--primary:hover {
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--color-blue-600, #2563eb);
+}
+
+.lint-batch-btn--danger {
+  border-color: var(--theme-border);
+  color: var(--theme-text-tertiary);
+}
+
+.lint-batch-btn--danger:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-secondary);
+}
+
+/* ===== LINT SETTINGS ===== */
+
+.lint-category-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.lint-radii-input {
+  width: 100%;
+  height: var(--button-height-sm);
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--theme-input-bg, var(--theme-surface));
+  color: var(--theme-text-primary);
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-top: var(--spacing-xs);
+}
+
+.lint-radii-input:focus {
+  outline: none;
+  border-color: var(--theme-accent, var(--color-blue-500, #3b82f6));
+}

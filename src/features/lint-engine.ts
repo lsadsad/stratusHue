@@ -40,6 +40,9 @@ function collectNodes(page: PageNode): SceneNode[] {
     // Skip invisible nodes
     if ('visible' in node && !node.visible) return;
 
+    // Skip locked nodes (user explicitly excluded them from edits)
+    if ('locked' in node && node.locked) return;
+
     // Skip connector / stamp / etc (rarely have paint styles)
     if (node.type === 'CONNECTOR' || node.type === 'STAMP' ||
         node.type === 'WASHI_TAPE') return;
@@ -66,6 +69,9 @@ function collectNodes(page: PageNode): SceneNode[] {
 export async function runLintScan(): Promise<void> {
   _cancelFlag = false;
   const startMs = Date.now();
+
+  // Prune invisible instance children from the walk (significant perf win on component-heavy files)
+  figma.skipInvisibleInstanceChildren = true;
 
   // 1. Load dependencies
   await Promise.all([
@@ -94,6 +100,7 @@ export async function runLintScan(): Promise<void> {
 
   for (let i = 0; i < nodes.length; i++) {
     if (_cancelFlag) {
+      figma.skipInvisibleInstanceChildren = false;
       figma.ui.postMessage({ type: 'lint-cancelled' });
       return;
     }
@@ -110,6 +117,7 @@ export async function runLintScan(): Promise<void> {
   }
 
   if (_cancelFlag) {
+    figma.skipInvisibleInstanceChildren = false;
     figma.ui.postMessage({ type: 'lint-cancelled' });
     return;
   }
@@ -129,6 +137,31 @@ export async function runLintScan(): Promise<void> {
 
   // 7. Invalidate style cache so a re-scan picks up newly added styles
   invalidateStyleCache();
+
+  // 8. Restore default (don't leave this set globally — other Figma operations may need it)
+  figma.skipInvisibleInstanceChildren = false;
+}
+
+// ── Fix All ───────────────────────────────────────────────────────────────────
+
+/**
+ * Apply a batch of style fixes in one pass, then trigger a single re-scan.
+ * Far more efficient than calling applyLintFix() + runLintScan() per error.
+ */
+export async function runLintFixAll(
+  fixes: Array<{ nodeId: string; category: string; styleId: string }>,
+): Promise<void> {
+  let applied = 0;
+  for (const fix of fixes) {
+    const result = await applyLintFix(fix.nodeId, fix.category, fix.styleId);
+    if (result.success) applied++;
+  }
+  figma.notify(
+    applied === fixes.length
+      ? `Applied ${applied} style${applied === 1 ? '' : 's'}`
+      : `Applied ${applied} of ${fixes.length} styles`,
+  );
+  await runLintScan();
 }
 
 // ── Fix action ────────────────────────────────────────────────────────────────

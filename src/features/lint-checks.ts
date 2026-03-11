@@ -45,11 +45,8 @@ export function checkFills(node: SceneNode, _settings: LintSettings): LintError[
   const fills = node.fills;
   if (!Array.isArray(fills) || fills.length === 0) return [];
 
-  // If a fill style is applied to the whole node, it's fine
-  if (typeof node.fillStyleId === 'string' && node.fillStyleId !== '') return [];
-
-  // Mixed fill styles across a text node's segments are complex — skip for now
-  if (node.fillStyleId === figma.mixed) return [];
+  // If a fill style is applied to the whole node, it's fine; if mixed (symbol), skip
+  if (typeof node.fillStyleId !== 'string' || node.fillStyleId !== '') return [];
 
   const errors: LintError[] = [];
 
@@ -83,8 +80,8 @@ export function checkStrokes(node: SceneNode, _settings: LintSettings): LintErro
   const strokes = node.strokes;
   if (!Array.isArray(strokes) || strokes.length === 0) return [];
 
-  if (typeof node.strokeStyleId === 'string' && node.strokeStyleId !== '') return [];
-  if (node.strokeStyleId === figma.mixed) return [];
+  // Skip if stroke style applied or mixed (symbol)
+  if (typeof node.strokeStyleId !== 'string' || node.strokeStyleId !== '') return [];
 
   const errors: LintError[] = [];
 
@@ -149,8 +146,8 @@ export function checkEffects(node: SceneNode, _settings: LintSettings): LintErro
   if (!Array.isArray(effects) || effects.length === 0) return [];
   if (effects.every(e => !e.visible)) return [];
 
-  if (typeof node.effectStyleId === 'string' && node.effectStyleId !== '') return [];
-  if (node.effectStyleId === figma.mixed) return [];
+  // Skip if effect style applied or mixed (symbol)
+  if (typeof node.effectStyleId !== 'string' || node.effectStyleId !== '') return [];
 
   const visibleEffects = effects.filter(e => e.visible);
   const match = matchEffectsToStyle(visibleEffects);

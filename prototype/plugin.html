@@ -7726,6 +7726,82 @@ body.compact-mode #mode-strip {
   background: var(--theme-overlay-xweak);
   color: var(--theme-text-primary);
 }
+
+/* ===== LINT BATCH ACTION BAR ===== */
+
+.lint-batch-bar {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+}
+
+.lint-batch-btn {
+  flex: 1;
+  height: var(--button-height-sm);
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--theme-surface);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.lint-batch-btn:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-batch-btn--primary {
+  border-color: var(--color-blue-500, #3b82f6);
+  color: var(--color-blue-500, #3b82f6);
+}
+
+.lint-batch-btn--primary:hover {
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--color-blue-600, #2563eb);
+}
+
+.lint-batch-btn--danger {
+  border-color: var(--theme-border);
+  color: var(--theme-text-tertiary);
+}
+
+.lint-batch-btn--danger:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-secondary);
+}
+
+/* ===== LINT SETTINGS ===== */
+
+.lint-category-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.lint-radii-input {
+  width: 100%;
+  height: var(--button-height-sm);
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--theme-input-bg, var(--theme-surface));
+  color: var(--theme-text-primary);
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-top: var(--spacing-xs);
+}
+
+.lint-radii-input:focus {
+  outline: none;
+  border-color: var(--theme-accent, var(--color-blue-500, #3b82f6));
+}
 </style>
 <script>
 /* =====================================================
@@ -8602,6 +8678,45 @@ body.compact-mode #mode-strip {
         </div>
         -->
 
+        <!-- Design Lint Section -->
+        <div class="settings-section" id="lint-settings-section">
+          <h3 class="settings-section-title">🔍 Design Lint</h3>
+
+          <!-- Category Toggles -->
+          <div class="setting-item">
+            <p class="settings-help-text">Check for missing styles in these categories:</p>
+            <div class="lint-category-toggles">
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Fill</span>
+                <input type="checkbox" id="lint-toggle-fill" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Stroke</span>
+                <input type="checkbox" id="lint-toggle-stroke" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Text</span>
+                <input type="checkbox" id="lint-toggle-text" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Effects</span>
+                <input type="checkbox" id="lint-toggle-effects" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Border Radius</span>
+                <input type="checkbox" id="lint-toggle-radius" checked tabindex="-1">
+              </label>
+            </div>
+          </div>
+
+          <!-- Allowed Border Radii -->
+          <div class="setting-item">
+            <label for="lint-allowed-radii" class="nudge-label">Allowed border radii (px)</label>
+            <input type="text" id="lint-allowed-radii" class="lint-radii-input" value="0, 2, 4, 8, 16, 24, 100" placeholder="0, 4, 8, 16…" aria-describedby="lint-radii-desc" tabindex="-1">
+            <p class="settings-help-text" id="lint-radii-desc">Comma-separated values. Radii not in this list are flagged.</p>
+          </div>
+        </div>
+
         <!-- Support Section -->
         <div class="settings-section">
           <div class="support-section">
@@ -8684,13 +8799,16 @@ body.compact-mode #mode-strip {
   var lint_ui_exports = {};
   __export(lint_ui_exports, {
     handleErrorIgnored: () => handleErrorIgnored,
+    handleIgnoredAll: () => handleIgnoredAll,
     handleLintCancelled: () => handleLintCancelled,
+    handleLintLargeFile: () => handleLintLargeFile,
     handleLintProgress: () => handleLintProgress,
     handleLintResults: () => handleLintResults,
+    handleLintSettingsLoaded: () => handleLintSettingsLoaded,
     initializeLintUI: () => initializeLintUI
   });
   function initializeLintUI() {
-    var _a;
+    var _a, _b, _c, _d;
     if (_initialized)
       return;
     _initialized = true;
@@ -8734,6 +8852,16 @@ body.compact-mode #mode-strip {
       pills.appendChild(btn);
     });
     frag.appendChild(pills);
+    const batchBar = document.createElement("div");
+    batchBar.id = "lint-batch-bar";
+    batchBar.className = "lint-batch-bar";
+    batchBar.hidden = true;
+    batchBar.innerHTML = `
+    <button id="lint-select-all-btn" class="lint-batch-btn" aria-label="Select all visible error nodes in canvas">Select All</button>
+    <button id="lint-fix-all-btn" class="lint-batch-btn lint-batch-btn--primary" aria-label="Fix all auto-fixable errors">Fix All</button>
+    <button id="lint-ignore-all-btn" class="lint-batch-btn lint-batch-btn--danger" aria-label="Ignore all visible errors">Ignore All</button>
+  `;
+    frag.appendChild(batchBar);
     const errorList = document.createElement("ul");
     errorList.id = "lint-error-list";
     errorList.className = "lint-error-list";
@@ -8764,6 +8892,11 @@ body.compact-mode #mode-strip {
     frag.appendChild(scanState);
     container.appendChild(frag);
     (_a = document.getElementById("lint-scan-btn")) == null ? void 0 : _a.addEventListener("click", requestLintScan);
+    (_b = document.getElementById("lint-select-all-btn")) == null ? void 0 : _b.addEventListener("click", _onSelectAll);
+    (_c = document.getElementById("lint-fix-all-btn")) == null ? void 0 : _c.addEventListener("click", _onFixAll);
+    (_d = document.getElementById("lint-ignore-all-btn")) == null ? void 0 : _d.addEventListener("click", _onIgnoreAll);
+    _setupLintSettings();
+    sendMessage("lint-get-settings");
   }
   function requestLintScan() {
     _setView("scanning");
@@ -8787,12 +8920,15 @@ body.compact-mode #mode-strip {
     const list = document.getElementById("lint-error-list");
     const nullS = document.getElementById("lint-null-state");
     const scanS = document.getElementById("lint-scan-state");
+    const batchBar = document.getElementById("lint-batch-bar");
     if (list)
       list.hidden = state !== "results";
     if (nullS)
-      nullS.hidden = state !== "null";
+      nullS.hidden = state !== "null" && state !== "large-file";
     if (scanS)
       scanS.hidden = state !== "scanning";
+    if (batchBar)
+      batchBar.hidden = state !== "results";
   }
   function _updateBadge(count) {
     const badge = document.getElementById("lint-error-badge");
@@ -8856,6 +8992,31 @@ body.compact-mode #mode-strip {
   function _esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
+  function _getVisibleErrors() {
+    if (_activeFilter === "all")
+      return _currentErrors;
+    return _currentErrors.filter((e) => e.category === _activeFilter);
+  }
+  function _onSelectAll() {
+    const nodeIds = [...new Set(_getVisibleErrors().map((e) => e.nodeId))];
+    if (nodeIds.length === 0)
+      return;
+    sendMessage("lint-select-all", { nodeIds });
+  }
+  function _onFixAll() {
+    const fixes = _getVisibleErrors().filter((e) => e.suggestedStyleId).map((e) => ({ nodeId: e.nodeId, category: e.category, styleId: e.suggestedStyleId }));
+    if (fixes.length === 0) {
+      return;
+    }
+    _setView("scanning");
+    sendMessage("lint-fix-all", { fixes });
+  }
+  function _onIgnoreAll() {
+    const errorIds = _getVisibleErrors().map((e) => e.id);
+    if (errorIds.length === 0)
+      return;
+    sendMessage("lint-ignore-all", { errorIds });
+  }
   function handleLintResults(errors) {
     _currentErrors = errors;
     _renderErrors(_currentErrors);
@@ -8883,8 +9044,79 @@ body.compact-mode #mode-strip {
         _setView("null");
     }
   }
+  function handleIgnoredAll(errorIds) {
+    for (const id of errorIds) {
+      const item = document.querySelector(`[data-error-id="${id}"]`);
+      item == null ? void 0 : item.remove();
+    }
+    _currentErrors = _currentErrors.filter((e) => !errorIds.includes(e.id));
+    _updateBadge(_currentErrors.length);
+    if (_currentErrors.length === 0)
+      _setView("null");
+  }
+  function handleLintLargeFile(nodeCount) {
+    const nullMsg = document.querySelector(".lint-null-message");
+    const nullSub = document.querySelector(".lint-null-sub");
+    if (nullMsg)
+      nullMsg.textContent = "Large file detected";
+    if (nullSub)
+      nullSub.textContent = `${nodeCount.toLocaleString()} nodes \u2014 click Scan to begin`;
+    _setView("large-file");
+  }
   function handleLintCancelled() {
     _setView("null");
+  }
+  function _setupLintSettings() {
+    const categoryIds = ["fill", "stroke", "text", "effects", "radius"];
+    categoryIds.forEach((cat) => {
+      var _a;
+      (_a = document.getElementById(`lint-toggle-${cat}`)) == null ? void 0 : _a.addEventListener("change", () => {
+        _flushLintSettings();
+      });
+    });
+    const radiiInput = document.getElementById("lint-allowed-radii");
+    radiiInput == null ? void 0 : radiiInput.addEventListener("blur", () => _flushLintSettings());
+    radiiInput == null ? void 0 : radiiInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.currentTarget.blur();
+      }
+    });
+  }
+  function _flushLintSettings() {
+    var _a, _b;
+    const enabled = (id) => {
+      var _a2, _b2;
+      return (_b2 = (_a2 = document.getElementById(id)) == null ? void 0 : _a2.checked) != null ? _b2 : true;
+    };
+    const radiiRaw = (_b = (_a = document.getElementById("lint-allowed-radii")) == null ? void 0 : _a.value) != null ? _b : "";
+    const allowedRadii = radiiRaw.split(",").map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n));
+    sendMessage("lint-update-settings", {
+      settings: {
+        enableFill: enabled("lint-toggle-fill"),
+        enableStroke: enabled("lint-toggle-stroke"),
+        enableText: enabled("lint-toggle-text"),
+        enableEffects: enabled("lint-toggle-effects"),
+        enableRadius: enabled("lint-toggle-radius"),
+        allowedRadii: allowedRadii.length > 0 ? allowedRadii : [0, 2, 4, 8, 16, 24, 100]
+      }
+    });
+  }
+  function handleLintSettingsLoaded(settings) {
+    const setCheck = (id, val) => {
+      const el = document.getElementById(id);
+      if (el)
+        el.checked = val !== false;
+    };
+    setCheck("lint-toggle-fill", settings.enableFill);
+    setCheck("lint-toggle-stroke", settings.enableStroke);
+    setCheck("lint-toggle-text", settings.enableText);
+    setCheck("lint-toggle-effects", settings.enableEffects);
+    setCheck("lint-toggle-radius", settings.enableRadius);
+    if (Array.isArray(settings.allowedRadii) && settings.allowedRadii.length > 0) {
+      const radiiInput = document.getElementById("lint-allowed-radii");
+      if (radiiInput)
+        radiiInput.value = settings.allowedRadii.join(", ");
+    }
   }
   var _initialized, _currentErrors, _activeFilter, CATEGORY_LABELS;
   var init_lint_ui = __esm({
@@ -12743,6 +12975,27 @@ body.compact-mode #mode-strip {
         if (lintUIInitialized) {
           Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleLintCancelled: handleLintCancelled2 }) => {
             handleLintCancelled2();
+          }).catch(console.error);
+        }
+        break;
+      case "lint-ignored-all":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleIgnoredAll: handleIgnoredAll2 }) => {
+            handleIgnoredAll2(message.errorIds);
+          }).catch(console.error);
+        }
+        break;
+      case "lint-large-file":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleLintLargeFile: handleLintLargeFile2 }) => {
+            handleLintLargeFile2(message.nodeCount);
+          }).catch(console.error);
+        }
+        break;
+      case "lint-settings-loaded":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleLintSettingsLoaded: handleLintSettingsLoaded2 }) => {
+            handleLintSettingsLoaded2(message.settings);
           }).catch(console.error);
         }
         break;

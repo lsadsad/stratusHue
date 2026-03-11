@@ -247,6 +247,30 @@ function handlePluginMessage(event: MessageEvent): void {
       }
       break;
 
+    case 'lint-ignored-all':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleIgnoredAll }) => {
+          handleIgnoredAll(message.errorIds as string[]);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-large-file':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintLargeFile }) => {
+          handleLintLargeFile(message.nodeCount as number);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-settings-loaded':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintSettingsLoaded }) => {
+          handleLintSettingsLoaded(message.settings as Record<string, unknown>);
+        }).catch(console.error);
+      }
+      break;
+
     case 'styled-text-html': {
       const html = message.html as string;
       const plain = html.replace(/<[^>]+>/g, '');

@@ -54,8 +54,14 @@ import {
 } from './core/error-handling';
 import {
   loadPluginMode,
-  persistPluginMode
+  persistPluginMode,
+  getCurrentMode,
+  persistLintSettings,
+  loadLintSettings,
 } from './core/lint-state';
+
+/** Maximum node count for automatic scan on mode entry. Above this, show a manual-scan prompt. */
+const AUTO_SCAN_NODE_LIMIT = 5000;
 
 // Figma layer nodes have an 'expanded' property not in plugin typings.
 type WithExpanded = { expanded: boolean };
@@ -437,7 +443,22 @@ figma.ui.onmessage = async (msg) => {
         if ('mode' in msg && typeof msg.mode === 'string') {
           const mode = msg.mode;
           if (mode === 'navigate' || mode === 'lint' || mode === 'scaffold') {
+            // Cancel any in-flight scan when leaving lint mode
+            if (getCurrentMode() === 'lint' && mode !== 'lint') {
+              const { cancelLintScan } = await import('./features/lint-engine');
+              cancelLintScan();
+            }
             await persistPluginMode(mode);
+            if (mode === 'lint') {
+              // Auto-scan on entry, but skip if file is too large
+              const nodeCount = figma.currentPage.findAll(() => true).length;
+              if (nodeCount > AUTO_SCAN_NODE_LIMIT) {
+                figma.ui.postMessage({ type: 'lint-large-file', nodeCount });
+              } else {
+                const { runLintScan } = await import('./features/lint-engine');
+                await runLintScan();
+              }
+            }
           }
         }
         break;
@@ -466,11 +487,48 @@ figma.ui.onmessage = async (msg) => {
         break;
       }
 
+      case 'lint-fix-all': {
+        if ('fixes' in msg && Array.isArray(msg.fixes)) {
+          const { runLintFixAll } = await import('./features/lint-engine');
+          await runLintFixAll(msg.fixes as Array<{ nodeId: string; category: string; styleId: string }>);
+        }
+        break;
+      }
+
       case 'lint-ignore-error': {
         if ('errorId' in msg && typeof msg.errorId === 'string') {
           const { addIgnoredError } = await import('./core/lint-state');
           await addIgnoredError(msg.errorId);
           figma.ui.postMessage({ type: 'lint-error-ignored', errorId: msg.errorId });
+        }
+        break;
+      }
+
+      case 'lint-ignore-all': {
+        if ('errorIds' in msg && Array.isArray(msg.errorIds)) {
+          const { addIgnoredError } = await import('./core/lint-state');
+          for (const id of msg.errorIds as string[]) {
+            await addIgnoredError(id);
+          }
+          figma.ui.postMessage({ type: 'lint-ignored-all', errorIds: msg.errorIds });
+        }
+        break;
+      }
+
+      case 'lint-select-all': {
+        if ('nodeIds' in msg && Array.isArray(msg.nodeIds)) {
+          const nodes: SceneNode[] = [];
+          for (const id of msg.nodeIds as string[]) {
+            const node = await figma.getNodeByIdAsync(id);
+            if (node && node.type !== 'DOCUMENT' && node.type !== 'PAGE') {
+              nodes.push(node as SceneNode);
+            }
+          }
+          if (nodes.length > 0) {
+            figma.currentPage.selection = nodes;
+            figma.viewport.scrollAndZoomIntoView(nodes);
+            figma.notify(`Selected ${nodes.length} node${nodes.length === 1 ? '' : 's'}`);
+          }
         }
         break;
       }
@@ -491,6 +549,22 @@ figma.ui.onmessage = async (msg) => {
             figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
           }
         }
+        break;
+      }
+
+      case 'lint-update-settings': {
+        if ('settings' in msg && typeof msg.settings === 'object' && msg.settings !== null) {
+          await persistLintSettings(msg.settings as Parameters<typeof persistLintSettings>[0]);
+          // Re-scan to reflect the updated settings
+          const { runLintScan: reScan3 } = await import('./features/lint-engine');
+          await reScan3();
+        }
+        break;
+      }
+
+      case 'lint-get-settings': {
+        const settings = await loadLintSettings();
+        figma.ui.postMessage({ type: 'lint-settings-loaded', settings });
         break;
       }
 
