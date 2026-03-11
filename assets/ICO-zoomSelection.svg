@@ -1,20 +1,20 @@
-<!-- @license lucide-static v0.577.0 - ISC -->
-<svg
-  class="lucide lucide-scan-search"
-  xmlns="http://www.w3.org/2000/svg"
- 
- 
-  viewBox="0 0 24 24"
-  fill="none"
-  stroke="currentColor"
-  stroke-width="2"
-  stroke-linecap="round"
-  stroke-linejoin="round"
->
-  <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-  <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-  <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-  <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-  <circle cx="12" cy="12" r="3" />
-  <path d="m16 16-1.9-1.9" />
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1884_188088)">
+<g clip-path="url(#clip1_1884_188088)">
+<path d="M4 6.00003L4.00007 4L6 4.00003" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4 7.99997L4.00007 10L6 9.99997" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10 6.00003L9.99993 4L8 4.00003" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10 7.99997L9.99993 10L8 9.99997" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<path d="M15.5001 15.5001L11.6001 11.6001" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_1884_188088">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+<clipPath id="clip1_1884_188088">
+<rect width="8" height="8" fill="white" transform="translate(3 3)"/>
+</clipPath>
+</defs>
 </svg>

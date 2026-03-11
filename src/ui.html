@@ -9,7 +9,20 @@
 </head>
 
 <body>
-  <main class="scrollable-content">
+  <!-- ===== MODE STRIP ===== -->
+  <nav id="mode-strip" role="tablist" aria-label="Plugin mode">
+    <button id="tab-navigate" class="mode-tab active" role="tab"
+      aria-selected="true" aria-controls="navigate-main" data-mode="navigate" tabindex="0">
+      Navigate
+    </button>
+    <button id="tab-validate" class="mode-tab" role="tab"
+      aria-selected="false" aria-controls="validate-main" data-mode="validate" tabindex="-1">
+      Validate
+    </button>
+  </nav>
+
+  <!-- ===== NAVIGATE MAIN ===== -->
+  <main id="navigate-main" class="scrollable-content" role="tabpanel" aria-labelledby="tab-navigate">
     <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="-1"
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
@@ -353,6 +366,12 @@
         </div>
       </div>
     </section>
+  </main>
+
+  <!-- ===== VALIDATE MAIN ===== -->
+  <main id="validate-main" class="scrollable-content" role="tabpanel"
+    aria-labelledby="tab-validate" hidden>
+    <!-- Populated by lint-ui.ts on first activation -->
   </main>
 
   <div id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-hidden="true">

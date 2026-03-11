@@ -52,6 +52,10 @@ import {
   validateMessage,
   ErrorType
 } from './core/error-handling';
+import {
+  loadPluginMode,
+  persistPluginMode
+} from './core/lint-state';
 
 // Figma layer nodes have an 'expanded' property not in plugin typings.
 type WithExpanded = { expanded: boolean };
@@ -135,6 +139,10 @@ const initializePlugin = withErrorBoundary(async () => {
   await validateCurrentAnchor();
   await sendInitialUIState();
   sendStyledTextStateToUI();
+
+  // Restore persisted plugin mode — UI will update tab strip accordingly.
+  const restoredMode = await loadPluginMode();
+  figma.ui.postMessage({ type: 'plugin-mode-restored', mode: restoredMode });
 }, ErrorType.STORAGE_ERROR);
 
 // ===== DEBOUNCED FUNCTIONS =====
@@ -424,6 +432,19 @@ figma.ui.onmessage = async (msg) => {
           await handleNavigationAction(msg.action as import('./core/types').NavigationAction);
         }
         break;
+
+      case 'set-plugin-mode': {
+        if ('mode' in msg && typeof msg.mode === 'string') {
+          const mode = msg.mode;
+          if (mode === 'navigate' || mode === 'lint' || mode === 'scaffold') {
+            await persistPluginMode(mode);
+          }
+        }
+        break;
+      }
+
+      // lint-run-scan / lint-apply-fix / lint-ignore-error / lint-clear-ignored / lint-select-node
+      // wired in Phase 2 lint engine commit (lint-engine.ts)
 
       case 'toggle-controls':
         if ('enabled' in msg && typeof msg.enabled === 'boolean') {
