@@ -7392,3 +7392,226 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     transform: none;
   }
 }
+
+/* ===== MODE STRIP ===== */
+/* Sub-header tab strip: Navigate | Validate (| Scaffold Phase 3) */
+
+#mode-strip {
+  display: flex;
+  flex-shrink: 0;
+  width: 100%;
+  height: 30px;
+  background: var(--theme-bg-primary);
+  border-bottom: 1px solid var(--theme-border-primary);
+  position: relative;
+  z-index: 1;
+}
+
+.mode-tab {
+  flex: 1;
+  height: 100%;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0;
+  margin-bottom: -1px; /* overlap the strip's border-bottom */
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--theme-text-secondary);
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: color var(--transition-fast), border-color var(--transition-fast),
+    background var(--transition-fast);
+  outline: none;
+}
+
+.mode-tab:hover {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+}
+
+.mode-tab.active {
+  color: var(--theme-text-primary);
+  font-weight: var(--font-weight-semibold);
+  border-bottom-color: var(--figma-color-border-brand, #18a0fb);
+}
+
+.mode-tab:focus-visible {
+  outline: 2px solid var(--figma-color-border-brand, #18a0fb);
+  outline-offset: -2px;
+}
+
+/* Compact mode: slightly smaller strip */
+body.compact-mode #mode-strip {
+  height: 26px;
+}
+
+
+/* ===== LINT UI (Validate mode) ===== */
+
+/* Lint header */
+.lint-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xxl);
+  border-bottom: 1px solid var(--theme-border-primary);
+  flex-shrink: 0;
+}
+
+.lint-title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--theme-text-primary);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.lint-error-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--border-radius-pill);
+  background: #e03e3e;
+  color: #fff;
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 16px;
+}
+
+.lint-scan-btn {
+  margin-left: auto;
+  height: 22px;
+  padding: 0 8px;
+  background: var(--theme-overlay-weak);
+  border: 1px solid var(--theme-border-primary);
+  border-radius: var(--border-radius-sm);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.lint-scan-btn:hover {
+  background: var(--theme-overlay-medium);
+  color: var(--theme-text-primary);
+}
+
+/* Filter pills */
+.lint-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: var(--spacing-sm) var(--spacing-xxl);
+  border-bottom: 1px solid var(--theme-border-primary);
+  flex-shrink: 0;
+}
+
+.lint-filter-pill {
+  height: 20px;
+  padding: 0 8px;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  border-radius: var(--border-radius-pill);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-filter-pill:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-filter-pill.active {
+  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.15));
+  border-color: var(--figma-color-border-brand, #18a0fb);
+  color: var(--figma-color-border-brand, #18a0fb);
+}
+
+/* Error list */
+.lint-error-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Null state */
+.lint-null-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xxl);
+  color: var(--theme-text-tertiary);
+  text-align: center;
+}
+
+.lint-null-icon {
+  font-size: 28px;
+  opacity: 0.5;
+}
+
+.lint-null-message {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--theme-text-secondary);
+}
+
+.lint-null-sub {
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-tertiary);
+}
+
+/* Scan progress state */
+.lint-scan-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xxl);
+}
+
+.lint-progress-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--theme-overlay-weak);
+  border-radius: var(--border-radius-pill);
+  overflow: hidden;
+}
+
+.lint-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--figma-color-border-brand, #18a0fb);
+  border-radius: var(--border-radius-pill);
+  transition: width 0.2s ease;
+}
+
+.lint-progress-label {
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-tertiary);
+}
+
+/* Validate main inherits scrollable-content flex behavior */
+#validate-main {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ===== LINT ERROR ITEMS ===== */
+/* .lint-error-item, .lint-item-row, .lint-cat-badge, etc.  */
+/* Added in Phase 2 lint engine commit (lint-engine.ts)      */

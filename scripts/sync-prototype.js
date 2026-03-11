@@ -57,11 +57,19 @@ const titleBar = `\
       <button style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;border-radius:4px;font-size:14px;color:#666;line-height:1;padding:0;" title="Close">&#x2715;</button>
     </div>`;
 
-// Insert opener + title bar immediately before <main class="scrollable-content">
-html = html.replace(
-  /(\s*)<main class="scrollable-content">/,
-  `\n${titleBar}\n$1<main class="scrollable-content">`
-);
+// Insert opener + title bar immediately before the mode strip nav (if present)
+// or before <main class="scrollable-content"> (legacy fallback).
+if (html.includes('<nav id="mode-strip"')) {
+  html = html.replace(
+    /(\s*)(<nav id="mode-strip")/,
+    `\n${titleBar}\n$1$2`
+  );
+} else {
+  html = html.replace(
+    /(\s*)<main class="scrollable-content">/,
+    `\n${titleBar}\n$1<main class="scrollable-content">`
+  );
+}
 
 // Close the chrome div right after </footer>
 html = html.replace('</footer>', '</footer>\n  </div><!-- /plugin-chrome -->');
