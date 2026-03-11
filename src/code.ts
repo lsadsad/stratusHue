@@ -443,8 +443,56 @@ figma.ui.onmessage = async (msg) => {
         break;
       }
 
-      // lint-run-scan / lint-apply-fix / lint-ignore-error / lint-clear-ignored / lint-select-node
-      // wired in Phase 2 lint engine commit (lint-engine.ts)
+      case 'lint-run-scan': {
+        const { runLintScan } = await import('./features/lint-engine');
+        await runLintScan();
+        break;
+      }
+
+      case 'lint-apply-fix': {
+        if (
+          'nodeId' in msg && typeof msg.nodeId === 'string' &&
+          'category' in msg && typeof msg.category === 'string' &&
+          'styleId' in msg && typeof msg.styleId === 'string'
+        ) {
+          const { applyLintFix } = await import('./features/lint-engine');
+          const result = await applyLintFix(msg.nodeId, msg.category, msg.styleId);
+          figma.notify(result.message, { error: !result.success });
+          if (result.success) {
+            const { runLintScan: reScan } = await import('./features/lint-engine');
+            await reScan();
+          }
+        }
+        break;
+      }
+
+      case 'lint-ignore-error': {
+        if ('errorId' in msg && typeof msg.errorId === 'string') {
+          const { addIgnoredError } = await import('./core/lint-state');
+          await addIgnoredError(msg.errorId);
+          figma.ui.postMessage({ type: 'lint-error-ignored', errorId: msg.errorId });
+        }
+        break;
+      }
+
+      case 'lint-clear-ignored': {
+        const { clearIgnoredErrors } = await import('./core/lint-state');
+        await clearIgnoredErrors();
+        const { runLintScan: reScan2 } = await import('./features/lint-engine');
+        await reScan2();
+        break;
+      }
+
+      case 'lint-select-node': {
+        if ('nodeId' in msg && typeof msg.nodeId === 'string') {
+          const node = await figma.getNodeByIdAsync(msg.nodeId);
+          if (node && node.type !== 'DOCUMENT' && node.type !== 'PAGE') {
+            figma.currentPage.selection = [node as SceneNode];
+            figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
+          }
+        }
+        break;
+      }
 
       case 'toggle-controls':
         if ('enabled' in msg && typeof msg.enabled === 'boolean') {

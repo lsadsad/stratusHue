@@ -215,8 +215,37 @@ function handlePluginMessage(event: MessageEvent): void {
       applyRestoredMode(message.mode as string);
       break;
 
-    // lint-progress / lint-results / lint-error-ignored / lint-cancelled
-    // wired in Phase 2 lint engine commit (lint-engine.ts)
+    case 'lint-progress':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintProgress }) => {
+          handleLintProgress(message.scanned as number, message.total as number);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-results':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintResults }) => {
+          handleLintResults(message.errors as unknown[]);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-error-ignored':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleErrorIgnored }) => {
+          handleErrorIgnored(message.errorId as string);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-cancelled':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintCancelled }) => {
+          handleLintCancelled();
+        }).catch(console.error);
+      }
+      break;
 
     case 'styled-text-html': {
       const html = message.html as string;

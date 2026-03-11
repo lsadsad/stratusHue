@@ -5,7 +5,7 @@ import { sendMessage } from '../shared/send-message';
 import type { LintError } from '../../core/lint-types';
 
 let _initialized = false;
-const _currentErrors: LintError[] = [];
+let _currentErrors: LintError[] = [];
 let _activeFilter = 'all';
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -153,6 +153,101 @@ function _updateBadge(count: number): void {
   }
 }
 
-// ── Public API stubs (handlers added in Phase 2 lint engine commit) ──────────
-// handleLintResults, handleLintProgress, handleErrorIgnored, handleLintCancelled
-// are wired here once the scan engine (lint-engine.ts) lands.
+// ── Error list rendering ──────────────────────────────────────────────────────
+
+const CATEGORY_LABELS: Record<string, string> = {
+  fill: 'FILL', stroke: 'STROKE', text: 'TEXT', effects: 'EFFECTS', radius: 'RADIUS',
+};
+
+function _renderErrors(errors: LintError[]): void {
+  const list = document.getElementById('lint-error-list');
+  if (!list) return;
+
+  list.innerHTML = '';
+
+  errors.forEach(err => {
+    const li = document.createElement('li');
+    li.className = 'lint-error-item';
+    li.dataset.errorId = err.id;
+    li.dataset.category = err.category;
+
+    const catLabel = CATEGORY_LABELS[err.category] ?? err.category.toUpperCase();
+    const hasFix = Boolean(err.suggestedStyleId);
+
+    li.innerHTML = `
+      <button class="lint-item-row" aria-label="Select ${err.nodeName} in canvas">
+        <span class="lint-cat-badge lint-cat-${err.category}">${catLabel}</span>
+        <span class="lint-item-name">${_esc(err.nodeName)}</span>
+      </button>
+      <div class="lint-item-detail">${_esc(err.message)}</div>
+      <div class="lint-item-actions">
+        ${hasFix ? `<button class="lint-action-btn lint-fix-btn" data-error-id="${err.id}" data-node-id="${err.nodeId}" data-category="${err.category}" data-style-id="${err.suggestedStyleId}" title="Apply suggested style: ${_esc(err.suggestedStyleName ?? '')}">Fix</button>` : ''}
+        <button class="lint-action-btn lint-ignore-btn" data-error-id="${err.id}" title="Ignore this error">Ignore</button>
+      </div>
+    `;
+
+    // Select node on row click
+    li.querySelector('.lint-item-row')?.addEventListener('click', () => {
+      sendMessage('lint-select-node', { nodeId: err.nodeId });
+    });
+
+    // Fix button
+    li.querySelector('.lint-fix-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const btn = e.currentTarget as HTMLButtonElement;
+      sendMessage('lint-apply-fix', {
+        nodeId: btn.dataset.nodeId ?? '',
+        category: btn.dataset.category ?? '',
+        styleId: btn.dataset.styleId ?? '',
+      });
+    });
+
+    // Ignore button
+    li.querySelector('.lint-ignore-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const btn = e.currentTarget as HTMLButtonElement;
+      const errorId = btn.dataset.errorId ?? '';
+      sendMessage('lint-ignore-error', { errorId });
+    });
+
+    list.appendChild(li);
+  });
+}
+
+function _esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Public API (called from ui.ts message handler) ────────────────────────────
+
+export function handleLintResults(errors: unknown[]): void {
+  _currentErrors = errors as LintError[];
+  _renderErrors(_currentErrors);
+  _updateBadge(_currentErrors.length);
+  _setView(_currentErrors.length === 0 ? 'null' : 'results');
+  _applyFilter();
+}
+
+export function handleLintProgress(scanned: number, total: number): void {
+  _setView('scanning');
+  const fill = document.getElementById('lint-progress-fill');
+  const label = document.getElementById('lint-progress-label');
+  const pct = total > 0 ? Math.round((scanned / total) * 100) : 0;
+  if (fill) fill.style.width = `${pct}%`;
+  if (label) label.textContent = `Scanning… ${scanned} / ${total}`;
+}
+
+export function handleErrorIgnored(errorId: string): void {
+  // Remove the item immediately from the DOM
+  const item = document.querySelector<HTMLElement>(`[data-error-id="${errorId}"]`);
+  if (item) {
+    item.remove();
+    _currentErrors = _currentErrors.filter(e => e.id !== errorId);
+    _updateBadge(_currentErrors.length);
+    if (_currentErrors.length === 0) _setView('null');
+  }
+}
+
+export function handleLintCancelled(): void {
+  _setView('null');
+}
