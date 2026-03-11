@@ -7608,6 +7608,26 @@ body.compact-mode #mode-strip {
   color: var(--theme-text-tertiary);
 }
 
+.lint-cancel-btn {
+  height: 22px;
+  padding: 0 12px;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  border-radius: var(--border-radius-sm);
+  color: var(--theme-text-tertiary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-cancel-btn:hover {
+  background: var(--theme-overlay-weak);
+  color: var(--theme-text-primary);
+  border-color: var(--theme-border-secondary);
+}
+
 /* Validate main inherits scrollable-content flex behavior */
 #validate-main {
   display: flex;

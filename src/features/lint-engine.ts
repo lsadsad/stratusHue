@@ -13,11 +13,22 @@ import { loadStyleCache, invalidateStyleCache } from './lint-styles';
 import { checkNode } from './lint-checks';
 
 // ── Cancellation ───────────────────────────────────────────────────────────────
+//
+// Generation counter rather than a simple boolean flag.
+// Each runLintScan() call claims the next generation. cancelLintScan() bumps
+// the counter, which invalidates any in-flight scan on its next yield point.
+// This prevents two concurrent scans from interfering with each other — the
+// old scan detects it's been superseded and exits cleanly.
 
-let _cancelFlag = false;
+let _generation = 0;
+let _scanInProgress = false;
 
 export function cancelLintScan(): void {
-  _cancelFlag = true;
+  _generation++;
+}
+
+export function isScanInProgress(): boolean {
+  return _scanInProgress;
 }
 
 // ── Node count gate ────────────────────────────────────────────────────────────
@@ -67,7 +78,8 @@ function collectNodes(page: PageNode): SceneNode[] {
 // ── Scan orchestrator ──────────────────────────────────────────────────────────
 
 export async function runLintScan(): Promise<void> {
-  _cancelFlag = false;
+  const myGen = ++_generation; // claim this scan's generation
+  _scanInProgress = true;
   const startMs = Date.now();
 
   // Prune invisible instance children from the walk (significant perf win on component-heavy files)
@@ -99,8 +111,9 @@ export async function runLintScan(): Promise<void> {
   const allErrors: LintError[] = [];
 
   for (let i = 0; i < nodes.length; i++) {
-    if (_cancelFlag) {
+    if (myGen !== _generation) {
       figma.skipInvisibleInstanceChildren = false;
+      _scanInProgress = false;
       figma.ui.postMessage({ type: 'lint-cancelled' });
       return;
     }
@@ -116,8 +129,9 @@ export async function runLintScan(): Promise<void> {
     }
   }
 
-  if (_cancelFlag) {
+  if (myGen !== _generation) {
     figma.skipInvisibleInstanceChildren = false;
+    _scanInProgress = false;
     figma.ui.postMessage({ type: 'lint-cancelled' });
     return;
   }
@@ -140,6 +154,7 @@ export async function runLintScan(): Promise<void> {
 
   // 8. Restore default (don't leave this set globally — other Figma operations may need it)
   figma.skipInvisibleInstanceChildren = false;
+  _scanInProgress = false;
 }
 
 // ── Fix All ───────────────────────────────────────────────────────────────────

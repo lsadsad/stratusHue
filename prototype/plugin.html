@@ -7615,6 +7615,26 @@ body.compact-mode #mode-strip {
   color: var(--theme-text-tertiary);
 }
 
+.lint-cancel-btn {
+  height: 22px;
+  padding: 0 12px;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  border-radius: var(--border-radius-sm);
+  color: var(--theme-text-tertiary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-cancel-btn:hover {
+  background: var(--theme-overlay-weak);
+  color: var(--theme-text-primary);
+  border-color: var(--theme-border-secondary);
+}
+
 /* Validate main inherits scrollable-content flex behavior */
 #validate-main {
   display: flex;
@@ -8811,7 +8831,7 @@ body.compact-mode #mode-strip {
     initializeLintUI: () => initializeLintUI
   });
   function initializeLintUI() {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     if (_initialized)
       return;
     _initialized = true;
@@ -8891,13 +8911,17 @@ body.compact-mode #mode-strip {
     scanState.innerHTML = `
     <div class="lint-progress-bar"><div id="lint-progress-fill" class="lint-progress-fill"></div></div>
     <div id="lint-progress-label" class="lint-progress-label">Scanning\u2026</div>
+    <button id="lint-cancel-btn" class="lint-cancel-btn" aria-label="Cancel scan">Cancel</button>
   `;
     frag.appendChild(scanState);
     container.appendChild(frag);
     (_a = document.getElementById("lint-scan-btn")) == null ? void 0 : _a.addEventListener("click", requestLintScan);
-    (_b = document.getElementById("lint-select-all-btn")) == null ? void 0 : _b.addEventListener("click", _onSelectAll);
-    (_c = document.getElementById("lint-fix-all-btn")) == null ? void 0 : _c.addEventListener("click", _onFixAll);
-    (_d = document.getElementById("lint-ignore-all-btn")) == null ? void 0 : _d.addEventListener("click", _onIgnoreAll);
+    (_b = document.getElementById("lint-cancel-btn")) == null ? void 0 : _b.addEventListener("click", () => {
+      sendMessage("lint-cancel-scan");
+    });
+    (_c = document.getElementById("lint-select-all-btn")) == null ? void 0 : _c.addEventListener("click", _onSelectAll);
+    (_d = document.getElementById("lint-fix-all-btn")) == null ? void 0 : _d.addEventListener("click", _onFixAll);
+    (_e = document.getElementById("lint-ignore-all-btn")) == null ? void 0 : _e.addEventListener("click", _onIgnoreAll);
     _setupLintSettings();
     sendMessage("lint-get-settings");
   }

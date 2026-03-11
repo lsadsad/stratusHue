@@ -106,6 +106,7 @@ export function initializeLintUI(): void {
   scanState.innerHTML = `
     <div class="lint-progress-bar"><div id="lint-progress-fill" class="lint-progress-fill"></div></div>
     <div id="lint-progress-label" class="lint-progress-label">Scanning…</div>
+    <button id="lint-cancel-btn" class="lint-cancel-btn" aria-label="Cancel scan">Cancel</button>
   `;
   frag.appendChild(scanState);
 
@@ -113,6 +114,11 @@ export function initializeLintUI(): void {
 
   // Scan button
   document.getElementById('lint-scan-btn')?.addEventListener('click', requestLintScan);
+
+  // Cancel button — visible only during scanning state
+  document.getElementById('lint-cancel-btn')?.addEventListener('click', () => {
+    sendMessage('lint-cancel-scan');
+  });
 
   // Batch action bar buttons
   document.getElementById('lint-select-all-btn')?.addEventListener('click', _onSelectAll);

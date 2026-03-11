@@ -117,9 +117,14 @@ function triggerBatchedUpdate(): void {
 // ===== LINT RESCAN =====
 // Debounced at 2s to avoid hammering the engine on every keystroke.
 const debouncedLintRescan = debounce(() => {
-  // Dynamic import keeps lint code zero-cost unless lint mode is used
-  import('../features/lint-engine').then(({ runLintScan }) => {
-    runLintScan().catch(console.error);
+  // Dynamic import keeps lint code zero-cost unless lint mode is used.
+  // Skip if a scan is already running — the current scan is still valid.
+  // When the user makes changes while scanning, let the scan complete
+  // naturally rather than interrupting it with a restart.
+  import('../features/lint-engine').then(({ runLintScan, isScanInProgress }) => {
+    if (!isScanInProgress()) {
+      runLintScan().catch(console.error);
+    }
   }).catch(console.error);
 }, 2000);
 

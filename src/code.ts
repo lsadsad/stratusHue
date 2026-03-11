@@ -470,6 +470,12 @@ figma.ui.onmessage = async (msg) => {
         break;
       }
 
+      case 'lint-cancel-scan': {
+        const { cancelLintScan } = await import('./features/lint-engine');
+        cancelLintScan();
+        break;
+      }
+
       case 'lint-apply-fix': {
         if (
           'nodeId' in msg && typeof msg.nodeId === 'string' &&
