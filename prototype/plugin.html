@@ -34,6 +34,9 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   box-sizing: border-box;
 }
 
+/* Enforce the HTML `hidden` attribute — overrides any display: flex/grid rules below */
+[hidden] { display: none !important; }
+
 html,
 body {
   margin: 0;
