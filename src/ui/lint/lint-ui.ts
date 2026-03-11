@@ -7,6 +7,8 @@ import type { LintError } from '../../core/lint-types';
 let _initialized = false;
 let _currentErrors: LintError[] = [];
 let _activeFilter = 'all';
+/** errorId of the most recently navigated-to item — drives the active highlight. */
+let _activeErrorId: string | null = null;
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
@@ -196,6 +198,11 @@ function _renderErrors(errors: LintError[]): void {
 
   list.innerHTML = '';
 
+  // If the previously active error no longer exists in the new list, clear it
+  if (_activeErrorId && !errors.find(e => e.id === _activeErrorId)) {
+    _activeErrorId = null;
+  }
+
   errors.forEach(err => {
     const li = document.createElement('li');
     li.className = 'lint-error-item';
@@ -206,10 +213,10 @@ function _renderErrors(errors: LintError[]): void {
     const hasFix = Boolean(err.suggestedStyleId);
 
     li.innerHTML = `
-      <button class="lint-item-row" aria-label="Select ${err.nodeName} in canvas">
+      <div class="lint-item-row" aria-label="Select ${err.nodeName} in canvas">
         <span class="lint-cat-badge lint-cat-${err.category}">${catLabel}</span>
         <span class="lint-item-name">${_esc(err.nodeName)}</span>
-      </button>
+      </div>
       <div class="lint-item-detail">${_esc(err.message)}</div>
       <div class="lint-item-actions">
         ${hasFix ? `<button class="lint-action-btn lint-fix-btn" data-error-id="${err.id}" data-node-id="${err.nodeId}" data-category="${err.category}" data-style-id="${err.suggestedStyleId}" title="Apply suggested style: ${_esc(err.suggestedStyleName ?? '')}">Fix</button>` : ''}
@@ -217,8 +224,10 @@ function _renderErrors(errors: LintError[]): void {
       </div>
     `;
 
-    // Select node on row click
-    li.querySelector('.lint-item-row')?.addEventListener('click', () => {
+    // Clicking anywhere on the card navigates to the node and marks it active.
+    // Fix/Ignore buttons call e.stopPropagation() so they don't trigger this.
+    li.addEventListener('click', () => {
+      _setActiveItem(err.id);
       sendMessage('lint-select-node', { nodeId: err.nodeId });
     });
 
@@ -243,10 +252,27 @@ function _renderErrors(errors: LintError[]): void {
 
     list.appendChild(li);
   });
+
+  // Restore active highlight if the previously selected item is still present
+  if (_activeErrorId) {
+    document.querySelector<HTMLElement>(`[data-error-id="${_activeErrorId}"]`)
+      ?.classList.add('lint-item--active');
+  }
 }
 
 function _esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/** Mark errorId as active (last navigated). Clears any previous active item. */
+function _setActiveItem(errorId: string): void {
+  if (_activeErrorId) {
+    document.querySelector<HTMLElement>(`[data-error-id="${_activeErrorId}"]`)
+      ?.classList.remove('lint-item--active');
+  }
+  _activeErrorId = errorId;
+  document.querySelector<HTMLElement>(`[data-error-id="${errorId}"]`)
+    ?.classList.add('lint-item--active');
 }
 
 // ── Batch action handlers ─────────────────────────────────────────────────────
@@ -304,6 +330,7 @@ export function handleErrorIgnored(errorId: string): void {
   if (item) {
     item.remove();
     _currentErrors = _currentErrors.filter(e => e.id !== errorId);
+    if (_activeErrorId === errorId) _activeErrorId = null;
     _updateBadge(_currentErrors.length);
     if (_currentErrors.length === 0) _setView('null');
   }

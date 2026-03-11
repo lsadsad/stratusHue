@@ -7656,20 +7656,24 @@ body.compact-mode #mode-strip {
   background: var(--theme-overlay-xweak);
 }
 
-/* Clickable row: badge + name */
+/* Last-navigated item — persists after hover leaves, like current-anchor in bookmarks */
+.lint-item--active {
+  background: var(--figma-color-bg-selected-secondary, rgba(24, 160, 251, 0.1));
+}
+
+.lint-item--active:hover {
+  background: var(--figma-color-bg-selected-secondary, rgba(24, 160, 251, 0.14));
+}
+
+/* Name+badge row — now a div, click is handled by the parent li */
 .lint-item-row {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
-  background: none;
-  border: none;
   padding: var(--spacing-sm) var(--spacing-xxl);
   padding-bottom: 2px;
-  text-align: left;
-  cursor: pointer;
-  font-family: var(--font-family);
-  color: inherit;
+  pointer-events: none; /* let clicks fall through to .lint-error-item */
 }
 
 /* Category badges */

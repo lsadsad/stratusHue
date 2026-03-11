@@ -7663,20 +7663,24 @@ body.compact-mode #mode-strip {
   background: var(--theme-overlay-xweak);
 }
 
-/* Clickable row: badge + name */
+/* Last-navigated item — persists after hover leaves, like current-anchor in bookmarks */
+.lint-item--active {
+  background: var(--figma-color-bg-selected-secondary, rgba(24, 160, 251, 0.1));
+}
+
+.lint-item--active:hover {
+  background: var(--figma-color-bg-selected-secondary, rgba(24, 160, 251, 0.14));
+}
+
+/* Name+badge row — now a div, click is handled by the parent li */
 .lint-item-row {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
-  background: none;
-  border: none;
   padding: var(--spacing-sm) var(--spacing-xxl);
   padding-bottom: 2px;
-  text-align: left;
-  cursor: pointer;
-  font-family: var(--font-family);
-  color: inherit;
+  pointer-events: none; /* let clicks fall through to .lint-error-item */
 }
 
 /* Category badges */
@@ -8980,54 +8984,70 @@ body.compact-mode #mode-strip {
     }
   }
   function _renderErrors(errors) {
+    var _a;
     const list = document.getElementById("lint-error-list");
     if (!list)
       return;
     list.innerHTML = "";
+    if (_activeErrorId && !errors.find((e) => e.id === _activeErrorId)) {
+      _activeErrorId = null;
+    }
     errors.forEach((err) => {
-      var _a, _b, _c, _d, _e;
+      var _a2, _b, _c, _d;
       const li = document.createElement("li");
       li.className = "lint-error-item";
       li.dataset.errorId = err.id;
       li.dataset.category = err.category;
-      const catLabel = (_a = CATEGORY_LABELS[err.category]) != null ? _a : err.category.toUpperCase();
+      const catLabel = (_a2 = CATEGORY_LABELS[err.category]) != null ? _a2 : err.category.toUpperCase();
       const hasFix = Boolean(err.suggestedStyleId);
       li.innerHTML = `
-      <button class="lint-item-row" aria-label="Select ${err.nodeName} in canvas">
+      <div class="lint-item-row" aria-label="Select ${err.nodeName} in canvas">
         <span class="lint-cat-badge lint-cat-${err.category}">${catLabel}</span>
         <span class="lint-item-name">${_esc(err.nodeName)}</span>
-      </button>
+      </div>
       <div class="lint-item-detail">${_esc(err.message)}</div>
       <div class="lint-item-actions">
         ${hasFix ? `<button class="lint-action-btn lint-fix-btn" data-error-id="${err.id}" data-node-id="${err.nodeId}" data-category="${err.category}" data-style-id="${err.suggestedStyleId}" title="Apply suggested style: ${_esc((_b = err.suggestedStyleName) != null ? _b : "")}">Fix</button>` : ""}
         <button class="lint-action-btn lint-ignore-btn" data-error-id="${err.id}" title="Ignore this error">Ignore</button>
       </div>
     `;
-      (_c = li.querySelector(".lint-item-row")) == null ? void 0 : _c.addEventListener("click", () => {
+      li.addEventListener("click", () => {
+        _setActiveItem(err.id);
         sendMessage("lint-select-node", { nodeId: err.nodeId });
       });
-      (_d = li.querySelector(".lint-fix-btn")) == null ? void 0 : _d.addEventListener("click", (e) => {
-        var _a2, _b2, _c2;
+      (_c = li.querySelector(".lint-fix-btn")) == null ? void 0 : _c.addEventListener("click", (e) => {
+        var _a3, _b2, _c2;
         e.stopPropagation();
         const btn = e.currentTarget;
         sendMessage("lint-apply-fix", {
-          nodeId: (_a2 = btn.dataset.nodeId) != null ? _a2 : "",
+          nodeId: (_a3 = btn.dataset.nodeId) != null ? _a3 : "",
           category: (_b2 = btn.dataset.category) != null ? _b2 : "",
           styleId: (_c2 = btn.dataset.styleId) != null ? _c2 : ""
         });
       });
-      (_e = li.querySelector(".lint-ignore-btn")) == null ? void 0 : _e.addEventListener("click", (e) => {
-        var _a2;
+      (_d = li.querySelector(".lint-ignore-btn")) == null ? void 0 : _d.addEventListener("click", (e) => {
+        var _a3;
         e.stopPropagation();
         const btn = e.currentTarget;
-        const errorId = (_a2 = btn.dataset.errorId) != null ? _a2 : "";
+        const errorId = (_a3 = btn.dataset.errorId) != null ? _a3 : "";
         sendMessage("lint-ignore-error", { errorId });
       });
       list.appendChild(li);
     });
+    if (_activeErrorId) {
+      (_a = document.querySelector(`[data-error-id="${_activeErrorId}"]`)) == null ? void 0 : _a.classList.add("lint-item--active");
+    }
   }
   function _esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function _setActiveItem(errorId) {
+    var _a, _b;
+    if (_activeErrorId) {
+      (_a = document.querySelector(`[data-error-id="${_activeErrorId}"]`)) == null ? void 0 : _a.classList.remove("lint-item--active");
+    }
+    _activeErrorId = errorId;
+    (_b = document.querySelector(`[data-error-id="${errorId}"]`)) == null ? void 0 : _b.classList.add("lint-item--active");
   }
   function _getVisibleErrors() {
     if (_activeFilter === "all")
@@ -9076,6 +9096,8 @@ body.compact-mode #mode-strip {
     if (item) {
       item.remove();
       _currentErrors = _currentErrors.filter((e) => e.id !== errorId);
+      if (_activeErrorId === errorId)
+        _activeErrorId = null;
       _updateBadge(_currentErrors.length);
       if (_currentErrors.length === 0)
         _setView("null");
@@ -9170,7 +9192,7 @@ body.compact-mode #mode-strip {
         skipInput.value = settings.skipLayerNames.join(", ");
     }
   }
-  var _initialized, _currentErrors, _activeFilter, CATEGORY_LABELS;
+  var _initialized, _currentErrors, _activeFilter, _activeErrorId, CATEGORY_LABELS;
   var init_lint_ui = __esm({
     "src/ui/lint/lint-ui.ts"() {
       "use strict";
@@ -9178,6 +9200,7 @@ body.compact-mode #mode-strip {
       _initialized = false;
       _currentErrors = [];
       _activeFilter = "all";
+      _activeErrorId = null;
       CATEGORY_LABELS = {
         fill: "FILL",
         stroke: "STROKE",
@@ -9256,6 +9279,7 @@ body.compact-mode #mode-strip {
 
   // src/ui/shared/layout.ts
   init_send_message();
+  var MAX_UI_HEIGHT = 800;
   var _isAutoFitEnabled = true;
   var _lastAutoFitHeight = 0;
   var _currentToggleMode = "onPage";
@@ -9349,10 +9373,13 @@ body.compact-mode #mode-strip {
     const mainMarginTop = parseInt(mainStyle.marginTop, 10) || 0;
     const mainMarginBottom = parseInt(mainStyle.marginBottom, 10) || 0;
     const footerHeight = footer.offsetHeight || 20;
-    const totalHeight = totalContentHeight + mainPaddingTop + mainPaddingBottom + mainMarginTop + mainMarginBottom + footerHeight;
+    const modeStrip = document.getElementById("mode-strip");
+    const modeStripHeight = modeStrip ? modeStrip.offsetHeight : 0;
+    const totalHeight = modeStripHeight + totalContentHeight + mainPaddingTop + mainPaddingBottom + mainMarginTop + mainMarginBottom + footerHeight;
     const collapsedCount = children.filter((c) => c.classList.contains("collapsed")).length;
     if (Math.abs(totalHeight - _lastAutoFitHeight) > 3) {
       console.log("Auto-fit height (collapsed-aware):", {
+        modeStripHeight,
         totalContentHeight,
         mainPaddingTop,
         mainPaddingBottom,
@@ -9363,7 +9390,7 @@ body.compact-mode #mode-strip {
         collapsedSections: collapsedCount
       });
     }
-    return Math.ceil(totalHeight);
+    return Math.min(Math.ceil(totalHeight), MAX_UI_HEIGHT);
   }
   var scrollBehaviorDebounceTimer = null;
   function updateScrollBehavior() {
@@ -11986,7 +12013,7 @@ body.compact-mode #mode-strip {
         updateAutoFitButtonState();
         if (getIsAutoFitEnabled()) {
           const contentHeight = computeFitHeight();
-          console.log("Auto-fit enabled: adjusting height to", contentHeight);
+          console.log("Auto-fit enabled: adjusting height to", contentHeight, "(max:", MAX_UI_HEIGHT, ")");
           sendMessage("resize-ui", { height: contentHeight });
           setLastAutoFitHeight(contentHeight);
         } else {

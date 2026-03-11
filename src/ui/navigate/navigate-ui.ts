@@ -6,7 +6,8 @@ import {
   computeFitHeight,
   updateScrollBehavior,
   updateToggleUI,
-  setIsAutoFitEnabled
+  setIsAutoFitEnabled,
+  MAX_UI_HEIGHT,
 } from '../shared/layout';
 import { activeTimers } from '../shared/cleanup';
 import { initializeAllLottieElements } from '../shared/lottie';
@@ -604,15 +605,16 @@ export function setupEventListeners(): void {
 
   // Drag to resize height
   if (resizeHandle) {
-    // Double-click to toggle auto-fit mode
+    // Double-click: toggle auto-fit. When enabling, snap to content height
+    // (already capped at MAX_UI_HEIGHT inside computeFitHeight). When content
+    // exceeds MAX_UI_HEIGHT, this acts as a "snap to max height" gesture.
     resizeHandle.addEventListener('dblclick', () => {
       setIsAutoFitEnabled(!getIsAutoFitEnabled());
       updateAutoFitButtonState();
 
       if (getIsAutoFitEnabled()) {
-        // Immediately fit to current content when enabling
-        const contentHeight = computeFitHeight();
-        console.log('Auto-fit enabled: adjusting height to', contentHeight);
+        const contentHeight = computeFitHeight(); // capped at MAX_UI_HEIGHT
+        console.log('Auto-fit enabled: adjusting height to', contentHeight, '(max:', MAX_UI_HEIGHT, ')');
         sendMessage('resize-ui', { height: contentHeight });
         setLastAutoFitHeight(contentHeight);
       } else {
