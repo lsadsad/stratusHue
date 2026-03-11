@@ -43,6 +43,12 @@ export interface LintSettings {
   enableRadius: boolean;
   /** Comma-separated allowed border-radius values in px */
   allowedRadii: number[];
+  /**
+   * Case-insensitive substrings — any node whose name contains one of these
+   * is skipped entirely, along with its children. Useful for excluding
+   * annotation frames, spec labels, and other non-component layers.
+   */
+  skipLayerNames: string[];
 }
 
 export const DEFAULT_LINT_SETTINGS: LintSettings = {
@@ -52,6 +58,7 @@ export const DEFAULT_LINT_SETTINGS: LintSettings = {
   enableEffects: true,
   enableRadius: true,
   allowedRadii: [0, 2, 4, 8, 16, 24, 100],
+  skipLayerNames: [],
 };
 
 // ===== IGNORE =====

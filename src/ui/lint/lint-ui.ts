@@ -351,6 +351,15 @@ function _setupLintSettings(): void {
       (e.currentTarget as HTMLInputElement).blur();
     }
   });
+
+  // Skip layer names input — update on blur or Enter
+  const skipInput = document.getElementById('lint-skip-names') as HTMLInputElement | null;
+  skipInput?.addEventListener('blur', () => _flushLintSettings());
+  skipInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      (e.currentTarget as HTMLInputElement).blur();
+    }
+  });
 }
 
 function _flushLintSettings(): void {
@@ -363,6 +372,12 @@ function _flushLintSettings(): void {
     .map(s => parseFloat(s.trim()))
     .filter(n => !isNaN(n));
 
+  const skipRaw = (document.getElementById('lint-skip-names') as HTMLInputElement | null)?.value ?? '';
+  const skipLayerNames = skipRaw
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
   sendMessage('lint-update-settings', {
     settings: {
       enableFill:    enabled('lint-toggle-fill'),
@@ -371,6 +386,7 @@ function _flushLintSettings(): void {
       enableEffects: enabled('lint-toggle-effects'),
       enableRadius:  enabled('lint-toggle-radius'),
       allowedRadii:  allowedRadii.length > 0 ? allowedRadii : [0, 2, 4, 8, 16, 24, 100],
+      skipLayerNames,
     },
   });
 }
@@ -390,5 +406,10 @@ export function handleLintSettingsLoaded(settings: Record<string, unknown>): voi
   if (Array.isArray(settings.allowedRadii) && settings.allowedRadii.length > 0) {
     const radiiInput = document.getElementById('lint-allowed-radii') as HTMLInputElement | null;
     if (radiiInput) radiiInput.value = (settings.allowedRadii as number[]).join(', ');
+  }
+
+  if (Array.isArray(settings.skipLayerNames)) {
+    const skipInput = document.getElementById('lint-skip-names') as HTMLInputElement | null;
+    if (skipInput) skipInput.value = (settings.skipLayerNames as string[]).join(', ');
   }
 }

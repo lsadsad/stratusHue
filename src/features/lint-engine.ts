@@ -42,10 +42,20 @@ const YIELD_EVERY = 50;
 
 /**
  * Collect all scannable leaf and container nodes on the current page.
- * Skips hidden nodes, guide lines, and connector/stamp nodes.
+ * Skips hidden nodes, locked nodes, connector/stamp nodes, and any node
+ * (plus its entire subtree) whose name matches a skipLayerNames pattern.
  */
-function collectNodes(page: PageNode): SceneNode[] {
+function collectNodes(page: PageNode, skipPatterns: string[]): SceneNode[] {
   const result: SceneNode[] = [];
+
+  // Lowercase patterns once for efficient repeated comparisons
+  const lowerPatterns = skipPatterns.map(p => p.toLowerCase().trim()).filter(Boolean);
+
+  function shouldSkip(name: string): boolean {
+    if (lowerPatterns.length === 0) return false;
+    const lower = name.toLowerCase();
+    return lowerPatterns.some(p => lower.includes(p));
+  }
 
   function walk(node: SceneNode): void {
     // Skip invisible nodes
@@ -57,6 +67,9 @@ function collectNodes(page: PageNode): SceneNode[] {
     // Skip connector / stamp / etc (rarely have paint styles)
     if (node.type === 'CONNECTOR' || node.type === 'STAMP' ||
         node.type === 'WASHI_TAPE') return;
+
+    // Skip this node AND its entire subtree if name matches an exclusion pattern
+    if (shouldSkip(node.name)) return;
 
     result.push(node);
 
@@ -96,7 +109,7 @@ export async function runLintScan(): Promise<void> {
 
   // 2. Collect nodes
   const page = figma.currentPage;
-  const nodes = collectNodes(page);
+  const nodes = collectNodes(page, settings.skipLayerNames ?? []);
   const total = nodes.length;
 
   // 3. Warn if large file (non-blocking)

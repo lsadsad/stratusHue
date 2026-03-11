@@ -532,6 +532,13 @@
             <input type="text" id="lint-allowed-radii" class="lint-radii-input" value="0, 2, 4, 8, 16, 24, 100" placeholder="0, 4, 8, 16…" aria-describedby="lint-radii-desc" tabindex="-1">
             <p class="settings-help-text" id="lint-radii-desc">Comma-separated values. Radii not in this list are flagged.</p>
           </div>
+
+          <!-- Skip layer names -->
+          <div class="setting-item">
+            <label for="lint-skip-names" class="nudge-label">Skip layers containing</label>
+            <input type="text" id="lint-skip-names" class="lint-radii-input" placeholder="_spec, annotation, redline…" aria-describedby="lint-skip-names-desc" tabindex="-1">
+            <p class="settings-help-text" id="lint-skip-names-desc">Comma-separated substrings. Matching layers and their children are excluded from the scan.</p>
+          </div>
         </div>
 
         <!-- Support Section -->

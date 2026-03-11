@@ -63,6 +63,7 @@ body.touch-active .action-btn:hover,
 body.touch-active .nav-button:hover,
 body.touch-active .emoji-button:hover,
 body.touch-active .bookmark-item:hover,
+body.touch-active .lint-error-item:hover,
 body.touch-active .footer-icon-btn:hover,
 body.touch-active .theme-option:hover,
 body.touch-active .toggle-button:hover,
@@ -7650,10 +7651,16 @@ body.compact-mode #mode-strip {
   border-bottom: 1px solid var(--theme-border-primary);
   padding: 0;
   transition: background var(--transition-fast);
+  cursor: pointer;
 }
 
 .lint-error-item:last-child {
   border-bottom: none;
+}
+
+/* Hover covers the entire card — badge, name, detail, and action row */
+.lint-error-item:hover {
+  background: var(--theme-overlay-xweak);
 }
 
 /* Clickable row: badge + name */
@@ -7670,10 +7677,6 @@ body.compact-mode #mode-strip {
   cursor: pointer;
   font-family: var(--font-family);
   color: inherit;
-}
-
-.lint-item-row:hover {
-  background: var(--theme-overlay-xweak);
 }
 
 /* Category badges */
@@ -8738,6 +8741,13 @@ body.compact-mode #mode-strip {
             <input type="text" id="lint-allowed-radii" class="lint-radii-input" value="0, 2, 4, 8, 16, 24, 100" placeholder="0, 4, 8, 16…" aria-describedby="lint-radii-desc" tabindex="-1">
             <p class="settings-help-text" id="lint-radii-desc">Comma-separated values. Radii not in this list are flagged.</p>
           </div>
+
+          <!-- Skip layer names -->
+          <div class="setting-item">
+            <label for="lint-skip-names" class="nudge-label">Skip layers containing</label>
+            <input type="text" id="lint-skip-names" class="lint-radii-input" placeholder="_spec, annotation, redline…" aria-describedby="lint-skip-names-desc" tabindex="-1">
+            <p class="settings-help-text" id="lint-skip-names-desc">Comma-separated substrings. Matching layers and their children are excluded from the scan.</p>
+          </div>
         </div>
 
         <!-- Support Section -->
@@ -9108,15 +9118,24 @@ body.compact-mode #mode-strip {
         e.currentTarget.blur();
       }
     });
+    const skipInput = document.getElementById("lint-skip-names");
+    skipInput == null ? void 0 : skipInput.addEventListener("blur", () => _flushLintSettings());
+    skipInput == null ? void 0 : skipInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.currentTarget.blur();
+      }
+    });
   }
   function _flushLintSettings() {
-    var _a, _b;
+    var _a, _b, _c, _d;
     const enabled = (id) => {
       var _a2, _b2;
       return (_b2 = (_a2 = document.getElementById(id)) == null ? void 0 : _a2.checked) != null ? _b2 : true;
     };
     const radiiRaw = (_b = (_a = document.getElementById("lint-allowed-radii")) == null ? void 0 : _a.value) != null ? _b : "";
     const allowedRadii = radiiRaw.split(",").map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n));
+    const skipRaw = (_d = (_c = document.getElementById("lint-skip-names")) == null ? void 0 : _c.value) != null ? _d : "";
+    const skipLayerNames = skipRaw.split(",").map((s) => s.trim()).filter(Boolean);
     sendMessage("lint-update-settings", {
       settings: {
         enableFill: enabled("lint-toggle-fill"),
@@ -9124,7 +9143,8 @@ body.compact-mode #mode-strip {
         enableText: enabled("lint-toggle-text"),
         enableEffects: enabled("lint-toggle-effects"),
         enableRadius: enabled("lint-toggle-radius"),
-        allowedRadii: allowedRadii.length > 0 ? allowedRadii : [0, 2, 4, 8, 16, 24, 100]
+        allowedRadii: allowedRadii.length > 0 ? allowedRadii : [0, 2, 4, 8, 16, 24, 100],
+        skipLayerNames
       }
     });
   }
@@ -9143,6 +9163,11 @@ body.compact-mode #mode-strip {
       const radiiInput = document.getElementById("lint-allowed-radii");
       if (radiiInput)
         radiiInput.value = settings.allowedRadii.join(", ");
+    }
+    if (Array.isArray(settings.skipLayerNames)) {
+      const skipInput = document.getElementById("lint-skip-names");
+      if (skipInput)
+        skipInput.value = settings.skipLayerNames.join(", ");
     }
   }
   var _initialized, _currentErrors, _activeFilter, CATEGORY_LABELS;

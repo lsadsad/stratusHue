@@ -56,6 +56,7 @@ body.touch-active .action-btn:hover,
 body.touch-active .nav-button:hover,
 body.touch-active .emoji-button:hover,
 body.touch-active .bookmark-item:hover,
+body.touch-active .lint-error-item:hover,
 body.touch-active .footer-icon-btn:hover,
 body.touch-active .theme-option:hover,
 body.touch-active .toggle-button:hover,
@@ -7643,10 +7644,16 @@ body.compact-mode #mode-strip {
   border-bottom: 1px solid var(--theme-border-primary);
   padding: 0;
   transition: background var(--transition-fast);
+  cursor: pointer;
 }
 
 .lint-error-item:last-child {
   border-bottom: none;
+}
+
+/* Hover covers the entire card — badge, name, detail, and action row */
+.lint-error-item:hover {
+  background: var(--theme-overlay-xweak);
 }
 
 /* Clickable row: badge + name */
@@ -7663,10 +7670,6 @@ body.compact-mode #mode-strip {
   cursor: pointer;
   font-family: var(--font-family);
   color: inherit;
-}
-
-.lint-item-row:hover {
-  background: var(--theme-overlay-xweak);
 }
 
 /* Category badges */
