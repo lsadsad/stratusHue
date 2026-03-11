@@ -9317,7 +9317,7 @@ body.compact-mode #mode-strip {
     });
   }
   function computeFitHeight() {
-    const main = document.querySelector("main.scrollable-content");
+    const main = document.querySelector("main.scrollable-content:not([hidden])");
     const footer = document.getElementById("footer");
     if (!main || !footer) {
       return 400;
@@ -9376,7 +9376,7 @@ body.compact-mode #mode-strip {
     }, 50);
   }
   function updateScrollBehaviorImmediate() {
-    const main = document.querySelector("main.scrollable-content");
+    const main = document.querySelector("main.scrollable-content:not([hidden])");
     if (!main)
       return;
     const containerHeight = main.clientHeight;

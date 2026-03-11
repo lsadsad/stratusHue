@@ -89,7 +89,9 @@ export function updateToggleUI(): void {
 
 // Compute natural content height respecting collapsed sections and sticky elements
 export function computeFitHeight(): number {
-  const main = document.querySelector('main.scrollable-content') as HTMLElement | null;
+  // Must select the VISIBLE main — there are multiple (one per mode) and the
+  // hidden ones have offsetHeight 0, which would collapse the plugin window.
+  const main = document.querySelector('main.scrollable-content:not([hidden])') as HTMLElement | null;
   const footer = document.getElementById('footer');
 
   if (!main || !footer) {
@@ -186,7 +188,7 @@ export function updateScrollBehavior(): void {
 
 // Internal function that does the actual work
 function updateScrollBehaviorImmediate(): void {
-  const main = document.querySelector('main.scrollable-content') as HTMLElement | null;
+  const main = document.querySelector('main.scrollable-content:not([hidden])') as HTMLElement | null;
   if (!main) return;
 
   // Get the current container height
