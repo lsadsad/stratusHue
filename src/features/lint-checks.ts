@@ -53,6 +53,10 @@ export function checkFills(node: SceneNode, _settings: LintSettings): LintError[
   fills.forEach((paint, i) => {
     if (!paint.visible) return;
     if (paint.type !== 'SOLID') return; // gradients/images exempt for now
+    // Skip if the fill color is bound to a Figma Variable (design token).
+    // Variables are distinct from Paint Styles — a variable-bound fill has
+    // fillStyleId === '' but paint.boundVariables.color set.
+    if ((paint as SolidPaint).boundVariables?.color) return;
 
     const match = matchPaintToStyle(paint as SolidPaint);
     const value = rgbaToHex(paint.color, paint.opacity ?? 1);
@@ -88,6 +92,8 @@ export function checkStrokes(node: SceneNode, _settings: LintSettings): LintErro
   strokes.forEach((paint, i) => {
     if (!paint.visible) return;
     if (paint.type !== 'SOLID') return;
+    // Skip if the stroke color is bound to a Figma Variable (design token).
+    if ((paint as SolidPaint).boundVariables?.color) return;
 
     const match = matchPaintToStyle(paint as SolidPaint);
     const value = rgbaToHex(paint.color, paint.opacity ?? 1);

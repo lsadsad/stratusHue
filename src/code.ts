@@ -569,7 +569,10 @@ figma.ui.onmessage = async (msg) => {
         if ('nodeId' in msg && typeof msg.nodeId === 'string') {
           const node = await figma.getNodeByIdAsync(msg.nodeId);
           if (node && node.type !== 'DOCUMENT' && node.type !== 'PAGE') {
-            figma.currentPage.selection = [node as SceneNode];
+            // Scroll+zoom only — do NOT change canvas selection.
+            // Setting selection in "selection" scope would change what the next
+            // scan covers, producing a narrower result set and making the error
+            // list appear to "refresh" unexpectedly after Fix/re-scan.
             figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
           }
         }
