@@ -123,7 +123,10 @@ const debouncedLintRescan = debounce(() => {
   // naturally rather than interrupting it with a restart.
   import('../features/lint-engine').then(({ runLintScan, isScanInProgress }) => {
     if (!isScanInProgress()) {
-      runLintScan().catch(console.error);
+      // 'auto' preserves the pinned selection snapshot so that navigating to
+      // a lint-error item (which changes canvas selection) doesn't alter the
+      // effective scan scope on this background re-scan.
+      runLintScan('auto').catch(console.error);
     }
   }).catch(console.error);
 }, 2000);

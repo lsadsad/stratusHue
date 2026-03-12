@@ -569,10 +569,11 @@ figma.ui.onmessage = async (msg) => {
         if ('nodeId' in msg && typeof msg.nodeId === 'string') {
           const node = await figma.getNodeByIdAsync(msg.nodeId);
           if (node && node.type !== 'DOCUMENT' && node.type !== 'PAGE') {
-            // Scroll+zoom only — do NOT change canvas selection.
-            // Setting selection in "selection" scope would change what the next
-            // scan covers, producing a narrower result set and making the error
-            // list appear to "refresh" unexpectedly after Fix/re-scan.
+            // Select the node (layer-panel visibility) then scroll to it.
+            // Auto re-scans call runLintScan('auto'), which reuses the pinned
+            // selection snapshot from the last user-initiated scan — so this
+            // selection change does NOT alter the effective scan scope.
+            figma.currentPage.selection = [node as SceneNode];
             figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
           }
         }

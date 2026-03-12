@@ -23,6 +23,18 @@ import { checkNode } from './lint-checks';
 let _generation = 0;
 let _scanInProgress = false;
 
+/**
+ * Snapshot of the canvas selection captured at the start of the last
+ * user-initiated scan. Auto re-scans (document-change debounce) reuse this
+ * so that clicking a lint-error item — which calls lint-select-node and
+ * therefore changes figma.currentPage.selection to a single child node —
+ * does not silently narrow the effective scan scope on the next re-scan.
+ *
+ * Reset to null on every user-initiated scan so scope always tracks the
+ * frame(s) the designer actually selected before clicking Scan / changing scope.
+ */
+let _scannedSelectionNodes: SceneNode[] | null = null;
+
 export function cancelLintScan(): void {
   _generation++;
 }
@@ -58,6 +70,7 @@ function collectNodes(
   skipPatterns: string[],
   scope: LintScope,
   scopeEmoji: string,
+  selectionOverride?: readonly SceneNode[],
 ): SceneNode[] {
   const result: SceneNode[] = [];
 
@@ -87,8 +100,10 @@ function collectNodes(
   }
 
   if (scope === 'selection') {
-    // Opt-in: scan only what the designer has selected
-    for (const node of figma.currentPage.selection) {
+    // Use the pinned snapshot when provided (auto re-scan after lint navigation)
+    // so clicking an error item doesn't narrow the scope to a single child node.
+    const selNodes = selectionOverride ?? figma.currentPage.selection;
+    for (const node of selNodes) {
       walk(node as SceneNode);
     }
   } else if (scope === 'tagged') {
@@ -110,7 +125,17 @@ function collectNodes(
 
 // ── Scan orchestrator ──────────────────────────────────────────────────────────
 
-export async function runLintScan(): Promise<void> {
+/**
+ * @param origin
+ *   'user'  — a designer-initiated scan (Scan button, scope change, settings
+ *             update, mode entry). Takes a fresh snapshot of the canvas
+ *             selection so that the scope tracks what the designer chose.
+ *   'auto'  — a background re-scan (2 s document-change debounce, or post
+ *             fix-all). Reuses the last snapshot so that navigating to a lint
+ *             error item — which briefly changes selection to a child node —
+ *             does not narrow the effective scope on the next re-scan.
+ */
+export async function runLintScan(origin: 'user' | 'auto' = 'user'): Promise<void> {
   const myGen = ++_generation; // claim this scan's generation
   _scanInProgress = true;
   const startMs = Date.now();
@@ -127,17 +152,30 @@ export async function runLintScan(): Promise<void> {
   const settings = getLintSettings();
   const ignoredIds = new Set(getIgnoredIds());
 
-  // 2. Collect nodes
+  // 2. Snapshot or reuse selection for "selection" scope.
+  //    User-initiated scans always refresh the snapshot. Auto re-scans preserve
+  //    the last snapshot so lint-select-node navigation doesn't silently change
+  //    which frame is being audited.
+  let selectionOverride: readonly SceneNode[] | undefined;
+  if ((settings.lintScope ?? 'selection') === 'selection') {
+    if (origin === 'user') {
+      _scannedSelectionNodes = [...figma.currentPage.selection] as SceneNode[];
+    }
+    selectionOverride = _scannedSelectionNodes ?? undefined;
+  }
+
+  // 3. Collect nodes
   const page = figma.currentPage;
   const nodes = collectNodes(
     page,
     settings.skipLayerNames ?? [],
     settings.lintScope ?? 'selection',
     settings.lintScopeEmoji ?? '✅',
+    selectionOverride,
   );
   const total = nodes.length;
 
-  // 3. Warn if large file (non-blocking)
+  // 4. Warn if large file (non-blocking)
   if (total > WARN_NODE_THRESHOLD) {
     figma.notify(`Scanning ${total} nodes — this may take a moment`, { timeout: 2000 });
   }
@@ -145,7 +183,7 @@ export async function runLintScan(): Promise<void> {
   // Send initial progress
   figma.ui.postMessage({ type: 'lint-progress', scanned: 0, total, phase: 'scanning' });
 
-  // 4. Walk and check
+  // 5. Walk and check
   const allErrors: LintError[] = [];
 
   for (let i = 0; i < nodes.length; i++) {
@@ -174,11 +212,11 @@ export async function runLintScan(): Promise<void> {
     return;
   }
 
-  // 5. Filter out ignored errors
+  // 6. Filter out ignored errors
   const visibleErrors = allErrors.filter(e => !ignoredIds.has(e.id));
   const scanMs = Date.now() - startMs;
 
-  // 6. Send results
+  // 7. Send results
   figma.ui.postMessage({
     type: 'lint-results',
     errors: visibleErrors,
@@ -187,10 +225,10 @@ export async function runLintScan(): Promise<void> {
     scanMs,
   });
 
-  // 7. Invalidate style cache so a re-scan picks up newly added styles
+  // 8. Invalidate style cache so a re-scan picks up newly added styles
   invalidateStyleCache();
 
-  // 8. Restore default (don't leave this set globally — other Figma operations may need it)
+  // 9. Restore default (don't leave this set globally — other Figma operations may need it)
   figma.skipInvisibleInstanceChildren = false;
   _scanInProgress = false;
 }
@@ -214,7 +252,9 @@ export async function runLintFixAll(
       ? `Applied ${applied} style${applied === 1 ? '' : 's'}`
       : `Applied ${applied} of ${fixes.length} styles`,
   );
-  await runLintScan();
+  // Use 'auto' to preserve the pinned selection snapshot — fix-all should
+  // verify the same original scope, not the current (possibly navigated) selection.
+  await runLintScan('auto');
 }
 
 // ── Fix action ────────────────────────────────────────────────────────────────
