@@ -1,0 +1,17 @@
+---
+description: Require real Figma functional validation for node-dependent bugs
+alwaysApply: true
+---
+
+# Figma Functional Testing Rule
+
+- For bugs involving page names, selections, nodes, bookmarks, plugin data, or `figma.*` behavior, validate in real Figma runtime before concluding.
+- Do not treat `prototype/plugin.html` as functional proof for node/document mutations.
+- Rebuild with `npm run build` before Figma verification and relaunch the dev plugin from `manifest.json`.
+- When debugging parser/composer flows, capture runtime values at:
+  1) input string,
+  2) parsed parts,
+  3) composed output.
+- Keep fixes minimal and evidence-based: change only the subsystem confirmed by runtime logs/tests.
+- Add a focused regression test for the exact failing input string when practical.
+
