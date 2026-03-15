@@ -1879,7 +1879,7 @@ h3 {
   flex-direction: column;
   position: relative;
   z-index: 0;
-  padding-bottom: 12px;
+  padding-bottom: 4px;
   background: var(--color-background-elevated);
 }
 
@@ -2175,7 +2175,7 @@ h3 {
   display: flex;
   gap: var(--spacing-lg);
   position: absolute;
-  bottom: calc(var(--spacing-sm) - 12px);
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
