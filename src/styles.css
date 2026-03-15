@@ -1879,7 +1879,7 @@ h3 {
   flex-direction: column;
   position: relative;
   z-index: 0;
-  padding-bottom: 16px;
+  padding-bottom: 12px;
   background: var(--color-background-elevated);
 }
 
@@ -1895,7 +1895,7 @@ h3 {
   flex-direction: column;
   gap: 4px;
   padding: 0 var(--spacing-xxl) calc(var(--spacing-lg) * 2 + var(--spacing-xxl) - 8px) var(--spacing-xxl);
-  padding-bottom: 16px;
+  padding-bottom: 12px;
 }
 
 
@@ -2187,7 +2187,13 @@ h3 {
 }
 
 /* emoji-nav-container icons match emoji-set-title muted color */
+.emoji-nav-container .emoji-nav-btn {
+  width: 16px;
+  height: 16px;
+}
 .emoji-nav-container .emoji-nav-btn .nav-arrow {
+  width: 16px;
+  height: 16px;
   filter: brightness(0) invert(1);
   opacity: 0.5;
 }
@@ -2328,8 +2334,8 @@ h3 {
 
 /* Ensure the arrow SVG itself matches stroke color */
 #tags-header .emoji-nav-btn .nav-arrow {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   filter: brightness(0);
   opacity: 1;
 }
@@ -2838,7 +2844,7 @@ h3 {
   width: 100%;
   min-width: 0;
   background: var(--color-background-elevated);
-  padding: 16px 12px;
+  padding: 16px 12px 8px 12px;
   border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
