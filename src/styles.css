@@ -6649,6 +6649,18 @@ i.grip {
   left: calc(var(--footer-height) + var(--spacing-sm));
 }
 
+#footer-width-toggle.footer-icon-btn .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#footer-width-toggle.footer-icon-btn .icon svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
 /* Toggle width button - match active toggle states */
 #footer-width-toggle.footer-icon-btn:hover {
   color: var(--figma-color-border-brand, #18a0fb);
