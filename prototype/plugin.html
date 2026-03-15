@@ -1887,6 +1887,7 @@ h3 {
   position: relative;
   z-index: 0;
   padding-bottom: 12px;
+  background: var(--color-background-elevated);
 }
 
 #color-section.collapsed {
@@ -2181,7 +2182,7 @@ h3 {
   display: flex;
   gap: var(--spacing-lg);
   position: absolute;
-  bottom: calc(var(--spacing-sm) - 12px);
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
@@ -2193,7 +2194,13 @@ h3 {
 }
 
 /* emoji-nav-container icons match emoji-set-title muted color */
+.emoji-nav-container .emoji-nav-btn {
+  width: 16px;
+  height: 16px;
+}
 .emoji-nav-container .emoji-nav-btn .nav-arrow {
+  width: 16px;
+  height: 16px;
   filter: brightness(0) invert(1);
   opacity: 0.5;
 }
@@ -2334,8 +2341,8 @@ h3 {
 
 /* Ensure the arrow SVG itself matches stroke color */
 #tags-header .emoji-nav-btn .nav-arrow {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   filter: brightness(0);
   opacity: 1;
 }
@@ -2844,7 +2851,7 @@ h3 {
   width: 100%;
   min-width: 0;
   background: var(--color-background-elevated);
-  padding: 16px 12px;
+  padding: 16px 12px 8px 12px;
   border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
@@ -6655,6 +6662,18 @@ i.grip {
   left: calc(var(--footer-height) + var(--spacing-sm));
 }
 
+#footer-width-toggle.footer-icon-btn .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#footer-width-toggle.footer-icon-btn .icon svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
 /* Toggle width button - match active toggle states */
 #footer-width-toggle.footer-icon-btn:hover {
   color: var(--figma-color-border-brand, #18a0fb);
@@ -7510,6 +7529,53 @@ body.compact-mode #mode-strip {
   color: var(--theme-text-primary);
 }
 
+/* Scope selector — segmented control */
+.lint-scope-bar {
+  display: flex;
+  padding: var(--spacing-sm) var(--spacing-xxl);
+  border-bottom: 1px solid var(--theme-border-primary);
+  flex-shrink: 0;
+}
+
+.lint-scope-btn {
+  flex: 1;
+  height: 24px;
+  margin-right: -1px; /* collapse shared borders */
+  position: relative;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-scope-btn:first-child {
+  border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+}
+
+.lint-scope-btn:last-child {
+  margin-right: 0;
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+}
+
+.lint-scope-btn:hover {
+  z-index: 1;
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-scope-btn.active {
+  z-index: 1;
+  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.15));
+  border-color: var(--figma-color-border-brand, #18a0fb);
+  color: var(--figma-color-border-brand, #18a0fb);
+}
+
 /* Filter pills */
 .lint-filter-pills {
   display: flex;
@@ -8326,10 +8392,10 @@ body.compact-mode #mode-strip {
       <div class="header-right">
         <nav class="header-nav-group" role="group" aria-label="Navigation history">
           <button id="back-btn" class="header-nav-btn" aria-label="Go back" data-tooltip-placement="left-group" disabled tabindex="-1" onclick="event.stopPropagation();">
-            <span class="icon"><svg class="lucide lucide-undo-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M9 14 4 9l5-5" /> <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /> </svg></span>
+            <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <g transform="scale(-1 1) translate(-16 0)"> <path d="M10.625 11.7502L15 7.3751L10.625 3" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> <path d="M1 12.6251V10.8751C1 9.9468 1.36875 9.05654 2.02513 8.40015C2.6815 7.74376 3.57174 7.375 4.5 7.375H15" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> </g> </svg></span>
           </button>
           <button id="forward-btn" class="header-nav-btn" aria-label="Go forward" data-tooltip-placement="left-group" disabled tabindex="-1" onclick="event.stopPropagation();">
-            <span class="icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.625 11.7502L15 7.3751L10.625 3" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> <path d="M1 12.6251V10.8751C1 9.9468 1.36875 9.05654 2.02513 8.40015C2.6815 7.74376 3.57174 7.375 4.5 7.375H15" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> </svg></span>
+            <span class="icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.625 11.7502L15 7.3751L10.625 3" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> <path d="M1 12.6251V10.8751C1 9.9468 1.36875 9.05654 2.02513 8.40015C2.6815 7.74376 3.57174 7.375 4.5 7.375H15" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> </svg></span>
           </button>
         </nav>
       </div>
@@ -8752,6 +8818,13 @@ body.compact-mode #mode-strip {
             <input type="text" id="lint-skip-names" class="lint-radii-input" placeholder="_spec, annotation, redline…" aria-describedby="lint-skip-names-desc" tabindex="-1">
             <p class="settings-help-text" id="lint-skip-names-desc">Comma-separated substrings. Matching layers and their children are excluded from the scan.</p>
           </div>
+
+          <!-- Tagged scope emoji -->
+          <div class="setting-item">
+            <label for="lint-scope-emoji" class="nudge-label">Tagged scope emoji</label>
+            <input type="text" id="lint-scope-emoji" class="lint-radii-input" value="✅" maxlength="4" placeholder="✅" aria-describedby="lint-scope-emoji-desc" tabindex="-1">
+            <p class="settings-help-text" id="lint-scope-emoji-desc">When scope is "Tagged", frames whose name contains this emoji are scanned.</p>
+          </div>
         </div>
 
         <!-- Support Section -->
@@ -8779,7 +8852,9 @@ body.compact-mode #mode-strip {
         </button>
       </li>
       <li>
-        <button id="footer-width-toggle" class="footer-icon-btn" aria-label="Toggle width" data-tooltip-placement="above" title="Width" tabindex="-1">↔</button>
+        <button id="footer-width-toggle" class="footer-icon-btn" aria-label="Toggle width" data-tooltip-placement="above" title="Width" tabindex="-1">
+          <span class="icon"><svg class="lucide lucide-arrow-left-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M8 3 4 7l4 4" /> <path d="M4 7h16" /> <path d="m16 21 4-4-4-4" /> <path d="M20 17H4" /> </svg></span>
+        </button>
       </li>
       <li>
         <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel (double-click to toggle auto-fit)" tabindex="-1">
@@ -8865,6 +8940,26 @@ body.compact-mode #mode-strip {
     </button>
   `;
     frag.appendChild(header);
+    const scopeBar = document.createElement("div");
+    scopeBar.id = "lint-scope-bar";
+    scopeBar.className = "lint-scope-bar";
+    scopeBar.setAttribute("role", "group");
+    scopeBar.setAttribute("aria-label", "Scan scope");
+    const scopeOptions = [
+      { id: "selection", label: "Selected", title: "Scan only selected frames and layers" },
+      { id: "tagged", label: "Tagged", title: `Scan only frames tagged with the scope emoji` },
+      { id: "page", label: "Page", title: "Scan all layers on the current page" }
+    ];
+    scopeOptions.forEach(({ id, label, title }) => {
+      const btn = document.createElement("button");
+      btn.className = "lint-scope-btn" + (id === _currentScope ? " active" : "");
+      btn.dataset.scope = id;
+      btn.title = title;
+      btn.textContent = label;
+      btn.addEventListener("click", () => _setScope(id));
+      scopeBar.appendChild(btn);
+    });
+    frag.appendChild(scopeBar);
     const pills = document.createElement("div");
     pills.id = "lint-filter-pills";
     pills.className = "lint-filter-pills";
@@ -8942,6 +9037,44 @@ body.compact-mode #mode-strip {
   function requestLintScan() {
     _setView("scanning");
     sendMessage("lint-run-scan");
+  }
+  function _setScope(scope) {
+    if (_currentScope === scope)
+      return;
+    _currentScope = scope;
+    document.querySelectorAll(".lint-scope-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.scope === scope);
+    });
+    _setView("scanning");
+    sendMessage("lint-set-scope", { scope });
+  }
+  function _setNullState(nodeCount) {
+    const nullIcon = document.querySelector(".lint-null-icon");
+    const nullMsg = document.querySelector(".lint-null-message");
+    const nullSub = document.querySelector(".lint-null-sub");
+    if (nodeCount === 0 && _currentScope === "selection") {
+      if (nullIcon)
+        nullIcon.textContent = "\u2196";
+      if (nullMsg)
+        nullMsg.textContent = "Nothing selected";
+      if (nullSub)
+        nullSub.textContent = "Select a frame or layer on the canvas to scan";
+    } else if (nodeCount === 0 && _currentScope === "tagged") {
+      if (nullIcon)
+        nullIcon.textContent = "\u{1F3F7}";
+      if (nullMsg)
+        nullMsg.textContent = "No tagged frames";
+      if (nullSub)
+        nullSub.textContent = `Add ${_currentScopeEmoji} to a frame name to include it`;
+    } else {
+      if (nullIcon)
+        nullIcon.textContent = "\u2713";
+      if (nullMsg)
+        nullMsg.textContent = "No style errors found";
+      if (nullSub)
+        nullSub.textContent = "Click Scan to check again";
+    }
+    _setView("null");
   }
   function setLintFilter(category) {
     _activeFilter = category;
@@ -9074,11 +9207,15 @@ body.compact-mode #mode-strip {
       return;
     sendMessage("lint-ignore-all", { errorIds });
   }
-  function handleLintResults(errors) {
+  function handleLintResults(errors, nodeCount) {
     _currentErrors = errors;
     _renderErrors(_currentErrors);
     _updateBadge(_currentErrors.length);
-    _setView(_currentErrors.length === 0 ? "null" : "results");
+    if (_currentErrors.length === 0) {
+      _setNullState(nodeCount);
+    } else {
+      _setView("results");
+    }
     _applyFilter();
   }
   function handleLintProgress(scanned, total) {
@@ -9147,9 +9284,16 @@ body.compact-mode #mode-strip {
         e.currentTarget.blur();
       }
     });
+    const emojiInput = document.getElementById("lint-scope-emoji");
+    emojiInput == null ? void 0 : emojiInput.addEventListener("blur", () => _flushLintSettings());
+    emojiInput == null ? void 0 : emojiInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.currentTarget.blur();
+      }
+    });
   }
   function _flushLintSettings() {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e, _f;
     const enabled = (id) => {
       var _a2, _b2;
       return (_b2 = (_a2 = document.getElementById(id)) == null ? void 0 : _a2.checked) != null ? _b2 : true;
@@ -9158,6 +9302,8 @@ body.compact-mode #mode-strip {
     const allowedRadii = radiiRaw.split(",").map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n));
     const skipRaw = (_d = (_c = document.getElementById("lint-skip-names")) == null ? void 0 : _c.value) != null ? _d : "";
     const skipLayerNames = skipRaw.split(",").map((s) => s.trim()).filter(Boolean);
+    const lintScopeEmoji = ((_f = (_e = document.getElementById("lint-scope-emoji")) == null ? void 0 : _e.value) != null ? _f : "\u2705").trim() || "\u2705";
+    _currentScopeEmoji = lintScopeEmoji;
     sendMessage("lint-update-settings", {
       settings: {
         enableFill: enabled("lint-toggle-fill"),
@@ -9166,7 +9312,8 @@ body.compact-mode #mode-strip {
         enableEffects: enabled("lint-toggle-effects"),
         enableRadius: enabled("lint-toggle-radius"),
         allowedRadii: allowedRadii.length > 0 ? allowedRadii : [0, 2, 4, 8, 16, 24, 100],
-        skipLayerNames
+        skipLayerNames,
+        lintScopeEmoji
       }
     });
   }
@@ -9191,8 +9338,21 @@ body.compact-mode #mode-strip {
       if (skipInput)
         skipInput.value = settings.skipLayerNames.join(", ");
     }
+    if (typeof settings.lintScope === "string") {
+      const scope = settings.lintScope;
+      _currentScope = scope;
+      document.querySelectorAll(".lint-scope-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.scope === scope);
+      });
+    }
+    if (typeof settings.lintScopeEmoji === "string" && settings.lintScopeEmoji) {
+      _currentScopeEmoji = settings.lintScopeEmoji;
+      const emojiInput = document.getElementById("lint-scope-emoji");
+      if (emojiInput)
+        emojiInput.value = _currentScopeEmoji;
+    }
   }
-  var _initialized, _currentErrors, _activeFilter, _activeErrorId, CATEGORY_LABELS;
+  var _initialized, _currentErrors, _activeFilter, _activeErrorId, _currentScope, _currentScopeEmoji, CATEGORY_LABELS;
   var init_lint_ui = __esm({
     "src/ui/lint/lint-ui.ts"() {
       "use strict";
@@ -9201,6 +9361,8 @@ body.compact-mode #mode-strip {
       _currentErrors = [];
       _activeFilter = "all";
       _activeErrorId = null;
+      _currentScope = "selection";
+      _currentScopeEmoji = "\u2705";
       CATEGORY_LABELS = {
         fill: "FILL",
         stroke: "STROKE",
@@ -10750,7 +10912,7 @@ body.compact-mode #mode-strip {
         } else if (previousBookmarkId && bookmark.id === previousBookmarkId) {
           li.classList.add("recent-history");
         }
-        const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId ? '<svg class="lucide lucide-footprints recent-steps-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" /> <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" /> <path d="M16 17h4" /> <path d="M4 13h4" /> </svg>' : "";
+        const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId && bookmark.id !== currentAnchorId ? '<svg class="lucide lucide-footprints recent-steps-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" /> <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" /> <path d="M16 17h4" /> <path d="M4 13h4" /> </svg>' : "";
         li.innerHTML = `
         <div class="bookmark-content">
           <div class="bookmark-name">${bookmark.name}</div>
@@ -13039,7 +13201,8 @@ body.compact-mode #mode-strip {
       case "lint-results":
         if (lintUIInitialized) {
           Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleLintResults: handleLintResults2 }) => {
-            handleLintResults2(message.errors);
+            var _a2;
+            handleLintResults2(message.errors, (_a2 = message.nodeCount) != null ? _a2 : 0);
           }).catch(console.error);
         }
         break;
