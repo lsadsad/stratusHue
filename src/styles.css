@@ -1879,7 +1879,8 @@ h3 {
   flex-direction: column;
   position: relative;
   z-index: 0;
-  padding-bottom: 12px;
+  padding-bottom: 16px;
+  background: var(--color-background-elevated);
 }
 
 #color-section.collapsed {
@@ -1894,7 +1895,7 @@ h3 {
   flex-direction: column;
   gap: 4px;
   padding: 0 var(--spacing-xxl) calc(var(--spacing-lg) * 2 + var(--spacing-xxl) - 8px) var(--spacing-xxl);
-  padding-bottom: 12px;
+  padding-bottom: 16px;
 }
 
 
