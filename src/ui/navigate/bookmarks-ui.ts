@@ -131,8 +131,10 @@ export function updateBookmarksList(
         li.classList.add('recent-history');
       }
 
-      // Inner content
-      const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId
+      // Inner content: only show recent-steps icon when this row has recent-history class.
+      // When currentAnchorId === previousBookmarkId (tap same anchor twice), the row gets
+      // current-anchor but not recent-history, so the icon would be unstyled and fill width.
+      const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId && bookmark.id !== currentAnchorId
         ? '<img src="./assets/ICO-recentSteps.svg" alt="" class="recent-steps-icon">'
         : '';
 
