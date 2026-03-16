@@ -568,16 +568,19 @@ export function setupEventListeners(): void {
       // Toggle the state
       isWidthCompact = !isWidthCompact;
 
-      // Toggle the compact-mode class on scrollable-content
-      const scrollableContent = document.querySelector('.scrollable-content');
-      if (scrollableContent) {
+      // Toggle the compact-mode class on all scrollable-content mains (navigate + validate)
+      const allScrollable = document.querySelectorAll('.scrollable-content');
+      allScrollable.forEach((el) => {
         if (isWidthCompact) {
-          scrollableContent.classList.add('compact-mode');
-          widthToggleBtn.classList.add('active');
+          el.classList.add('compact-mode');
         } else {
-          scrollableContent.classList.remove('compact-mode');
-          widthToggleBtn.classList.remove('active');
+          el.classList.remove('compact-mode');
         }
+      });
+      if (isWidthCompact) {
+        widthToggleBtn.classList.add('active');
+      } else {
+        widthToggleBtn.classList.remove('active');
       }
 
       sendMessage('toggle-width');

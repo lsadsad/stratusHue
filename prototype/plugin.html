@@ -1886,7 +1886,7 @@ h3 {
   flex-direction: column;
   position: relative;
   z-index: 0;
-  padding-bottom: 12px;
+  padding-bottom: 4px;
   background: var(--color-background-elevated);
 }
 
@@ -2504,8 +2504,8 @@ h3 {
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
   width: 100%;
-  padding: var(--spacing-lg) 6px var(--spacing-lg) 6px;
-  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) 4px var(--spacing-lg) 2px;
+  gap: 0;
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
@@ -2530,7 +2530,7 @@ h3 {
 }
 
 .header-left {
-  gap: var(--spacing-sm);
+  gap: 4px;
   z-index: 1;
 }
 
@@ -2728,8 +2728,8 @@ h3 {
 
 #controls-header {
   background-color: var(--color-background-elevated);
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 2px;
+  padding-right: 4px;
 }
 
 #tags-header .header-subtitle {
@@ -2784,39 +2784,43 @@ h3 {
   color: inherit;
 }
 
-/* Arrow States */
-.arrow {
-  font-size: var(--icon-size-lg);
-  font-weight: var(--font-weight-heavy);
-  color: var(--color-text-primary);
-  width: var(--arrow-width);
-}
-
-.arrow::before {
-  display: flex;
+/* Header caret - Lucide chevron-down / chevron-right */
+/* Both carets stay in flow (display: inline-flex) so the header-left width is
+   always reserved and the title never shifts. Only the correct icon for the
+   current aria-expanded state is shown; the other is removed from flow with
+   display:none. Visibility is controlled with opacity on hover/focus. */
+.header-caret {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  line-height: 1;
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 
-.section-header[aria-expanded="true"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.header-caret svg {
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  display: block;
+  color: inherit;
 }
 
-.section-header[aria-expanded="true"] .arrow::before {
-  content: "−";
+/* Hide the wrong icon entirely so only one occupies space */
+.section-header[aria-expanded="true"] .header-caret-right {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.section-header[aria-expanded="false"] .header-caret-down {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow::before {
-  content: "+";
+/* Reveal on hover / keyboard focus */
+.section-header:hover .header-caret,
+.section-header:focus-visible .header-caret {
+  opacity: 1;
 }
 
 .section-header[aria-expanded="true"] {
@@ -2851,7 +2855,7 @@ h3 {
   width: 100%;
   min-width: 0;
   background: var(--color-background-elevated);
-  padding: 16px 12px 8px 12px;
+  padding: 12px 12px 12px 12px;
   border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
@@ -6804,8 +6808,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
   width: 100%;
-  padding: var(--spacing-xxl) 6px var(--spacing-xxl) 6px;
-  gap: var(--spacing-lg);
+  padding: var(--spacing-xxl) 4px var(--spacing-xxl) 2px;
+  gap: 0;
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
@@ -6829,7 +6833,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .header-left {
-  gap: calc(var(--spacing-xxl) - var(--spacing-sm));
+  gap: 4px;
 }
 
 .header-right {
@@ -6837,39 +6841,37 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   margin-left: auto;
 }
 
-/* Arrow States - Unified expand/collapse indicators */
-.arrow {
-  font-size: var(--icon-size-lg);
-  font-weight: var(--font-weight-heavy);
-  color: var(--color-text-primary);
-  width: var(--arrow-width);
-}
-
-.arrow::before {
-  display: flex;
+/* Header caret - Lucide chevron-down / chevron-right (unified block) */
+.header-caret {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  line-height: 1;
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 
-.section-header[aria-expanded="true"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.header-caret svg {
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  display: block;
+  color: inherit;
 }
 
-.section-header[aria-expanded="true"] .arrow::before {
-  content: "−";
+.section-header[aria-expanded="true"] .header-caret-right {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.section-header[aria-expanded="false"] .header-caret-down {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow::before {
-  content: "+";
+.section-header:hover .header-caret,
+.section-header:focus-visible .header-caret {
+  opacity: 1;
 }
 
 .section-header[aria-expanded="true"] {
@@ -7925,14 +7927,18 @@ body.compact-mode #mode-strip {
             var chrome = document.getElementById('plugin-chrome');
             if (chrome) {
               chrome.style.setProperty('width', w, 'important');
-              var main = chrome.querySelector('main.scrollable-content');
+              var allMains = chrome.querySelectorAll('main.scrollable-content');
               var footer = chrome.querySelector('footer');
-              [main, footer].forEach(function (el) {
-                if (!el) return;
+              allMains.forEach(function (el) {
                 el.style.setProperty('width', w, 'important');
                 el.style.setProperty('min-width', w, 'important');
                 el.style.setProperty('max-width', w, 'important');
               });
+              if (footer) {
+                footer.style.setProperty('width', w, 'important');
+                footer.style.setProperty('min-width', w, 'important');
+                footer.style.setProperty('max-width', w, 'important');
+              }
             }
           }
         }
@@ -8305,6 +8311,8 @@ body.compact-mode #mode-strip {
     <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="-1"
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
+        <span class="header-caret header-caret-down" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="header-caret header-caret-right" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </div>
       <div class="header-center">
         <h2 class="header-title">Tags</h2>
@@ -8356,6 +8364,8 @@ body.compact-mode #mode-strip {
     <header id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button"
       tabindex="-1" aria-expanded="true" aria-controls="anchors-section">
       <div class="header-left">
+        <span class="header-caret header-caret-down" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="header-caret header-caret-right" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </div>
       <div class="header-center">
         <h2 class="header-title">Anchors</h2>
@@ -8385,6 +8395,8 @@ body.compact-mode #mode-strip {
     <header id="controls-header" class="section-header collapsible" data-target="controls-section" role="button"
       tabindex="-1" aria-expanded="true" aria-controls="controls-section">
       <div class="header-left">
+        <span class="header-caret header-caret-down" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="header-caret header-caret-right" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </div>
       <div class="header-center">
         <h2 class="header-title">Controls</h2>
@@ -12141,18 +12153,25 @@ body.compact-mode #mode-strip {
     }
     if (widthToggleBtn) {
       widthToggleBtn.addEventListener("click", () => {
+        var _a, _b;
         console.log("Toggle width");
         isWidthCompact = !isWidthCompact;
-        const scrollableContent = document.querySelector(".scrollable-content");
-        if (scrollableContent) {
+        const allScrollable = document.querySelectorAll(".scrollable-content");
+        const visibleMainId = (_b = (_a = document.querySelector("main.scrollable-content:not([hidden])")) == null ? void 0 : _a.id) != null ? _b : null;
+        allScrollable.forEach((el) => {
           if (isWidthCompact) {
-            scrollableContent.classList.add("compact-mode");
-            widthToggleBtn.classList.add("active");
+            el.classList.add("compact-mode");
           } else {
-            scrollableContent.classList.remove("compact-mode");
-            widthToggleBtn.classList.remove("active");
+            el.classList.remove("compact-mode");
           }
+        });
+        if (isWidthCompact) {
+          widthToggleBtn.classList.add("active");
+        } else {
+          widthToggleBtn.classList.remove("active");
         }
+        fetch("http://127.0.0.1:7247/ingest/a65222d9-3afe-4dbf-a224-58226ab254d1", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "069666" }, body: JSON.stringify({ sessionId: "069666", location: "navigate-ui.ts:width-toggle", message: "compact-mode applied", data: { appliedCount: allScrollable.length, visibleMainId }, timestamp: Date.now(), hypothesisId: "B", runId: "post-fix" }) }).catch(() => {
+        });
         sendMessage("toggle-width");
       });
       widthToggleBtn.addEventListener("mouseenter", () => {

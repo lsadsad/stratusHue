@@ -23,14 +23,18 @@
             var chrome = document.getElementById('plugin-chrome');
             if (chrome) {
               chrome.style.setProperty('width', w, 'important');
-              var main = chrome.querySelector('main.scrollable-content');
+              var allMains = chrome.querySelectorAll('main.scrollable-content');
               var footer = chrome.querySelector('footer');
-              [main, footer].forEach(function (el) {
-                if (!el) return;
+              allMains.forEach(function (el) {
                 el.style.setProperty('width', w, 'important');
                 el.style.setProperty('min-width', w, 'important');
                 el.style.setProperty('max-width', w, 'important');
               });
+              if (footer) {
+                footer.style.setProperty('width', w, 'important');
+                footer.style.setProperty('min-width', w, 'important');
+                footer.style.setProperty('max-width', w, 'important');
+              }
             }
           }
         }
