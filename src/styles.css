@@ -2497,8 +2497,8 @@ h3 {
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
   width: 100%;
-  padding: var(--spacing-lg) 6px var(--spacing-lg) 6px;
-  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) 4px var(--spacing-lg) 2px;
+  gap: 0;
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
@@ -2523,7 +2523,7 @@ h3 {
 }
 
 .header-left {
-  gap: var(--spacing-sm);
+  gap: 4px;
   z-index: 1;
 }
 
@@ -2721,8 +2721,8 @@ h3 {
 
 #controls-header {
   background-color: var(--color-background-elevated);
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 2px;
+  padding-right: 4px;
 }
 
 #tags-header .header-subtitle {
@@ -2777,39 +2777,43 @@ h3 {
   color: inherit;
 }
 
-/* Arrow States */
-.arrow {
-  font-size: var(--icon-size-lg);
-  font-weight: var(--font-weight-heavy);
-  color: var(--color-text-primary);
-  width: var(--arrow-width);
-}
-
-.arrow::before {
-  display: flex;
+/* Header caret - Lucide chevron-down / chevron-right */
+/* Both carets stay in flow (display: inline-flex) so the header-left width is
+   always reserved and the title never shifts. Only the correct icon for the
+   current aria-expanded state is shown; the other is removed from flow with
+   display:none. Visibility is controlled with opacity on hover/focus. */
+.header-caret {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  line-height: 1;
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 
-.section-header[aria-expanded="true"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.header-caret svg {
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  display: block;
+  color: inherit;
 }
 
-.section-header[aria-expanded="true"] .arrow::before {
-  content: "−";
+/* Hide the wrong icon entirely so only one occupies space */
+.section-header[aria-expanded="true"] .header-caret-right {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.section-header[aria-expanded="false"] .header-caret-down {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow::before {
-  content: "+";
+/* Reveal on hover / keyboard focus */
+.section-header:hover .header-caret,
+.section-header:focus-visible .header-caret {
+  opacity: 1;
 }
 
 .section-header[aria-expanded="true"] {
@@ -6797,8 +6801,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
   width: 100%;
-  padding: var(--spacing-xxl) 6px var(--spacing-xxl) 6px;
-  gap: var(--spacing-lg);
+  padding: var(--spacing-xxl) 4px var(--spacing-xxl) 2px;
+  gap: 0;
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
@@ -6822,7 +6826,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .header-left {
-  gap: calc(var(--spacing-xxl) - var(--spacing-sm));
+  gap: 4px;
 }
 
 .header-right {
@@ -6830,39 +6834,37 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   margin-left: auto;
 }
 
-/* Arrow States - Unified expand/collapse indicators */
-.arrow {
-  font-size: var(--icon-size-lg);
-  font-weight: var(--font-weight-heavy);
-  color: var(--color-text-primary);
-  width: var(--arrow-width);
-}
-
-.arrow::before {
-  display: flex;
+/* Header caret - Lucide chevron-down / chevron-right (unified block) */
+.header-caret {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  line-height: 1;
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 
-.section-header[aria-expanded="true"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.header-caret svg {
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  display: block;
+  color: inherit;
 }
 
-.section-header[aria-expanded="true"] .arrow::before {
-  content: "−";
+.section-header[aria-expanded="true"] .header-caret-right {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.section-header[aria-expanded="false"] .header-caret-down {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow::before {
-  content: "+";
+.section-header:hover .header-caret,
+.section-header:focus-visible .header-caret {
+  opacity: 1;
 }
 
 .section-header[aria-expanded="true"] {
