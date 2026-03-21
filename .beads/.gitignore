@@ -1,6 +1,9 @@
 # Dolt runtime lock
 dolt-access.lock
 
+# Credential key (machine-local, sensitive)
+.beads-credential-key
+
 # Dolt stats (frequently updated, machine-local)
 dolt/.dolt/stats/
 
