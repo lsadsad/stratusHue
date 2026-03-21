@@ -1,6 +1,9 @@
 # Dolt runtime lock
 dolt-access.lock
 
+# Dolt stats (frequently updated, machine-local)
+dolt/.dolt/stats/
+
 # Runtime files
 bd.sock
 bd.sock.startlock
