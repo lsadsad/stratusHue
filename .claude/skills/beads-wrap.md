@@ -179,7 +179,21 @@ BEADS_EOF
 
 **If this write fails:** output the session note as plain text so the work is not lost. Report the error.
 
-After writing (or attempting to write) the session note, offer:
+---
+
+## Step 8: Publish Backup Snapshot
+
+Run:
+
+```bash
+bd backup export-git
+```
+
+This publishes the JSONL snapshot to the `beads-backup` git branch so other machines can restore the database with `bd backup fetch-git`. Report success or failure but do not block on errors — the session note is already written.
+
+---
+
+After completing Step 8, offer:
 > "Any memory candidates from this session worth saving to long-term memory? I can save them before we close."
 
 ---
