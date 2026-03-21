@@ -1,11 +1,9 @@
-# Dolt runtime lock
+# Dolt database (managed by Dolt, not git — use bd backup export-git/fetch-git to sync)
+dolt/
 dolt-access.lock
 
 # Credential key (machine-local, sensitive)
 .beads-credential-key
-
-# Dolt stats (frequently updated, machine-local)
-dolt/.dolt/stats/
 
 # Runtime files
 bd.sock
