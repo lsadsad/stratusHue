@@ -142,7 +142,7 @@ packages
 .pnp.*
 
 # Dolt database files (added by bd init)
-.dolt/
+/.dolt/
 *.db
 
 # Excalidraw files
