@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "stratusHue",
+  "project_id": "17dd5471-dca5-4462-ab8e-211bc2bb293b"
+}

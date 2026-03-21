@@ -137,3 +137,7 @@ packages
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
