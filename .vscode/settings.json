@@ -25,5 +25,29 @@
   "typescript.format.placeOpenBraceOnNewLineForFunctions": false,
   "typescript.format.placeOpenBraceOnNewLineForControlBlocks": false,
   "typescript.workspaceSymbols.scope": "currentProject",
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "chat.tools.terminal.autoApprove": {
+    "mkdir": true,
+    "/^node -e \"JSON\\.parse\\(require\\('fs'\\)\\.readFileSync\\('/Users/es5017/Documents/Github/stratusHue/docs/features/recipes/product-design-full\\.recipe\\.json','utf8'\\)\\); console\\.log\\('valid JSON'\\)\" && ls -la /Users/es5017/Documents/Github/stratusHue/docs/features/recipes/$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^node -e \"JSON\\.parse\\(require\\('fs'\\)\\.readFileSync\\('docs/features/recipes/product-design-full\\.recipe\\.json','utf8'\\)\\); console\\.log\\('valid JSON'\\)\" && git status --short$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "bd": true,
+    "/^node -e \"JSON\\.parse\\(require\\('fs'\\)\\.readFileSync\\('docs/features/recipes/product-design-full\\.recipe\\.json','utf8'\\)\\); console\\.log\\('valid JSON'\\)\"$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^cat <<'EOF' \\| node ~/\\.copilot/skills/ascii-visuals/scripts/ascii-sequence\\.js\n\\{\n  \"participants\": \\[\"Browser\", \"CDN\", \"Origin Server\", \"Database\"\\],\n  \"messages\": \\[\n    \\{ \"from\": \"Browser\", \"to\": \"CDN\", \"label\": \"GET /page\" \\},\n    \\{ \"from\": \"CDN\", \"to\": \"CDN\", \"label\": \"cache HIT\\?\", \"type\": \"decision\",\n      \"branches\": \\[\n        \\{ \"label\": \"yes\", \"messages\": \\[\n          \\{ \"from\": \"CDN\", \"to\": \"Browser\", \"label\": \"200 \\(cached\\)\" \\}\n        \\]\\},\n        \\{ \"label\": \"no\", \"messages\": \\[\n          \\{ \"from\": \"CDN\", \"to\": \"Origin Server\", \"label\": \"fwd\" \\},\n          \\{ \"from\": \"Origin Server\", \"to\": \"Database\", \"label\": \"SELECT\" \\},\n          \\{ \"from\": \"Database\", \"to\": \"Origin Server\", \"label\": \"rows\" \\}\n        \\]\\}\n      \\]\n    \\},\n    \\{ \"from\": \"Origin Server\", \"to\": \"Browser\", \"label\": \"200 \\(\\+cache\\)\" \\}\n  \\]\n\\}\nEOF$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^cat <<'EOF' \\| node ~/\\.copilot/skills/ascii-visuals/scripts/ascii-sequence\\.js\n\\{\n  \"participants\": \\[\"Client\", \"API Gateway\", \"Auth Service\", \"User Service\", \"Database\"\\],\n  \"messages\": \\[\n    \\{ \"from\": \"Client\", \"to\": \"API Gateway\", \"label\": \"POST /login\" \\},\n    \\{ \"from\": \"API Gateway\", \"to\": \"Auth Service\", \"label\": \"validate\" \\},\n    \\{ \"from\": \"Auth Service\", \"to\": \"Database\", \"label\": \"SELECT user\" \\},\n    \\{ \"from\": \"Database\", \"to\": \"Auth Service\", \"label\": \"user row\" \\},\n    \\{ \"from\": \"Auth Service\", \"to\": \"API Gateway\", \"label\": \"JWT token\" \\},\n    \\{ \"from\": \"API Gateway\", \"to\": \"Client\", \"label\": \"200 \\+ token\" \\}\n  \\]\n\\}\nEOF$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
 }
