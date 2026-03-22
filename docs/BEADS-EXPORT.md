@@ -2,8 +2,8 @@
 
 Exported: 2026-03-22  |  Total: 12 issues
 
-> Re-import guide: on the target machine, run `bd init` then use `bd create` 
-> for each open issue below (copy id, title, description, priority, type).
+> Re-import: `bd init` then recreate open issues with `bd create`.
+> Full DB restore: `dolt sql < .beads/backup/<file>.sql` inside `.beads/dolt/stratusHue/`
 
 ## Open (12)
 
@@ -146,4 +146,3 @@ Add token audit to Validate mode. Per-page scan of variable (token) coverage aga
 Add component check to Validate mode. Per-page audit of component instances: flag detached components, components from unapproved libraries, and outdated component versions. Compliance rules sourced from recipe layer ⑤.
 
 ---
-
