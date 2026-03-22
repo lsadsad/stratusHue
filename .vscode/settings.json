@@ -48,6 +48,10 @@
     "/^cat <<'EOF' \\| node ~/\\.copilot/skills/ascii-visuals/scripts/ascii-sequence\\.js\n\\{\n  \"participants\": \\[\"Client\", \"API Gateway\", \"Auth Service\", \"User Service\", \"Database\"\\],\n  \"messages\": \\[\n    \\{ \"from\": \"Client\", \"to\": \"API Gateway\", \"label\": \"POST /login\" \\},\n    \\{ \"from\": \"API Gateway\", \"to\": \"Auth Service\", \"label\": \"validate\" \\},\n    \\{ \"from\": \"Auth Service\", \"to\": \"Database\", \"label\": \"SELECT user\" \\},\n    \\{ \"from\": \"Database\", \"to\": \"Auth Service\", \"label\": \"user row\" \\},\n    \\{ \"from\": \"Auth Service\", \"to\": \"API Gateway\", \"label\": \"JWT token\" \\},\n    \\{ \"from\": \"API Gateway\", \"to\": \"Client\", \"label\": \"200 \\+ token\" \\}\n  \\]\n\\}\nEOF$/": {
       "approve": true,
       "matchCommandLine": true
+    },
+    "/^git pull --rebase && git push$/": {
+      "approve": true,
+      "matchCommandLine": true
     }
   }
 }
