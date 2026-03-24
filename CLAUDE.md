@@ -2,6 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Beads Cross-Machine Sync
+
+**Do NOT use `bd dolt pull` to sync between machines.** Dolt remote sync requires matching SSH config and shared commit history — it breaks across machines with different git remotes or after a restore.
+
+**Use the JSONL backup route instead:**
+
+```bash
+bd backup fetch-git   # pulls latest JSONL from git and restores locally
+```
+
+This works on any machine regardless of SSH setup.
+
+---
+
 ## Commands
 
 ```bash
