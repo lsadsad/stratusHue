@@ -1,0 +1,11 @@
+Memories (3):
+
+  2026-03-25-brainstorm-template-utility-audit-completed
+    2026-03-25 brainstorm: Template utility audit completed. Key findings: (1) Recipe should be intent/rules not state â€...
+
+  recipe-design-principle-recipe-rulebook-intent-figma-file
+    Recipe design principle: recipe = rulebook (intent), Figma file = state. Never duplicate Figma-queryable data in reci...
+
+  template-audit-open-question-team-must-confirm-which
+    Template audit open question: team must confirm which template elements are genuinely load-bearing before plugin enco...
+
