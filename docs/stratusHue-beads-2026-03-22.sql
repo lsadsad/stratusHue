@@ -207,7 +207,7 @@ CREATE TABLE `metadata` (
   `value` text NOT NULL,
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin;
-INSERT INTO `metadata` (`key`,`value`) VALUES ('_project_id','17dd5471-dca5-4462-ab8e-211bc2bb293b'), ('bd_version','0.61.0'), ('clone_id','fc0524284148fd98'), ('last_import_time','2026-03-21T10:58:59-07:00'), ('repo_id','95c2d912e798fcd04dd92092f53dba95');
+INSERT INTO `metadata` (`key`,`value`) VALUES ('_project_id','17dd5471-dca5-4462-ab8e-211bc2bb293b'), ('bd_version','0.62.0'), ('clone_id','fc0524284148fd98'), ('last_import_time','2026-03-21T10:58:59-07:00'), ('repo_id','95c2d912e798fcd04dd92092f53dba95');
 DROP TABLE IF EXISTS `repo_mtimes`;
 CREATE TABLE `repo_mtimes` (
   `repo_path` varchar(512) NOT NULL,
