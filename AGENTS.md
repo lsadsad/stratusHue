@@ -1,15 +1,13 @@
 # Agent Instructions
 
-This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
+This project uses **markdown files** in `.issues/` for issue tracking. No external tools or databases needed.
 
 ## Quick Reference
 
 ```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work atomically
-bd close <id>         # Complete work
-bd dolt push          # Push beads data to remote
+ls .issues/open/           # See open issues
+cat .issues/open/P1-*.md   # Read high-priority issues
+git mv .issues/open/P1-foo.md .issues/closed/  # Close an issue
 ```
 
 ## Non-Interactive Shell Commands
@@ -36,100 +34,79 @@ cp -rf source dest          # NOT: cp -r source dest
 - `apt-get` - use `-y` flag
 - `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
 
-<!-- BEGIN BEADS INTEGRATION v:1 profile:full hash:f65d5d33 -->
-## Issue Tracking with bd (beads)
+## Issue Tracking with `.issues/`
 
-**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
+**IMPORTANT**: This project uses **markdown files in `.issues/`** for ALL issue tracking. Do NOT use external trackers, databases, or CLI tools.
 
-### Why bd?
+### Structure
 
-- Dependency-aware: Track blockers and relationships between issues
-- Git-friendly: Dolt-powered version control with native sync
-- Agent-optimized: JSON output, ready work detection, discovered-from links
-- Prevents duplicate tracking systems and confusion
-
-### Quick Start
-
-**Check for ready work:**
-
-```bash
-bd ready --json
+```
+.issues/
+  open/       # active issues (YAML frontmatter + description)
+  closed/     # completed issues (git mv from open/)
 ```
 
-**Create new issues:**
+### Issue Format
 
-```bash
-bd create "Issue title" --description="Detailed context" -t bug|feature|task -p 0-4 --json
-bd create "Issue title" --description="What this issue is about" -p 1 --deps discovered-from:bd-123 --json
+Each issue is a markdown file with YAML frontmatter:
+
+```yaml
+---
+id: abc
+title: "Issue title"
+type: task|feature|bug|epic
+priority: 1      # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
+status: open
+depends_on: []   # IDs of blocking issues
+created: 2026-03-21
+---
+
+Description of the issue...
 ```
 
-**Claim and update:**
+### File Naming
 
-```bash
-bd update <id> --claim --json
-bd update bd-42 --priority 1 --json
-```
+`P{priority}-{id}-{slug}.md` — e.g., `P1-sob-recipe-json-schema.md`
 
-**Complete work:**
+### Workflow for AI Agents
 
-```bash
-bd close bd-42 --reason "Completed" --json
-```
-
-### Issue Types
-
-- `bug` - Something broken
-- `feature` - New functionality
-- `task` - Work item (tests, docs, refactoring)
-- `epic` - Large feature with subtasks
-- `chore` - Maintenance (dependencies, tooling)
+1. **Find ready work**: scan `open/` for issues with empty `depends_on` or all deps in `closed/`
+2. **Read the issue**: `cat .issues/open/P1-foo.md`
+3. **Work on it**: implement, test, document
+4. **Discover new work?** Create a new `.issues/open/P{n}-{id}-{slug}.md` file
+5. **Complete**: `git mv .issues/open/P1-foo.md .issues/closed/`
 
 ### Priorities
 
 - `0` - Critical (security, data loss, broken builds)
 - `1` - High (major features, important bugs)
-- `2` - Medium (default, nice-to-have)
+- `2` - Medium (default)
 - `3` - Low (polish, optimization)
 - `4` - Backlog (future ideas)
 
-### Workflow for AI Agents
-
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task atomically**: `bd update <id> --claim`
-3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue:
-   - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
-
-### Quality
-- Use `--acceptance` and `--design` fields when creating issues
-- Use `--validate` to check description completeness
-
-### Lifecycle
-- `bd defer <id>` / `bd supersede <id>` for issue management
-- `bd stale` / `bd orphans` / `bd lint` for hygiene
-- `bd human <id>` to flag for human decisions
-- `bd formula list` / `bd mol pour <name>` for structured workflows
-
-### Auto-Sync
-
-bd automatically syncs via Dolt:
-
-- Each write auto-commits to Dolt history
-- Use `bd dolt push`/`bd dolt pull` for remote sync
-- No manual export/import needed!
-
 ### Important Rules
 
-- ✅ Use bd for ALL task tracking
-- ✅ Always use `--json` flag for programmatic use
-- ✅ Link discovered work with `discovered-from` dependencies
-- ✅ Check `bd ready` before asking "what should I work on?"
-- ❌ Do NOT create markdown TODO lists
-- ❌ Do NOT use external issue trackers
-- ❌ Do NOT duplicate tracking systems
+- Use `.issues/` markdown files for ALL task tracking
+- Issues sync automatically via git push/pull — no special sync needed
+- Link dependencies using the `depends_on` array in frontmatter
+- Do NOT create markdown TODO lists outside `.issues/`
 
-For more details, see README.md and docs/QUICKSTART.md.
+## Project Memory (`.memory/`)
+
+Append-only knowledge base for decisions, context, and open questions. Use `.memory/` for all persistent knowledge. See `.memory/README.md` for full format and conventions.
+
+### Agent behavior at session start
+
+1. List `.memory/` filenames
+2. Always read `decision` and `question` entries
+3. Read `context` entries if tags/slug match current work
+4. Skip `workaround` entries unless relevant to the task
+
+### Trigger phrases
+
+- "remember this" → write `.memory/YYYY-MM-DD-slug.md`
+- "check memory" / "what do we know about X" → grep `.memory/`
+- "this replaces the decision on X" → new entry with "Supersedes:" reference
 
 ## Session Completion
 
@@ -137,13 +114,12 @@ For more details, see README.md and docs/QUICKSTART.md.
 
 **MANDATORY WORKFLOW:**
 
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
+1. **File issues for remaining work** - Create new `.issues/open/*.md` files
 2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
+3. **Update issue status** - Move completed issues to `closed/`
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull --rebase
-   bd dolt push
    git push
    git status  # MUST show "up to date with origin"
    ```
@@ -154,7 +130,4 @@ For more details, see README.md and docs/QUICKSTART.md.
 **CRITICAL RULES:**
 - Work is NOT complete until `git push` succeeds
 - NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
-
-<!-- END BEADS INTEGRATION -->

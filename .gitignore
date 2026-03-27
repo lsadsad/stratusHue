@@ -141,13 +141,6 @@ packages
 .yarn/install-state.gz
 .pnp.*
 
-# Dolt database files (added by bd init)
-.dolt/
-*.db
-
 # Excalidraw files
 *.excalidraw
 .DS_Store
-
-# Beads / Dolt files (added by bd init)
-.beads-credential-key

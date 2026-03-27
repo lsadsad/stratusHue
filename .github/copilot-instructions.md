@@ -4,8 +4,11 @@
 stratusHue is a **Figma plugin** (TypeScript + esbuild). Two isolated processes: sandbox (`src/code.ts`, has `figma.*`) and UI iframe (`src/ui.ts`, has DOM). Never mix their imports.
 
 ## Issue Tracking
-This project uses **bd (beads)** — see `.vscode/beads.instructions.md` for full CLI reference.  
-`bd ready` before starting. `bd dolt push && git push` before ending.
+This project uses **markdown files** in `.issues/open/` and `.issues/closed/` with YAML frontmatter.
+Check `.issues/open/` before starting. `git push` before ending.
+
+## Project Memory
+Project memory in `.memory/` — see `.memory/README.md`. Append-only, never edit entries.
 
 ## Key Commands
 ```bash
@@ -28,9 +31,9 @@ npm run sync:prototype   # build + patch prototype/plugin.html
 - Wrap feature handlers: `withErrorBoundary(fn, ErrorType.X)` from `src/core/error-handling.ts`
 
 ## Scaffold Mode (Phase 3 — in design)
-Discovery matrix: `docs/features/FIGMA_FIGJAM_MATRIX.md`  
-Recipe file: `docs/features/recipes/product-design-full.recipe.json`  
-Beads issue: `stratusHue-sob` (schema), `stratusHue-xq7` (loader/parser)  
+Discovery matrix: `docs/features/FIGMA_FIGJAM_MATRIX.md`
+Recipe file: `docs/features/recipes/product-design-full.recipe.json`
+Issues: `.issues/open/P1-sob-recipe-json-schema.md` (schema), `.issues/open/P1-xq7-recipe-loader-parser.md` (loader/parser)
 `src/ui/scaffold/scaffold-ui.ts` is a 4-line placeholder — do not implement until matrix is approved.
 
 ## Prototype

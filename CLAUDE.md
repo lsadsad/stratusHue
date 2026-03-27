@@ -2,20 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Beads Cross-Machine Sync
-
-**Do NOT use `bd dolt pull` to sync between machines.** Dolt remote sync requires matching SSH config and shared commit history — it breaks across machines with different git remotes or after a restore.
-
-**Use the JSONL backup route instead:**
-
-```bash
-bd backup fetch-git   # pulls latest JSONL from git and restores locally
-```
-
-This works on any machine regardless of SSH setup.
-
----
-
 ## Commands
 
 ```bash
@@ -254,49 +240,66 @@ npx serve prototype
 Then open `http://localhost:3000/plugin.html`.
 
 
-<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:b9766037 -->
-## Beads Issue Tracker
+## Issue Tracking (`.issues/`)
 
-This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
+Issues are plain markdown files with YAML frontmatter, tracked in git. No external tools needed.
 
-### Quick Reference
-
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work
-bd close <id>         # Complete work
+```
+.issues/
+  open/       # active issues
+  closed/     # completed issues
 ```
 
-### Rules
+### Frontmatter schema
 
-- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
-- Run `bd prime` for detailed command reference and session close protocol
-- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
+```yaml
+---
+id: abc          # short ID (carried over from legacy tracker)
+title: "..."
+type: task|feature|bug|epic
+priority: 1      # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
+status: open
+depends_on: []   # list of IDs this issue is blocked by
+created: 2026-03-21
+---
+```
 
-## Landing the Plane (Session Completion)
+### Conventions
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+- File naming: `P{priority}-{id}-{slug}.md` (e.g., `P1-sob-recipe-json-schema.md`)
+- To close an issue: `git mv .issues/open/P1-foo.md .issues/closed/`
+- To find ready work: issues in `open/` with empty `depends_on` or all deps in `closed/`
+- Dependencies reference other issue IDs (check `depends_on` arrays)
+- Obsidian-compatible: open `.issues/` as a vault, use Dataview for queries
 
-**MANDATORY WORKFLOW:**
+### Trigger phrases
 
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
+- "create an issue for X" / "track this" → write new `.issues/open/P{n}-{id}-{slug}.md`
+- "what's ready" / "what should I work on" → scan `open/` for unblocked issues
+- "show issue X" / "what's open" → read/list `.issues/open/`
+- "close X" / "mark X done" → `git mv .issues/open/... .issues/closed/`
+
+## Project Memory (`.memory/`)
+
+Append-only knowledge base for decisions, context, and open questions. Use `.memory/` for all persistent knowledge — do NOT use `bd remember` or `MEMORY.md` files. See `.memory/README.md` for full format and conventions.
+
+### Trigger phrases
+
+- "remember this" / "save to memory" → write new `.memory/YYYY-MM-DD-slug.md`
+- "check memory" / "what do we know about X" → grep `.memory/`
+- "this replaces the decision on X" → new entry with "Supersedes:" reference
+
+## Session Completion
+
+**When ending a work session**, you MUST complete ALL steps below.
+
+1. **File issues** for remaining work (create new `.issues/open/*.md` files)
+2. **Run quality gates** (if code changed) — tests, linters, builds
+3. **Update issue status** — move completed issues to `closed/`
+4. **PUSH TO REMOTE**:
    ```bash
    git pull --rebase
-   bd dolt push
    git push
    git status  # MUST show "up to date with origin"
    ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
-<!-- END BEADS INTEGRATION -->
+5. **Verify** — all changes committed AND pushed

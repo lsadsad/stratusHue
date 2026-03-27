@@ -51,18 +51,3 @@ Anything worth saving to Claude's long-term memory — projects, preferences, me
 
 ---
 
-# Beads Session Wrap Skill
-
-## Purpose
-End-of-session skill that updates the active Beads issue tracker with checklist progress and a timestamped session note. Extends the Conversation Synthesis skill above with Beads-specific writes when a Beads repo is present.
-
-## Trigger Phrases
-Invoke this skill when the user says any of the following:
-- "wrap"
-- "wrap this session"
-- "/wrap"
-- "end session"
-- "close out this session"
-
-## Instructions
-When triggered, read `~/.claude/skills/beads-wrap.md` and follow all steps exactly.
