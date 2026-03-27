@@ -104,9 +104,22 @@ Append-only knowledge base for decisions, context, and open questions. Use `.mem
 
 ### Trigger phrases
 
-- "remember this" → write `.memory/YYYY-MM-DD-slug.md`
-- "check memory" / "what do we know about X" → grep `.memory/`
-- "this replaces the decision on X" → new entry with "Supersedes:" reference
+| Shortcut | Natural language | Action |
+|---|---|---|
+| `/memory` | "check memory" | List all memory entries |
+| `/recall X` | "what do we know about X" | Grep `.memory/` for topic |
+| `/remember` | "remember this" | Write new `.memory/YYYY-MM-DD-slug.md` |
+| `/supersede X` | "this replaces the decision on X" | New entry with "Supersedes:" reference |
+
+### Issue shortcuts (see `.issues/` section above)
+
+| Shortcut | Action |
+|---|---|
+| `/issues` | List all open issues |
+| `/ready` | Show unblocked issues only |
+| `/issue X` | Read a specific issue |
+| `/track X` | Create a new issue |
+| `/close X` | Close an issue |
 
 ## Session Completion
 

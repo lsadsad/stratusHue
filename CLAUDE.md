@@ -274,10 +274,13 @@ created: 2026-03-21
 
 ### Trigger phrases
 
-- "create an issue for X" / "track this" → write new `.issues/open/P{n}-{id}-{slug}.md`
-- "what's ready" / "what should I work on" → scan `open/` for unblocked issues
-- "show issue X" / "what's open" → read/list `.issues/open/`
-- "close X" / "mark X done" → `git mv .issues/open/... .issues/closed/`
+| Shortcut | Natural language | Action |
+|---|---|---|
+| `/issues` | "what's open" | List all open issues |
+| `/ready` | "what's ready", "what should I work on" | Show unblocked issues only |
+| `/issue X` | "show issue X" | Read a specific issue |
+| `/track X` | "create an issue for X", "track this" | Write new `.issues/open/P{n}-{id}-{slug}.md` |
+| `/close X` | "close X", "mark X done" | `git mv .issues/open/... .issues/closed/` |
 
 ## Project Memory (`.memory/`)
 
@@ -285,9 +288,12 @@ Append-only knowledge base for decisions, context, and open questions. Use `.mem
 
 ### Trigger phrases
 
-- "remember this" / "save to memory" → write new `.memory/YYYY-MM-DD-slug.md`
-- "check memory" / "what do we know about X" → grep `.memory/`
-- "this replaces the decision on X" → new entry with "Supersedes:" reference
+| Shortcut | Natural language | Action |
+|---|---|---|
+| `/memory` | "check memory" | List all memory entries |
+| `/recall X` | "what do we know about X" | Grep `.memory/` for topic |
+| `/remember` | "remember this", "save to memory" | Write new `.memory/YYYY-MM-DD-slug.md` |
+| `/supersede X` | "this replaces the decision on X" | New entry with "Supersedes:" reference |
 
 ## Session Completion
 

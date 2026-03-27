@@ -38,11 +38,12 @@ Each file is `YYYY-MM-DD-slug.md` with YAML frontmatter:
 
 ## Trigger phrases
 
-| Action | Say | What happens |
+| Shortcut | Natural language | What happens |
 |---|---|---|
-| Save | "remember this", "save to memory" | New `.memory/YYYY-MM-DD-slug.md` entry created |
-| Recall | "check memory", "what do we know about X" | Agent greps `.memory/` |
-| Supersede | "this replaces the decision on X" | New entry with "Supersedes:" link |
+| `/memory` | "check memory" | List all memory entries |
+| `/recall X` | "what do we know about X" | Grep `.memory/` for topic |
+| `/remember` | "remember this", "save to memory" | New `.memory/YYYY-MM-DD-slug.md` entry created |
+| `/supersede X` | "this replaces the decision on X" | New entry with "Supersedes:" link |
 
 No "forget" or "edit" — append-only. Supersede instead.
 
