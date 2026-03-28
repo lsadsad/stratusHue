@@ -2671,17 +2671,7 @@ h3 {
   transition: filter var(--transition-fast), opacity var(--transition-fast);
 }
 
-/* Reveal action icons when hovering the entire header bar */
-/* ID selectors required to override #tags-header #btn-id .icon svg specificity */
-#tags-header:hover #new-page-btn .icon svg,
-#tags-header:hover #date-btn .icon svg,
-#tags-header:hover #clear-color .icon svg,
-#anchors-header:hover #refresh-anchors .icon svg,
-#anchors-header:hover #save-bookmark .icon svg,
-#controls-header:hover .header-nav-btn .icon svg {
-  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
-  opacity: 1;
-}
+/* (header action icon hover rule moved after default rules for source-order specificity) */
 
 .header-action-btn:hover {
   background: var(--color-background-secondary);
@@ -3502,6 +3492,18 @@ h3 {
   /* Default header action icons: subtle monochrome */
   filter: brightness(0) saturate(0%);
   opacity: 0.7;
+}
+
+/* Reveal action icons when hovering the entire header bar.
+   Must come AFTER default rules above for source-order specificity. */
+#tags-header:hover #new-page-btn .icon svg,
+#tags-header:hover #date-btn .icon svg,
+#tags-header:hover #clear-color .icon svg,
+#anchors-header:hover #refresh-anchors .icon svg,
+#anchors-header:hover #save-bookmark .icon svg,
+#controls-header:hover .header-nav-btn .icon svg {
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 1;
 }
 
 #tags-header #new-page-btn:hover,
