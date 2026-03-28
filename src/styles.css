@@ -2672,7 +2672,13 @@ h3 {
 }
 
 /* Reveal action icons when hovering the entire header bar */
-.section-header:hover .header-action-btn .icon svg {
+/* ID selectors required to override #tags-header #btn-id .icon svg specificity */
+#tags-header:hover #new-page-btn .icon svg,
+#tags-header:hover #date-btn .icon svg,
+#tags-header:hover #clear-color .icon svg,
+#anchors-header:hover #refresh-anchors .icon svg,
+#anchors-header:hover #save-bookmark .icon svg,
+#controls-header:hover .header-nav-btn .icon svg {
   filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
   opacity: 1;
 }
