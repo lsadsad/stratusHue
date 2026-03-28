@@ -129,7 +129,7 @@ export async function addEmojiToSelectionRecursive(emoji: string): Promise<{ suc
 
     for (const node of selection) {
       if ('name' in node) {
-        if ((node as any).locked) {
+        if ('locked' in node && node.locked) {
           skippedLocked++;
         } else {
           (node as SceneNode & { name: string }).name = replaceColorEmoji(node.name, emoji);
@@ -138,7 +138,7 @@ export async function addEmojiToSelectionRecursive(emoji: string): Promise<{ suc
 
         walkDescendants(node, (descendant) => {
           if ('name' in descendant) {
-            if ((descendant as any).locked) {
+            if ('locked' in descendant && descendant.locked) {
               skippedLocked++;
             } else {
               (descendant as SceneNode & { name: string }).name = replaceColorEmoji(descendant.name, emoji);
@@ -240,7 +240,7 @@ export async function clearEmojiFromSelectionRecursive(): Promise<{ success: boo
 
     for (const node of selection) {
       if ('name' in node) {
-        if ((node as any).locked) {
+        if ('locked' in node && node.locked) {
           skippedLocked++;
         } else {
           const oldName = node.name;
@@ -253,7 +253,7 @@ export async function clearEmojiFromSelectionRecursive(): Promise<{ success: boo
 
         walkDescendants(node, (descendant) => {
           if ('name' in descendant) {
-            if ((descendant as any).locked) {
+            if ('locked' in descendant && descendant.locked) {
               skippedLocked++;
             } else {
               const oldName = descendant.name;
