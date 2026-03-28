@@ -116,6 +116,54 @@ export async function addEmojiToSelection(emoji: string): Promise<{ success: boo
   }
 }
 
+export async function addEmojiToSelectionRecursive(emoji: string): Promise<{ success: boolean; message: string; count: number }> {
+  try {
+    const selection = figma.currentPage.selection;
+
+    if (selection.length === 0) {
+      return { success: false, message: 'Select a layer to tag recursively', count: 0 };
+    }
+
+    let updatedCount = 0;
+    let skippedLocked = 0;
+
+    for (const node of selection) {
+      if ('name' in node) {
+        if ((node as any).locked) {
+          skippedLocked++;
+        } else {
+          (node as SceneNode & { name: string }).name = replaceColorEmoji(node.name, emoji);
+          updatedCount++;
+        }
+
+        walkDescendants(node, (descendant) => {
+          if ('name' in descendant) {
+            if ((descendant as any).locked) {
+              skippedLocked++;
+            } else {
+              (descendant as SceneNode & { name: string }).name = replaceColorEmoji(descendant.name, emoji);
+              updatedCount++;
+            }
+          }
+        });
+
+        // Update bookmark for root selected node only
+        updateBookmarkIfExists(node.id, node.name).catch(console.error);
+      }
+    }
+
+    const lockedSuffix = skippedLocked > 0 ? ` (${skippedLocked} locked layer${skippedLocked > 1 ? 's' : ''} skipped)` : '';
+    return {
+      success: updatedCount > 0,
+      message: `Tagged ${updatedCount} layer${updatedCount !== 1 ? 's' : ''} with ${emoji}${lockedSuffix}`,
+      count: updatedCount
+    };
+  } catch (error) {
+    console.error('Error adding emoji recursively:', error);
+    return { success: false, message: 'Failed to add emoji recursively. Please try again.', count: 0 };
+  }
+}
+
 export async function clearEmojiFromSelection(): Promise<{ success: boolean; message: string; count: number }> {
   try {
     const selection = figma.currentPage.selection;
