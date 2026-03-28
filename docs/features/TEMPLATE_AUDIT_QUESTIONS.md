@@ -110,3 +110,10 @@ The plugin can detect detached instances and list components, but has no referen
 **7.** Both — sometimes deleted, sometimes left in the file indefinitely.
 **8.** Stays accurate but history is wiped when changes happen (frequent). Want to preserve collaborator history for tribal knowledge.
 **9.** Figma shows file collaborators natively (avatars in the toolbar), but not by discipline/role. The strip adds role context that Figma doesn't.
+**10.** They should be updated per discipline, but in practice only the first 2 are filled.
+**11.** The designer and their leads are responsible for updating them.
+**12.** Devs screenshot builds and also push builds via TestFlight — VQA comparison happens outside Figma.
+**13.** The VQA section in Figma is used as a record of results if QA didn't pass.
+**14.** Designers update the status dot. Products and Leads sign off via Figma comments.
+**15.** All of the above — page rename, component property swap, and manual edit are all used.
+**16.** At least 3 statuses are used.
