@@ -83,6 +83,9 @@ export function initializePlugin(): void {
   // Initialize scroll behavior
   updateScrollBehavior();
 
+  // Initialize JS-driven sticky section headers
+  setupStickyHeaders();
+
   // Trigger initial auto-fit if enabled
   if (getIsAutoFitEnabled()) {
     setTimeout(() => {
@@ -766,6 +769,75 @@ export function setupEventListeners(): void {
 
   // Initialize Figma-like tooltips for quick action buttons
   initializeQuickActionTooltips();
+}
+
+/**
+ * JS-driven sticky headers — position:sticky is unsupported in Figma's iframe.
+ * On scroll, uses translateY to pin headers that have scrolled past the top.
+ * Each header replaces the previous one (non-stacking) at the top of the scroll area.
+ */
+export function setupStickyHeaders(): void {
+  const scrollContainer = document.getElementById('navigate-main');
+  if (!scrollContainer) return;
+
+  const headerIds = ['tags-header', 'anchors-header', 'controls-header'];
+  const headers = headerIds
+    .map(id => document.getElementById(id))
+    .filter((h): h is HTMLElement => h !== null);
+
+  if (headers.length === 0) return;
+
+  // Cache of each header's natural offsetTop (recalculated after layout changes)
+  let offsets: number[] = [];
+
+  function recalcOffsets(): void {
+    // Temporarily remove transforms so offsetTop reflects natural position
+    const savedTransforms: string[] = [];
+    for (const h of headers) {
+      savedTransforms.push(h.style.transform);
+      h.style.transform = '';
+    }
+    offsets = headers.map(h => h.offsetTop);
+    // Restore transforms
+    for (let i = 0; i < headers.length; i++) {
+      headers[i].style.transform = savedTransforms[i];
+    }
+  }
+
+  function onScroll(): void {
+    const scrollTop = scrollContainer!.scrollTop;
+
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i];
+      if (scrollTop > offsets[i]) {
+        const dy = scrollTop - offsets[i];
+        header.style.transform = `translateY(${dy}px)`;
+        header.classList.add('sticky-stuck');
+      } else {
+        header.style.transform = '';
+        header.classList.remove('sticky-stuck');
+      }
+    }
+  }
+
+  // Initial offset calculation
+  recalcOffsets();
+
+  scrollContainer.addEventListener('scroll', onScroll, { passive: true });
+
+  // Recalculate offsets after section collapse/expand transitions
+  scrollContainer.addEventListener('transitionend', (e) => {
+    if ((e.target as HTMLElement)?.classList?.contains('collapsible-content')) {
+      recalcOffsets();
+      onScroll();
+    }
+  });
+
+  // Recalculate on window resize (plugin window can be resized)
+  window.addEventListener('resize', () => {
+    recalcOffsets();
+    onScroll();
+  });
 }
 
 // Global interaction state management to prevent stuck hover states
