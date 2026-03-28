@@ -41,9 +41,10 @@ export function updateEmojiButtons(emojis: string[]): void {
     button.className = 'emoji-button';
     button.textContent = emoji;
 
-    button.addEventListener('click', () => {
-      console.log('Emoji clicked:', emoji);
-      sendMessage('add-emoji', { emoji });
+    button.addEventListener('click', (e: MouseEvent) => {
+      const messageType = e.shiftKey ? 'add-emoji-recursive' : 'add-emoji';
+      console.log('Emoji clicked:', emoji, messageType);
+      sendMessage(messageType, { emoji });
       showCanvasHint();
     });
 

@@ -250,9 +250,10 @@ export function setupEventListeners(): void {
   }
 
   if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      console.log('Clear clicked');
-      sendMessage('clear-emoji');
+    clearBtn.addEventListener('click', (e: MouseEvent) => {
+      const messageType = e.shiftKey ? 'clear-emoji-recursive' : 'clear-emoji';
+      console.log('Clear clicked:', messageType);
+      sendMessage(messageType);
     });
 
     // Add hover preview for clear button - hide emoji to show removal effect
