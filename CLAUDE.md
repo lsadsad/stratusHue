@@ -240,7 +240,7 @@ npx serve prototype
 Then open `http://localhost:3000/plugin.html`.
 
 
-## Issue Tracking (`.issues/`)
+## finePrint — Issue Tracking (`.issues/`)
 
 Issues are plain markdown files with YAML frontmatter, tracked in git. No external tools needed.
 
@@ -293,7 +293,7 @@ created: 2026-03-21
 | `/track X` | "create an issue for X", "track this" | Write new `.issues/open/P{n}-{category}-{id}-{slug}.md` |
 | `/close X` | "close X", "mark X done" | `git mv .issues/open/... .issues/closed/` |
 
-## Project Memory (`.memory/`)
+## finePrint — Project Memory (`.memory/`)
 
 Append-only knowledge base for decisions, context, and open questions. Use `.memory/` for all persistent knowledge — do NOT use `bd remember` or `MEMORY.md` files. See `.memory/README.md` for full format and conventions.
 

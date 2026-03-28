@@ -58,7 +58,7 @@ Under the hood: `git mv .issues/open/P2-scaffold-sch-*.md .issues/closed/`
 Update the `priority:` field in the frontmatter **and** rename the file prefix to match:
 
 ```
-P1 = high, P2 = medium, P3 = low, P4 = backlog
+P0 = critical, P1 = high, P2 = medium, P3 = low, P4 = backlog
 ```
 
 For example, promoting `sch` to P1:
@@ -71,7 +71,7 @@ For example, promoting `sch` to P1:
 ```yaml
 ---
 id: sch                  # short mnemonic ID (descriptive of the task)
-category: scaffold       # feature area: scaffold | validate | navigate | meta
+category: scaffold       # feature area (define your own)
 title: "Design recipe JSON schema"
 type: task               # task | feature | bug | epic
 priority: 2              # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
@@ -99,37 +99,22 @@ P3-validate-rdy-readiness-check.md
 
 ## Categories
 
-Issues are grouped by the plugin mode or concern they belong to:
+Define categories that match your project's feature areas. Common patterns:
 
-| Category | Description | Examples |
-|---|---|---|
-| `scaffold` | Scaffold mode — recipe schema, engine, UI, sharing | `sch`, `ldr`, `pgs`, `tab`, `tpl`, `stm`, `scf`, `exp` |
-| `validate` | Validate mode — lint, token audit, component check, readiness | `tkn`, `cmp`, `rdy` |
-| `navigate` | Navigate mode — bookmarks, emoji nav, controls | *(none currently)* |
-| `meta` | Cross-cutting — audits, process, infrastructure | `aud` |
-
-When creating new issues, pick the category that matches the plugin mode the work belongs to. Use `meta` for work that spans modes or isn't mode-specific.
+| Category | Description |
+|---|---|
+| `feature` | A specific feature area (name it after the feature) |
+| `infra` | Build system, CI/CD, tooling |
+| `meta` | Cross-cutting — audits, process, documentation |
+| `bug` | Bug fixes (or use `type: bug` with a feature category) |
 
 ## IDs
 
-IDs are short (2-3 character) mnemonics that hint at the task:
+IDs are short (2-3 character) mnemonics descriptive of the task:
 
-| ID | Mnemonic | Category |
-|---|---|---|
-| `aud` | audit | meta |
-| `sch` | schema | scaffold |
-| `ldr` | loader | scaffold |
-| `stm` | stamp | scaffold |
-| `pgs` | pages | scaffold |
-| `tab` | tab UI | scaffold |
-| `tpl` | templates | scaffold |
-| `scf` | scaffold epic | scaffold |
-| `exp` | export | scaffold |
-| `rdy` | readiness | validate |
-| `tkn` | token | validate |
-| `cmp` | component | validate |
-
-When creating new issues, pick an ID that reads naturally (e.g. `nav` for navigation, `fix` for a bug fix, `cfg` for configuration).
+- `sch` for schema, `ldr` for loader, `nav` for navigation
+- `cfg` for configuration, `fix` for a bug fix, `tst` for testing
+- Pick something that reads naturally when spoken aloud
 
 ## Dependencies
 
@@ -140,6 +125,16 @@ depends_on: [sch, ldr]   # blocked until both sch and ldr are closed
 ```
 
 An issue is **ready** when `depends_on` is empty or every listed ID exists in `.issues/closed/`.
+
+## AI agent trigger phrases
+
+| Shortcut | Natural language | Action |
+|---|---|---|
+| `/issues` | "what's open" | List all open issues |
+| `/ready` | "what's ready to work on" | Show unblocked issues only |
+| `/issue X` | "show issue X" | Read a specific issue |
+| `/track X` | "create an issue for X" | Write new issue file |
+| `/close X` | "close X", "mark X done" | `git mv` to `closed/` |
 
 ## Obsidian
 
