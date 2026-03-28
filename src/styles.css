@@ -2514,7 +2514,10 @@ h3 {
   color: var(--figma-color-border-brand);
 }
 
-.section-header:hover .header-title {
+.section-header:hover .header-title,
+#tags-header:hover .header-title,
+#anchors-header:hover .header-title,
+#controls-header:hover .header-title {
   color: var(--figma-color-border-brand);
 }
 
