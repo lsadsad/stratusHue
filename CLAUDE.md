@@ -254,7 +254,7 @@ Issues are plain markdown files with YAML frontmatter, tracked in git. No extern
 
 ```yaml
 ---
-id: abc          # short ID (carried over from legacy tracker)
+id: sch          # short mnemonic ID (descriptive of the task)
 title: "..."
 type: task|feature|bug|epic
 priority: 1      # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
@@ -266,7 +266,7 @@ created: 2026-03-21
 
 ### Conventions
 
-- File naming: `P{priority}-{id}-{slug}.md` (e.g., `P1-sob-recipe-json-schema.md`)
+- File naming: `P{priority}-{id}-{slug}.md` (e.g., `P2-sch-recipe-json-schema.md`)
 - To close an issue: `git mv .issues/open/P1-foo.md .issues/closed/`
 - To find ready work: issues in `open/` with empty `depends_on` or all deps in `closed/`
 - Dependencies reference other issue IDs (check `depends_on` arrays)

@@ -6,46 +6,87 @@ and humans when context is worth preserving across sessions.
 
 Synced via git — committed to the repo, not gitignored.
 
+## Quick start
+
+### List all memories
+
+Browse the `.memory/` directory or ask an AI agent:
+
+```
+check memory
+/memory
+```
+
+### Search for a topic
+
+```
+what do we know about recipes
+/recall recipes
+```
+
+The agent greps `.memory/` for matching entries.
+
+### Save a new memory
+
+```
+remember this: we chose JSON over YAML for recipes because Figma's sandbox has no YAML parser
+/remember
+```
+
+The agent creates `.memory/YYYY-MM-DD-slug.md` with frontmatter.
+
+### Replace an outdated decision
+
+```
+this replaces the decision on recipe format
+/supersede recipe-format
+```
+
+The new entry includes a `Supersedes: .memory/old-entry.md` reference. The old entry is never edited or deleted.
+
 ## Entry format
 
 Each file is `YYYY-MM-DD-slug.md` with YAML frontmatter:
 
-    ---
-    type: decision | question | context | workaround
-    tags: [topic1, topic2]
-    created: YYYY-MM-DD
-    ---
+```yaml
+---
+type: decision           # decision | question | context | workaround
+tags: [recipes, schema]
+created: 2026-03-25
+---
 
-    Plain prose content.
+Plain prose content. Include rationale for decisions, not just the outcome.
+```
 
 ## Types
 
-| Type | Use when |
-|---|---|
-| decision | A design choice was made — include rationale |
-| question | Open question blocking or informing work — needs human input |
-| context | Session summary, brainstorm output, findings worth keeping |
-| workaround | Platform-specific gotchas (selective, not general debugging) |
+| Type | Use when | Example |
+|---|---|---|
+| `decision` | A design choice was made — include rationale | "Chose JSON over YAML for recipe format" |
+| `question` | Open question needing human input | "Should recipes support inheritance?" |
+| `context` | Session summary, findings worth keeping | "Template audit findings from review" |
+| `workaround` | Platform-specific gotchas (selective, not general) | "Figma loadFontAsync must be called before editing text" |
 
 ## Rules
 
 - **Append-only**: never edit an existing entry. Write a new one that references it.
-- **Superseding**: include "Supersedes: `.memory/old-entry.md`" when replacing a decision or answering a question.
-- **File naming**: `YYYY-MM-DD-slug.md` (slugs unique within a date)
-- **Tags**: freeform, for filtering and Obsidian Dataview queries
-- **No index file**: scan the directory or use Dataview
-- **Don't duplicate**: if it's in git history, code, or issues, don't repeat it here
+- **Superseding**: include `Supersedes: .memory/old-entry.md` when replacing a decision or answering a question.
+- **File naming**: `YYYY-MM-DD-slug.md` (slugs unique within a date).
+- **Tags**: freeform, for filtering and Obsidian Dataview queries.
+- **No index file**: scan the directory or use Dataview.
+- **Don't duplicate**: if it's in git history, code, or issues, don't repeat it here.
 
-## Trigger phrases
+## Cross-referencing
 
-| Shortcut | Natural language | What happens |
-|---|---|---|
-| `/memory` | "check memory" | List all memory entries |
-| `/recall X` | "what do we know about X" | Grep `.memory/` for topic |
-| `/remember` | "remember this", "save to memory" | New `.memory/YYYY-MM-DD-slug.md` entry created |
-| `/supersede X` | "this replaces the decision on X" | New entry with "Supersedes:" link |
+Reference issues from memory entries and vice versa:
 
-No "forget" or "edit" — append-only. Supersede instead.
+```markdown
+<!-- in a memory entry -->
+Related: .issues/open/P2-sch-recipe-json-schema.md
+
+<!-- in an issue body -->
+See: .memory/2026-03-25-recipe-design-principle.md
+```
 
 ## For AI agents
 
