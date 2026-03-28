@@ -29,7 +29,9 @@ import { jumpToBookmark, goBackInHistory, goForwardInHistory, addSelectionToHist
 import {
   addEmojiToSelection,
   clearEmojiFromSelection,
-  navigateEmojiSet
+  navigateEmojiSet,
+  addEmojiToSelectionRecursive,
+  clearEmojiFromSelectionRecursive
 } from './features/emoji-manager';
 import {
   sendInitialUIState,
@@ -248,6 +250,16 @@ figma.ui.onmessage = async (msg) => {
 
       case 'clear-emoji':
         await handleClearEmoji();
+        break;
+
+      case 'add-emoji-recursive':
+        if ('emoji' in msg && msg.emoji && typeof msg.emoji === 'string') {
+          await handleAddEmojiRecursive(msg.emoji);
+        }
+        break;
+
+      case 'clear-emoji-recursive':
+        await handleClearEmojiRecursive();
         break;
 
       case 'navigate-emoji-set':
@@ -670,6 +682,22 @@ const handleAddEmoji = withErrorBoundary(async (emoji: string) => {
 
 const handleClearEmoji = withErrorBoundary(async () => {
   const result = await clearEmojiFromSelection();
+  figma.notify(result.message);
+  if (result.success) {
+    updateUIAfterEmojiChange();
+  }
+}, ErrorType.UNKNOWN);
+
+const handleAddEmojiRecursive = withErrorBoundary(async (emoji: string) => {
+  const result = await addEmojiToSelectionRecursive(emoji);
+  figma.notify(result.message);
+  if (result.success) {
+    updateUIAfterEmojiChange();
+  }
+}, ErrorType.UNKNOWN);
+
+const handleClearEmojiRecursive = withErrorBoundary(async () => {
+  const result = await clearEmojiFromSelectionRecursive();
   figma.notify(result.message);
   if (result.success) {
     updateUIAfterEmojiChange();
