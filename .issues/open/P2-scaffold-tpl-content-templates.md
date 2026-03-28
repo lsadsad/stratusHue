@@ -1,5 +1,6 @@
 ---
 id: tpl
+category: scaffold
 title: "Sandbox: create content templates from recipe (layer ②)"
 type: task
 priority: 2

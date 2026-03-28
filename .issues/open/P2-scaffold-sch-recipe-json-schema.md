@@ -1,5 +1,6 @@
 ---
 id: sch
+category: scaffold
 title: "Design recipe JSON schema (layers ①②)"
 type: task
 priority: 2

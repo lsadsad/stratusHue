@@ -1,5 +1,6 @@
 ---
 id: exp
+category: scaffold
 title: "Recipe JSON import/export and team sharing"
 type: feature
 priority: 2

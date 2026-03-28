@@ -1,5 +1,6 @@
 ---
 id: tab
+category: scaffold
 title: "UI: Scaffold tab — recipe selector and apply"
 type: task
 priority: 2

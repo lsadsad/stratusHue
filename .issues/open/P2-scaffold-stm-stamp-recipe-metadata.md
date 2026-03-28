@@ -1,5 +1,6 @@
 ---
 id: stm
+category: scaffold
 title: "Sandbox: stamp recipe to file (recipe metadata)"
 type: task
 priority: 2

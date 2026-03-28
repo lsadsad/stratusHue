@@ -1,5 +1,6 @@
 ---
 id: ldr
+category: scaffold
 title: "Sandbox: recipe loader and parser"
 type: task
 priority: 2

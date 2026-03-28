@@ -1,5 +1,6 @@
 ---
 id: rdy
+category: validate
 title: "Readiness Check: full recipe audit (recipe diff)"
 type: feature
 priority: 3

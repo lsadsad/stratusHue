@@ -1,5 +1,6 @@
 ---
 id: scf
+category: scaffold
 title: "Phase 3: Scaffold mode — epic"
 type: feature
 priority: 2

@@ -1,5 +1,6 @@
 ---
 id: pgs
+category: scaffold
 title: "Sandbox: create pages and structure from recipe (layer ①)"
 type: task
 priority: 2
