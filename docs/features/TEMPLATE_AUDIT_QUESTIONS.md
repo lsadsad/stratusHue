@@ -104,3 +104,9 @@ The plugin can detect detached instances and list components, but has no referen
 **1.** The intent is for it to be referenced during or before delivery, but in practice engineering uses Dev Mode.
 **2.** Nothing would break — it would just mean fewer manual steps for the designer.
 **3.** The delivering designer fills it out, engineering is supposed to read it, but it's redundant with Jira/Confluence.
+**4.** Not currently in Jira/Confluence, but addressing this process gap is a future goal.
+**5.** Yes, team clicks iTrack links from Figma, though tracking tickets there is a hassle. Possible separate plugin opportunity.
+**6.** Both — new designers read the teaching tools and also learn from teammates.
+**7.** Both — sometimes deleted, sometimes left in the file indefinitely.
+**8.** Stays accurate but history is wiped when changes happen (frequent). Want to preserve collaborator history for tribal knowledge.
+**9.** Figma shows file collaborators natively (avatars in the toolbar), but not by discipline/role. The strip adds role context that Figma doesn't.
