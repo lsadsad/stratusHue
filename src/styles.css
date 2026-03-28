@@ -3495,14 +3495,15 @@ h3 {
 }
 
 /* Reveal action icons when hovering the entire header bar.
-   Must come AFTER default rules above for source-order specificity. */
+   Must come AFTER default rules above for source-order specificity.
+   Icons use stroke="white" (not currentColor), so filter recolors to brand blue #0d99ff. */
 #tags-header:hover #new-page-btn .icon svg,
 #tags-header:hover #date-btn .icon svg,
 #tags-header:hover #clear-color .icon svg,
 #anchors-header:hover #refresh-anchors .icon svg,
 #anchors-header:hover #save-bookmark .icon svg,
 #controls-header:hover .header-nav-btn .icon svg {
-  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  filter: brightness(0) saturate(100%) invert(52%) sepia(98%) saturate(1200%) hue-rotate(190deg) brightness(1.05);
   opacity: 1;
 }
 
