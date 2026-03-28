@@ -1809,7 +1809,7 @@ body {
 /* Optimize rendering performance */
 .scrollable-content {
   will-change: scroll-position;
-  contain: style;
+  contain: layout style paint;
 }
 
 /* Consolidated performance optimizations */
@@ -2494,11 +2494,11 @@ h3 {
   color: var(--color-text-primary);
   cursor: pointer;
   user-select: none;
-  transition: background var(--transition-normal), color var(--transition-normal);
+  transition: all var(--transition-normal);
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  background: var(--color-background-main);
+  background: transparent;
   border: none;
   border-top: var(--border-width) solid var(--color-border-primary);
   border-radius: 0;
@@ -2508,7 +2508,7 @@ h3 {
   gap: 0;
   align-self: stretch;
   box-sizing: border-box;
-  position: sticky;
+  position: relative;
   letter-spacing: 0.16em;
 }
 
@@ -2519,6 +2519,18 @@ h3 {
 .section-header:hover {
   background: var(--color-background-secondary);
   color: var(--figma-color-border-brand);
+}
+
+.section-header:hover .header-title {
+  color: var(--figma-color-border-brand);
+}
+
+/* JS-driven sticky header state (position:sticky unsupported in Figma iframe) */
+.section-header.sticky-stuck {
+  position: relative;
+  z-index: 10;
+  background-color: var(--color-background-elevated);
+  will-change: transform;
 }
 
 /* Header layout patterns - left-aligned design */
@@ -2693,8 +2705,6 @@ h3 {
   border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 0 0;
   border-radius: 0px;
-  top: 0;
-  z-index: 3;
 }
 
 /* Anchors Header - match Tags header strokes */
@@ -2703,8 +2713,6 @@ h3 {
   border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 0 0;
   border-radius: 0px;
-  top: calc(var(--spacing-lg) * 5 + var(--border-width));
-  z-index: 2;
 }
 
 #anchors-header .header-left {
@@ -2734,8 +2742,6 @@ h3 {
   background-color: var(--color-background-elevated);
   padding-left: 2px;
   padding-right: 4px;
-  top: calc((var(--spacing-lg) * 5 + var(--border-width)) * 2);
-  z-index: 1;
 }
 
 #tags-header .header-subtitle {
@@ -11774,6 +11780,7 @@ body.compact-mode #mode-strip {
     updateAutoFitButtonState();
     initializeAllLottieElements();
     updateScrollBehavior();
+    setupStickyHeaders();
     if (getIsAutoFitEnabled()) {
       setTimeout(() => {
         const initialHeight = computeFitHeight();
@@ -12308,6 +12315,54 @@ body.compact-mode #mode-strip {
     }
     setupGlobalHoverStateManagement();
     initializeQuickActionTooltips();
+  }
+  function setupStickyHeaders() {
+    const scrollContainer = document.getElementById("navigate-main");
+    if (!scrollContainer)
+      return;
+    const headerIds = ["tags-header", "anchors-header", "controls-header"];
+    const headers = headerIds.map((id) => document.getElementById(id)).filter((h) => h !== null);
+    if (headers.length === 0)
+      return;
+    let offsets = [];
+    function recalcOffsets() {
+      const savedTransforms = [];
+      for (const h of headers) {
+        savedTransforms.push(h.style.transform);
+        h.style.transform = "";
+      }
+      offsets = headers.map((h) => h.offsetTop);
+      for (let i = 0; i < headers.length; i++) {
+        headers[i].style.transform = savedTransforms[i];
+      }
+    }
+    function onScroll() {
+      const scrollTop = scrollContainer.scrollTop;
+      for (let i = 0; i < headers.length; i++) {
+        const header = headers[i];
+        if (scrollTop > offsets[i]) {
+          const dy = scrollTop - offsets[i];
+          header.style.transform = `translateY(${dy}px)`;
+          header.classList.add("sticky-stuck");
+        } else {
+          header.style.transform = "";
+          header.classList.remove("sticky-stuck");
+        }
+      }
+    }
+    recalcOffsets();
+    scrollContainer.addEventListener("scroll", onScroll, { passive: true });
+    scrollContainer.addEventListener("transitionend", (e) => {
+      var _a, _b;
+      if ((_b = (_a = e.target) == null ? void 0 : _a.classList) == null ? void 0 : _b.contains("collapsible-content")) {
+        recalcOffsets();
+        onScroll();
+      }
+    });
+    window.addEventListener("resize", () => {
+      recalcOffsets();
+      onScroll();
+    });
   }
   function setupGlobalHoverStateManagement() {
     let touchActiveTimeout = null;
