@@ -2668,6 +2668,13 @@ h3 {
   /* Default header action icons: subtle monochrome */
   filter: brightness(0) saturate(0%);
   opacity: 0.7;
+  transition: filter var(--transition-fast), opacity var(--transition-fast);
+}
+
+/* Reveal action icons when hovering the entire header bar */
+.section-header:hover .header-action-btn .icon svg {
+  filter: brightness(0) saturate(100%) invert(59%) sepia(9%) saturate(380%) hue-rotate(182deg) brightness(94%) contrast(87%);
+  opacity: 1;
 }
 
 .header-action-btn:hover {
