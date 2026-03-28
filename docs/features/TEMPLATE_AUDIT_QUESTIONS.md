@@ -101,6 +101,6 @@ The plugin can detect detached instances and list components, but has no referen
 
 ## Answers
 
-<!-- Record answers below each question number, e.g.:
-**1.** Engineering uses Dev Mode exclusively. Panel is never referenced.
--->
+**1.** The intent is for it to be referenced during or before delivery, but in practice engineering uses Dev Mode.
+**2.** Nothing would break — it would just mean fewer manual steps for the designer.
+**3.** The delivering designer fills it out, engineering is supposed to read it, but it's redundant with Jira/Confluence.
