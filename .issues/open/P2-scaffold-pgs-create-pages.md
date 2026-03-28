@@ -1,10 +1,11 @@
 ---
-id: 07p
+id: pgs
+category: scaffold
 title: "Sandbox: create pages and structure from recipe (layer ①)"
 type: task
-priority: 1
+priority: 2
 status: open
-depends_on: [xq7]
+depends_on: [ldr]
 created: 2026-03-21
 ---
 

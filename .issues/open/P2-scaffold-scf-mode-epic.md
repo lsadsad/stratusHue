@@ -1,10 +1,11 @@
 ---
-id: dt6
+id: scf
+category: scaffold
 title: "Phase 3: Scaffold mode — epic"
 type: feature
-priority: 1
+priority: 2
 status: open
-depends_on: [3gx, edq, syv]
+depends_on: [tab, tpl, stm]
 created: 2026-03-21
 ---
 

@@ -1,5 +1,6 @@
 ---
 id: aud
+category: meta
 title: "Template methodology audit: confirm load-bearing elements with team"
 type: task
 priority: 1
@@ -17,7 +18,7 @@ Key suspects for removal or demotion:
 - Teaching tools (one-time use — Community template better)
 - Collaborator strip (Figma shows collaborators natively)
 
-Build order depends on this: audit → trim → design schema → build scanner. The recipe schema (sob) and readiness check (cqv) should not encode elements the team hasn't confirmed.
+Build order depends on this: audit → trim → design schema → build scanner. The recipe schema (sch) and readiness check (rdy) should not encode elements the team hasn't confirmed.
 
 Reference: `docs/features/DISCOVERY_AUDIT.md`
 Memory: `.memory/2026-03-25-template-audit-open-questions.md`

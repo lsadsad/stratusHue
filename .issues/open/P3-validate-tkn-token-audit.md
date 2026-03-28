@@ -1,5 +1,6 @@
 ---
-id: hsu
+id: tkn
+category: validate
 title: "Validate Phase 2: Token audit (variable coverage)"
 type: feature
 priority: 3

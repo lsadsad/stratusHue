@@ -29,7 +29,7 @@ The agent greps `.memory/` for matching entries.
 ### Save a new memory
 
 ```
-remember this: we chose JSON over YAML for recipes because Figma's sandbox has no YAML parser
+remember this: we chose JSON over YAML because the sandbox has no YAML parser
 /remember
 ```
 
@@ -42,7 +42,8 @@ this replaces the decision on recipe format
 /supersede recipe-format
 ```
 
-The new entry includes a `Supersedes: .memory/old-entry.md` reference. The old entry is never edited or deleted.
+The new entry includes a `Supersedes: .memory/old-entry.md` reference.
+The old entry is never edited or deleted.
 
 ## Entry format
 
@@ -65,7 +66,7 @@ Plain prose content. Include rationale for decisions, not just the outcome.
 | `decision` | A design choice was made — include rationale | "Chose JSON over YAML for recipe format" |
 | `question` | Open question needing human input | "Should recipes support inheritance?" |
 | `context` | Session summary, findings worth keeping | "Template audit findings from review" |
-| `workaround` | Platform-specific gotchas (selective, not general) | "Figma loadFontAsync must be called before editing text" |
+| `workaround` | Platform-specific gotchas (selective, not general) | "loadFontAsync must precede text edits" |
 
 ## Rules
 
@@ -82,11 +83,22 @@ Reference issues from memory entries and vice versa:
 
 ```markdown
 <!-- in a memory entry -->
-Related: .issues/open/P2-sch-recipe-json-schema.md
+Related: .issues/open/P2-scaffold-sch-recipe-json-schema.md
 
 <!-- in an issue body -->
 See: .memory/2026-03-25-recipe-design-principle.md
 ```
+
+## AI agent trigger phrases
+
+| Shortcut | Natural language | Action |
+|---|---|---|
+| `/memory` | "check memory" | List all memory entries |
+| `/recall X` | "what do we know about X" | Grep `.memory/` for topic |
+| `/remember` | "remember this" | New entry created |
+| `/supersede X` | "this replaces the decision on X" | New entry with "Supersedes:" link |
+
+No "forget" or "edit" — append-only. Supersede instead.
 
 ## For AI agents
 
