@@ -240,6 +240,21 @@ npx serve prototype
 Then open `http://localhost:3000/plugin.html`.
 
 
+## finePrint — Smoke Tests
+
+When adding a new message type to `figma.ui.onmessage` in `code.ts`, you **must** also add a corresponding smoke test in `src/test/smoke-dispatch.test.ts`:
+
+```typescript
+it('handles "your-new-message"', { timeout: 2000 }, async () => {
+  await dispatchAndAssertNoCrash({ type: 'your-new-message', /* minimal payload matching the case guard */ });
+});
+```
+
+The payload must match the validation guard in the `case` branch (e.g., if the handler checks `'nodeId' in msg`, the payload needs `nodeId`). Place the test in the appropriate category section.
+
+After adding, run `npm run validate` to confirm the full gate passes.
+
+
 ## finePrint — Issue Tracking (`.issues/`)
 
 Issues are plain markdown files with YAML frontmatter, tracked in git. No external tools needed.
