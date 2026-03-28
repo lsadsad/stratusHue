@@ -227,6 +227,64 @@ export async function clearEmojiFromSelection(): Promise<{ success: boolean; mes
   }
 }
 
+export async function clearEmojiFromSelectionRecursive(): Promise<{ success: boolean; message: string; count: number }> {
+  try {
+    const selection = figma.currentPage.selection;
+
+    if (selection.length === 0) {
+      return { success: false, message: 'Select a layer to clear recursively', count: 0 };
+    }
+
+    let clearedCount = 0;
+    let skippedLocked = 0;
+
+    for (const node of selection) {
+      if ('name' in node) {
+        if ((node as any).locked) {
+          skippedLocked++;
+        } else {
+          const oldName = node.name;
+          const newName = removeEmojiPrefix(oldName);
+          if (oldName !== newName) {
+            (node as SceneNode & { name: string }).name = newName;
+            clearedCount++;
+          }
+        }
+
+        walkDescendants(node, (descendant) => {
+          if ('name' in descendant) {
+            if ((descendant as any).locked) {
+              skippedLocked++;
+            } else {
+              const oldName = descendant.name;
+              const newName = removeEmojiPrefix(oldName);
+              if (oldName !== newName) {
+                (descendant as SceneNode & { name: string }).name = newName;
+                clearedCount++;
+              }
+            }
+          }
+        });
+
+        // Update bookmark for root selected node only
+        updateBookmarkIfExists(node.id, node.name).catch(console.error);
+      }
+    }
+
+    const lockedSuffix = skippedLocked > 0 ? ` (${skippedLocked} locked layer${skippedLocked > 1 ? 's' : ''} skipped)` : '';
+    return {
+      success: clearedCount > 0,
+      message: clearedCount > 0
+        ? `Cleared emoji from ${clearedCount} layer${clearedCount !== 1 ? 's' : ''}${lockedSuffix}`
+        : `No emojis found to clear${lockedSuffix}`,
+      count: clearedCount
+    };
+  } catch (error) {
+    console.error('Error clearing emoji recursively:', error);
+    return { success: false, message: 'Failed to clear emoji recursively. Please try again.', count: 0 };
+  }
+}
+
 // ===== EMOJI VALIDATION =====
 export function isValidEmoji(emoji: string): boolean {
   const allLayerEmojis = LAYER_EMOJI_SETS.flatMap(set => set.emojis);
