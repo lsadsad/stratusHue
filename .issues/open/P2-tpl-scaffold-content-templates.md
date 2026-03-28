@@ -1,10 +1,10 @@
 ---
-id: edq
+id: tpl
 title: "Sandbox: create content templates from recipe (layer ②)"
 type: task
 priority: 2
 status: open
-depends_on: [07p]
+depends_on: [pgs]
 created: 2026-03-21
 ---
 

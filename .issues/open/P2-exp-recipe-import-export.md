@@ -1,10 +1,10 @@
 ---
-id: le3
+id: exp
 title: "Recipe JSON import/export and team sharing"
 type: feature
 priority: 2
 status: open
-depends_on: [sob]
+depends_on: [sch]
 created: 2026-03-21
 ---
 

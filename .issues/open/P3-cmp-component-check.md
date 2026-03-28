@@ -1,5 +1,5 @@
 ---
-id: vhz
+id: cmp
 title: "Validate Phase 3: Component check (library compliance)"
 type: feature
 priority: 3

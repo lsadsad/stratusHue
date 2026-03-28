@@ -1,5 +1,5 @@
 ---
-id: cqv
+id: rdy
 title: "Readiness Check: full recipe audit (recipe diff)"
 type: feature
 priority: 3

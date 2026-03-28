@@ -1,5 +1,5 @@
 ---
-id: sob
+id: sch
 title: "Design recipe JSON schema (layers ①②)"
 type: task
 priority: 2

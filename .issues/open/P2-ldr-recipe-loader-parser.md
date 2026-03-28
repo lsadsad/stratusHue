@@ -1,5 +1,5 @@
 ---
-id: xq7
+id: ldr
 title: "Sandbox: recipe loader and parser"
 type: task
 priority: 2
