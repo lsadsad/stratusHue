@@ -8,6 +8,19 @@ import { currentLayerEmojiSetIndex, currentPageEmojiSetIndex, setLayerEmojiSetIn
 import { replaceColorEmoji, removeEmojiPrefix, parsePageTitleParts, composePageTitle } from '../utils';
 import { updateBookmarkIfExists, updateBookmarksForPage } from './bookmarks';
 
+/**
+ * Recursively walk all descendants of a node, applying fn to each.
+ * No intermediate array — applies inline during traversal.
+ */
+export function walkDescendants(node: SceneNode, fn: (n: SceneNode) => void): void {
+  if ('children' in node) {
+    for (const child of (node as SceneNode & ChildrenMixin).children) {
+      fn(child as SceneNode);
+      walkDescendants(child as SceneNode, fn);
+    }
+  }
+}
+
 // ===== EMOJI SET MANAGEMENT =====
 export function getCurrentEmojiSet(isLayer: boolean) {
   if (isLayer) {
