@@ -2,7 +2,7 @@
 id: syv
 title: "Sandbox: stamp recipe to file (recipe metadata)"
 type: task
-priority: 1
+priority: 2
 status: open
 depends_on: [sob]
 created: 2026-03-21

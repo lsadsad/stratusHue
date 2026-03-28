@@ -2,7 +2,7 @@
 id: sob
 title: "Design recipe JSON schema (layers ①②)"
 type: task
-priority: 1
+priority: 2
 status: open
 depends_on: []
 created: 2026-03-21

@@ -2,7 +2,7 @@
 id: 3gx
 title: "UI: Scaffold tab — recipe selector and apply"
 type: task
-priority: 1
+priority: 2
 status: open
 depends_on: [xq7]
 created: 2026-03-21

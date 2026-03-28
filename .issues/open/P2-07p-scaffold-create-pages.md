@@ -2,7 +2,7 @@
 id: 07p
 title: "Sandbox: create pages and structure from recipe (layer ①)"
 type: task
-priority: 1
+priority: 2
 status: open
 depends_on: [xq7]
 created: 2026-03-21

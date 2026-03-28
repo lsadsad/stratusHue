@@ -2,7 +2,7 @@
 id: edq
 title: "Sandbox: create content templates from recipe (layer ②)"
 type: task
-priority: 1
+priority: 2
 status: open
 depends_on: [07p]
 created: 2026-03-21

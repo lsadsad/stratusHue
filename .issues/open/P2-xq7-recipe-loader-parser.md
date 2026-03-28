@@ -2,7 +2,7 @@
 id: xq7
 title: "Sandbox: recipe loader and parser"
 type: task
-priority: 1
+priority: 2
 status: open
 depends_on: []
 created: 2026-03-21
