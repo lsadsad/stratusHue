@@ -773,9 +773,9 @@ export function setupEventListeners(): void {
 
 /**
  * JS-driven sticky headers — position:sticky is unsupported in Figma's iframe.
- * On scroll, uses translateY to pin headers that have scrolled past the top.
- * Headers stack: Tags at top, Anchors below it, Controls below that.
- * z-index is set so upper headers layer over lower ones.
+ * Bidirectional: headers pin to top when scrolled past AND pin to bottom when
+ * pushed below the visible area. Headers stack at both edges.
+ * Uses translateY (GPU compositor) — no reflow on scroll.
  */
 export function setupStickyHeaders(): void {
   const scrollContainer = document.getElementById('navigate-main');
@@ -807,23 +807,48 @@ export function setupStickyHeaders(): void {
 
   function onScroll(): void {
     const scrollTop = scrollContainer!.scrollTop;
-    let stackHeight = 0;
+    const viewH = scrollContainer!.clientHeight;
+
+    // Reset all headers
+    for (const h of headers) {
+      h.style.transform = '';
+      h.style.zIndex = '';
+      h.classList.remove('sticky-stuck', 'sticky-stuck-bottom');
+    }
+
+    // Pass 1: Top sticky (forward — earlier headers stick first)
+    let topStack = 0;
+    const stuckTop = new Set<number>();
 
     for (let i = 0; i < headers.length; i++) {
-      const header = headers[i];
-      // Header sticks when it would scroll past the current stack bottom
-      const threshold = offsets[i] - stackHeight;
+      const naturalVisPos = offsets[i] - scrollTop;
+      if (naturalVisPos < topStack) {
+        const dy = scrollTop + topStack - offsets[i];
+        headers[i].style.transform = `translateY(${dy}px)`;
+        headers[i].style.zIndex = String(headers.length - i + 10);
+        headers[i].classList.add('sticky-stuck');
+        topStack += headers[i].offsetHeight;
+        stuckTop.add(i);
+      }
+    }
 
-      if (scrollTop > threshold) {
-        const dy = scrollTop - offsets[i] + stackHeight;
-        header.style.transform = `translateY(${dy}px)`;
-        header.style.zIndex = String(headers.length - i + 10);
-        header.classList.add('sticky-stuck');
-        stackHeight += header.offsetHeight;
-      } else {
-        header.style.transform = '';
-        header.style.zIndex = '';
-        header.classList.remove('sticky-stuck');
+    // Pass 2: Bottom sticky (backward — later headers stick first)
+    let bottomStack = 0;
+
+    for (let i = headers.length - 1; i >= 0; i--) {
+      if (stuckTop.has(i)) continue;
+
+      const headerH = headers[i].offsetHeight;
+      const naturalVisPos = offsets[i] - scrollTop;
+      const bottomEdge = viewH - bottomStack;
+
+      if (naturalVisPos + headerH > bottomEdge) {
+        const targetVisPos = bottomEdge - headerH;
+        const dy = targetVisPos - naturalVisPos;
+        headers[i].style.transform = `translateY(${dy}px)`;
+        headers[i].style.zIndex = String(i + 10);
+        headers[i].classList.add('sticky-stuck', 'sticky-stuck-bottom');
+        bottomStack += headerH;
       }
     }
   }

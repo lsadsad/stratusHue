@@ -2525,6 +2525,11 @@ h3 {
   will-change: transform;
 }
 
+.section-header.sticky-stuck-bottom {
+  border-top: none;
+  border-bottom: var(--border-width) solid var(--color-border-primary);
+}
+
 /* Header layout patterns - left-aligned design */
 .header-left,
 .header-right,
