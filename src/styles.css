@@ -2521,7 +2521,6 @@ h3 {
 /* JS-driven sticky header state (position:sticky unsupported in Figma iframe) */
 .section-header.sticky-stuck {
   position: relative;
-  z-index: 10;
   background-color: var(--color-background-elevated);
   will-change: transform;
 }

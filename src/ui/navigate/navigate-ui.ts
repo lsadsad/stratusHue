@@ -774,7 +774,8 @@ export function setupEventListeners(): void {
 /**
  * JS-driven sticky headers — position:sticky is unsupported in Figma's iframe.
  * On scroll, uses translateY to pin headers that have scrolled past the top.
- * Each header replaces the previous one (non-stacking) at the top of the scroll area.
+ * Headers stack: Tags at top, Anchors below it, Controls below that.
+ * z-index is set so upper headers layer over lower ones.
  */
 export function setupStickyHeaders(): void {
   const scrollContainer = document.getElementById('navigate-main');
@@ -806,15 +807,22 @@ export function setupStickyHeaders(): void {
 
   function onScroll(): void {
     const scrollTop = scrollContainer!.scrollTop;
+    let stackHeight = 0;
 
     for (let i = 0; i < headers.length; i++) {
       const header = headers[i];
-      if (scrollTop > offsets[i]) {
-        const dy = scrollTop - offsets[i];
+      // Header sticks when it would scroll past the current stack bottom
+      const threshold = offsets[i] - stackHeight;
+
+      if (scrollTop > threshold) {
+        const dy = scrollTop - offsets[i] + stackHeight;
         header.style.transform = `translateY(${dy}px)`;
+        header.style.zIndex = String(headers.length - i + 10);
         header.classList.add('sticky-stuck');
+        stackHeight += header.offsetHeight;
       } else {
         header.style.transform = '';
+        header.style.zIndex = '';
         header.classList.remove('sticky-stuck');
       }
     }
