@@ -1809,7 +1809,7 @@ body {
 /* Optimize rendering performance */
 .scrollable-content {
   will-change: scroll-position;
-  contain: layout style paint;
+  contain: style;
 }
 
 /* Consolidated performance optimizations */
@@ -2494,11 +2494,11 @@ h3 {
   color: var(--color-text-primary);
   cursor: pointer;
   user-select: none;
-  transition: all var(--transition-normal);
+  transition: background var(--transition-normal), color var(--transition-normal);
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  background: transparent;
+  background: var(--color-background-main);
   border: none;
   border-top: var(--border-width) solid var(--color-border-primary);
   border-radius: 0;
@@ -2508,7 +2508,7 @@ h3 {
   gap: 0;
   align-self: stretch;
   box-sizing: border-box;
-  position: relative;
+  position: sticky;
   letter-spacing: 0.16em;
 }
 
@@ -2693,6 +2693,8 @@ h3 {
   border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 0 0;
   border-radius: 0px;
+  top: 0;
+  z-index: 3;
 }
 
 /* Anchors Header - match Tags header strokes */
@@ -2701,6 +2703,8 @@ h3 {
   border-top: var(--border-width) solid var(--color-border-primary);
   margin: 0 0 0 0;
   border-radius: 0px;
+  top: calc(var(--spacing-lg) * 5 + var(--border-width));
+  z-index: 2;
 }
 
 #anchors-header .header-left {
@@ -2730,6 +2734,8 @@ h3 {
   background-color: var(--color-background-elevated);
   padding-left: 2px;
   padding-right: 4px;
+  top: calc((var(--spacing-lg) * 5 + var(--border-width)) * 2);
+  z-index: 1;
 }
 
 #tags-header .header-subtitle {
@@ -10589,9 +10595,10 @@ body.compact-mode #mode-strip {
       const button = document.createElement("button");
       button.className = "emoji-button";
       button.textContent = emoji;
-      button.addEventListener("click", () => {
-        console.log("Emoji clicked:", emoji);
-        sendMessage("add-emoji", { emoji });
+      button.addEventListener("click", (e) => {
+        const messageType = e.shiftKey ? "add-emoji-recursive" : "add-emoji";
+        console.log("Emoji clicked:", emoji, messageType);
+        sendMessage(messageType, { emoji });
         showCanvasHint();
       });
       button.addEventListener("mouseenter", () => {
@@ -11895,9 +11902,10 @@ body.compact-mode #mode-strip {
       });
     }
     if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        console.log("Clear clicked");
-        sendMessage("clear-emoji");
+      clearBtn.addEventListener("click", (e) => {
+        const messageType = e.shiftKey ? "clear-emoji-recursive" : "clear-emoji";
+        console.log("Clear clicked:", messageType);
+        sendMessage(messageType);
       });
       clearBtn.addEventListener("mouseenter", () => {
         const anatomyEmoji = document.querySelector(".anatomy-emoji");
@@ -12153,11 +12161,9 @@ body.compact-mode #mode-strip {
     }
     if (widthToggleBtn) {
       widthToggleBtn.addEventListener("click", () => {
-        var _a, _b;
         console.log("Toggle width");
         isWidthCompact = !isWidthCompact;
         const allScrollable = document.querySelectorAll(".scrollable-content");
-        const visibleMainId = (_b = (_a = document.querySelector("main.scrollable-content:not([hidden])")) == null ? void 0 : _a.id) != null ? _b : null;
         allScrollable.forEach((el) => {
           if (isWidthCompact) {
             el.classList.add("compact-mode");
@@ -12170,8 +12176,6 @@ body.compact-mode #mode-strip {
         } else {
           widthToggleBtn.classList.remove("active");
         }
-        fetch("http://127.0.0.1:7247/ingest/a65222d9-3afe-4dbf-a224-58226ab254d1", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "069666" }, body: JSON.stringify({ sessionId: "069666", location: "navigate-ui.ts:width-toggle", message: "compact-mode applied", data: { appliedCount: allScrollable.length, visibleMainId }, timestamp: Date.now(), hypothesisId: "B", runId: "post-fix" }) }).catch(() => {
-        });
         sendMessage("toggle-width");
       });
       widthToggleBtn.addEventListener("mouseenter", () => {
