@@ -4,12 +4,18 @@ category: navigate
 title: "Header action icons don't light up on header hover"
 type: bug
 priority: 1
-status: open
+status: closed
 depends_on: []
 created: 2026-03-28
 ---
 
 # Header action icons don't light up on header hover
+
+## Resolution (2026-03-28)
+
+Root cause was twofold: (1) color-coded quick-action rules used `!important` on `#new-page-btn` / `#date-btn` / etc., which overrode `#tags-header:hover …` despite lower ID count; (2) `[data-theme] #tags-header #btn` tied or beat `#tags-header:hover #btn` on specificity and won by source order.
+
+Fix: dropped `!important` from those header-only button rules (kept for `#settings-btn` and `#nav-delete`), split `nav-delete` into its own themed blocks, and tightened bar-hover selectors to `#tags-header.section-header:hover …` so specificity clears theme defaults.
 
 ## Goal
 
