@@ -91,7 +91,15 @@ Selectors use `svg`, not `img`:
 - Prototype by opening the `.svg` directly in a browser — no build needed
 - Only reach for this when path-level animation is required
 
-No Rive, no Lottie — both require runtime libraries incompatible with Figma's `networkAccess: none` constraint.
+**Tier 3 — Lottie** (dormant — infrastructure exists, not wired up):
+- `lottie-web` is installed; `src/ui/shared/lottie.ts` has init/play/pause/destroy helpers
+- Build system (`esbuild.config.js`) can inline Lottie JSON via `data-lottie-src` attributes
+- Sample asset: `assets/sample-loading.json`; docs: `docs/LOTTIE_SUPPORT.md`
+- Currently **not imported or called** from any active UI code — no `data-lottie-src` in HTML
+- To enable: import from `lottie.ts`, uncomment `lottie.loadAnimation()`, add `data-lottie-src` to HTML
+- Lottie JSON is inlined at build time, so it works within Figma's `networkAccess: none` constraint
+
+No Rive — requires a runtime that fetches external resources, incompatible with Figma's sandbox.
 
 ## Prototype / Iteration Workflow
 

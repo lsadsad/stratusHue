@@ -10,7 +10,6 @@ import {
   MAX_UI_HEIGHT,
 } from '../shared/layout';
 import { activeTimers } from '../shared/cleanup';
-import { initializeAllLottieElements } from '../shared/lottie';
 import { initializeQuickActionTooltips } from '../shared/tooltip-manager';
 import { setupThemeSwitching } from '../shared/theme-manager-ui';
 import { setupAccessibilitySupport } from '../shared/accessibility';
@@ -76,9 +75,6 @@ export function initializePlugin(): void {
 
   // Initialize auto-fit button state
   updateAutoFitButtonState();
-
-  // Initialize Lottie animations
-  initializeAllLottieElements();
 
   // Initialize scroll behavior
   updateScrollBehavior();

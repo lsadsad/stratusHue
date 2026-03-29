@@ -1,8 +1,6 @@
 // Figma Plugin UI - TypeScript Implementation
 // Handles all UI interactions and communication with the plugin sandbox
 
-// Temporarily disable lottie to debug
-// import lottie from 'lottie-web';
 import type { NavigationContext } from './types';
 // UI should not import plugin-side storage (which uses `figma`).
 // We request and persist UI section states via postMessage to the plugin.
@@ -20,7 +18,6 @@ import {
   updateScrollBehavior,
   setIsAutoFitEnabled
 } from './ui/shared/layout';
-import { destroyAllLottieAnimations } from './ui/shared/lottie';
 import {
   themeManager,
   isThemeInitialized,
@@ -408,9 +405,6 @@ function setupCleanupHandlers(): void {
     if (themeManager) {
       themeManager.destroy();
     }
-
-    // Destroy all Lottie animations
-    destroyAllLottieAnimations();
 
     // Clear any remaining timers
     clearAllTimers();
