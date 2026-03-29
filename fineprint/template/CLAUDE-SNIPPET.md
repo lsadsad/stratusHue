@@ -38,9 +38,28 @@ created: YYYY-MM-DD
 | `infra` | Build system, CI/CD, tooling |
 | `meta` | Cross-cutting — audits, process, infrastructure |
 
+### File naming
+
+```
+P{priority}-{category}-{id}-{slug}.md
+```
+
+| Segment | Description | Examples |
+|---|---|---|
+| `P{priority}` | Priority level: `P0`=critical, `P1`=high, `P2`=medium, `P3`=low, `P4`=backlog | `P1`, `P3` |
+| `{category}` | Feature area (defined per project) | `scaffold`, `meta`, `infra` |
+| `{id}` | Short 2–3 character mnemonic from the frontmatter `id` field | `sch`, `ldr`, `nav` |
+| `{slug}` | Kebab-case description of the issue | `recipe-json-schema` |
+
+Examples:
+```
+P1-meta-aud-template-methodology-audit.md
+P2-scaffold-sch-recipe-json-schema.md
+P3-validate-rdy-readiness-check.md
+```
+
 ### Conventions
 
-- File naming: `P{priority}-{category}-{id}-{slug}.md` (e.g., `P2-scaffold-sch-recipe-json-schema.md`)
 - To close an issue: `git mv .issues/open/P2-scaffold-sch-*.md .issues/closed/`
 - To find ready work: issues in `open/` with empty `depends_on` or all deps in `closed/`
 - Dependencies reference other issue IDs (check `depends_on` arrays)
