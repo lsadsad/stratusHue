@@ -298,28 +298,54 @@ created: 2026-03-21
 - Obsidian-compatible: open `.issues/` as a vault, use Dataview for queries
 - See `.issues/README.md` for full how-to guide
 
-### Trigger phrases
+### ID naming convention
 
-| Shortcut | Natural language | Action |
-|---|---|---|
-| `/issues` | "what's open" | List all open issues |
-| `/ready` | "what's ready", "what should I work on" | Show unblocked issues only |
-| `/issue X` | "show issue X" | Read a specific issue |
-| `/track X` | "create an issue for X", "track this" | Write new `.issues/open/P{n}-{category}-{id}-{slug}.md` |
-| `/close X` | "close X", "mark X done" | `git mv .issues/open/... .issues/closed/` |
+IDs should be **short, pronounceable abbreviations** — not random hashes or ticket numbers.
+
+- **3 characters** for regular issues, **4 characters** for epics
+- Lowercase, alphanumeric only
+- Must be globally unique within the project
+
+### shortHand — Issues
+
+Casual phrases that drive finePrint actions. Say any of these.
+
+| Phrase | Action |
+|---|---|
+| "issues plz" | List all open issues |
+| "what's ready" | Show unblocked issues only |
+| "show X" | Read a specific issue |
+| "issue it" | Create a new issue from current context |
+| "track this" | Create a new issue (with description) |
+| "done X" | Close issue — `git mv` to `closed/` |
+| "bump X" | Raise an issue's priority |
+| "block X on Y" | Add Y to X's `depends_on` |
 
 ## finePrint — Project Memory (`.memory/`)
 
-Append-only knowledge base for decisions, context, and open questions. Use `.memory/` for all persistent knowledge — do NOT use `bd remember` or `MEMORY.md` files. See `.memory/README.md` for full format and conventions.
+Append-only knowledge base for decisions, context, and open questions. See `.memory/README.md` for full format and conventions.
 
-### Trigger phrases
+### Format
 
-| Shortcut | Natural language | Action |
-|---|---|---|
-| `/memory` | "check memory" | List all memory entries |
-| `/recall X` | "what do we know about X" | Grep `.memory/` for topic |
-| `/remember` | "remember this", "save to memory" | Write new `.memory/YYYY-MM-DD-slug.md` |
-| `/supersede X` | "this replaces the decision on X" | New entry with "Supersedes:" reference |
+Files are named `YYYY-MM-DD-slug.md` with optional YAML frontmatter. Types: `decision`, `question`, `context`, `workaround`.
+
+### shortHand — Memory
+
+| Phrase | Action |
+|---|---|
+| "save context" | Write new `.memory/YYYY-MM-DD-slug.md` |
+| "check memory" | List all memory entries |
+| "recall X" | Search `.memory/` for topic |
+| "this replaces X" | New entry with "Supersedes:" reference |
+
+### shortHand — Session
+
+| Phrase | Action |
+|---|---|
+| "distill this" | Synthesize the session — extract decisions, milestones, and context into `.memory/` entries; update issues with progress; surface untracked work as new issues |
+| "wrap up" | File issues for remaining work, run quality gates, close completed issues, commit and push |
+| "ship it" | Commit all changes and push to remote |
+| "what changed" | Git summary — branch, recent commits, dirty state |
 
 ## Session Completion
 
