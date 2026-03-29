@@ -343,6 +343,7 @@ Files are named `YYYY-MM-DD-slug.md` with optional YAML frontmatter. Types: `dec
 
 | Phrase | Action |
 |---|---|
+| "run down" | Full status report on a topic — pull together issues, memories, related context, and current state |
 | "distill this" | Synthesize the session — extract decisions, milestones, and context into `.memory/` entries; update issues with progress; surface untracked work as new issues |
 | "wrap up" | File issues for remaining work, run quality gates, close completed issues, commit and push |
 | "ship it" | Commit all changes and push to remote |
