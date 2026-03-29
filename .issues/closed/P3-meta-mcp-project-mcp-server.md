@@ -4,7 +4,7 @@ category: meta
 title: "MCP server for project-aware Claude Code sessions"
 type: feature
 priority: 3
-status: open
+status: closed
 depends_on: []
 created: 2026-03-28
 ---
@@ -23,6 +23,6 @@ Claude Code can already read files, but an MCP server makes project state querya
 - Project health dashboard (build freshness, test status, open issue count)
 - Surface unblocked issues and stale memory proactively
 
-## Design status
+## Resolution
 
-Brainstorming in progress — approach and scope TBD.
+Built as standalone repo: `groundControl` (github.com/lsadsad/groundControl). Multi-project MCP server with 14 tools covering issues, memory, git, build health, and project scaffolding. Registered globally via `claude mcp add`. stratusHue is the first registered project. See spec at `docs/superpowers/specs/2026-03-28-groundcontrol-mcp-server-design.md`.
