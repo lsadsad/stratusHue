@@ -1,17 +1,4 @@
-<!-- @license lucide-static v0.577.0 - ISC -->
-<svg
-  class="lucide lucide-bookmark-x"
-  xmlns="http://www.w3.org/2000/svg"
- 
- 
-  viewBox="0 0 24 24"
-  fill="none"
-  stroke="currentColor"
-  stroke-width="2"
-  stroke-linecap="round"
-  stroke-linejoin="round"
->
-  <path d="m14.5 7.5-5 5" />
-  <path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z" />
-  <path d="m9.5 7.5 5 5" />
+<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 2.625H12C12.7594 2.625 13.375 3.24061 13.375 4V14.9561C13.375 15.2279 13.0948 15.4099 12.8467 15.2988L8.66406 13.4248C8.24163 13.2357 7.75837 13.2357 7.33594 13.4248L3.15332 15.2988C2.90524 15.4099 2.625 15.2279 2.625 14.9561V4C2.625 3.24061 3.24061 2.625 4 2.625Z" stroke="var(--stroke-0, white)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10 6L6 10M6 6L10 10" stroke="var(--stroke-0, white)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

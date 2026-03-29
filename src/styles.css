@@ -3494,17 +3494,66 @@ h3 {
   opacity: 0.7;
 }
 
-/* Reveal action icons when hovering the entire header bar.
-   Must come AFTER default rules above for source-order specificity.
-   Include .section-header so (2,3,1) beats [data-theme] #tags-header #btn (2,2,1) (hdr issue).
-   Icons use stroke="white" (not currentColor), so filter recolors to brand blue #0d99ff. */
-#tags-header.section-header:hover #new-page-btn .icon svg,
-#tags-header.section-header:hover #date-btn .icon svg,
-#tags-header.section-header:hover #clear-color .icon svg,
-#anchors-header.section-header:hover #refresh-anchors .icon svg,
-#anchors-header.section-header:hover #save-bookmark .icon svg,
-#controls-header.section-header:hover .header-nav-btn .icon svg {
+/* Header color-context on bar hover/focus (JS adds .header-color-context-active).
+   Using ID+class selectors keeps this stronger than themed defaults. */
+#tags-header.section-header.header-color-context-active #new-page-btn .icon svg {
+  /* Create action: green */
+  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7);
+  opacity: 1;
+}
+
+#tags-header.section-header.header-color-context-active #date-btn .icon svg,
+#anchors-header.section-header.header-color-context-active #refresh-anchors .icon svg,
+#anchors-header.section-header.header-color-context-active #save-bookmark .icon svg {
+  /* Info/view action: brand blue (match header accent) */
   filter: brightness(0) saturate(100%) invert(52%) sepia(98%) saturate(1200%) hue-rotate(190deg) brightness(1.05);
+  opacity: 1;
+}
+
+#tags-header.section-header.header-color-context-active #clear-color .icon svg {
+  /* Destructive action: red */
+  filter: brightness(0) saturate(100%) invert(19%) sepia(99%) saturate(1280%) hue-rotate(333deg) brightness(1.08) contrast(1.32);
+  opacity: 1;
+}
+
+#controls-header.section-header.header-color-context-active .header-nav-btn:not(:disabled) .icon svg {
+  /* Navigation history action: amber */
+  filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7);
+  opacity: 1;
+}
+
+/* Higher-contrast color-context variants for darkest themes */
+[data-theme="figma-dark"] #tags-header.section-header.header-color-context-active #new-page-btn .icon svg,
+[data-theme="dark"] #tags-header.section-header.header-color-context-active #new-page-btn .icon svg,
+[data-theme="boilerplate"] #tags-header.section-header.header-color-context-active #new-page-btn .icon svg {
+  filter: brightness(0) saturate(100%) invert(34%) sepia(96%) saturate(720%) hue-rotate(86deg) brightness(0.95) contrast(1.22);
+  opacity: 1;
+}
+
+[data-theme="figma-dark"] #tags-header.section-header.header-color-context-active #date-btn .icon svg,
+[data-theme="dark"] #tags-header.section-header.header-color-context-active #date-btn .icon svg,
+[data-theme="figma-dark"] #anchors-header.section-header.header-color-context-active #refresh-anchors .icon svg,
+[data-theme="dark"] #anchors-header.section-header.header-color-context-active #refresh-anchors .icon svg,
+[data-theme="figma-dark"] #anchors-header.section-header.header-color-context-active #save-bookmark .icon svg,
+[data-theme="dark"] #anchors-header.section-header.header-color-context-active #save-bookmark .icon svg,
+[data-theme="boilerplate"] #tags-header.section-header.header-color-context-active #date-btn .icon svg,
+[data-theme="boilerplate"] #anchors-header.section-header.header-color-context-active #refresh-anchors .icon svg,
+[data-theme="boilerplate"] #anchors-header.section-header.header-color-context-active #save-bookmark .icon svg {
+  filter: brightness(0) saturate(100%) invert(52%) sepia(98%) saturate(1200%) hue-rotate(190deg) brightness(1.05);
+  opacity: 1;
+}
+
+[data-theme="figma-dark"] #tags-header.section-header.header-color-context-active #clear-color .icon svg,
+[data-theme="dark"] #tags-header.section-header.header-color-context-active #clear-color .icon svg,
+[data-theme="boilerplate"] #tags-header.section-header.header-color-context-active #clear-color .icon svg {
+  opacity: 1;
+  filter: brightness(0) saturate(100%) invert(17%) sepia(100%) saturate(1420%) hue-rotate(332deg) brightness(1.14) contrast(1.36) drop-shadow(0 0 0.6px rgba(242, 72, 34, 0.7));
+}
+
+[data-theme="figma-dark"] #controls-header.section-header.header-color-context-active .header-nav-btn:not(:disabled) .icon svg,
+[data-theme="dark"] #controls-header.section-header.header-color-context-active .header-nav-btn:not(:disabled) .icon svg,
+[data-theme="boilerplate"] #controls-header.section-header.header-color-context-active .header-nav-btn:not(:disabled) .icon svg {
+  filter: brightness(0) saturate(100%) invert(43%) sepia(97%) saturate(860%) hue-rotate(12deg) brightness(0.96) contrast(1.22);
   opacity: 1;
 }
 

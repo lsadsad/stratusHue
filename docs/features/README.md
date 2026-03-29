@@ -21,7 +21,7 @@ Core navigation and productivity tools for active design work.
 | Document | Purpose |
 |---|---|
 | `LAYOUT_SIZING_TESTING_GUIDE.md` | QA guide for the sizing feature |
-| `COLOR_CODED_BUTTONS.md` | Button color system documentation |
+| `COLOR_CODED_BUTTONS.md` | Header action icon color-context behavior and theme tuning |
 | `ACCESSIBILITY_IMPLEMENTATION_SUMMARY.md` | Accessibility patterns used across the plugin |
 | `CURRENT_PLUGIN_STRUCTURE_ANALYSIS.md` | Architecture snapshot of the existing codebase |
 

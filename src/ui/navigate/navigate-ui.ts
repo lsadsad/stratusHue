@@ -233,6 +233,41 @@ export function setupEventListeners(): void {
   const widthToggleBtn = document.getElementById('footer-width-toggle');
   const resizeHandle = document.getElementById('footer-resize');
   const collapsibleHeaders = Array.from(document.querySelectorAll<HTMLElement>('.section-header.collapsible'));
+  const headerActionButtons: HTMLElement[] = [
+    newPageBtn,
+    dateBtn,
+    clearBtn,
+    saveBtn,
+    refreshAnchorsBtn,
+    backBtn,
+    forwardBtn
+  ].filter((btn): btn is HTMLElement => btn instanceof HTMLElement);
+
+  ['tags-header', 'anchors-header', 'controls-header'].forEach((headerId) => {
+    const header = document.getElementById(headerId) as HTMLElement | null;
+    if (!header) return;
+    const activateColorContext = () => {
+      header.classList.add('header-color-context-active');
+    };
+    const deactivateColorContext = () => {
+      header.classList.remove('header-color-context-active');
+    };
+    header.addEventListener('mouseenter', () => {
+      activateColorContext();
+    });
+    header.addEventListener('mouseleave', () => {
+      deactivateColorContext();
+    });
+    header.addEventListener('focusin', () => {
+      activateColorContext();
+    });
+    header.addEventListener('focusout', (e: FocusEvent) => {
+      const nextTarget = e.relatedTarget as Node | null;
+      if (!nextTarget || !header.contains(nextTarget)) {
+        deactivateColorContext();
+      }
+    });
+  });
 
   if (backBtn) {
     backBtn.addEventListener('click', () => {

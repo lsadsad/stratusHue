@@ -1,5 +1,8 @@
 # Header Hover State Fix - Summary
 
+> Historical note: this fix explains the original header background-hover consistency issue.  
+> Current header action icon color behavior is documented in `docs/features/COLOR_CODED_BUTTONS.md` (section-level color-context + theme-specific contrast tuning).
+
 ## Issue
 The **Tags**, **Anchors**, and **Navigation** section headers were not displaying consistent hover states compared to the **Layout Sizing** header. When hovering over these headers, the background color was not changing as expected.
 
