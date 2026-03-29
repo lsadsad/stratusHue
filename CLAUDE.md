@@ -269,7 +269,7 @@ Issues are plain markdown files with YAML frontmatter, tracked in git. No extern
 
 ```yaml
 ---
-id: sch              # short mnemonic ID (descriptive of the task)
+id: sch              # short mnemonic ID (3 chars; 4 for epics)
 category: scaffold   # feature area: scaffold | validate | navigate | meta
 title: "..."
 type: task|feature|bug|epic
