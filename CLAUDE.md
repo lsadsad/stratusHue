@@ -315,6 +315,7 @@ Casual phrases that drive finePrint actions. Say any of these.
 | "issues plz" | List all open issues |
 | "what's ready" | Show unblocked issues only |
 | "show X" | Read a specific issue |
+| "show deats" | Show full issue details (frontmatter + body) |
 | "issue it" | Create a new issue from current context |
 | "track this" | Create a new issue (with description) |
 | "done X" | Close issue — `git mv` to `closed/` |
