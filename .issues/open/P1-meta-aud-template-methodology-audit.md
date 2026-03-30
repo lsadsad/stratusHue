@@ -1,17 +1,19 @@
 ---
 id: aud
 category: meta
-title: "Template methodology audit: confirm load-bearing elements with team"
-type: task
+title: "Template methodology audit — analyze, review with lead, revise, finalize for build"
+type: epic
 priority: 1
 status: open
 depends_on: []
 created: 2026-03-27
 ---
 
-Audit the UX template with the team to confirm which elements are genuinely load-bearing before encoding them into the recipe schema.
+Audit the UX template with the team to confirm which elements are genuinely load-bearing, then analyze findings, review with UX lead, revise the template spec, and finalize for the stratusHue build.
 
-## Progress
+---
+
+## Phase 1: Questionnaire ✅
 
 Questionnaire drafted (35 questions, 6 sections). **All 35 answers recorded.**
 See `docs/features/TEMPLATE_AUDIT_QUESTIONS.md` for full Q&A.
@@ -52,9 +54,72 @@ See `docs/features/TEMPLATE_AUDIT_QUESTIONS.md` for full Q&A.
 - Component usage threshold depends on delivery type (Q32)
 - **Biggest friction point: Delivery** (Q35)
 
-### Remaining
+---
 
-All questions answered. Next step: synthesize findings into actionable recipe schema requirements.
+## Phase 2: Analyze & Synthesize ⬅ current
+
+Distill the 35 answers into an actionable analysis document.
+
+- [ ] **Element disposition table** — for every template element, assign a verdict: keep as-is, simplify, move out of Figma, drop, or automate via plugin
+- [ ] **Gaps & contradictions** — flag where answers were vague ("Yes"), ambiguous, or conflicting; list what still needs specifics
+- [ ] **Threshold registry** — concrete numbers the plugin needs: style coverage %, component compliance %, annotation categories, mandatory pages
+- [ ] **Variant matrix** — which elements change by project deliverable type (Q34); first pass at what "variant" means
+- [ ] **Delivery pain map** — delivery is the #1 friction point (Q35); break down what about delivery hurts and where the plugin can help
+
+Output: `docs/features/TEMPLATE_AUDIT_ANALYSIS.md`
+
+---
+
+## Phase 3: Questions & Notes for UX Lead
+
+Package findings into an async-friendly review document for the UX lead.
+
+- [ ] **Decisions needed** — list items that require lead sign-off (drops, simplifications, new thresholds)
+- [ ] **Open questions** — items where answers were too brief to act on (Q20 bottom-to-top, Q21–23 annotation specifics, Q26 never-hardcode list, Q30 detach policy details)
+- [ ] **Recommendations with rationale** — for each "rethink" item, propose a concrete change and why
+- [ ] **Impact on existing files** — what happens to files already using the current template?
+
+Output: `docs/features/TEMPLATE_AUDIT_REVIEW.md` — structured for async comment/approve/reject per item
+
+---
+
+## Phase 4: Async Review & Discussion
+
+- [ ] Deliver review doc to UX lead
+- [ ] Collect feedback — approvals, rejections, modifications, new constraints
+- [ ] Resolve open questions from Phase 3
+- [ ] Document final decisions with rationale
+
+Output: Updated `TEMPLATE_AUDIT_REVIEW.md` with decision log
+
+---
+
+## Phase 5: Revised Template Spec
+
+Incorporate all decisions into a revised template specification.
+
+- [ ] **Revised element inventory** — final list of what the template contains, per variant if applicable
+- [ ] **Section map** — pages, sections, ordering, emoji prefixes, optional vs required
+- [ ] **Annotation spec** — categories, format, mandatory placement, "Dev Ready" flag definition
+- [ ] **Compliance rules** — style coverage, component library references, detach policy, version currency
+- [ ] **Variant definitions** — if variants are needed, define each variant's delta from the base template
+
+Output: `docs/features/TEMPLATE_SPEC_REVISED.md`
+
+---
+
+## Phase 6: Finalize for Build
+
+Lock the spec and translate it into stratusHue recipe schema requirements.
+
+- [ ] **Recipe schema mapping** — map each spec element to recipe JSON fields (feeds `sch` issue)
+- [ ] **Readiness check rules** — map compliance rules to lint/check logic (feeds `rdy`, `tkn`, `cmp` issues)
+- [ ] **Scaffold requirements** — what Scaffold mode needs to create from a recipe (feeds `scf` epic)
+- [ ] **Sign-off** — UX lead confirms the finalized spec is build-ready
+
+Output: `docs/features/TEMPLATE_SPEC_FINAL.md` — the canonical reference for all downstream build work
+
+---
 
 ## References
 
