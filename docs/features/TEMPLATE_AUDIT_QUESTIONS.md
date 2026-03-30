@@ -117,3 +117,14 @@ The plugin can detect detached instances and list components, but has no referen
 **14.** Designers update the status dot. Products and Leads sign off via Figma comments.
 **15.** All of the above — page rename, component property swap, and manual edit are all used.
 **16.** At least 3 statuses are used.
+**17.** R1 is added when the first review actually happens — not pre-seeded.
+**18.** Projects go through multiple review rounds.
+**19.** Not all 9 sections are used every time — some are probably skipped depending on project type.
+**20.** *(Needs clarification)* Bottom-to-top lifecycle order needs explaining — unclear who the receiver of that convention is.
+**21.** Yes — the team has a standard set of annotation categories.
+**22.** Yes — some pages/sections have mandatory annotations.
+**23.** Yes — there is a format convention for annotations.
+**24.** Yes — a "Dev Ready" flag signals when annotations are complete.
+**25.** 100% of fills and strokes should reference shared styles, unless it's a new entry (not yet in the library).
+**26.** Yes — there are specific colors/text styles that should never be hardcoded.
+**27.** Yes — Figma variables (spacing, radius, etc.) matter for compliance, not just color and text styles.
