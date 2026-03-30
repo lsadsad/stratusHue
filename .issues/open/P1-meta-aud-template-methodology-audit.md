@@ -56,21 +56,21 @@ See `docs/features/TEMPLATE_AUDIT_QUESTIONS.md` for full Q&A.
 
 ---
 
-## Phase 2: Analyze & Synthesize ⬅ current
+## Phase 2: Analyze & Synthesize ✅
 
 Distill the 35 answers into an actionable analysis document.
 
-- [ ] **Element disposition table** — for every template element, assign a verdict: keep as-is, simplify, move out of Figma, drop, or automate via plugin
-- [ ] **Gaps & contradictions** — flag where answers were vague ("Yes"), ambiguous, or conflicting; list what still needs specifics
-- [ ] **Threshold registry** — concrete numbers the plugin needs: style coverage %, component compliance %, annotation categories, mandatory pages
-- [ ] **Variant matrix** — which elements change by project deliverable type (Q34); first pass at what "variant" means
-- [ ] **Delivery pain map** — delivery is the #1 friction point (Q35); break down what about delivery hurts and where the plugin can help
+- [x] **Element disposition table** — 13 elements classified: 7 keep, 4 rethink, 2 drop
+- [x] **Gaps & contradictions** — 5 vague answers, 3 ambiguities, 3 contradictions identified
+- [x] **Threshold registry** — 12 rules catalogued; 8 confirmed, 4 blocked on UX lead input
+- [x] **Variant matrix** — base template + variant dimensions mapped; deliverable types TBD
+- [x] **Delivery pain map** — 7 pain points mapped to plugin capabilities; 4 out-of-scope items identified
 
 Output: `docs/features/TEMPLATE_AUDIT_ANALYSIS.md`
 
 ---
 
-## Phase 3: Questions & Notes for UX Lead
+## Phase 3: Questions & Notes for UX Lead ⬅ current
 
 Package findings into an async-friendly review document for the UX lead.
 
