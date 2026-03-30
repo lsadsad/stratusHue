@@ -306,6 +306,80 @@ IDs should be **short, pronounceable abbreviations** — not random hashes or ti
 - Lowercase, alphanumeric only
 - Must be globally unique within the project
 
+### Display Layouts
+
+Issues support two display layouts. Both use tree characters to visualize dependency chains — nested items are blocked by their parent.
+
+**Priority view (default)** — groups by priority level, dependencies nest under blockers:
+
+```
+■ Open Issues (17)
+│
+│ P1
+├── aud   Template methodology audit
+│
+│ P2
+├── scf   Scaffold mode epic ⬡  ← tab, tpl, stm
+├── sch   Recipe JSON schema
+│   ├── exp   Recipe import/export
+│   └── stm   Stamp recipe to file
+├── ldr   Sandbox: recipe loader
+│   ├── pgs   Create pages from recipe
+│   │   └── tpl  Content templates
+│   └── tab   Scaffold tab UI
+├── anc   Anchors list max entries
+├── pth   Pathing characters in file tree
+├── rel   Cut a release
+│
+│ P3
+├── cmp   Component check
+├── rdy   Readiness check
+├── tkn   Token audit
+│
+│ P4
+├── anim-ref  Animation system reference
+└── smk2  Auto-detect missing smoke tests
+```
+
+- Dependencies nest under their blocker within the same priority group
+- Cross-priority deps show a `← blocker` marker instead of nesting
+- `⬡` marks epics
+- `[P4]` suffix when a nested item's priority differs from its group
+
+**Location view** — groups by category (package/area), priority as suffix:
+
+```
+■ Open Issues (17)
+│
+│ scaffold/
+├── scf   Scaffold mode epic ⬡ [P2]
+│   ├── tab   Scaffold tab UI [P2]
+│   ├── tpl   Content templates [P2]
+│   └── stm   Stamp recipe to file [P2]
+├── sch   Recipe JSON schema [P2]
+│   └── exp   Recipe import/export [P2]
+├── ldr   Sandbox: recipe loader [P2]
+│   └── pgs   Create pages from recipe [P2]
+│
+│ validate/
+├── cmp   Component check [P3]
+├── rdy   Readiness check [P3]
+├── tkn   Token audit [P3]
+│
+│ navigate/
+├── anc   Anchors list max entries [P2]
+├── pth   Pathing characters [P2]
+│
+│ meta/
+├── aud   Template methodology audit [P1]
+├── rel   Cut a release [P2]
+├── anim-ref  Animation system reference [P4]
+└── smk2  Auto-detect missing smoke tests [P4]
+```
+
+- Dependencies still nest under their blocker
+- `[P2]` suffix shows priority per item
+
 ### shortHand — Issues
 
 Casual phrases that drive finePrint actions. Say any of these.
