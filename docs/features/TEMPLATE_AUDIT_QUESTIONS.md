@@ -128,3 +128,11 @@ The plugin can detect detached instances and list components, but has no referen
 **25.** 100% of fills and strokes should reference shared styles, unless it's a new entry (not yet in the library).
 **26.** Yes — there are specific colors/text styles that should never be hardcoded.
 **27.** Yes — Figma variables (spacing, radius, etc.) matter for compliance, not just color and text styles.
+**28.** Yes — there is a canonical style/variable library that all projects must reference.
+**29.** Two canonical libraries: Components and Foundations.
+**30.** Detached instances are acceptable when creating new components (not yet in the library).
+**31.** Yes — the plugin should flag outdated component versions.
+**32.** Yes — minimum threshold depends on the delivery type.
+**33.** Top 3 elements: Cover page, page and section labels, and creation and delivery assets.
+**34.** It's **the** standard, but variants may be needed depending on project deliverable.
+**35.** Delivery is the single biggest friction point in the current template workflow.
