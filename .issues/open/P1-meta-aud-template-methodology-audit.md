@@ -70,14 +70,17 @@ Output: `docs/features/TEMPLATE_AUDIT_ANALYSIS.md`
 
 ---
 
-## Phase 3: Questions & Notes for UX Lead ⬅ current
+## Phase 3: Questions & Notes for UX Lead ✅
 
 Package findings into an async-friendly review document for the UX lead.
 
-- [ ] **Decisions needed** — list items that require lead sign-off (drops, simplifications, new thresholds)
-- [ ] **Open questions** — items where answers were too brief to act on (Q20 bottom-to-top, Q21–23 annotation specifics, Q26 never-hardcode list, Q30 detach policy details)
-- [ ] **Recommendations with rationale** — for each "rethink" item, propose a concrete change and why
-- [ ] **Impact on existing files** — what happens to files already using the current template?
+- [x] **Decisions needed** — 7 items requiring sign-off (A1–A7): drop Components in Use, simplify chips, VQA as log, About This Project migration, iTrack out of scope, teaching tools rule, status dot standardization
+- [x] **Open questions** — 7 items needing specifics (B1–B7): annotation categories, mandatory pages, annotation components, Dev Ready flag mechanics, never-hardcode list, per-variant thresholds, deliverable types
+- [x] **Clarifications** — 3 ambiguous answers (C1–C3): bottom-to-top order, detach policy, collaborator strip purpose
+- [x] **Recommendations with rationale** — 3 proposals (D1–D3): slim recipe format, start with one variant, delivery as the metric
+- [x] **Impact on existing files** — 5 changes assessed, no destructive migration needed
+
+**Action required from UX lead:** Provide annotation components from library to answer B1–B3.
 
 Output: `docs/features/TEMPLATE_AUDIT_REVIEW.md` — structured for async comment/approve/reject per item
 
