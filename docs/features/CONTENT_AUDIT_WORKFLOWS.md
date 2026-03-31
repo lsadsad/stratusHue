@@ -10,6 +10,73 @@ Policy -> Scaffold -> Navigate -> Validate -> Delivery
    |------------------ feedback ------------------|
 ```
 
+## Visual Summary
+
+```text
+CONTENT_AUDIT_WORKFLOWS.md
+
+Policy -> Scaffold -> Navigate -> Validate -> Delivery
+   ^                                              |
+   |------------------- feedback -----------------|
+
+RuleTypes
+  ├─ IntentRules
+  │   ├─ requiredSections
+  │   ├─ sectionOrder
+  │   └─ namingConventions
+  ├─ CompletionRules
+  │   ├─ statusSignals
+  │   ├─ annotationRequirements
+  │   └─ devReadyAndCleanup
+  └─ ThresholdRules
+      ├─ styleCoverage
+      ├─ variableUsage
+      └─ componentCompliance
+
+OpenQuestions
+  ├─ neverHardcodeScope
+  ├─ canonicalTokenList
+  ├─ deliverableTypesAndThresholds
+  ├─ exceptionsPolicy
+  └─ placeholderNamingConvention
+
+ImplementationMapping
+  policyDecisions
+    -> TEMPLATE_AUDIT_REVIEW.md
+    -> TEMPLATE_SPEC_REVISED.md
+    -> TEMPLATE_SPEC_FINAL.md
+    -> ScaffoldSchema + ValidateChecks
+```
+
+## Decision Flow (Meeting View)
+
+```text
+Start
+  |
+  v
+Is policy clear?
+  |-- no --> Capture open questions
+  |          (tokens, thresholds, variants, naming)
+  |          -> return to policy review
+  |
+  |-- yes --> Scaffold contract defined?
+              |-- no --> define intent/completion/threshold fields
+              |          in schema contract
+              |
+              |-- yes --> Validate rules mapped?
+                          |-- no --> map each contract rule
+                          |          to a concrete check
+                          |
+                          |-- yes --> Run readiness checks
+                                      |
+                                      v
+                                  Pass?
+                                    |-- no --> fix file or refine rule
+                                    |          -> rerun validate
+                                    |
+                                    |-- yes --> Delivery ready
+```
+
 1. Define content policy first (intent, completion, thresholds).
 2. Use Scaffold at project start to create the baseline structure and placeholders.
 3. Use Navigate during active design work to manage movement and status updates.
