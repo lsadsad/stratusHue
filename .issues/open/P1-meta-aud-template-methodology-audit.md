@@ -129,4 +129,5 @@ Output: `docs/features/TEMPLATE_SPEC_FINAL.md` — the canonical reference for a
 
 - `docs/features/DISCOVERY_AUDIT.md`
 - `docs/features/TEMPLATE_AUDIT_QUESTIONS.md`
+- `docs/features/CONTENT_AUDIT_WORKFLOWS.md`
 - `.memory/2026-03-29-audit-findings-partial.md`
