@@ -1,158 +1,169 @@
 # Content Audit Workflows
 
-Captured during the Phase 4 content writer approach discussion for the `aud` epic.
+## Start Here
 
-## Recommended Workflow
+This is a leave-behind guide for anyone new to the content audit approach in stratusHue.
+
+Use this document to understand:
+- what we are trying to achieve
+- how Scaffold, Navigate, and Validate fit together
+- what decisions are still open
+- what to do first if you are joining the work
+
+## The Approach in One View
 
 ```text
 Policy -> Scaffold -> Navigate -> Validate -> Delivery
    ^                                              |
-   |------------------ feedback ------------------|
+   |-------------------- feedback ----------------|
 ```
 
-## Visual Summary
+What this means:
+- Policy defines the rules for quality and readiness.
+- Scaffold creates the starting structure from those rules.
+- Navigate supports daily work while the file evolves.
+- Validate checks whether the file still matches the rules.
+- Feedback from Validate improves the policy and spec over time.
+
+## How stratusHue Works in Practice
 
 ```text
-CONTENT_AUDIT_WORKFLOWS.md
+1) POLICY DEFINITION (audit)
+   -> agree on intent, completion, threshold rules
+   -> record in TEMPLATE_AUDIT_REVIEW.md
+   -> formalize in TEMPLATE_SPEC_REVISED.md / TEMPLATE_SPEC_FINAL.md
 
-Policy -> Scaffold -> Navigate -> Validate -> Delivery
-   ^                                              |
-   |------------------- feedback -----------------|
+2) PROJECT START (Scaffold mode)
+   -> select recipe variant
+   -> create required structure + starter placeholders
+   -> stamp recipe metadata to file
 
+3) ACTIVE DESIGN (Navigate mode)
+   -> run normal design iteration
+   -> keep context/status visible during work
+
+4) PRE-HANDOFF (Validate mode)
+   -> run readiness checks against recipe contract
+   -> token audit + component compliance + completion gates
+
+5) FEEDBACK LOOP
+   -> fail: fix file or refine unclear rule, rerun Validate
+   -> pass: handoff is delivery-ready
+```
+
+## Rule System (What We Enforce)
+
+```text
 RuleTypes
-  ├─ IntentRules
-  │   ├─ requiredSections
-  │   ├─ sectionOrder
-  │   └─ namingConventions
-  ├─ CompletionRules
-  │   ├─ statusSignals
-  │   ├─ annotationRequirements
-  │   └─ devReadyAndCleanup
-  └─ ThresholdRules
-      ├─ styleCoverage
-      ├─ variableUsage
-      └─ componentCompliance
-
-OpenQuestions
-  ├─ neverHardcodeScope
-  ├─ canonicalTokenList
-  ├─ deliverableTypesAndThresholds
-  ├─ exceptionsPolicy
-  └─ placeholderNamingConvention
-
-ImplementationMapping
-  policyDecisions
-    -> TEMPLATE_AUDIT_REVIEW.md
-    -> TEMPLATE_SPEC_REVISED.md
-    -> TEMPLATE_SPEC_FINAL.md
-    -> ScaffoldSchema + ValidateChecks
+  ├─ IntentRules      ("what should exist")
+  ├─ CompletionRules  ("what done means")
+  └─ ThresholdRules   ("numeric quality bars")
 ```
 
-## Decision Flow (Meeting View)
+### Intent Rules (structure expectations)
+
+Examples:
+- Required sections exist (for example: `📔 COVER`, `🏁 FINAL`).
+- Section order follows the selected deliverable pattern.
+- Naming and emoji prefix conventions are consistent.
+- Review entry formatting is standardized (`R[n] - MM.DD.YYYY`).
+
+### Completion Rules (done-definition)
+
+Examples:
+- Required sections include valid status signals.
+- Mandatory pages contain required annotation categories.
+- `Dev Ready` signal exists in the agreed location/mechanic.
+- Teaching/reference artifacts are removed before handoff.
+
+### Threshold Rules (quality gates)
+
+Examples:
+- Style coverage meets the minimum target.
+- Variable usage policy is met for spacing/radius/typography.
+- Component compliance passes (detached/outdated/library usage rules).
+- Hygiene checks pass (for example: unnamed frame count equals zero).
+
+## Decision Flow for Meetings
 
 ```text
 Start
   |
   v
 Is policy clear?
-  |-- no --> Capture open questions
+  |-- no --> capture open questions
   |          (tokens, thresholds, variants, naming)
   |          -> return to policy review
   |
-  |-- yes --> Scaffold contract defined?
-              |-- no --> define intent/completion/threshold fields
-              |          in schema contract
+  |-- yes --> is scaffold contract defined?
+              |-- no --> define schema fields from rules
               |
-              |-- yes --> Validate rules mapped?
-                          |-- no --> map each contract rule
-                          |          to a concrete check
+              |-- yes --> are validate checks mapped?
+                          |-- no --> map each rule to concrete checks
                           |
-                          |-- yes --> Run readiness checks
+                          |-- yes --> run readiness checks
                                       |
                                       v
-                                  Pass?
-                                    |-- no --> fix file or refine rule
-                                    |          -> rerun validate
-                                    |
-                                    |-- yes --> Delivery ready
+                                    pass?
+                                      |-- no --> fix file or refine rule
+                                      |          -> rerun
+                                      |
+                                      |-- yes --> delivery ready
 ```
 
-## How We Work in stratusHue
+## First Week Checklist (New Teammate)
 
-Use this as the practical operating model for team discussions and implementation alignment.
+1. Read the current decision log in `docs/features/TEMPLATE_AUDIT_REVIEW.md`.
+2. Skim current synthesis in `docs/features/TEMPLATE_AUDIT_ANALYSIS.md`.
+3. Review this workflow doc and confirm the rule types with your lead.
+4. Identify which open questions block your workstream.
+5. If building behavior, map one rule at a time to Scaffold or Validate.
+6. Bring mismatches back to policy discussion before expanding scope.
+
+## Common Pitfalls and Recovery
+
+Pitfall: trying to encode all Figma state into recipe JSON.
+- Recovery: keep recipe slim (intent, completion, thresholds), query live state at runtime.
+
+Pitfall: implementing Validate checks before rule mechanics are defined.
+- Recovery: pause implementation, resolve rule contract in policy docs first.
+
+Pitfall: treating all deliverables as one workflow.
+- Recovery: explicitly define variant/deliverable differences before threshold tuning.
+
+## Glossary
+
+- Recipe: the rule contract defining expected structure and readiness.
+- Variant: a recipe profile for a specific deliverable type.
+- Dev Ready: the agreed signal that annotation/handoff completeness is met.
+- Readiness Check: final pass/fail audit against contract rules before delivery.
+
+## Current Open Questions
 
 ```text
-POLICY DEFINITION (audit)
-  -> agree on intent, completion, threshold rules
-  -> capture decisions in TEMPLATE_AUDIT_REVIEW.md
-  -> finalize in TEMPLATE_SPEC_REVISED.md / TEMPLATE_SPEC_FINAL.md
-
-PROJECT START (Scaffold mode)
-  -> select recipe variant
-  -> create required structure + starter placeholders
-  -> stamp recipe metadata to file
-
-ACTIVE DESIGN (Navigate mode)
-  -> do daily design work
-  -> use navigation/status affordances during iteration
-
-PRE-HANDOFF (Validate mode)
-  -> run readiness checks against recipe contract
-  -> token audit + component compliance + completion gates
-
-FEEDBACK LOOP
-  -> if fail: fix file or refine unclear rule, then rerun
-  -> if pass: handoff is delivery-ready
+OpenQuestions
+  ├─ neverHardcodeScope
+  ├─ canonicalTokenList
+  ├─ deliverableTypesAndThresholds
+  ├─ exceptionsPolicy
+  └─ placeholderNamingConvention
 ```
 
-1. Define content policy first (intent, completion, thresholds).
-2. Use Scaffold at project start to create the baseline structure and placeholders.
-3. Use Navigate during active design work to manage movement and status updates.
-4. Use Validate before handoff to check structure, quality, and readiness.
-5. Feed validation outcomes back into policy/spec when rules are unclear or incorrect.
+Open items to resolve:
+- What exactly counts as "never hardcode"?
+- What is the canonical style/token source for enforcement?
+- What are the threshold numbers per deliverable type?
+- What exceptions are acceptable for exploratory/new entries?
+- What final naming convention should layer 2 variable placeholders use?
 
-## Rule Types and Examples
-
-### Intent Rules (what should exist)
-
-- Required sections exist (for example: `📔 COVER`, `🏁 FINAL`).
-- Section order is valid for the selected deliverable type.
-- Naming and emoji prefix conventions are followed.
-- Review entry format is standardized (for example: `R[n] - MM.DD.YYYY`).
-
-### Completion Rules (what counts as done)
-
-- Required sections have valid status signals.
-- Mandatory pages include required annotation categories.
-- `Dev Ready` signal exists in the agreed implementation pattern.
-- Teaching/reference artifacts are removed before handoff.
-
-### Threshold Rules (numeric pass/fail gates)
-
-- Style coverage meets minimum target (for example: 100% or per-variant threshold).
-- Variable usage for spacing/radius is enforced by policy.
-- Component compliance passes:
-  - detached instance policy
-  - outdated version policy
-  - minimum library usage percentage by deliverable
-- Hygiene gates pass (for example: unnamed frame count equals zero).
-
-## Open Questions for Content Variables and Thresholds
-
-- What exact rule defines "never hardcode" (all Foundations, explicit list, or hybrid)?
-- What concrete style/token list is canonical for enforcement?
-- What are deliverable types and threshold numbers per type?
-- What exceptions are valid for exploratory/new entries?
-- What tool-agnostic naming convention is final for layer 2 variable placeholders?
-
-## Implementation Mapping
+## Source of Truth and Mapping
 
 ```text
-Human policy decision
-  -> docs/features/TEMPLATE_AUDIT_REVIEW.md decisions
+Policy decisions
+  -> docs/features/TEMPLATE_AUDIT_REVIEW.md
   -> docs/features/TEMPLATE_SPEC_REVISED.md
   -> docs/features/TEMPLATE_SPEC_FINAL.md
   -> Scaffold schema + Validate checks
 ```
 
-This document is a working bridge between audit discussion outcomes and final spec mapping.
+This doc is the onboarding bridge between strategy decisions and day-to-day implementation behavior.
