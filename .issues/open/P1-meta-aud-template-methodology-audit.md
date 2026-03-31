@@ -86,11 +86,12 @@ Output: `docs/features/TEMPLATE_AUDIT_REVIEW.md` — structured for async commen
 
 ---
 
-## Phase 4: Async Review & Discussion
+## Phase 4: Async Review & Discussion ← ACTIVE (2026-03-31)
 
-- [ ] Deliver review doc to UX lead
+- [x] Deliver review doc to UX lead
+- [ ] **Review meeting today (2026-03-31)** — content writer approach discussion
 - [ ] Collect feedback — approvals, rejections, modifications, new constraints
-- [ ] Resolve open questions from Phase 3
+- [ ] Resolve open questions from Phase 3 (B1–B7, C1–C3)
 - [ ] Document final decisions with rationale
 
 Output: Updated `TEMPLATE_AUDIT_REVIEW.md` with decision log
