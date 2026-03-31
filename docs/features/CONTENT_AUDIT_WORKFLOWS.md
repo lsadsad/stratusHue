@@ -77,6 +77,34 @@ Is policy clear?
                                     |-- yes --> Delivery ready
 ```
 
+## How We Work in stratusHue
+
+Use this as the practical operating model for team discussions and implementation alignment.
+
+```text
+POLICY DEFINITION (audit)
+  -> agree on intent, completion, threshold rules
+  -> capture decisions in TEMPLATE_AUDIT_REVIEW.md
+  -> finalize in TEMPLATE_SPEC_REVISED.md / TEMPLATE_SPEC_FINAL.md
+
+PROJECT START (Scaffold mode)
+  -> select recipe variant
+  -> create required structure + starter placeholders
+  -> stamp recipe metadata to file
+
+ACTIVE DESIGN (Navigate mode)
+  -> do daily design work
+  -> use navigation/status affordances during iteration
+
+PRE-HANDOFF (Validate mode)
+  -> run readiness checks against recipe contract
+  -> token audit + component compliance + completion gates
+
+FEEDBACK LOOP
+  -> if fail: fix file or refine unclear rule, then rerun
+  -> if pass: handoff is delivery-ready
+```
+
 1. Define content policy first (intent, completion, thresholds).
 2. Use Scaffold at project start to create the baseline structure and placeholders.
 3. Use Navigate during active design work to manage movement and status updates.
