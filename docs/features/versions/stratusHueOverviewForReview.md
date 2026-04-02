@@ -52,12 +52,10 @@ Nothing gets built without a documented answer. If it's ambiguous, we'll ask aga
 
 ## When we recommend removing something
 
-Some audit findings suggest dropping template elements. These aren't cost-cutting — each one has a rationale and a replacement path.
+Each removal has a rationale and a replacement path. If it doesn't make sense for the team, flag it.
 
 **Example: Components in Use panel**
-The panel duplicates what Figma's Dev Mode already provides natively. Removing it saves designer effort at handoff and creates an opportunity: the team can invest that time in onboarding engineers to use Dev Mode effectively — a better long-term solution than maintaining a manual panel.
-
-Every removal recommendation follows this pattern: **what it replaces, why the replacement is better, and what the transition looks like.** If a recommendation doesn't make sense for the team, flag it.
+Dev Mode already does this natively. Removing the panel frees up designer effort and lets us invest that time in building onboarding docs for engineers — rather than waiting on Figma to demo it for them.
 
 ---
 
