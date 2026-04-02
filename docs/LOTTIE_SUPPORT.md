@@ -1,6 +1,8 @@
 # Lottie Animation Support
 
-Your build system now supports Lottie animations! This document explains how to use Lottie animations in your Figma plugin.
+> **Status: DORMANT** — The Lottie infrastructure is installed and ready but **not wired into active UI code**. The `lottie.loadAnimation()` call in `src/ui/shared/lottie.ts` is commented out, no HTML templates use `data-lottie-src`, and no modules import the Lottie helpers. See the "Re-enabling" section below for activation steps.
+
+This document explains how to use Lottie animations in the Figma plugin once enabled.
 
 ## What's Been Added
 
@@ -138,7 +140,18 @@ When you run `npm run build`, the build system:
 
 ## Example Test Animation
 
-The build includes a sample loading animation at `assets/sample-loading.json` that demonstrates a rotating circle. You can see it in action in the footer of the UI.
+The build includes a sample loading animation at `assets/sample-loading.json` that demonstrates a rotating circle.
+
+## Re-enabling Lottie
+
+To activate Lottie in the plugin:
+
+1. **Uncomment** `lottie.loadAnimation()` in `src/ui/shared/lottie.ts`
+2. **Import** `initializeAllLottieElements` in `navigate-ui.ts` (or the relevant mode UI) and call it during init
+3. **Import** `destroyAllLottieAnimations` in `ui.ts` cleanup handler
+4. **Add** `data-lottie-src="./assets/your-animation.json"` to HTML elements
+5. **Optionally** re-add Lottie pause/resume in `cleanup.ts` visibility handlers
+6. Run `npm run build` — the build system inlines JSON automatically
 
 ## Migration from Other Animation Libraries
 
@@ -146,7 +159,3 @@ If you're migrating from other animation libraries:
 - Export your animations as Lottie JSON from After Effects (with Bodymovin plugin)
 - Use online converters for SVG-to-Lottie conversion
 - Test animations in the Lottie preview tools before integration
-
----
-
-Your Figma plugin now has full Lottie animation support! 🎬✨

@@ -1,5 +1,10 @@
 import { sendMessage } from './send-message';
 
+// Maximum UI height — caps auto-fit so the plugin never grows past what's
+// practical. Double-clicking the resize handle snaps to this when content
+// exceeds it. Defined here so all callers share the same value.
+export const MAX_UI_HEIGHT = 800;
+
 // These are references to mutable state owned by ui.ts shell.
 // Functions that need them accept them as parameters or read from module-level vars below.
 // The shell passes/sets these via the setter functions.
@@ -89,7 +94,9 @@ export function updateToggleUI(): void {
 
 // Compute natural content height respecting collapsed sections and sticky elements
 export function computeFitHeight(): number {
-  const main = document.querySelector('main.scrollable-content') as HTMLElement | null;
+  // Must select the VISIBLE main — there are multiple (one per mode) and the
+  // hidden ones have offsetHeight 0, which would collapse the plugin window.
+  const main = document.querySelector('main.scrollable-content:not([hidden])') as HTMLElement | null;
   const footer = document.getElementById('footer');
 
   if (!main || !footer) {
@@ -146,13 +153,19 @@ export function computeFitHeight(): number {
 
   const footerHeight = footer.offsetHeight || 20;
 
-  // Total: visible content + padding + margins + footer (no extra buffer needed with accurate calculation)
-  const totalHeight = totalContentHeight + mainPaddingTop + mainPaddingBottom + mainMarginTop + mainMarginBottom + footerHeight;
+  // Mode strip sits above <main> and must be included — it's 30px + border
+  // and was absent from the calculation before the tab strip was added.
+  const modeStrip = document.getElementById('mode-strip');
+  const modeStripHeight = modeStrip ? modeStrip.offsetHeight : 0;
+
+  // Total: mode strip + visible content + padding + margins + footer
+  const totalHeight = modeStripHeight + totalContentHeight + mainPaddingTop + mainPaddingBottom + mainMarginTop + mainMarginBottom + footerHeight;
 
   // Only log detailed breakdown when height actually changes
   const collapsedCount = children.filter(c => c.classList.contains('collapsed')).length;
   if (Math.abs(totalHeight - _lastAutoFitHeight) > 3) {
     console.log('Auto-fit height (collapsed-aware):', {
+      modeStripHeight,
       totalContentHeight,
       mainPaddingTop,
       mainPaddingBottom,
@@ -164,7 +177,7 @@ export function computeFitHeight(): number {
     });
   }
 
-  return Math.ceil(totalHeight);
+  return Math.min(Math.ceil(totalHeight), MAX_UI_HEIGHT);
 }
 
 // Debounce timer for auto-fit to prevent feedback loops
@@ -186,7 +199,7 @@ export function updateScrollBehavior(): void {
 
 // Internal function that does the actual work
 function updateScrollBehaviorImmediate(): void {
-  const main = document.querySelector('main.scrollable-content') as HTMLElement | null;
+  const main = document.querySelector('main.scrollable-content:not([hidden])') as HTMLElement | null;
   if (!main) return;
 
   // Get the current container height
@@ -204,9 +217,9 @@ function updateScrollBehaviorImmediate(): void {
     main.classList.remove('no-scroll');
   }
 
-  // Auto-fit height adjustment when enabled
+  // Auto-fit height adjustment when enabled (capped at MAX_UI_HEIGHT)
   if (_isAutoFitEnabled) {
-    const newHeight = computeFitHeight();
+    const newHeight = computeFitHeight(); // already capped inside computeFitHeight
 
     // Only resize if height changed significantly (more than 3px difference)
     if (Math.abs(newHeight - _lastAutoFitHeight) > 3) {

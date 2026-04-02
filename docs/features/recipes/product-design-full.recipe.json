@@ -1,0 +1,566 @@
+{
+  "$schema": "https://stratushue.local/recipe.schema.json",
+  "$comment": "Evidence-based recipe draft. Fields added only after MCP confirmation from Delivery Template Draft File (CAL87CQlzeFN0T3dtrkm24). See docs/features/specs/figmaFigjamMatrix.md for provenance.",
+  "id": "product-design-full",
+  "version": "0.1.0-draft",
+  "label": "Product Design Delivery File",
+  "description": "Full delivery file for a product design project. Matches the AT&T App Design delivery file template.",
+
+  "cover": {
+    "$comment": "Two cover types exist in the template. This section covers the DELIVERY file cover (node 1:185, on-canvas). The Design Library Cover variant (node 2245:9324, off-canvas) uses a separate 6-value status enum — see $libraryCover below.",
+    "fileName": {
+      "type": "string",
+      "required": true,
+      "label": "File name",
+      "placeholder": "Feature in Plain English and no longer than 2 lines",
+      "constraints": { "truncatesAt": "2 lines" }
+    },
+    "description": {
+      "type": "string",
+      "required": false,
+      "label": "Description",
+      "placeholder": "Brief statement to give context to feature/flow and allow greater understanding of what is in this file",
+      "constraints": {
+        "truncatesAt": "3 lines",
+        "$comment": "How-to doc (2163:39095) said 2 lines; actual component placeholder (1:185) says Max 3 lines — 3 lines is canonical."
+      }
+    },
+    "fileStatus": {
+      "$comment": "Workflow/handoff stage badge rendered on the cover thumbnail. Confirmed from node 2163:39095 (How to use covers doc) and node 1:185 (visual: emoji + colored text pill, e.g. 🚧 Design In Progress).",
+      "type": "enum",
+      "required": false,
+      "label": "File status",
+      "defaultValue": "in-progress",
+      "controlledByToggle": "showStatus",
+      "allowedValues": [
+        { "value": "in-progress", "label": "In Progress", "description": "Design is working and this file is not ready for development." },
+        { "value": "ready-for-dev", "label": "Ready for Dev", "description": "Design has been approved and is marked Ready for Dev." },
+        { "value": "under-review", "label": "Under Review", "description": "When external reviews are triggered - Legal, Brand, etc." },
+        { "value": "launched", "label": "Launched", "description": "Designs are in production. Update Master files as appropriate." },
+        { "value": "outdated-archive", "label": "Outdated / Archive", "description": "Deprecated. Look to Master or updated designs which might be in progress." },
+        { "value": "hold", "label": "Hold", "description": "Project is on hold. Follow the iTrack link in file for more details." },
+        { "value": "discovery", "label": "Discovery", "description": "Early discovery work not yet in the production pipeline." },
+        { "value": "dev-in-progress", "label": "Dev in Progress", "description": "Actively in development. Designers and developers in active demos, reviews, and VQA." }
+      ]
+    },
+    "isMasterFile": {
+      "$comment": "Confirmed from node 2163:39095. Master files maintain the broader user journey; not used for delivery.",
+      "type": "boolean",
+      "required": false,
+      "label": "Master file",
+      "defaultValue": false
+    },
+    "showStatus": {
+      "$comment": "Toggle to show/hide fileStatus badge on the cover. Confirmed from node 2163:39095.",
+      "type": "boolean",
+      "required": false,
+      "label": "Show status",
+      "defaultValue": true
+    },
+    "collaborators": {
+      "$comment": "6 fixed discipline slots confirmed from node 1:185 (bottom strip of cover thumbnail). Each slot: discipline label (medium) + collaborator name (bold). Background: rgba(0,159,219,0.2) AT&T blue tint.",
+      "type": "object",
+      "required": false,
+      "label": "Collaborators",
+      "slots": {
+        "ia-ux":      { "label": "IA/UX",        "namePlaceholder": "Primary Collaborator", "visible": true },
+        "ui-visual":  { "label": "UI/Visual",     "namePlaceholder": "Primary Collaborator", "visible": true },
+        "content":    { "label": "Content",       "namePlaceholder": "Primary Collaborator", "visible": true },
+        "motion":     { "label": "Motion",        "namePlaceholder": "Primary Collaborator", "visible": true },
+        "product":    { "label": "Product",       "namePlaceholder": "Primary Collaborator", "visible": true },
+        "development":{ "label": "Development",   "namePlaceholder": "Primary Collaborator", "visible": true }
+      }
+    }
+  },
+
+  "$libraryCover": {
+    "$comment": "Design Library Cover variant (node 2245:9324, off-canvas at -1985,-2958). Separate from delivery cover. Used for design library files, not delivery files. Needs its own recipe file or a coverType discriminator.",
+    "status": {
+      "type": "enum",
+      "required": true,
+      "label": "Status",
+      "defaultValue": "draft",
+      "allowedValues": ["draft", "explorations", "testing", "released", "backlog", "archived"]
+    }
+  },
+
+  "vqa": {
+    "$comment": "Confirmed from node 2550:2071 (blank template) and 2545:9111 (filled example: 'Dashboard FAQ accordion section', designer Bryan B, developer Noa). Each experience is a Figma section named 'VQA - [name]'.",
+    "experiences": {
+      "type": "array",
+      "itemSchema": {
+        "name": {
+          "type": "string",
+          "required": true,
+          "label": "Experience name",
+          "placeholder": "[Experience being VQA'd]",
+          "note": "Becomes Figma section title: 'VQA - [name]'"
+        },
+        "startDate": {
+          "type": "string",
+          "required": false,
+          "label": "Started",
+          "placeholder": "MM.DD.YYYY"
+        },
+        "designer": {
+          "type": "string",
+          "required": false,
+          "label": "Designer",
+          "placeholder": "[Name]"
+        },
+        "developer": {
+          "type": "string",
+          "required": false,
+          "label": "Developer",
+          "placeholder": "[Name]"
+        },
+        "reviewContexts": {
+          "type": "array",
+          "required": false,
+          "label": "Review contexts",
+          "note": "Viewport/theme column labels. Not a fixed enum — designer adds relevant contexts per experience.",
+          "exampleValues": ["light-mode", "dark-mode", "200%", "dark-mode-200%", "closed", "open"]
+        },
+        "designFrames": {
+          "type": "array",
+          "required": false,
+          "label": "Design frames",
+          "placeholder": "Your representative designs here for 1:1 comparison of issues",
+          "note": "One iPhone 13 & 14 frame per review context. Left side of VQA layout."
+        },
+        "devFrames": {
+          "type": "array",
+          "required": false,
+          "label": "Dev build frames",
+          "placeholder": "Dev provided screen or Design captured from test build",
+          "note": "One iPhone 13 & 14 frame per review context. Right side of VQA layout. Named '(same as delivered)'."
+        },
+        "callouts": {
+          "type": "array",
+          "required": false,
+          "label": "VQA callouts",
+          "note": "Callout/VQA annotation instances in middle zone between design and dev columns."
+        }
+      }
+    }
+  },
+
+  "final": {
+    "$comment": "Prototype page is currently empty by template intent (user confirmed). Dev Hand Off page confirmed from section 2164:51795 ('Delivery Hand Off - MM.DD.YYYY') with child instances 2164:51796 (Section Header) and 2164:51797 (Components in use).",
+    "prototype": {
+      "$comment": "Capture-mode decision: prototype page exists in FINAL but starts empty in template. Do not scaffold starter nodes here by default.",
+      "isEmptyByDefault": true
+    },
+    "devHandOff": {
+      "$comment": "Screenshot-confirmed structure. The top header is the actual content scaffold; the Components in use panel is a helper block for developer estimation and component inventory.",
+      "sectionName": {
+        "type": "string",
+        "required": true,
+        "label": "Section name",
+        "placeholder": "Section Name"
+      },
+      "subtitle": {
+        "type": "string",
+        "required": false,
+        "label": "Subtitle",
+        "placeholder": "Subtitle or secondary section name"
+      },
+      "description": {
+        "type": "string",
+        "required": false,
+        "label": "Description",
+        "placeholder": "Descriptive text"
+      },
+      "itrackReference": {
+        "type": "string",
+        "required": false,
+        "label": "iTrack epic or feature",
+        "placeholder": "iTrack Epic or feature"
+      },
+      "updatedDate": {
+        "type": "string",
+        "required": false,
+        "label": "Updated",
+        "placeholder": "MM/DD/YYYY"
+      },
+      "disciplineStatuses": {
+        "$comment": "Section-header status chips. These align with FigJam Frame 3 guidance about approval tracking and engaged-team signals.",
+        "type": "object",
+        "required": false,
+        "slots": {
+          "ia-ux": { "label": "IA/UX", "statusPlaceholder": "To be defined" },
+          "ui-visual": { "label": "UI/Visual", "statusPlaceholder": "To be defined" },
+          "content": { "label": "Content", "statusPlaceholder": "To be defined" },
+          "motion": { "label": "Motion", "statusPlaceholder": "To be defined" },
+          "testing": { "label": "Testing", "statusPlaceholder": "To be defined" },
+          "design-review": { "label": "Design Review", "statusPlaceholder": "To be defined" },
+          "brand-review": { "label": "Brand Review", "statusPlaceholder": "To be defined" },
+          "legal-review": { "label": "Legal Review", "statusPlaceholder": "To be defined" },
+          "standards": { "label": "Standards", "statusPlaceholder": "To be defined" }
+        }
+      },
+      "componentsInUse": {
+        "$comment": "Helper block, not core page metadata. Used as a developer estimation helper and component inventory.",
+        "type": "object",
+        "required": false,
+        "properties": {
+          "instructions": {
+            "type": "array",
+            "note": "Three instruction groups are shown: Feature Designer, Development Team, Reference."
+          },
+          "components": {
+            "type": "array",
+            "itemSchema": {
+              "componentName": { "type": "string", "required": true },
+              "componentCode": { "type": "string", "required": false },
+              "devOwner": { "type": "string", "required": false },
+              "designStatus": { "type": "string", "required": false }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "projectResources": {
+    "$comment": "Confirmed from single-node instance 8:296 ('About this project') under Project Resources. This appears to be a reusable structured intake/reference page scaffold.",
+    "aboutThisProject": {
+      "about": {
+        "startDate": {
+          "type": "string",
+          "required": false,
+          "label": "Start Date",
+          "placeholder": "MM/DD/YYYY"
+        },
+        "deadline": {
+          "type": "string",
+          "required": false,
+          "label": "Deadline",
+          "placeholder": "MM/DD/YYYY"
+        },
+        "productBrief": {
+          "type": "string",
+          "required": false,
+          "label": "Product Brief",
+          "placeholder": "Link to product brief"
+        },
+        "outOfScope": {
+          "type": "string",
+          "required": false,
+          "label": "Out of scope",
+          "placeholder": "relevant and related work that is specifically called out as not in scope for this effort."
+        }
+      },
+      "itrackLinks": {
+        "type": "array",
+        "required": false,
+        "label": "iTrack Link(s)",
+        "itemSchema": {
+          "reference": {
+            "type": "string",
+            "required": false,
+            "placeholder": "[SPTMYATTAP-#####: iTrack Feature or Epic name]"
+          },
+          "url": {
+            "type": "string",
+            "required": false,
+            "placeholder": "https://"
+          }
+        }
+      },
+      "team": {
+        "type": "object",
+        "required": false,
+        "slots": {
+          "ux-design": { "label": "UX Design", "placeholder": "Name" },
+          "ui-design": { "label": "UI Design", "placeholder": "Name" },
+          "motion": { "label": "Motion", "placeholder": "Name" },
+          "content": { "label": "Content", "placeholder": "Name" },
+          "tech-product-manager": { "label": "Tech Product Mgr", "placeholder": "Name" },
+          "dev-lead": { "label": "Dev Lead", "placeholder": "Name" },
+          "scrum-team": { "label": "Scrum team", "placeholder": "Name" }
+        }
+      },
+      "stakeholders": {
+        "type": "array",
+        "required": false,
+        "label": "Stakeholders",
+        "itemSchema": {
+          "department": { "type": "string", "required": false, "placeholder": "Department" },
+          "name": { "type": "string", "required": false, "placeholder": "Name" }
+        }
+      },
+      "otherSupportingLinks": {
+        "type": "array",
+        "required": false,
+        "label": "Other Supporting Links",
+        "itemSchema": {
+          "description": {
+            "type": "string",
+            "required": false,
+            "placeholder": "[Link name or description Example: old reference file, a team FigJam, research readouts]"
+          },
+          "url": {
+            "type": "string",
+            "required": false,
+            "placeholder": "https://"
+          }
+        }
+      },
+      "notes": {
+        "type": "string",
+        "required": false,
+        "label": "Notes",
+        "placeholder": "Write any extra notes here along the way"
+      }
+    },
+    "researchExamples": {
+      "$comment": "Captured from section 2164:43630 ('Example Insights + Takeaways from Message Center 2025'). This is reference content (example insights block + note card), not required scaffold output. Companion cleanup text node: 2164:43640 ('Delete all teaching tools and examples as part of your file clean up for delivery').",
+      "type": "array",
+      "required": false,
+      "scaffoldDefault": false,
+      "itemSchema": {
+        "title": { "type": "string", "required": false },
+        "source": { "type": "string", "required": false },
+        "summary": { "type": "string", "required": false },
+        "takeaways": { "type": "array", "required": false },
+        "uxRecommendations": { "type": "array", "required": false }
+      }
+    },
+    "userFlowExamples": {
+      "$comment": "Captured from section 2163:36979 ('Example User Flow from Onboarding 2025'). Contains flowchart-like example content with start node, branch columns (Content A-D), and many scenario nodes/connectors. Treat as reference/teaching artifact, not default scaffold output.",
+      "type": "array",
+      "required": false,
+      "scaffoldDefault": false,
+      "itemSchema": {
+        "title": { "type": "string", "required": false },
+        "startNode": { "type": "string", "required": false },
+        "lanes": { "type": "array", "required": false },
+        "steps": { "type": "array", "required": false },
+        "decisionNodes": { "type": "array", "required": false }
+      }
+    }
+  },
+
+  "uiVisualDesign": {
+    "$comment": "Minimal scaffold capture for UI/VISUAL DESIGN based on sidebar structure. Detailed node-level structure for [Job to be done] Designs remains a follow-up pull.",
+    "jobToBeDoneDesigns": {
+      "type": "array",
+      "required": false,
+      "label": "[Job to be done] Designs",
+      "itemSchema": {
+        "jobLabel": {
+          "type": "string",
+          "required": false,
+          "placeholder": "[Job to be done]"
+        },
+        "reviewRounds": {
+          "type": "array",
+          "required": false,
+          "renderFormat": "↳⚪️ R1 - MM.DD.YYYY",
+          "itemSchema": {
+            "roundLabel": {
+              "type": "string",
+              "required": false,
+              "placeholder": "R1",
+              "defaultValue": "R1"
+            },
+            "date": {
+              "type": "string",
+              "required": false,
+              "placeholder": "MM.DD.YYYY"
+            },
+            "status": {
+              "type": "string",
+              "required": false,
+              "defaultValue": "not-started",
+              "note": "Uses statusTokens (\u26aa not-started for initial R1 line item)"
+            }
+          }
+        },
+        "motion": {
+          "type": "array",
+          "required": false,
+          "label": "Motion"
+        },
+        "designSystem": {
+          "type": "array",
+          "required": false,
+          "label": "Design System"
+        },
+        "fileComponents": {
+          "type": "array",
+          "required": false,
+          "label": "File Components"
+        }
+      }
+    }
+  },
+
+  "uxIa": {
+    "$comment": "Minimal scaffold capture for UX/IA based on sidebar structure. Mirrors the review-round lifecycle pattern used in UI/VISUAL DESIGN.",
+    "jobToBeDoneWireframes": {
+      "type": "array",
+      "required": false,
+      "label": "[Job to be done] Wireframes",
+      "itemSchema": {
+        "jobLabel": {
+          "type": "string",
+          "required": false,
+          "placeholder": "[Job to be done]"
+        },
+        "reviewRounds": {
+          "type": "array",
+          "required": false,
+          "itemSchema": {
+            "roundLabel": {
+              "type": "string",
+              "required": false,
+              "placeholder": "R1",
+              "defaultValue": "R1"
+            },
+            "date": {
+              "type": "string",
+              "required": false,
+              "placeholder": "MM.DD.YYYY"
+            },
+            "status": {
+              "type": "string",
+              "required": false,
+              "defaultValue": "not-started",
+              "note": "Uses statusTokens (\u26aa not-started for initial R1 line item)"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "archive": {
+    "$comment": "Minimal scaffold capture for ARCHIVE based on sidebar structure. No default child items were observed in the template screenshot.",
+    "isEmptyByDefault": true,
+    "archivedItems": {
+      "type": "array",
+      "required": false,
+      "label": "Archived items",
+      "itemSchema": {
+        "label": { "type": "string", "required": false },
+        "archivedDate": { "type": "string", "required": false, "placeholder": "MM.DD.YYYY" },
+        "reason": { "type": "string", "required": false }
+      }
+    }
+  },
+
+  "sections": {
+    "$comment": "Page group order confirmed from FigJam Frame 2 (node 1:59) and Figma file screenshots. Emoji prefixes confirmed from FigJam Frame 2.",
+    "order": ["cover", "vqa", "final", "legal", "project-resources", "ui-visual-design", "ux-ia", "archive", "sandboxes"],
+    "definitions": {
+      "cover": {
+        "label": "COVER",
+        "emoji": "📔",
+        "$comment": "Emoji from Figma frame name '📔 File thumbnail'."
+      },
+      "vqa": {
+        "label": "VQA",
+        "emoji": null,
+        "starterItems": [
+          { "label": "[Experience being VQA'd]", "date": "MM.DD.YYYY", "type": "review-round" }
+        ]
+      },
+      "final": {
+        "label": "FINAL",
+        "emoji": "🏁",
+        "starterItems": [
+          { "label": "Prototype", "date": "MM.DD.YYYY", "type": "review-round" },
+          { "label": "Dev Hand Off", "date": "MM.DD.YYYY", "type": "review-round" }
+        ]
+      },
+      "legal": {
+        "label": "LEGAL",
+        "emoji": "⚖️",
+        "$comment": "Standalone top-level section in the current Figma template. Lifecycle-related to FINAL, but not nested structurally.",
+        "starterItems": [
+          { "label": "Legal Review ONLY", "date": "MM.DD.YYYY", "type": "review-round" }
+        ]
+      },
+      "project-resources": {
+        "label": "PROJECT RESOURCES",
+        "emoji": "📝",
+        "starterItems": [
+          { "label": "Project brief", "type": "resource" },
+          { "label": "Research", "type": "resource" },
+          { "label": "References", "type": "resource" },
+          { "label": "User Flows", "type": "resource" },
+          { "label": "Post Standards Review Alignment", "type": "resource" }
+        ]
+      },
+      "ui-visual-design": {
+        "label": "UI/VISUAL DESIGN",
+        "emoji": "🎨",
+        "starterItems": [
+          { "label": "[Job to be done] Designs", "type": "placeholder-group" },
+          { "label": "R1", "date": "MM.DD.YYYY", "status": "not-started", "type": "review-round" },
+          { "label": "Motion", "type": "resource" },
+          { "label": "Design System", "type": "resource" },
+          { "label": "File Components", "type": "resource" }
+        ]
+      },
+      "ux-ia": {
+        "label": "UX/IA",
+        "emoji": "🗺️",
+        "starterItems": [
+          { "label": "[Job to be done] Wireframes", "type": "placeholder-group" },
+          { "label": "R1", "date": "MM.DD.YYYY", "status": "not-started", "type": "review-round" }
+        ]
+      },
+      "archive": {
+        "label": "ARCHIVE",
+        "emoji": "🗂️",
+        "starterItems": []
+      },
+      "sandboxes": {
+        "label": "SANDBOXES",
+        "emoji": "🚨",
+        "starterItems": [
+          { "label": "[Collaborator 1] sandbox", "type": "collaborator-slot" },
+          { "label": "[Collaborator 2] sandbox", "type": "collaborator-slot" },
+          { "label": "[Collaborator 3] sandbox", "type": "collaborator-slot" }
+        ]
+      }
+    }
+  },
+
+  "statusTokens": {
+    "$comment": "5-color status dot system. Confirmed from FigJam Frame 3 (node 1:54) and Figma screenshot sidebar.",
+    "not-started": { "emoji": "⚪", "label": "Not started" },
+    "in-progress":  { "emoji": "🟡", "label": "In progress" },
+    "in-review":    { "emoji": "🟠", "label": "In review" },
+    "do-not-use":   { "emoji": "🔴", "label": "Do not use" },
+    "done":         { "emoji": "🟢", "label": "Done / Approved" }
+  },
+
+  "reviewStatusesLegend": {
+    "$comment": "⚪️ 🟡 🟠 🔴 🟢 <- Use for Review Statuses",
+    "orderedTokens": ["not-started", "in-progress", "in-review", "do-not-use", "done"],
+    "display": "⚪️ 🟡 🟠 🔴 🟢",
+    "usage": "Use for Review Statuses"
+  },
+
+  "$openQuestions": [
+    "cover: two cover types (delivery vs library) — single recipe with coverType discriminator or separate recipe files?",
+    "final.devHandOff.disciplineStatuses: exact status vocabulary for each chip still needs a per-node pull",
+    "final.devHandOff.componentsInUse: should this helper inventory be scaffolded by default, optional, or Validate-only?",
+    "projectResources.researchExamples: keep as optional reference content only (do not scaffold by default)?",
+    "projectResources.userFlowExamples: keep as optional reference content only (do not scaffold by default)?",
+    "cover.collaborators: editable text name fields or avatar/person component references?",
+    "date fields: started / last-reviewed / target-handoff — recipe fields vs runtime-filled?",
+    "vqa.startDate: sourced from Feature component property or separate text node?",
+    "projectResources.aboutThisProject: confirm whether this page is always scaffolded by default or optional per team template",
+    "uiVisualDesign.jobToBeDoneDesigns: confirm minimum required inner scaffold per job-to-be-done track (required frames/annotations/checklist)",
+    "archive: confirm whether ARCHIVE remains empty-by-default or should include a seeded archival index pattern"
+  ],
+
+  "$coverCollectionNotes": {
+    "teachingToolPattern": "Cover page contains off-canvas documentation frames (2163:39095, 2163:39340) that must be deleted pre-delivery. Future Validate check: flag un-deleted teaching tools."
+  }
+}

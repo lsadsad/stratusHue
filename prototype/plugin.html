@@ -34,6 +34,9 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   box-sizing: border-box;
 }
 
+/* Enforce the HTML `hidden` attribute — overrides any display: flex/grid rules below */
+[hidden] { display: none !important; }
+
 html,
 body {
   margin: 0;
@@ -60,6 +63,7 @@ body.touch-active .action-btn:hover,
 body.touch-active .nav-button:hover,
 body.touch-active .emoji-button:hover,
 body.touch-active .bookmark-item:hover,
+body.touch-active .lint-error-item:hover,
 body.touch-active .footer-icon-btn:hover,
 body.touch-active .theme-option:hover,
 body.touch-active .toggle-button:hover,
@@ -1882,7 +1886,8 @@ h3 {
   flex-direction: column;
   position: relative;
   z-index: 0;
-  padding-bottom: 12px;
+  padding-bottom: 4px;
+  background: var(--color-background-elevated);
 }
 
 #color-section.collapsed {
@@ -2177,7 +2182,7 @@ h3 {
   display: flex;
   gap: var(--spacing-lg);
   position: absolute;
-  bottom: calc(var(--spacing-sm) - 12px);
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
@@ -2189,7 +2194,13 @@ h3 {
 }
 
 /* emoji-nav-container icons match emoji-set-title muted color */
+.emoji-nav-container .emoji-nav-btn {
+  width: 16px;
+  height: 16px;
+}
 .emoji-nav-container .emoji-nav-btn .nav-arrow {
+  width: 16px;
+  height: 16px;
   filter: brightness(0) invert(1);
   opacity: 0.5;
 }
@@ -2330,8 +2341,8 @@ h3 {
 
 /* Ensure the arrow SVG itself matches stroke color */
 #tags-header .emoji-nav-btn .nav-arrow {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   filter: brightness(0);
   opacity: 1;
 }
@@ -2493,8 +2504,8 @@ h3 {
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
   width: 100%;
-  padding: var(--spacing-lg) 6px var(--spacing-lg) 6px;
-  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) 4px var(--spacing-lg) 2px;
+  gap: 0;
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
@@ -2510,6 +2521,18 @@ h3 {
   color: var(--figma-color-border-brand);
 }
 
+.section-header:hover .header-title {
+  color: var(--figma-color-border-brand);
+}
+
+/* JS-driven sticky header state (position:sticky unsupported in Figma iframe) */
+.section-header.sticky-stuck {
+  position: relative;
+  z-index: 10;
+  background-color: var(--color-background-elevated);
+  will-change: transform;
+}
+
 /* Header layout patterns - left-aligned design */
 .header-left,
 .header-right,
@@ -2519,7 +2542,7 @@ h3 {
 }
 
 .header-left {
-  gap: var(--spacing-sm);
+  gap: 4px;
   z-index: 1;
 }
 
@@ -2717,8 +2740,8 @@ h3 {
 
 #controls-header {
   background-color: var(--color-background-elevated);
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 2px;
+  padding-right: 4px;
 }
 
 #tags-header .header-subtitle {
@@ -2773,39 +2796,43 @@ h3 {
   color: inherit;
 }
 
-/* Arrow States */
-.arrow {
-  font-size: var(--icon-size-lg);
-  font-weight: var(--font-weight-heavy);
-  color: var(--color-text-primary);
-  width: var(--arrow-width);
-}
-
-.arrow::before {
-  display: flex;
+/* Header caret - Lucide chevron-down / chevron-right */
+/* Both carets stay in flow (display: inline-flex) so the header-left width is
+   always reserved and the title never shifts. Only the correct icon for the
+   current aria-expanded state is shown; the other is removed from flow with
+   display:none. Visibility is controlled with opacity on hover/focus. */
+.header-caret {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  line-height: 1;
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 
-.section-header[aria-expanded="true"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.header-caret svg {
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  display: block;
+  color: inherit;
 }
 
-.section-header[aria-expanded="true"] .arrow::before {
-  content: "−";
+/* Hide the wrong icon entirely so only one occupies space */
+.section-header[aria-expanded="true"] .header-caret-right {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.section-header[aria-expanded="false"] .header-caret-down {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow::before {
-  content: "+";
+/* Reveal on hover / keyboard focus */
+.section-header:hover .header-caret,
+.section-header:focus-visible .header-caret {
+  opacity: 1;
 }
 
 .section-header[aria-expanded="true"] {
@@ -2840,7 +2867,7 @@ h3 {
   width: 100%;
   min-width: 0;
   background: var(--color-background-elevated);
-  padding: 16px 12px;
+  padding: 12px 12px 12px 12px;
   border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
@@ -6651,6 +6678,18 @@ i.grip {
   left: calc(var(--footer-height) + var(--spacing-sm));
 }
 
+#footer-width-toggle.footer-icon-btn .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#footer-width-toggle.footer-icon-btn .icon svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
 /* Toggle width button - match active toggle states */
 #footer-width-toggle.footer-icon-btn:hover {
   color: var(--figma-color-border-brand, #18a0fb);
@@ -6781,8 +6820,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
   width: 100%;
-  padding: var(--spacing-xxl) 6px var(--spacing-xxl) 6px;
-  gap: var(--spacing-lg);
+  padding: var(--spacing-xxl) 4px var(--spacing-xxl) 2px;
+  gap: 0;
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
@@ -6806,7 +6845,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .header-left {
-  gap: calc(var(--spacing-xxl) - var(--spacing-sm));
+  gap: 4px;
 }
 
 .header-right {
@@ -6814,39 +6853,37 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   margin-left: auto;
 }
 
-/* Arrow States - Unified expand/collapse indicators */
-.arrow {
-  font-size: var(--icon-size-lg);
-  font-weight: var(--font-weight-heavy);
-  color: var(--color-text-primary);
-  width: var(--arrow-width);
-}
-
-.arrow::before {
-  display: flex;
+/* Header caret - Lucide chevron-down / chevron-right (unified block) */
+.header-caret {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  line-height: 1;
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 
-.section-header[aria-expanded="true"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.header-caret svg {
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  display: block;
+  color: inherit;
 }
 
-.section-header[aria-expanded="true"] .arrow::before {
-  content: "−";
+.section-header[aria-expanded="true"] .header-caret-right {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.section-header[aria-expanded="false"] .header-caret-down {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow::before {
-  content: "+";
+.section-header:hover .header-caret,
+.section-header:focus-visible .header-caret {
+  opacity: 1;
 }
 
 .section-header[aria-expanded="true"] {
@@ -7398,7 +7435,484 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   .nav-button:active:not(:disabled) {
     transform: none;
   }
-}</style>
+}
+
+/* ===== MODE STRIP ===== */
+/* Sub-header tab strip: Navigate | Validate (| Scaffold Phase 3) */
+
+#mode-strip {
+  display: flex;
+  flex-shrink: 0;
+  width: 100%;
+  height: 30px;
+  background: var(--theme-bg-primary);
+  border-bottom: 1px solid var(--theme-border-primary);
+  position: relative;
+  z-index: 1;
+}
+
+.mode-tab {
+  flex: 1;
+  height: 100%;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0;
+  margin-bottom: -1px; /* overlap the strip's border-bottom */
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--theme-text-secondary);
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: color var(--transition-fast), border-color var(--transition-fast),
+    background var(--transition-fast);
+  outline: none;
+}
+
+.mode-tab:hover {
+  color: var(--theme-text-primary);
+  background: var(--theme-overlay-xweak);
+}
+
+.mode-tab.active {
+  color: var(--theme-text-primary);
+  font-weight: var(--font-weight-semibold);
+  border-bottom-color: var(--figma-color-border-brand, #18a0fb);
+}
+
+.mode-tab:focus-visible {
+  outline: 2px solid var(--figma-color-border-brand, #18a0fb);
+  outline-offset: -2px;
+}
+
+/* Compact mode: slightly smaller strip */
+body.compact-mode #mode-strip {
+  height: 26px;
+}
+
+
+/* ===== LINT UI (Validate mode) ===== */
+
+/* Lint header */
+.lint-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xxl);
+  border-bottom: 1px solid var(--theme-border-primary);
+  flex-shrink: 0;
+}
+
+.lint-title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--theme-text-primary);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.lint-error-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--border-radius-pill);
+  background: #e03e3e;
+  color: #fff;
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 16px;
+}
+
+.lint-scan-btn {
+  margin-left: auto;
+  height: 22px;
+  padding: 0 8px;
+  background: var(--theme-overlay-weak);
+  border: 1px solid var(--theme-border-primary);
+  border-radius: var(--border-radius-sm);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.lint-scan-btn:hover {
+  background: var(--theme-overlay-medium);
+  color: var(--theme-text-primary);
+}
+
+/* Scope selector — segmented control */
+.lint-scope-bar {
+  display: flex;
+  padding: var(--spacing-sm) var(--spacing-xxl);
+  border-bottom: 1px solid var(--theme-border-primary);
+  flex-shrink: 0;
+}
+
+.lint-scope-btn {
+  flex: 1;
+  height: 24px;
+  margin-right: -1px; /* collapse shared borders */
+  position: relative;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-scope-btn:first-child {
+  border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+}
+
+.lint-scope-btn:last-child {
+  margin-right: 0;
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+}
+
+.lint-scope-btn:hover {
+  z-index: 1;
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-scope-btn.active {
+  z-index: 1;
+  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.15));
+  border-color: var(--figma-color-border-brand, #18a0fb);
+  color: var(--figma-color-border-brand, #18a0fb);
+}
+
+/* Filter pills */
+.lint-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: var(--spacing-sm) var(--spacing-xxl);
+  border-bottom: 1px solid var(--theme-border-primary);
+  flex-shrink: 0;
+}
+
+.lint-filter-pill {
+  height: 20px;
+  padding: 0 8px;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  border-radius: var(--border-radius-pill);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-filter-pill:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-filter-pill.active {
+  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.15));
+  border-color: var(--figma-color-border-brand, #18a0fb);
+  color: var(--figma-color-border-brand, #18a0fb);
+}
+
+/* Error list */
+.lint-error-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Null state */
+.lint-null-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xxl);
+  color: var(--theme-text-tertiary);
+  text-align: center;
+}
+
+.lint-null-icon {
+  font-size: 28px;
+  opacity: 0.5;
+}
+
+.lint-null-message {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--theme-text-secondary);
+}
+
+.lint-null-sub {
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-tertiary);
+}
+
+/* Scan progress state */
+.lint-scan-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xxl);
+}
+
+.lint-progress-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--theme-overlay-weak);
+  border-radius: var(--border-radius-pill);
+  overflow: hidden;
+}
+
+.lint-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--figma-color-border-brand, #18a0fb);
+  border-radius: var(--border-radius-pill);
+  transition: width 0.2s ease;
+}
+
+.lint-progress-label {
+  font-size: var(--font-size-xs);
+  color: var(--theme-text-tertiary);
+}
+
+.lint-cancel-btn {
+  height: 22px;
+  padding: 0 12px;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  border-radius: var(--border-radius-sm);
+  color: var(--theme-text-tertiary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-cancel-btn:hover {
+  background: var(--theme-overlay-weak);
+  color: var(--theme-text-primary);
+  border-color: var(--theme-border-secondary);
+}
+
+/* Validate main inherits scrollable-content flex behavior */
+#validate-main {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ===== LINT ERROR ITEMS ===== */
+
+.lint-error-item {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--theme-border-primary);
+  padding: 0;
+  transition: background var(--transition-fast);
+  cursor: pointer;
+}
+
+.lint-error-item:last-child {
+  border-bottom: none;
+}
+
+/* Hover covers the entire card — badge, name, detail, and action row */
+.lint-error-item:hover {
+  background: var(--theme-overlay-xweak);
+}
+
+/* Last-navigated item — persists after hover leaves, like current-anchor in bookmarks */
+.lint-item--active {
+  background: var(--figma-color-bg-selected-secondary, rgba(24, 160, 251, 0.1));
+}
+
+.lint-item--active:hover {
+  background: var(--figma-color-bg-selected-secondary, rgba(24, 160, 251, 0.14));
+}
+
+/* Name+badge row — now a div, click is handled by the parent li */
+.lint-item-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-xxl);
+  padding-bottom: 2px;
+  pointer-events: none; /* let clicks fall through to .lint-error-item */
+}
+
+/* Category badges */
+.lint-cat-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.4px;
+  color: #fff;
+}
+
+.lint-cat-fill    { background: #9b59b6; }
+.lint-cat-stroke  { background: #2980b9; }
+.lint-cat-text    { background: #16a085; }
+.lint-cat-effects { background: #e67e22; }
+.lint-cat-radius  { background: #8e44ad; }
+
+.lint-item-name {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--theme-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.lint-item-detail {
+  padding: 0 var(--spacing-xxl) 4px;
+  font-size: 10px;
+  color: var(--theme-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Fix / Ignore action row */
+.lint-item-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: 4px var(--spacing-xxl) var(--spacing-sm);
+}
+
+.lint-action-btn {
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--border-radius-sm);
+  font-size: 10px;
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  border: 1px solid var(--theme-border-primary);
+  background: none;
+  color: var(--theme-text-secondary);
+}
+
+.lint-fix-btn {
+  border-color: var(--figma-color-border-brand, #18a0fb);
+  color: var(--figma-color-border-brand, #18a0fb);
+}
+
+.lint-fix-btn:hover {
+  background: rgba(24, 160, 251, 0.12);
+}
+
+.lint-ignore-btn:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+/* ===== LINT BATCH ACTION BAR ===== */
+
+.lint-batch-bar {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+}
+
+.lint-batch-btn {
+  flex: 1;
+  height: var(--button-height-sm);
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--theme-surface);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.lint-batch-btn:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-batch-btn--primary {
+  border-color: var(--color-blue-500, #3b82f6);
+  color: var(--color-blue-500, #3b82f6);
+}
+
+.lint-batch-btn--primary:hover {
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--color-blue-600, #2563eb);
+}
+
+.lint-batch-btn--danger {
+  border-color: var(--theme-border);
+  color: var(--theme-text-tertiary);
+}
+
+.lint-batch-btn--danger:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-secondary);
+}
+
+/* ===== LINT SETTINGS ===== */
+
+.lint-category-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.lint-radii-input {
+  width: 100%;
+  height: var(--button-height-sm);
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--theme-input-bg, var(--theme-surface));
+  color: var(--theme-text-primary);
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-top: var(--spacing-xs);
+}
+
+.lint-radii-input:focus {
+  outline: none;
+  border-color: var(--theme-accent, var(--color-blue-500, #3b82f6));
+}
+</style>
 <script>
 /* =====================================================
    FIGMA SANDBOX MOCK SHIM
@@ -7425,14 +7939,18 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
             var chrome = document.getElementById('plugin-chrome');
             if (chrome) {
               chrome.style.setProperty('width', w, 'important');
-              var main = chrome.querySelector('main.scrollable-content');
+              var allMains = chrome.querySelectorAll('main.scrollable-content');
               var footer = chrome.querySelector('footer');
-              [main, footer].forEach(function (el) {
-                if (!el) return;
+              allMains.forEach(function (el) {
                 el.style.setProperty('width', w, 'important');
                 el.style.setProperty('min-width', w, 'important');
                 el.style.setProperty('max-width', w, 'important');
               });
+              if (footer) {
+                footer.style.setProperty('width', w, 'important');
+                footer.style.setProperty('min-width', w, 'important');
+                footer.style.setProperty('max-width', w, 'important');
+              }
             }
           }
         }
@@ -7779,6 +8297,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 </head>
 
 <body>
+  <!-- ===== MODE STRIP ===== -->
   <div id="plugin-chrome">
     <div id="plugin-title-bar">
       <div style="display:flex;align-items:center;gap:7px;">
@@ -7788,10 +8307,24 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       <button style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;border-radius:4px;font-size:14px;color:#666;line-height:1;padding:0;" title="Close">&#x2715;</button>
     </div>
 
-  <main class="scrollable-content">
+  <nav id="mode-strip" role="tablist" aria-label="Plugin mode">
+    <button id="tab-navigate" class="mode-tab active" role="tab"
+      aria-selected="true" aria-controls="navigate-main" data-mode="navigate" tabindex="0">
+      Navigate
+    </button>
+    <button id="tab-validate" class="mode-tab" role="tab"
+      aria-selected="false" aria-controls="validate-main" data-mode="validate" tabindex="-1">
+      Validate
+    </button>
+  </nav>
+
+  <!-- ===== NAVIGATE MAIN ===== -->
+  <main id="navigate-main" class="scrollable-content" role="tabpanel" aria-labelledby="tab-navigate">
     <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="-1"
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
+        <span class="header-caret header-caret-down" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="header-caret header-caret-right" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </div>
       <div class="header-center">
         <h2 class="header-title">Tags</h2>
@@ -7843,6 +8376,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     <header id="anchors-header" class="section-header collapsible" data-target="anchors-section" role="button"
       tabindex="-1" aria-expanded="true" aria-controls="anchors-section">
       <div class="header-left">
+        <span class="header-caret header-caret-down" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="header-caret header-caret-right" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </div>
       <div class="header-center">
         <h2 class="header-title">Anchors</h2>
@@ -7872,6 +8407,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     <header id="controls-header" class="section-header collapsible" data-target="controls-section" role="button"
       tabindex="-1" aria-expanded="true" aria-controls="controls-section">
       <div class="header-left">
+        <span class="header-caret header-caret-down" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+        <span class="header-caret header-caret-right" aria-hidden="true"><svg class="header-caret-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </div>
       <div class="header-center">
         <h2 class="header-title">Controls</h2>
@@ -7879,10 +8416,10 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       <div class="header-right">
         <nav class="header-nav-group" role="group" aria-label="Navigation history">
           <button id="back-btn" class="header-nav-btn" aria-label="Go back" data-tooltip-placement="left-group" disabled tabindex="-1" onclick="event.stopPropagation();">
-            <span class="icon"><svg class="lucide lucide-undo-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M9 14 4 9l5-5" /> <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /> </svg></span>
+            <span class="icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <g transform="scale(-1 1) translate(-16 0)"> <path d="M10.625 11.7502L15 7.3751L10.625 3" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> <path d="M1 12.6251V10.8751C1 9.9468 1.36875 9.05654 2.02513 8.40015C2.6815 7.74376 3.57174 7.375 4.5 7.375H15" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> </g> </svg></span>
           </button>
           <button id="forward-btn" class="header-nav-btn" aria-label="Go forward" data-tooltip-placement="left-group" disabled tabindex="-1" onclick="event.stopPropagation();">
-            <span class="icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.625 11.7502L15 7.3751L10.625 3" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> <path d="M1 12.6251V10.8751C1 9.9468 1.36875 9.05654 2.02513 8.40015C2.6815 7.74376 3.57174 7.375 4.5 7.375H15" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> </svg></span>
+            <span class="icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.625 11.7502L15 7.3751L10.625 3" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> <path d="M1 12.6251V10.8751C1 9.9468 1.36875 9.05654 2.02513 8.40015C2.6815 7.74376 3.57174 7.375 4.5 7.375H15" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/> </svg></span>
           </button>
         </nav>
       </div>
@@ -8134,6 +8671,12 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     </section>
   </main>
 
+  <!-- ===== VALIDATE MAIN ===== -->
+  <main id="validate-main" class="scrollable-content" role="tabpanel"
+    aria-labelledby="tab-validate" hidden>
+    <!-- Populated by lint-ui.ts on first activation -->
+  </main>
+
   <div id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="settings-panel" role="document">
       <header class="settings-header">
@@ -8255,6 +8798,59 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         </div>
         -->
 
+        <!-- Design Lint Section -->
+        <div class="settings-section" id="lint-settings-section">
+          <h3 class="settings-section-title">🔍 Design Lint</h3>
+
+          <!-- Category Toggles -->
+          <div class="setting-item">
+            <p class="settings-help-text">Check for missing styles in these categories:</p>
+            <div class="lint-category-toggles">
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Fill</span>
+                <input type="checkbox" id="lint-toggle-fill" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Stroke</span>
+                <input type="checkbox" id="lint-toggle-stroke" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Text</span>
+                <input type="checkbox" id="lint-toggle-text" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Effects</span>
+                <input type="checkbox" id="lint-toggle-effects" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Border Radius</span>
+                <input type="checkbox" id="lint-toggle-radius" checked tabindex="-1">
+              </label>
+            </div>
+          </div>
+
+          <!-- Allowed Border Radii -->
+          <div class="setting-item">
+            <label for="lint-allowed-radii" class="nudge-label">Allowed border radii (px)</label>
+            <input type="text" id="lint-allowed-radii" class="lint-radii-input" value="0, 2, 4, 8, 16, 24, 100" placeholder="0, 4, 8, 16…" aria-describedby="lint-radii-desc" tabindex="-1">
+            <p class="settings-help-text" id="lint-radii-desc">Comma-separated values. Radii not in this list are flagged.</p>
+          </div>
+
+          <!-- Skip layer names -->
+          <div class="setting-item">
+            <label for="lint-skip-names" class="nudge-label">Skip layers containing</label>
+            <input type="text" id="lint-skip-names" class="lint-radii-input" placeholder="_spec, annotation, redline…" aria-describedby="lint-skip-names-desc" tabindex="-1">
+            <p class="settings-help-text" id="lint-skip-names-desc">Comma-separated substrings. Matching layers and their children are excluded from the scan.</p>
+          </div>
+
+          <!-- Tagged scope emoji -->
+          <div class="setting-item">
+            <label for="lint-scope-emoji" class="nudge-label">Tagged scope emoji</label>
+            <input type="text" id="lint-scope-emoji" class="lint-radii-input" value="✅" maxlength="4" placeholder="✅" aria-describedby="lint-scope-emoji-desc" tabindex="-1">
+            <p class="settings-help-text" id="lint-scope-emoji-desc">When scope is "Tagged", frames whose name contains this emoji are scanned.</p>
+          </div>
+        </div>
+
         <!-- Support Section -->
         <div class="settings-section">
           <div class="support-section">
@@ -8280,7 +8876,9 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         </button>
       </li>
       <li>
-        <button id="footer-width-toggle" class="footer-icon-btn" aria-label="Toggle width" data-tooltip-placement="above" title="Width" tabindex="-1">↔</button>
+        <button id="footer-width-toggle" class="footer-icon-btn" aria-label="Toggle width" data-tooltip-placement="above" title="Width" tabindex="-1">
+          <span class="icon"><svg class="lucide lucide-arrow-left-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M8 3 4 7l4 4" /> <path d="M4 7h16" /> <path d="m16 21 4-4-4-4" /> <path d="M20 17H4" /> </svg></span>
+        </button>
       </li>
       <li>
         <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel (double-click to toggle auto-fit)" tabindex="-1">
@@ -8323,16 +8921,479 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       __defProp(target, name, { get: all[name], enumerable: true });
   };
 
+  // src/ui/shared/send-message.ts
+  function sendMessage(type, data = {}) {
+    parent.postMessage({ pluginMessage: __spreadValues({ type }, data) }, "*");
+  }
+  var init_send_message = __esm({
+    "src/ui/shared/send-message.ts"() {
+      "use strict";
+    }
+  });
+
   // src/ui/lint/lint-ui.ts
   var lint_ui_exports = {};
   __export(lint_ui_exports, {
+    handleErrorIgnored: () => handleErrorIgnored,
+    handleIgnoredAll: () => handleIgnoredAll,
+    handleLintCancelled: () => handleLintCancelled,
+    handleLintLargeFile: () => handleLintLargeFile,
+    handleLintProgress: () => handleLintProgress,
+    handleLintResults: () => handleLintResults,
+    handleLintSettingsLoaded: () => handleLintSettingsLoaded,
     initializeLintUI: () => initializeLintUI
   });
   function initializeLintUI() {
+    var _a, _b, _c, _d, _e;
+    if (_initialized)
+      return;
+    _initialized = true;
+    const container = document.getElementById("validate-main");
+    if (!container)
+      return;
+    container.innerHTML = "";
+    const frag = document.createDocumentFragment();
+    const header = document.createElement("div");
+    header.id = "lint-header";
+    header.className = "lint-header";
+    header.innerHTML = `
+    <span class="lint-title">Design Lint</span>
+    <span id="lint-error-badge" class="lint-error-badge" aria-live="polite" aria-atomic="true" hidden></span>
+    <button id="lint-scan-btn" class="lint-scan-btn" aria-label="Scan current page for style errors">
+      \u21BA Scan
+    </button>
+  `;
+    frag.appendChild(header);
+    const scopeBar = document.createElement("div");
+    scopeBar.id = "lint-scope-bar";
+    scopeBar.className = "lint-scope-bar";
+    scopeBar.setAttribute("role", "group");
+    scopeBar.setAttribute("aria-label", "Scan scope");
+    const scopeOptions = [
+      { id: "selection", label: "Selected", title: "Scan only selected frames and layers" },
+      { id: "tagged", label: "Tagged", title: `Scan only frames tagged with the scope emoji` },
+      { id: "page", label: "Page", title: "Scan all layers on the current page" }
+    ];
+    scopeOptions.forEach(({ id, label, title }) => {
+      const btn = document.createElement("button");
+      btn.className = "lint-scope-btn" + (id === _currentScope ? " active" : "");
+      btn.dataset.scope = id;
+      btn.title = title;
+      btn.textContent = label;
+      btn.addEventListener("click", () => _setScope(id));
+      scopeBar.appendChild(btn);
+    });
+    frag.appendChild(scopeBar);
+    const pills = document.createElement("div");
+    pills.id = "lint-filter-pills";
+    pills.className = "lint-filter-pills";
+    pills.setAttribute("role", "tablist");
+    pills.setAttribute("aria-label", "Filter by error category");
+    const categories = [
+      { id: "all", label: "All" },
+      { id: "fill", label: "Fill" },
+      { id: "text", label: "Text" },
+      { id: "stroke", label: "Stroke" },
+      { id: "radius", label: "Radius" },
+      { id: "effects", label: "Effects" }
+    ];
+    categories.forEach(({ id, label }) => {
+      const btn = document.createElement("button");
+      btn.className = "lint-filter-pill" + (id === "all" ? " active" : "");
+      btn.dataset.category = id;
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("aria-selected", id === "all" ? "true" : "false");
+      btn.textContent = label;
+      btn.addEventListener("click", () => setLintFilter(id));
+      pills.appendChild(btn);
+    });
+    frag.appendChild(pills);
+    const batchBar = document.createElement("div");
+    batchBar.id = "lint-batch-bar";
+    batchBar.className = "lint-batch-bar";
+    batchBar.hidden = true;
+    batchBar.innerHTML = `
+    <button id="lint-select-all-btn" class="lint-batch-btn" aria-label="Select all visible error nodes in canvas">Select All</button>
+    <button id="lint-fix-all-btn" class="lint-batch-btn lint-batch-btn--primary" aria-label="Fix all auto-fixable errors">Fix All</button>
+    <button id="lint-ignore-all-btn" class="lint-batch-btn lint-batch-btn--danger" aria-label="Ignore all visible errors">Ignore All</button>
+  `;
+    frag.appendChild(batchBar);
+    const errorList = document.createElement("ul");
+    errorList.id = "lint-error-list";
+    errorList.className = "lint-error-list";
+    errorList.setAttribute("role", "list");
+    errorList.setAttribute("aria-label", "Design lint errors");
+    errorList.hidden = true;
+    frag.appendChild(errorList);
+    const nullState = document.createElement("div");
+    nullState.id = "lint-null-state";
+    nullState.className = "lint-null-state";
+    nullState.setAttribute("role", "status");
+    nullState.innerHTML = `
+    <div class="lint-null-icon">\u2713</div>
+    <div class="lint-null-message">No style errors found</div>
+    <div class="lint-null-sub">Click Scan to check the current page</div>
+  `;
+    frag.appendChild(nullState);
+    const scanState = document.createElement("div");
+    scanState.id = "lint-scan-state";
+    scanState.className = "lint-scan-state";
+    scanState.setAttribute("role", "status");
+    scanState.setAttribute("aria-live", "polite");
+    scanState.hidden = true;
+    scanState.innerHTML = `
+    <div class="lint-progress-bar"><div id="lint-progress-fill" class="lint-progress-fill"></div></div>
+    <div id="lint-progress-label" class="lint-progress-label">Scanning\u2026</div>
+    <button id="lint-cancel-btn" class="lint-cancel-btn" aria-label="Cancel scan">Cancel</button>
+  `;
+    frag.appendChild(scanState);
+    container.appendChild(frag);
+    (_a = document.getElementById("lint-scan-btn")) == null ? void 0 : _a.addEventListener("click", requestLintScan);
+    (_b = document.getElementById("lint-cancel-btn")) == null ? void 0 : _b.addEventListener("click", () => {
+      sendMessage("lint-cancel-scan");
+    });
+    (_c = document.getElementById("lint-select-all-btn")) == null ? void 0 : _c.addEventListener("click", _onSelectAll);
+    (_d = document.getElementById("lint-fix-all-btn")) == null ? void 0 : _d.addEventListener("click", _onFixAll);
+    (_e = document.getElementById("lint-ignore-all-btn")) == null ? void 0 : _e.addEventListener("click", _onIgnoreAll);
+    _setupLintSettings();
+    sendMessage("lint-get-settings");
   }
+  function requestLintScan() {
+    _setView("scanning");
+    sendMessage("lint-run-scan");
+  }
+  function _setScope(scope) {
+    if (_currentScope === scope)
+      return;
+    _currentScope = scope;
+    document.querySelectorAll(".lint-scope-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.scope === scope);
+    });
+    _setView("scanning");
+    sendMessage("lint-set-scope", { scope });
+  }
+  function _setNullState(nodeCount) {
+    const nullIcon = document.querySelector(".lint-null-icon");
+    const nullMsg = document.querySelector(".lint-null-message");
+    const nullSub = document.querySelector(".lint-null-sub");
+    if (nodeCount === 0 && _currentScope === "selection") {
+      if (nullIcon)
+        nullIcon.textContent = "\u2196";
+      if (nullMsg)
+        nullMsg.textContent = "Nothing selected";
+      if (nullSub)
+        nullSub.textContent = "Select a frame or layer on the canvas to scan";
+    } else if (nodeCount === 0 && _currentScope === "tagged") {
+      if (nullIcon)
+        nullIcon.textContent = "\u{1F3F7}";
+      if (nullMsg)
+        nullMsg.textContent = "No tagged frames";
+      if (nullSub)
+        nullSub.textContent = `Add ${_currentScopeEmoji} to a frame name to include it`;
+    } else {
+      if (nullIcon)
+        nullIcon.textContent = "\u2713";
+      if (nullMsg)
+        nullMsg.textContent = "No style errors found";
+      if (nullSub)
+        nullSub.textContent = "Click Scan to check again";
+    }
+    _setView("null");
+  }
+  function setLintFilter(category) {
+    _activeFilter = category;
+    document.querySelectorAll(".lint-filter-pill").forEach((btn) => {
+      const isActive = btn.dataset.category === category;
+      btn.classList.toggle("active", isActive);
+      btn.setAttribute("aria-selected", String(isActive));
+    });
+    _applyFilter();
+  }
+  function _applyFilter() {
+    document.querySelectorAll(".lint-error-item").forEach((item) => {
+      item.hidden = _activeFilter !== "all" && item.dataset.category !== _activeFilter;
+    });
+  }
+  function _setView(state) {
+    const list = document.getElementById("lint-error-list");
+    const nullS = document.getElementById("lint-null-state");
+    const scanS = document.getElementById("lint-scan-state");
+    const batchBar = document.getElementById("lint-batch-bar");
+    if (list)
+      list.hidden = state !== "results";
+    if (nullS)
+      nullS.hidden = state !== "null" && state !== "large-file";
+    if (scanS)
+      scanS.hidden = state !== "scanning";
+    if (batchBar)
+      batchBar.hidden = state !== "results";
+  }
+  function _updateBadge(count) {
+    const badge = document.getElementById("lint-error-badge");
+    if (!badge)
+      return;
+    if (count === 0) {
+      badge.hidden = true;
+      badge.textContent = "";
+    } else {
+      badge.hidden = false;
+      badge.textContent = `${count} error${count === 1 ? "" : "s"}`;
+    }
+  }
+  function _renderErrors(errors) {
+    var _a;
+    const list = document.getElementById("lint-error-list");
+    if (!list)
+      return;
+    list.innerHTML = "";
+    if (_activeErrorId && !errors.find((e) => e.id === _activeErrorId)) {
+      _activeErrorId = null;
+    }
+    errors.forEach((err) => {
+      var _a2, _b, _c, _d;
+      const li = document.createElement("li");
+      li.className = "lint-error-item";
+      li.dataset.errorId = err.id;
+      li.dataset.category = err.category;
+      const catLabel = (_a2 = CATEGORY_LABELS[err.category]) != null ? _a2 : err.category.toUpperCase();
+      const hasFix = Boolean(err.suggestedStyleId);
+      li.innerHTML = `
+      <div class="lint-item-row" aria-label="Select ${err.nodeName} in canvas">
+        <span class="lint-cat-badge lint-cat-${err.category}">${catLabel}</span>
+        <span class="lint-item-name">${_esc(err.nodeName)}</span>
+      </div>
+      <div class="lint-item-detail">${_esc(err.message)}</div>
+      <div class="lint-item-actions">
+        ${hasFix ? `<button class="lint-action-btn lint-fix-btn" data-error-id="${err.id}" data-node-id="${err.nodeId}" data-category="${err.category}" data-style-id="${err.suggestedStyleId}" title="Apply suggested style: ${_esc((_b = err.suggestedStyleName) != null ? _b : "")}">Fix</button>` : ""}
+        <button class="lint-action-btn lint-ignore-btn" data-error-id="${err.id}" title="Ignore this error">Ignore</button>
+      </div>
+    `;
+      li.addEventListener("click", () => {
+        _setActiveItem(err.id);
+        sendMessage("lint-select-node", { nodeId: err.nodeId });
+      });
+      (_c = li.querySelector(".lint-fix-btn")) == null ? void 0 : _c.addEventListener("click", (e) => {
+        var _a3, _b2, _c2;
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        sendMessage("lint-apply-fix", {
+          nodeId: (_a3 = btn.dataset.nodeId) != null ? _a3 : "",
+          category: (_b2 = btn.dataset.category) != null ? _b2 : "",
+          styleId: (_c2 = btn.dataset.styleId) != null ? _c2 : ""
+        });
+      });
+      (_d = li.querySelector(".lint-ignore-btn")) == null ? void 0 : _d.addEventListener("click", (e) => {
+        var _a3;
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        const errorId = (_a3 = btn.dataset.errorId) != null ? _a3 : "";
+        sendMessage("lint-ignore-error", { errorId });
+      });
+      list.appendChild(li);
+    });
+    if (_activeErrorId) {
+      (_a = document.querySelector(`[data-error-id="${_activeErrorId}"]`)) == null ? void 0 : _a.classList.add("lint-item--active");
+    }
+  }
+  function _esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function _setActiveItem(errorId) {
+    var _a, _b;
+    if (_activeErrorId) {
+      (_a = document.querySelector(`[data-error-id="${_activeErrorId}"]`)) == null ? void 0 : _a.classList.remove("lint-item--active");
+    }
+    _activeErrorId = errorId;
+    (_b = document.querySelector(`[data-error-id="${errorId}"]`)) == null ? void 0 : _b.classList.add("lint-item--active");
+  }
+  function _getVisibleErrors() {
+    if (_activeFilter === "all")
+      return _currentErrors;
+    return _currentErrors.filter((e) => e.category === _activeFilter);
+  }
+  function _onSelectAll() {
+    const nodeIds = [...new Set(_getVisibleErrors().map((e) => e.nodeId))];
+    if (nodeIds.length === 0)
+      return;
+    sendMessage("lint-select-all", { nodeIds });
+  }
+  function _onFixAll() {
+    const fixes = _getVisibleErrors().filter((e) => e.suggestedStyleId).map((e) => ({ nodeId: e.nodeId, category: e.category, styleId: e.suggestedStyleId }));
+    if (fixes.length === 0) {
+      return;
+    }
+    _setView("scanning");
+    sendMessage("lint-fix-all", { fixes });
+  }
+  function _onIgnoreAll() {
+    const errorIds = _getVisibleErrors().map((e) => e.id);
+    if (errorIds.length === 0)
+      return;
+    sendMessage("lint-ignore-all", { errorIds });
+  }
+  function handleLintResults(errors, nodeCount) {
+    _currentErrors = errors;
+    _renderErrors(_currentErrors);
+    _updateBadge(_currentErrors.length);
+    if (_currentErrors.length === 0) {
+      _setNullState(nodeCount);
+    } else {
+      _setView("results");
+    }
+    _applyFilter();
+  }
+  function handleLintProgress(scanned, total) {
+    _setView("scanning");
+    const fill = document.getElementById("lint-progress-fill");
+    const label = document.getElementById("lint-progress-label");
+    const pct = total > 0 ? Math.round(scanned / total * 100) : 0;
+    if (fill)
+      fill.style.width = `${pct}%`;
+    if (label)
+      label.textContent = `Scanning\u2026 ${scanned} / ${total}`;
+  }
+  function handleErrorIgnored(errorId) {
+    const item = document.querySelector(`[data-error-id="${errorId}"]`);
+    if (item) {
+      item.remove();
+      _currentErrors = _currentErrors.filter((e) => e.id !== errorId);
+      if (_activeErrorId === errorId)
+        _activeErrorId = null;
+      _updateBadge(_currentErrors.length);
+      if (_currentErrors.length === 0)
+        _setView("null");
+    }
+  }
+  function handleIgnoredAll(errorIds) {
+    for (const id of errorIds) {
+      const item = document.querySelector(`[data-error-id="${id}"]`);
+      item == null ? void 0 : item.remove();
+    }
+    _currentErrors = _currentErrors.filter((e) => !errorIds.includes(e.id));
+    _updateBadge(_currentErrors.length);
+    if (_currentErrors.length === 0)
+      _setView("null");
+  }
+  function handleLintLargeFile(nodeCount) {
+    const nullMsg = document.querySelector(".lint-null-message");
+    const nullSub = document.querySelector(".lint-null-sub");
+    if (nullMsg)
+      nullMsg.textContent = "Large file detected";
+    if (nullSub)
+      nullSub.textContent = `${nodeCount.toLocaleString()} nodes \u2014 click Scan to begin`;
+    _setView("large-file");
+  }
+  function handleLintCancelled() {
+    _setView("null");
+  }
+  function _setupLintSettings() {
+    const categoryIds = ["fill", "stroke", "text", "effects", "radius"];
+    categoryIds.forEach((cat) => {
+      var _a;
+      (_a = document.getElementById(`lint-toggle-${cat}`)) == null ? void 0 : _a.addEventListener("change", () => {
+        _flushLintSettings();
+      });
+    });
+    const radiiInput = document.getElementById("lint-allowed-radii");
+    radiiInput == null ? void 0 : radiiInput.addEventListener("blur", () => _flushLintSettings());
+    radiiInput == null ? void 0 : radiiInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.currentTarget.blur();
+      }
+    });
+    const skipInput = document.getElementById("lint-skip-names");
+    skipInput == null ? void 0 : skipInput.addEventListener("blur", () => _flushLintSettings());
+    skipInput == null ? void 0 : skipInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.currentTarget.blur();
+      }
+    });
+    const emojiInput = document.getElementById("lint-scope-emoji");
+    emojiInput == null ? void 0 : emojiInput.addEventListener("blur", () => _flushLintSettings());
+    emojiInput == null ? void 0 : emojiInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.currentTarget.blur();
+      }
+    });
+  }
+  function _flushLintSettings() {
+    var _a, _b, _c, _d, _e, _f;
+    const enabled = (id) => {
+      var _a2, _b2;
+      return (_b2 = (_a2 = document.getElementById(id)) == null ? void 0 : _a2.checked) != null ? _b2 : true;
+    };
+    const radiiRaw = (_b = (_a = document.getElementById("lint-allowed-radii")) == null ? void 0 : _a.value) != null ? _b : "";
+    const allowedRadii = radiiRaw.split(",").map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n));
+    const skipRaw = (_d = (_c = document.getElementById("lint-skip-names")) == null ? void 0 : _c.value) != null ? _d : "";
+    const skipLayerNames = skipRaw.split(",").map((s) => s.trim()).filter(Boolean);
+    const lintScopeEmoji = ((_f = (_e = document.getElementById("lint-scope-emoji")) == null ? void 0 : _e.value) != null ? _f : "\u2705").trim() || "\u2705";
+    _currentScopeEmoji = lintScopeEmoji;
+    sendMessage("lint-update-settings", {
+      settings: {
+        enableFill: enabled("lint-toggle-fill"),
+        enableStroke: enabled("lint-toggle-stroke"),
+        enableText: enabled("lint-toggle-text"),
+        enableEffects: enabled("lint-toggle-effects"),
+        enableRadius: enabled("lint-toggle-radius"),
+        allowedRadii: allowedRadii.length > 0 ? allowedRadii : [0, 2, 4, 8, 16, 24, 100],
+        skipLayerNames,
+        lintScopeEmoji
+      }
+    });
+  }
+  function handleLintSettingsLoaded(settings) {
+    const setCheck = (id, val) => {
+      const el = document.getElementById(id);
+      if (el)
+        el.checked = val !== false;
+    };
+    setCheck("lint-toggle-fill", settings.enableFill);
+    setCheck("lint-toggle-stroke", settings.enableStroke);
+    setCheck("lint-toggle-text", settings.enableText);
+    setCheck("lint-toggle-effects", settings.enableEffects);
+    setCheck("lint-toggle-radius", settings.enableRadius);
+    if (Array.isArray(settings.allowedRadii) && settings.allowedRadii.length > 0) {
+      const radiiInput = document.getElementById("lint-allowed-radii");
+      if (radiiInput)
+        radiiInput.value = settings.allowedRadii.join(", ");
+    }
+    if (Array.isArray(settings.skipLayerNames)) {
+      const skipInput = document.getElementById("lint-skip-names");
+      if (skipInput)
+        skipInput.value = settings.skipLayerNames.join(", ");
+    }
+    if (typeof settings.lintScope === "string") {
+      const scope = settings.lintScope;
+      _currentScope = scope;
+      document.querySelectorAll(".lint-scope-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.scope === scope);
+      });
+    }
+    if (typeof settings.lintScopeEmoji === "string" && settings.lintScopeEmoji) {
+      _currentScopeEmoji = settings.lintScopeEmoji;
+      const emojiInput = document.getElementById("lint-scope-emoji");
+      if (emojiInput)
+        emojiInput.value = _currentScopeEmoji;
+    }
+  }
+  var _initialized, _currentErrors, _activeFilter, _activeErrorId, _currentScope, _currentScopeEmoji, CATEGORY_LABELS;
   var init_lint_ui = __esm({
     "src/ui/lint/lint-ui.ts"() {
       "use strict";
+      init_send_message();
+      _initialized = false;
+      _currentErrors = [];
+      _activeFilter = "all";
+      _activeErrorId = null;
+      _currentScope = "selection";
+      _currentScopeEmoji = "\u2705";
+      CATEGORY_LABELS = {
+        fill: "FILL",
+        stroke: "STROKE",
+        text: "TEXT",
+        effects: "EFFECTS",
+        radius: "RADIUS"
+      };
     }
   });
 
@@ -8402,12 +9463,9 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     activeLottieAnimations.clear();
   }
 
-  // src/ui/shared/send-message.ts
-  function sendMessage(type, data = {}) {
-    parent.postMessage({ pluginMessage: __spreadValues({ type }, data) }, "*");
-  }
-
   // src/ui/shared/layout.ts
+  init_send_message();
+  var MAX_UI_HEIGHT = 800;
   var _isAutoFitEnabled = true;
   var _lastAutoFitHeight = 0;
   var _currentToggleMode = "onPage";
@@ -8469,7 +9527,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     });
   }
   function computeFitHeight() {
-    const main = document.querySelector("main.scrollable-content");
+    const main = document.querySelector("main.scrollable-content:not([hidden])");
     const footer = document.getElementById("footer");
     if (!main || !footer) {
       return 400;
@@ -8501,10 +9559,13 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     const mainMarginTop = parseInt(mainStyle.marginTop, 10) || 0;
     const mainMarginBottom = parseInt(mainStyle.marginBottom, 10) || 0;
     const footerHeight = footer.offsetHeight || 20;
-    const totalHeight = totalContentHeight + mainPaddingTop + mainPaddingBottom + mainMarginTop + mainMarginBottom + footerHeight;
+    const modeStrip = document.getElementById("mode-strip");
+    const modeStripHeight = modeStrip ? modeStrip.offsetHeight : 0;
+    const totalHeight = modeStripHeight + totalContentHeight + mainPaddingTop + mainPaddingBottom + mainMarginTop + mainMarginBottom + footerHeight;
     const collapsedCount = children.filter((c) => c.classList.contains("collapsed")).length;
     if (Math.abs(totalHeight - _lastAutoFitHeight) > 3) {
       console.log("Auto-fit height (collapsed-aware):", {
+        modeStripHeight,
         totalContentHeight,
         mainPaddingTop,
         mainPaddingBottom,
@@ -8515,7 +9576,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         collapsedSections: collapsedCount
       });
     }
-    return Math.ceil(totalHeight);
+    return Math.min(Math.ceil(totalHeight), MAX_UI_HEIGHT);
   }
   var scrollBehaviorDebounceTimer = null;
   function updateScrollBehavior() {
@@ -8528,7 +9589,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     }, 50);
   }
   function updateScrollBehaviorImmediate() {
-    const main = document.querySelector("main.scrollable-content");
+    const main = document.querySelector("main.scrollable-content:not([hidden])");
     if (!main)
       return;
     const containerHeight = main.clientHeight;
@@ -8552,7 +9613,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   var activeTimers = /* @__PURE__ */ new Set();
   var originalSetTimeout = window.setTimeout;
   var originalSetInterval = window.setInterval;
-  window.setTimeout = function(callback, delay, ...args) {
+  window.setTimeout = function(callback, delay, ..._args) {
     const timerId = originalSetTimeout.call(window, (...callbackArgs) => {
       activeTimers.delete(timerId);
       if (typeof callback === "function") {
@@ -8562,7 +9623,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     activeTimers.add(timerId);
     return timerId;
   };
-  window.setInterval = function(callback, delay, ...args) {
+  window.setInterval = function(callback, delay, ..._args) {
     const timerId = originalSetInterval.call(window, (...callbackArgs) => {
       if (typeof callback === "function") {
         callback.apply(this, callbackArgs);
@@ -8932,6 +9993,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   };
 
   // src/ui/shared/theme-manager-ui.ts
+  init_send_message();
   var themeManager;
   var isThemeInitialized = false;
   function initializeAccessibilityListeners() {
@@ -9113,7 +10175,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         return "figma-dark";
     }
   }
-  function persistThemeChange(effectiveTheme) {
+  function persistThemeChange(_effectiveTheme) {
     const preference = {
       mode: themeManager.currentTheme,
       lastSystemTheme: themeManager.currentSystemTheme,
@@ -9149,8 +10211,6 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     const currentMode = themeManager.currentTheme;
     const systemTheme = themeManager.currentSystemTheme;
     if (currentMode === "system") {
-      const effectiveTheme = themeManager.getEffectiveTheme();
-      const themeLabel = effectiveTheme === "figma-light" ? "Light" : "Dark";
       statusElement.textContent = "";
       statusElement.style.display = "none";
       statusElement.setAttribute("data-system-theme", systemTheme);
@@ -9278,9 +10338,10 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     if (!themeManager)
       return "figma-dark";
     switch (themeMode) {
-      case "system":
+      case "system": {
         const systemTheme = themeManager.currentSystemTheme;
         return systemTheme === "dark" ? "figma-dark" : "figma-light";
+      }
       case "light":
         return "light";
       case "dark":
@@ -9383,7 +10444,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         break;
     }
   }
-  function updateThemeAccessibility(effectiveTheme, isSystemTheme) {
+  function updateThemeAccessibility(effectiveTheme, _isSystemTheme) {
     const htmlElement = document.documentElement;
     const isHighContrast = window.matchMedia("(prefers-contrast: high)").matches;
     if (isHighContrast) {
@@ -9451,7 +10512,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       htmlElement.removeAttribute("data-contrast-issues");
     }
   }
-  function validateContrastRatio(foreground, background, minRatio) {
+  function validateContrastRatio(foreground, background, _minRatio) {
     const lightOnDark = (foreground === "#ffffff" || foreground === "#f5f5f5") && (background === "#2c2c2c" || background === "#0f0f0f" || background === "#0a0a0f");
     const darkOnLight = (foreground === "#1e1e1e" || foreground === "#000000") && (background === "#ffffff" || background === "#f7f8f9");
     return lightOnDark || darkOnLight;
@@ -9497,9 +10558,11 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       document.head.appendChild(metaColorScheme);
     }
     const isDarkTheme = effectiveTheme === "figma-dark" || effectiveTheme === "boilerplate" || effectiveTheme === "cybertron";
-    const isLightTheme = effectiveTheme === "figma-light" || effectiveTheme === "light";
     metaColorScheme.content = isDarkTheme ? "dark" : "light";
   }
+
+  // src/ui/navigate/anatomy.ts
+  init_send_message();
 
   // src/ui/shared/icons.ts
   var ICON_EYE_OPEN = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.33325 8.00006C1.33325 8.00006 3.33325 3.33339 7.99992 3.33339C12.6666 3.33339 14.6666 8.00006 14.6666 8.00006C14.6666 8.00006 12.6666 12.6667 7.99992 12.6667C3.33325 12.6667 1.33325 8.00006 1.33325 8.00006Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -9538,9 +10601,10 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       const button = document.createElement("button");
       button.className = "emoji-button";
       button.textContent = emoji;
-      button.addEventListener("click", () => {
-        console.log("Emoji clicked:", emoji);
-        sendMessage("add-emoji", { emoji });
+      button.addEventListener("click", (e) => {
+        const messageType = e.shiftKey ? "add-emoji-recursive" : "add-emoji";
+        console.log("Emoji clicked:", emoji, messageType);
+        sendMessage(messageType, { emoji });
         showCanvasHint();
       });
       button.addEventListener("mouseenter", () => {
@@ -9789,6 +10853,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
 
   // src/ui/navigate/bookmarks-ui.ts
+  init_send_message();
   var _isAutoFitEnabled2 = true;
   var _showCanvasHintFn2 = null;
   function registerShowCanvasHintBookmarks(fn) {
@@ -9872,7 +10937,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         } else if (previousBookmarkId && bookmark.id === previousBookmarkId) {
           li.classList.add("recent-history");
         }
-        const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId ? '<svg class="lucide lucide-footprints recent-steps-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" /> <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" /> <path d="M16 17h4" /> <path d="M4 13h4" /> </svg>' : "";
+        const recentHistoryIcon = previousBookmarkId && bookmark.id === previousBookmarkId && bookmark.id !== currentAnchorId ? '<svg class="lucide lucide-footprints recent-steps-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" /> <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" /> <path d="M16 17h4" /> <path d="M4 13h4" /> </svg>' : "";
         li.innerHTML = `
         <div class="bookmark-content">
           <div class="bookmark-name">${bookmark.name}</div>
@@ -10045,7 +11110,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       }
     }
   }
-  function updateEmojiSetIndicator(setName, currentIndex, totalSets) {
+  function updateEmojiSetIndicator(setName, _currentIndex, _totalSets) {
     const indicator = document.getElementById("emoji-set-indicator");
     if (indicator) {
       const setNameElement = indicator.querySelector(".set-name");
@@ -10130,7 +11195,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     if (enterBtn) {
       const canEnter = context.canEnter;
       const isPageMode = !context.hasSelection;
-      const wasDisabled = enterBtn.disabled;
+      const _wasDisabled = enterBtn.disabled;
       enterBtn.disabled = !canEnter;
       if (isPageMode && canEnter) {
         enterBtn.setAttribute("aria-label", "Enter page (Enter)");
@@ -10359,6 +11424,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
 
   // src/ui/navigate/settings-ui.ts
+  init_send_message();
   function setupControlsSettings() {
     const controlsToggle = document.getElementById("controls-toggle");
     if (controlsToggle) {
@@ -10442,6 +11508,9 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       bigNudgeInput.value = String(big);
     }
   }
+
+  // src/ui/navigate/navigate-ui.ts
+  init_send_message();
 
   // src/ui/shared/tooltip-manager.ts
   var tooltipState = {
@@ -10711,6 +11780,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     updateAutoFitButtonState();
     initializeAllLottieElements();
     updateScrollBehavior();
+    setupStickyHeaders();
     if (getIsAutoFitEnabled()) {
       setTimeout(() => {
         const initialHeight = computeFitHeight();
@@ -10839,9 +11909,10 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       });
     }
     if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        console.log("Clear clicked");
-        sendMessage("clear-emoji");
+      clearBtn.addEventListener("click", (e) => {
+        const messageType = e.shiftKey ? "clear-emoji-recursive" : "clear-emoji";
+        console.log("Clear clicked:", messageType);
+        sendMessage(messageType);
       });
       clearBtn.addEventListener("mouseenter", () => {
         const anatomyEmoji = document.querySelector(".anatomy-emoji");
@@ -11099,15 +12170,18 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       widthToggleBtn.addEventListener("click", () => {
         console.log("Toggle width");
         isWidthCompact = !isWidthCompact;
-        const scrollableContent = document.querySelector(".scrollable-content");
-        if (scrollableContent) {
+        const allScrollable = document.querySelectorAll(".scrollable-content");
+        allScrollable.forEach((el) => {
           if (isWidthCompact) {
-            scrollableContent.classList.add("compact-mode");
-            widthToggleBtn.classList.add("active");
+            el.classList.add("compact-mode");
           } else {
-            scrollableContent.classList.remove("compact-mode");
-            widthToggleBtn.classList.remove("active");
+            el.classList.remove("compact-mode");
           }
+        });
+        if (isWidthCompact) {
+          widthToggleBtn.classList.add("active");
+        } else {
+          widthToggleBtn.classList.remove("active");
         }
         sendMessage("toggle-width");
       });
@@ -11131,7 +12205,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         updateAutoFitButtonState();
         if (getIsAutoFitEnabled()) {
           const contentHeight = computeFitHeight();
-          console.log("Auto-fit enabled: adjusting height to", contentHeight);
+          console.log("Auto-fit enabled: adjusting height to", contentHeight, "(max:", MAX_UI_HEIGHT, ")");
           sendMessage("resize-ui", { height: contentHeight });
           setLastAutoFitHeight(contentHeight);
         } else {
@@ -11241,6 +12315,54 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     }
     setupGlobalHoverStateManagement();
     initializeQuickActionTooltips();
+  }
+  function setupStickyHeaders() {
+    const scrollContainer = document.getElementById("navigate-main");
+    if (!scrollContainer)
+      return;
+    const headerIds = ["tags-header", "anchors-header", "controls-header"];
+    const headers = headerIds.map((id) => document.getElementById(id)).filter((h) => h !== null);
+    if (headers.length === 0)
+      return;
+    let offsets = [];
+    function recalcOffsets() {
+      const savedTransforms = [];
+      for (const h of headers) {
+        savedTransforms.push(h.style.transform);
+        h.style.transform = "";
+      }
+      offsets = headers.map((h) => h.offsetTop);
+      for (let i = 0; i < headers.length; i++) {
+        headers[i].style.transform = savedTransforms[i];
+      }
+    }
+    function onScroll() {
+      const scrollTop = scrollContainer.scrollTop;
+      for (let i = 0; i < headers.length; i++) {
+        const header = headers[i];
+        if (scrollTop > offsets[i]) {
+          const dy = scrollTop - offsets[i];
+          header.style.transform = `translateY(${dy}px)`;
+          header.classList.add("sticky-stuck");
+        } else {
+          header.style.transform = "";
+          header.classList.remove("sticky-stuck");
+        }
+      }
+    }
+    recalcOffsets();
+    scrollContainer.addEventListener("scroll", onScroll, { passive: true });
+    scrollContainer.addEventListener("transitionend", (e) => {
+      var _a, _b;
+      if ((_b = (_a = e.target) == null ? void 0 : _a.classList) == null ? void 0 : _b.contains("collapsible-content")) {
+        recalcOffsets();
+        onScroll();
+      }
+    });
+    window.addEventListener("resize", () => {
+      recalcOffsets();
+      onScroll();
+    });
   }
   function setupGlobalHoverStateManagement() {
     let touchActiveTimeout = null;
@@ -12040,6 +13162,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   }
 
   // src/ui.ts
+  init_send_message();
   console.log("\u{1F50D} Script executing, DOM ready state:", document.readyState);
   window.addEventListener("error", (event) => {
     console.error("\u{1F6A8} Global error caught:", event.error || event.message);
@@ -12075,7 +13198,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       return;
     console.log("\u{1F4E5} Received message from plugin:", message.type, message);
     switch (message.type) {
-      case "selection-state":
+      case "selection-state": {
         const emojis = message.hasLayerSelected ? message.layerEmojis : message.pageEmojis;
         if (emojis) {
           updateEmojiButtons(emojis);
@@ -12084,6 +13207,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
         updateAnatomySection(message.hasLayerSelected, message.pageName, message.selectedLayerName);
         updateVisibilityLockIcons(message.selectionVisible, message.selectionLocked);
         break;
+      }
       case "bookmarks":
         updateBookmarksList(
           message.bookmarks,
@@ -12142,6 +13266,59 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
       case "update-styled-text-state":
         updateStyledTextButtons(message.hasTextNode);
         break;
+      case "plugin-mode-restored":
+        applyRestoredMode(message.mode);
+        break;
+      case "lint-progress":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleLintProgress: handleLintProgress2 }) => {
+            handleLintProgress2(message.scanned, message.total);
+          }).catch(console.error);
+        }
+        break;
+      case "lint-results":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleLintResults: handleLintResults2 }) => {
+            var _a2;
+            handleLintResults2(message.errors, (_a2 = message.nodeCount) != null ? _a2 : 0);
+          }).catch(console.error);
+        }
+        break;
+      case "lint-error-ignored":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleErrorIgnored: handleErrorIgnored2 }) => {
+            handleErrorIgnored2(message.errorId);
+          }).catch(console.error);
+        }
+        break;
+      case "lint-cancelled":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleLintCancelled: handleLintCancelled2 }) => {
+            handleLintCancelled2();
+          }).catch(console.error);
+        }
+        break;
+      case "lint-ignored-all":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleIgnoredAll: handleIgnoredAll2 }) => {
+            handleIgnoredAll2(message.errorIds);
+          }).catch(console.error);
+        }
+        break;
+      case "lint-large-file":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleLintLargeFile: handleLintLargeFile2 }) => {
+            handleLintLargeFile2(message.nodeCount);
+          }).catch(console.error);
+        }
+        break;
+      case "lint-settings-loaded":
+        if (lintUIInitialized) {
+          Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports)).then(({ handleLintSettingsLoaded: handleLintSettingsLoaded2 }) => {
+            handleLintSettingsLoaded2(message.settings);
+          }).catch(console.error);
+        }
+        break;
       case "styled-text-html": {
         const html = message.html;
         const plain = html.replace(/<[^>]+>/g, "");
@@ -12187,7 +13364,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   function initializeThemePerformanceMonitoring() {
     if (themeManager) {
       const originalApplyTheme = applyTheme;
-      window.applyTheme = function(effectiveTheme, skipTransition = false) {
+      window.applyTheme = function(effectiveTheme, _skipTransition = false) {
         const startTime = performance.now();
         try {
           const result = originalApplyTheme.call(this, effectiveTheme);
@@ -12308,6 +13485,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     registerSetupCleanupHandlers(setupCleanupHandlers);
     registerUpdateEmojiButtons(updateEmojiButtons);
     registerShowCanvasHint(showCanvasHint4);
+    setupModeStrip();
     initializePlugin();
     setupEventListeners();
     window.addEventListener("message", handlePluginMessage);
@@ -12398,14 +13576,49 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
     activeTimers.add(footerCleanupInterval);
   }
   var activeMode = "navigate";
+  var lintUIInitialized = false;
+  var scaffoldUIInitialized = false;
   async function activateMode(mode) {
+    if (mode === activeMode)
+      return;
     activeMode = mode;
-    if (mode === "lint") {
+    const navigateMain = document.getElementById("navigate-main");
+    const validateMain = document.getElementById("validate-main");
+    if (navigateMain)
+      navigateMain.hidden = mode !== "navigate";
+    if (validateMain)
+      validateMain.hidden = mode !== "lint";
+    document.querySelectorAll(".mode-tab").forEach((tab) => {
+      const isActive = tab.dataset.mode === mode || mode === "lint" && tab.dataset.mode === "validate";
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
+      tab.tabIndex = isActive ? 0 : -1;
+    });
+    if (mode === "lint" && !lintUIInitialized) {
+      lintUIInitialized = true;
       const { initializeLintUI: initializeLintUI2 } = await Promise.resolve().then(() => (init_lint_ui(), lint_ui_exports));
       initializeLintUI2();
-    } else if (mode === "scaffold") {
+    } else if (mode === "scaffold" && !scaffoldUIInitialized) {
+      scaffoldUIInitialized = true;
       const { initializeScaffoldUI: initializeScaffoldUI2 } = await Promise.resolve().then(() => (init_scaffold_ui(), scaffold_ui_exports));
       initializeScaffoldUI2();
+    }
+    sendMessage("set-plugin-mode", { mode });
+  }
+  function setupModeStrip() {
+    document.querySelectorAll(".mode-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const raw = tab.dataset.mode;
+        if (raw === "navigate" || raw === "validate" || raw === "scaffold") {
+          const mode = raw === "validate" ? "lint" : raw;
+          void activateMode(mode);
+        }
+      });
+    });
+  }
+  function applyRestoredMode(mode) {
+    if (mode === "lint" || mode === "navigate" || mode === "scaffold") {
+      void activateMode(mode);
     }
   }
   window.activateMode = activateMode;

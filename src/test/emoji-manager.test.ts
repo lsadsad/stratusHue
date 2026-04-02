@@ -1,8 +1,8 @@
 /// <reference types="@figma/plugin-typings" />
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getCurrentEmojiSet, navigateEmojiSet, getEmojiNavigationState, addEmojiToSelection, clearEmojiFromSelection, isValidEmoji, getEmojiType } from '../features/emoji-manager';
+import { getCurrentEmojiSet, navigateEmojiSet, getEmojiNavigationState, addEmojiToSelection, clearEmojiFromSelection, isValidEmoji, getEmojiType, walkDescendants, addEmojiToSelectionRecursive, clearEmojiFromSelectionRecursive } from '../features/emoji-manager';
 import { LAYER_EMOJI_SETS, PAGE_EMOJI_SETS } from '../core/constants';
-import { createMockSceneNode } from './setup';
+import { createMockSceneNode, createMockContainer } from './setup';
 
 // Mock dependencies
 vi.mock('../core/state', () => {
@@ -215,6 +215,152 @@ describe('Emoji Manager', () => {
 
     it('should return unknown for unrecognized emojis', () => {
       expect(getEmojiType('😎')).toBe('unknown');
+    });
+  });
+
+  describe('walkDescendants', () => {
+    it('should visit all children of a container node', () => {
+      const child1 = createMockSceneNode('c1', 'Child 1');
+      const child2 = createMockSceneNode('c2', 'Child 2');
+      const parent = createMockContainer('p1', 'Parent', 'FRAME', [child1, child2]);
+
+      const visited: string[] = [];
+      walkDescendants(parent, (node) => { visited.push(node.id); });
+
+      expect(visited).toEqual(['c1', 'c2']);
+    });
+
+    it('should recursively visit nested descendants', () => {
+      const grandchild = createMockSceneNode('gc1', 'Grandchild');
+      const child = createMockContainer('c1', 'Child', 'GROUP', [grandchild]);
+      const parent = createMockContainer('p1', 'Parent', 'FRAME', [child]);
+
+      const visited: string[] = [];
+      walkDescendants(parent, (node) => { visited.push(node.id); });
+
+      expect(visited).toEqual(['c1', 'gc1']);
+    });
+
+    it('should do nothing for a leaf node (no children)', () => {
+      const leaf = createMockSceneNode('leaf', 'Leaf');
+
+      const visited: string[] = [];
+      walkDescendants(leaf, (node) => { visited.push(node.id); });
+
+      expect(visited).toEqual([]);
+    });
+  });
+
+  describe('addEmojiToSelectionRecursive', () => {
+    it('should tag selected node and all descendants', async () => {
+      const grandchild = createMockSceneNode('gc1', 'Grandchild');
+      const child = createMockContainer('c1', 'Child', 'FRAME', [grandchild]);
+      const parent = createMockContainer('p1', 'Parent', 'FRAME', [child]);
+      figma.currentPage.selection = [parent];
+
+      const result = await addEmojiToSelectionRecursive('🟥');
+
+      expect(result.success).toBe(true);
+      expect(result.count).toBe(3); // parent + child + grandchild
+      expect(parent.name).toBe('🟥 Parent');
+      expect(child.name).toBe('🟥 Child');
+      expect(grandchild.name).toBe('🟥 Grandchild');
+    });
+
+    it('should skip locked descendants', async () => {
+      const lockedChild = createMockSceneNode('lc1', 'Locked Child');
+      (lockedChild as any).locked = true;
+      const unlockedChild = createMockSceneNode('uc1', 'Unlocked Child');
+      const parent = createMockContainer('p1', 'Parent', 'FRAME', [lockedChild, unlockedChild]);
+      figma.currentPage.selection = [parent];
+
+      const result = await addEmojiToSelectionRecursive('🟥');
+
+      expect(result.count).toBe(2); // parent + unlocked child (locked skipped)
+      expect(lockedChild.name).toBe('Locked Child'); // unchanged
+      expect(unlockedChild.name).toBe('🟥 Unlocked Child');
+    });
+
+    it('should no-op with message when selection is empty', async () => {
+      figma.currentPage.selection = [];
+
+      const result = await addEmojiToSelectionRecursive('🟥');
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('Select a layer');
+      expect(result.count).toBe(0);
+    });
+
+    it('should work on a leaf node (no children)', async () => {
+      const leaf = createMockSceneNode('leaf', 'Leaf');
+      figma.currentPage.selection = [leaf];
+
+      const result = await addEmojiToSelectionRecursive('🟥');
+
+      expect(result.success).toBe(true);
+      expect(result.count).toBe(1);
+      expect(leaf.name).toBe('🟥 Leaf');
+    });
+  });
+
+  describe('clearEmojiFromSelectionRecursive', () => {
+    beforeEach(async () => {
+      // Reset removeEmojiPrefix to default implementation (may have been overridden by clearEmojiFromSelection tests)
+      const { removeEmojiPrefix } = await import('../utils');
+      (removeEmojiPrefix as any).mockImplementation((name: string) =>
+        name.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/u, '')
+      );
+    });
+
+    it('should clear emoji from selected node and all descendants', async () => {
+      const grandchild = createMockSceneNode('gc1', '🟥 Grandchild');
+      const child = createMockContainer('c1', '🟥 Child', 'FRAME', [grandchild]);
+      const parent = createMockContainer('p1', '🟥 Parent', 'FRAME', [child]);
+      figma.currentPage.selection = [parent];
+
+      const result = await clearEmojiFromSelectionRecursive();
+
+      expect(result.success).toBe(true);
+      expect(result.count).toBe(3);
+      expect(parent.name).toBe('Parent');
+      expect(child.name).toBe('Child');
+      expect(grandchild.name).toBe('Grandchild');
+    });
+
+    it('should skip locked descendants', async () => {
+      const lockedChild = createMockSceneNode('lc1', '🟥 Locked');
+      (lockedChild as any).locked = true;
+      const unlockedChild = createMockSceneNode('uc1', '🟥 Unlocked');
+      const parent = createMockContainer('p1', '🟥 Parent', 'FRAME', [lockedChild, unlockedChild]);
+      figma.currentPage.selection = [parent];
+
+      const result = await clearEmojiFromSelectionRecursive();
+
+      expect(result.count).toBe(2); // parent + unlocked
+      expect(lockedChild.name).toBe('🟥 Locked'); // unchanged
+    });
+
+    it('should no-op with message when selection is empty', async () => {
+      figma.currentPage.selection = [];
+
+      const result = await clearEmojiFromSelectionRecursive();
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('Select a layer');
+      expect(result.count).toBe(0);
+    });
+
+    it('should handle mixed tree with some nodes having no emoji', async () => {
+      const tagged = createMockSceneNode('t1', '🟥 Tagged');
+      const plain = createMockSceneNode('p1', 'Plain');
+      const parent = createMockContainer('root', '🟥 Root', 'FRAME', [tagged, plain]);
+      figma.currentPage.selection = [parent];
+
+      const result = await clearEmojiFromSelectionRecursive();
+
+      // removeEmojiPrefix mock strips leading emoji; 'Plain' stays 'Plain' (oldName === newName) so not counted
+      expect(result.success).toBe(true);
+      expect(result.count).toBe(2); // root + tagged child cleared; plain child unchanged
     });
   });
 });

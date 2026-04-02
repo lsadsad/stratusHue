@@ -34,7 +34,7 @@ Scaffold and Validate are mirrors — one creates structure from a recipe, the o
 
 **Mode**: Navigate (new collapsible section in Controls)
 **Scope**: 4 files modified, ~400 new lines
-**Spec**: `docs/features/STYLED_TEXT_FEATURE.md`
+**Spec**: `docs/features/specs/styledTextFeature.md`
 
 Two buttons — Paste Styled (clipboard HTML to Figma TextNode) and Copy Styled (Figma TextNode to clipboard HTML). Runs entirely on-demand when the user clicks a button. No background work, no scanning, no new modes.
 
@@ -45,7 +45,7 @@ Two buttons — Paste Styled (clipboard HTML to Figma TextNode) and Copy Styled 
 ### Phase 1.5: Refactor ui.ts into mode modules
 
 **Scope**: Internal restructuring, no user-facing changes
-**Spec**: `docs/features/UI_SPLIT_REFACTOR.md`
+**Spec**: `docs/features/reference/uiSplitRefactor.md`
 **Goal**: Split the 4,890-line `ui.ts` monolith before Lint adds another ~800+ lines
 
 Target structure:
@@ -67,7 +67,7 @@ The shell lazy-imports mode modules only when the user activates that mode, matc
 
 **Mode**: Validate (introduces mode toggle system)
 **Scope**: ~6 new files, ~1,200-1,500 new lines, ~15 new message handlers
-**Spec**: `docs/features/DESIGN_LINT_FEATURE.md`
+**Spec**: `docs/features/specs/designLintFeature.md`
 
 Introduces the Navigate/Validate mode toggle in the footer. Scans visible nodes for missing styles across five categories (fills, strokes, text, effects, border radius). Errors can be filtered, fixed, or ignored.
 
@@ -96,7 +96,7 @@ if (msg.type.startsWith('lint-')) {
 
 **Mode**: Scaffold (third mode in footer toggle)
 **Scope**: TBD — concept only, needs full spec
-**Spec**: `docs/features/SCAFFOLD_MODE.md`
+**Spec**: `docs/features/specs/scaffoldMode.md`
 
 Configurable JSON recipes that define project file structure. User selects a recipe, toggles optional pages, clicks Build. The same recipe format feeds Validate's future Readiness Check.
 

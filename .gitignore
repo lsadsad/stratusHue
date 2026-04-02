@@ -97,6 +97,12 @@ plugin-ready
 # Plugin packages
 packages
 
+# Local Claude Code permissions (user-specific, not shared)
+.claude/settings.local.json
+
+# Claude Code worktrees (temporary agent workspaces)
+.claude/worktrees/
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js
@@ -134,3 +140,7 @@ packages
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Excalidraw files
+*.excalidraw
+.DS_Store

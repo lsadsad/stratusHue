@@ -27,6 +27,9 @@ Example: Change --spacing-lg from 8px to 12px to increase all container padding
   box-sizing: border-box;
 }
 
+/* Enforce the HTML `hidden` attribute — overrides any display: flex/grid rules below */
+[hidden] { display: none !important; }
+
 html,
 body {
   margin: 0;
@@ -53,6 +56,7 @@ body.touch-active .action-btn:hover,
 body.touch-active .nav-button:hover,
 body.touch-active .emoji-button:hover,
 body.touch-active .bookmark-item:hover,
+body.touch-active .lint-error-item:hover,
 body.touch-active .footer-icon-btn:hover,
 body.touch-active .theme-option:hover,
 body.touch-active .toggle-button:hover,
@@ -1387,12 +1391,12 @@ body.touch-active .kofi-button:hover {
 /* Preserve color-enhanced icons in light themes */
 [data-theme="figma-light"] .nav-button.nav-button-arrow .nav-icon svg,
 [data-theme="light"] .nav-button.nav-button-arrow .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75);
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(550%) hue-rotate(195deg) brightness(0.75);
 }
 
 [data-theme="figma-light"] .nav-button.nav-button-zoom .nav-icon svg,
 [data-theme="light"] .nav-button.nav-button-zoom .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75);
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(550%) hue-rotate(110deg) brightness(0.7);
 }
 
 [data-theme="figma-light"] .nav-button.nav-button-hierarchy .nav-icon svg,
@@ -1407,12 +1411,12 @@ body.touch-active .kofi-button:hover {
 
 [data-theme="figma-light"] .nav-button.nav-button-layer .nav-icon svg,
 [data-theme="light"] .nav-button.nav-button-layer .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75);
+  filter: brightness(0) saturate(100%) invert(30%) sepia(85%) saturate(550%) hue-rotate(240deg) brightness(0.75);
 }
 
 [data-theme="figma-light"] .nav-button.nav-button-sizing .nav-icon svg,
 [data-theme="light"] .nav-button.nav-button-sizing .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.75);
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(550%) hue-rotate(140deg) brightness(0.7);
 }
 
 /* Light theme disabled state: muted neutral dark icons */
@@ -1875,7 +1879,8 @@ h3 {
   flex-direction: column;
   position: relative;
   z-index: 0;
-  padding-bottom: 12px;
+  padding-bottom: 4px;
+  background: var(--color-background-elevated);
 }
 
 #color-section.collapsed {
@@ -2170,7 +2175,7 @@ h3 {
   display: flex;
   gap: var(--spacing-lg);
   position: absolute;
-  bottom: calc(var(--spacing-sm) - 12px);
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
@@ -2182,7 +2187,13 @@ h3 {
 }
 
 /* emoji-nav-container icons match emoji-set-title muted color */
+.emoji-nav-container .emoji-nav-btn {
+  width: 16px;
+  height: 16px;
+}
 .emoji-nav-container .emoji-nav-btn .nav-arrow {
+  width: 16px;
+  height: 16px;
   filter: brightness(0) invert(1);
   opacity: 0.5;
 }
@@ -2323,8 +2334,8 @@ h3 {
 
 /* Ensure the arrow SVG itself matches stroke color */
 #tags-header .emoji-nav-btn .nav-arrow {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   filter: brightness(0);
   opacity: 1;
 }
@@ -2486,8 +2497,8 @@ h3 {
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
   width: 100%;
-  padding: var(--spacing-lg) 6px var(--spacing-lg) 6px;
-  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) 4px var(--spacing-lg) 2px;
+  gap: 0;
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
@@ -2503,6 +2514,25 @@ h3 {
   color: var(--figma-color-border-brand);
 }
 
+.section-header:hover .header-title,
+#tags-header:hover .header-title,
+#anchors-header:hover .header-title,
+#controls-header:hover .header-title {
+  color: var(--figma-color-border-brand);
+}
+
+/* JS-driven sticky header state (position:sticky unsupported in Figma iframe) */
+.section-header.sticky-stuck {
+  position: relative;
+  background-color: var(--color-background-elevated);
+  will-change: transform;
+}
+
+.section-header.sticky-stuck-bottom {
+  border-top: none;
+  border-bottom: var(--border-width) solid var(--color-border-primary);
+}
+
 /* Header layout patterns - left-aligned design */
 .header-left,
 .header-right,
@@ -2512,7 +2542,7 @@ h3 {
 }
 
 .header-left {
-  gap: var(--spacing-sm);
+  gap: 4px;
   z-index: 1;
 }
 
@@ -2638,7 +2668,10 @@ h3 {
   /* Default header action icons: subtle monochrome */
   filter: brightness(0) saturate(0%);
   opacity: 0.7;
+  transition: filter var(--transition-fast), opacity var(--transition-fast);
 }
+
+/* (header action icon hover rule moved after default rules for source-order specificity) */
 
 .header-action-btn:hover {
   background: var(--color-background-secondary);
@@ -2710,8 +2743,8 @@ h3 {
 
 #controls-header {
   background-color: var(--color-background-elevated);
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 2px;
+  padding-right: 4px;
 }
 
 #tags-header .header-subtitle {
@@ -2766,39 +2799,43 @@ h3 {
   color: inherit;
 }
 
-/* Arrow States */
-.arrow {
-  font-size: var(--icon-size-lg);
-  font-weight: var(--font-weight-heavy);
-  color: var(--color-text-primary);
-  width: var(--arrow-width);
-}
-
-.arrow::before {
-  display: flex;
+/* Header caret - Lucide chevron-down / chevron-right */
+/* Both carets stay in flow (display: inline-flex) so the header-left width is
+   always reserved and the title never shifts. Only the correct icon for the
+   current aria-expanded state is shown; the other is removed from flow with
+   display:none. Visibility is controlled with opacity on hover/focus. */
+.header-caret {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  line-height: 1;
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 
-.section-header[aria-expanded="true"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.header-caret svg {
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  display: block;
+  color: inherit;
 }
 
-.section-header[aria-expanded="true"] .arrow::before {
-  content: "−";
+/* Hide the wrong icon entirely so only one occupies space */
+.section-header[aria-expanded="true"] .header-caret-right {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.section-header[aria-expanded="false"] .header-caret-down {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow::before {
-  content: "+";
+/* Reveal on hover / keyboard focus */
+.section-header:hover .header-caret,
+.section-header:focus-visible .header-caret {
+  opacity: 1;
 }
 
 .section-header[aria-expanded="true"] {
@@ -2833,7 +2870,7 @@ h3 {
   width: 100%;
   min-width: 0;
   background: var(--color-background-elevated);
-  padding: 16px 12px;
+  padding: 12px 12px 12px 12px;
   border: 1px solid var(--theme-border-translucent);
   border-radius: var(--border-radius-lg);
   transition: padding var(--transition-normal);
@@ -3457,6 +3494,69 @@ h3 {
   opacity: 0.7;
 }
 
+/* Header color-context on bar hover/focus (JS adds .header-color-context-active).
+   Using ID+class selectors keeps this stronger than themed defaults. */
+#tags-header.section-header.header-color-context-active #new-page-btn .icon svg {
+  /* Create action: green */
+  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7);
+  opacity: 1;
+}
+
+#tags-header.section-header.header-color-context-active #date-btn .icon svg,
+#anchors-header.section-header.header-color-context-active #refresh-anchors .icon svg,
+#anchors-header.section-header.header-color-context-active #save-bookmark .icon svg {
+  /* Info/view action: brand blue (match header accent) */
+  filter: brightness(0) saturate(100%) invert(52%) sepia(98%) saturate(1200%) hue-rotate(190deg) brightness(1.05);
+  opacity: 1;
+}
+
+#tags-header.section-header.header-color-context-active #clear-color .icon svg {
+  /* Destructive action: red */
+  filter: brightness(0) saturate(100%) invert(19%) sepia(99%) saturate(1280%) hue-rotate(333deg) brightness(1.08) contrast(1.32);
+  opacity: 1;
+}
+
+#controls-header.section-header.header-color-context-active .header-nav-btn:not(:disabled) .icon svg {
+  /* Navigation history action: amber */
+  filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7);
+  opacity: 1;
+}
+
+/* Higher-contrast color-context variants for darkest themes */
+[data-theme="figma-dark"] #tags-header.section-header.header-color-context-active #new-page-btn .icon svg,
+[data-theme="dark"] #tags-header.section-header.header-color-context-active #new-page-btn .icon svg,
+[data-theme="boilerplate"] #tags-header.section-header.header-color-context-active #new-page-btn .icon svg {
+  filter: brightness(0) saturate(100%) invert(34%) sepia(96%) saturate(720%) hue-rotate(86deg) brightness(0.95) contrast(1.22);
+  opacity: 1;
+}
+
+[data-theme="figma-dark"] #tags-header.section-header.header-color-context-active #date-btn .icon svg,
+[data-theme="dark"] #tags-header.section-header.header-color-context-active #date-btn .icon svg,
+[data-theme="figma-dark"] #anchors-header.section-header.header-color-context-active #refresh-anchors .icon svg,
+[data-theme="dark"] #anchors-header.section-header.header-color-context-active #refresh-anchors .icon svg,
+[data-theme="figma-dark"] #anchors-header.section-header.header-color-context-active #save-bookmark .icon svg,
+[data-theme="dark"] #anchors-header.section-header.header-color-context-active #save-bookmark .icon svg,
+[data-theme="boilerplate"] #tags-header.section-header.header-color-context-active #date-btn .icon svg,
+[data-theme="boilerplate"] #anchors-header.section-header.header-color-context-active #refresh-anchors .icon svg,
+[data-theme="boilerplate"] #anchors-header.section-header.header-color-context-active #save-bookmark .icon svg {
+  filter: brightness(0) saturate(100%) invert(52%) sepia(98%) saturate(1200%) hue-rotate(190deg) brightness(1.05);
+  opacity: 1;
+}
+
+[data-theme="figma-dark"] #tags-header.section-header.header-color-context-active #clear-color .icon svg,
+[data-theme="dark"] #tags-header.section-header.header-color-context-active #clear-color .icon svg,
+[data-theme="boilerplate"] #tags-header.section-header.header-color-context-active #clear-color .icon svg {
+  opacity: 1;
+  filter: brightness(0) saturate(100%) invert(17%) sepia(100%) saturate(1420%) hue-rotate(332deg) brightness(1.14) contrast(1.36) drop-shadow(0 0 0.6px rgba(242, 72, 34, 0.7));
+}
+
+[data-theme="figma-dark"] #controls-header.section-header.header-color-context-active .header-nav-btn:not(:disabled) .icon svg,
+[data-theme="dark"] #controls-header.section-header.header-color-context-active .header-nav-btn:not(:disabled) .icon svg,
+[data-theme="boilerplate"] #controls-header.section-header.header-color-context-active .header-nav-btn:not(:disabled) .icon svg {
+  filter: brightness(0) saturate(100%) invert(43%) sepia(97%) saturate(860%) hue-rotate(12deg) brightness(0.96) contrast(1.22);
+  opacity: 1;
+}
+
 #tags-header #new-page-btn:hover,
 #tags-header #date-btn:hover,
 #tags-header #clear-color:hover,
@@ -3981,84 +4081,112 @@ h3 {
 }
 
 /* ===== COLOR-ENHANCED CONTROL ICONS ===== */
-/* Apply color tinting to icons based on their button category */
+/* Apply color tinting to icons based on their functional category.
+   Default state: muted/dim. Hover: full functional color. Active: white flash. */
 
-/* Green icons for arrow/movement buttons */
+/* Blue icons — arrow/movement (spatial, matches Figma selection blue) */
 .nav-button.nav-button-arrow .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(85deg) brightness(0.85);
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(400%) hue-rotate(190deg) brightness(0.85);
 }
 
 .nav-button.nav-button-arrow:hover:not(:disabled) .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7);
+  filter: brightness(0) saturate(100%) invert(40%) sepia(95%) saturate(700%) hue-rotate(195deg) brightness(0.85);
 }
 
 .nav-button.nav-button-arrow:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
-/* Blue icons for zoom controls */
+/* Green icons — zoom/viewport controls */
 .nav-button.nav-button-zoom .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(190deg) brightness(0.85);
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(400%) hue-rotate(105deg) brightness(0.85);
 }
 
 .nav-button.nav-button-zoom:hover:not(:disabled) .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7);
+  filter: brightness(0) saturate(100%) invert(40%) sepia(90%) saturate(600%) hue-rotate(110deg) brightness(0.8);
 }
 
 .nav-button.nav-button-zoom:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
-/* Yellow/Amber icons for hierarchy controls */
+/* Amber icons — hierarchy nav (enter/exit/prev/next) */
 .nav-button.nav-button-hierarchy .nav-icon svg {
   filter: brightness(0) saturate(100%) invert(55%) sepia(90%) saturate(600%) hue-rotate(15deg) brightness(0.85);
 }
 
 .nav-button.nav-button-hierarchy:hover:not(:disabled) .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7);
+  filter: brightness(0) saturate(100%) invert(50%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.8);
 }
 
 .nav-button.nav-button-hierarchy:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
-/* Red icons for action/delete buttons */
-.nav-button.nav-button-action .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(80%) saturate(600%) hue-rotate(330deg) brightness(0.9);
+/* Red icons — delete (destructive) */
+.nav-button.nav-button-delete .nav-icon svg {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(80%) saturate(500%) hue-rotate(330deg) brightness(0.85);
 }
 
-.nav-button.nav-button-action:hover:not(:disabled) .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.75);
+.nav-button.nav-button-delete:hover:not(:disabled) .nav-icon svg {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.8);
 }
 
-.nav-button.nav-button-action:active:not(:disabled) .nav-icon svg {
+.nav-button.nav-button-delete:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
-/* Green icons for layer ordering buttons (matching arrow keys) */
+/* Purple icons — layer order (bring forward/send backward, z-stack) */
 .nav-button.nav-button-layer .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(85deg) brightness(0.85);
+  filter: brightness(0) saturate(100%) invert(40%) sepia(80%) saturate(400%) hue-rotate(240deg) brightness(0.85);
 }
 
 .nav-button.nav-button-layer:hover:not(:disabled) .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7);
+  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(700%) hue-rotate(245deg) brightness(0.8);
 }
 
 .nav-button.nav-button-layer:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
 }
 
-/* Purple icons for sizing mode buttons */
+/* Teal icons — sizing modes (width/height cycle) */
 .nav-button.nav-button-sizing .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(500%) hue-rotate(240deg) brightness(0.85);
+  filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(400%) hue-rotate(135deg) brightness(0.85);
 }
 
 .nav-button.nav-button-sizing:hover:not(:disabled) .nav-icon svg {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(240deg) brightness(0.7);
+  filter: brightness(0) saturate(100%) invert(40%) sepia(90%) saturate(600%) hue-rotate(140deg) brightness(0.8);
 }
 
 .nav-button.nav-button-sizing:active:not(:disabled) .nav-icon svg {
   filter: brightness(0) invert(1);
+}
+
+/* Per-button overrides within nav-button-sizing (collapse, visibility, lock) */
+
+/* Cyan — visibility toggle (eye) */
+#nav-hide:hover:not(:disabled) .nav-icon svg {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(90%) saturate(600%) hue-rotate(155deg) brightness(0.85);
+}
+
+/* Orange — lock toggle */
+#nav-lock:hover:not(:disabled) .nav-icon svg {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(90%) saturate(700%) hue-rotate(345deg) brightness(0.8);
+}
+
+/* Muted — collapse (utility, low emphasis) */
+#nav-collapse:hover:not(:disabled) .nav-icon svg {
+  filter: brightness(0) saturate(0%) invert(60%);
+}
+
+/* Pink — styled text paste */
+#paste-styled:hover:not(:disabled) .nav-icon svg {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(90%) saturate(600%) hue-rotate(280deg) brightness(0.85);
+}
+
+/* Pink — styled text copy */
+#copy-styled:hover:not(:disabled) .nav-icon svg {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(90%) saturate(600%) hue-rotate(280deg) brightness(0.85);
 }
 
 /* Disabled state: muted icons for all color-coded buttons */
@@ -5936,39 +6064,40 @@ i.grip {
 
 /* Default states: neutral white/monochrome - color reveals on hover */
 
-/* Green on hover: Creation actions (New Page) */
+/* Green on hover: Creation actions (New Page)
+   No !important: section-header bar hover (#tags-header:hover …) must override (hdr issue). */
 #new-page-btn .icon svg {
-  filter: brightness(0) invert(1) saturate(0%) !important;
-  opacity: 0.7 !important;
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.7;
 }
 
 #new-page-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7) !important;
-  opacity: 1 !important;
+  filter: brightness(0) saturate(100%) invert(35%) sepia(90%) saturate(600%) hue-rotate(85deg) brightness(0.7);
+  opacity: 1;
 }
 
 #new-page-btn:active:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1);
+  opacity: 1;
 }
 
 /* Yellow on hover: Navigation history actions (Back, Forward) */
 #back-btn .icon svg,
 #forward-btn .icon svg {
-  filter: brightness(0) invert(1) saturate(0%) !important;
-  opacity: 0.7 !important;
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.7;
 }
 
 #back-btn:hover:not(:disabled) .icon svg,
 #forward-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7) !important;
-  opacity: 1 !important;
+  filter: brightness(0) saturate(100%) invert(45%) sepia(95%) saturate(700%) hue-rotate(10deg) brightness(0.7);
+  opacity: 1;
 }
 
 #back-btn:active:not(:disabled) .icon svg,
 #forward-btn:active:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1);
+  opacity: 1;
 }
 
 #back-btn:disabled .icon svg,
@@ -5994,40 +6123,40 @@ i.grip {
 
 /* Red on hover: Destructive actions (Remove Tag) */
 #clear-color .icon svg {
-  filter: brightness(0) invert(1) saturate(0%) !important;
-  opacity: 0.7 !important;
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.7;
 }
 
 #clear-color:hover:not(:disabled) .icon svg {
-  filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.75) !important;
-  opacity: 1 !important;
+  filter: brightness(0) saturate(100%) invert(25%) sepia(95%) saturate(800%) hue-rotate(335deg) brightness(0.75);
+  opacity: 1;
 }
 
 #clear-color:active:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1);
+  opacity: 1;
 }
 
 /* Blue on hover: Informational/viewing actions (Date, Bookmark, Refresh Anchors) */
 #date-btn .icon svg,
 #save-bookmark .icon svg,
 #refresh-anchors .icon svg {
-  filter: brightness(0) invert(1) saturate(0%) !important;
-  opacity: 0.7 !important;
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.7;
 }
 
 #date-btn:hover:not(:disabled) .icon svg,
 #save-bookmark:hover:not(:disabled) .icon svg,
 #refresh-anchors:hover:not(:disabled) .icon svg {
-  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7) !important;
-  opacity: 1 !important;
+  filter: brightness(0) saturate(100%) invert(30%) sepia(90%) saturate(700%) hue-rotate(195deg) brightness(0.7);
+  opacity: 1;
 }
 
 #date-btn:active:not(:disabled) .icon svg,
 #save-bookmark:active:not(:disabled) .icon svg,
 #refresh-anchors:active:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1);
+  opacity: 1;
 }
 
 /* ===== LIGHT THEME ADJUSTMENTS FOR QUICK ACTION BUTTONS ===== */
@@ -6047,8 +6176,8 @@ i.grip {
 [data-theme="light"] #date-btn .icon svg,
 [data-theme="light"] #save-bookmark .icon svg,
 [data-theme="light"] #refresh-anchors .icon svg {
-  filter: brightness(0) saturate(0%) !important;
-  opacity: 0.45 !important;
+  filter: brightness(0) saturate(0%);
+  opacity: 0.45;
 }
 
 [data-theme="figma-light"] #settings-btn .icon svg,
@@ -6060,22 +6189,22 @@ i.grip {
 /* Light theme hover: reveal colors */
 [data-theme="figma-light"] #new-page-btn:hover:not(:disabled) .icon svg,
 [data-theme="light"] #new-page-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75) !important;
-  opacity: 1 !important;
+  filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(550%) hue-rotate(85deg) brightness(0.75);
+  opacity: 1;
 }
 
 [data-theme="figma-light"] #back-btn:hover:not(:disabled) .icon svg,
 [data-theme="figma-light"] #forward-btn:hover:not(:disabled) .icon svg,
 [data-theme="light"] #back-btn:hover:not(:disabled) .icon svg,
 [data-theme="light"] #forward-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) saturate(100%) invert(40%) sepia(95%) saturate(650%) hue-rotate(15deg) brightness(0.7) !important;
-  opacity: 1 !important;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(95%) saturate(650%) hue-rotate(15deg) brightness(0.7);
+  opacity: 1;
 }
 
 [data-theme="figma-light"] #clear-color:hover:not(:disabled) .icon svg,
 [data-theme="light"] #clear-color:hover:not(:disabled) .icon svg {
-  filter: brightness(0) saturate(100%) invert(20%) sepia(90%) saturate(700%) hue-rotate(335deg) brightness(0.8) !important;
-  opacity: 1 !important;
+  filter: brightness(0) saturate(100%) invert(20%) sepia(90%) saturate(700%) hue-rotate(335deg) brightness(0.8);
+  opacity: 1;
 }
 
 [data-theme="figma-light"] #date-btn:hover:not(:disabled) .icon svg,
@@ -6084,8 +6213,8 @@ i.grip {
 [data-theme="light"] #date-btn:hover:not(:disabled) .icon svg,
 [data-theme="light"] #save-bookmark:hover:not(:disabled) .icon svg,
 [data-theme="light"] #refresh-anchors:hover:not(:disabled) .icon svg {
-  filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75) !important;
-  opacity: 1 !important;
+  filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(600%) hue-rotate(195deg) brightness(0.75);
+  opacity: 1;
 }
 
 [data-theme="figma-light"] #nav-delete .icon svg,
@@ -6109,7 +6238,11 @@ i.grip {
 [data-theme="cybertron"] #date-btn .icon svg,
 [data-theme="cybertron"] #save-bookmark .icon svg,
 [data-theme="cybertron"] #refresh-anchors .icon svg,
-[data-theme="cybertron"] #clear-color .icon svg,
+[data-theme="cybertron"] #clear-color .icon svg {
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.7;
+}
+
 [data-theme="cybertron"] #nav-delete .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.7 !important;
@@ -6122,26 +6255,26 @@ i.grip {
 
 /* Cybertron hover: reveal neon colors */
 [data-theme="cybertron"] #new-page-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(70deg) brightness(1.3);
+  opacity: 1;
 }
 
 [data-theme="cybertron"] #back-btn:hover:not(:disabled) .icon svg,
 [data-theme="cybertron"] #forward-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(15deg) brightness(1.3) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(600%) hue-rotate(15deg) brightness(1.3);
+  opacity: 1;
 }
 
 [data-theme="cybertron"] #date-btn:hover:not(:disabled) .icon svg,
 [data-theme="cybertron"] #save-bookmark:hover:not(:disabled) .icon svg,
 [data-theme="cybertron"] #refresh-anchors:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(160deg) brightness(1.3) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(160deg) brightness(1.3);
+  opacity: 1;
 }
 
 [data-theme="cybertron"] #clear-color:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(320deg) brightness(1.3) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(320deg) brightness(1.3);
+  opacity: 1;
 }
 
 [data-theme="cybertron"] #settings-btn:hover:not(:disabled) .icon svg {
@@ -6163,7 +6296,11 @@ i.grip {
 [data-theme="figma-dark"] #date-btn .icon svg,
 [data-theme="figma-dark"] #save-bookmark .icon svg,
 [data-theme="figma-dark"] #refresh-anchors .icon svg,
-[data-theme="figma-dark"] #clear-color .icon svg,
+[data-theme="figma-dark"] #clear-color .icon svg {
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.6;
+}
+
 [data-theme="figma-dark"] #nav-delete .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.6 !important;
@@ -6176,26 +6313,26 @@ i.grip {
 
 /* Figma-dark hover: reveal colors */
 [data-theme="figma-dark"] #new-page-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1);
+  opacity: 1;
 }
 
 [data-theme="figma-dark"] #back-btn:hover:not(:disabled) .icon svg,
 [data-theme="figma-dark"] #forward-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1);
+  opacity: 1;
 }
 
 [data-theme="figma-dark"] #date-btn:hover:not(:disabled) .icon svg,
 [data-theme="figma-dark"] #save-bookmark:hover:not(:disabled) .icon svg,
 [data-theme="figma-dark"] #refresh-anchors:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1);
+  opacity: 1;
 }
 
 [data-theme="figma-dark"] #clear-color:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1);
+  opacity: 1;
 }
 
 [data-theme="figma-dark"] #settings-btn:hover:not(:disabled) .icon svg {
@@ -6217,7 +6354,11 @@ i.grip {
 [data-theme="boilerplate"] #date-btn .icon svg,
 [data-theme="boilerplate"] #save-bookmark .icon svg,
 [data-theme="boilerplate"] #refresh-anchors .icon svg,
-[data-theme="boilerplate"] #clear-color .icon svg,
+[data-theme="boilerplate"] #clear-color .icon svg {
+  filter: brightness(0) invert(1) saturate(0%);
+  opacity: 0.6;
+}
+
 [data-theme="boilerplate"] #nav-delete .icon svg {
   filter: brightness(0) invert(1) saturate(0%) !important;
   opacity: 0.6 !important;
@@ -6230,26 +6371,26 @@ i.grip {
 
 /* Boilerplate hover: reveal colors */
 [data-theme="boilerplate"] #new-page-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(70deg) brightness(1.1);
+  opacity: 1;
 }
 
 [data-theme="boilerplate"] #back-btn:hover:not(:disabled) .icon svg,
 [data-theme="boilerplate"] #forward-btn:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(500%) hue-rotate(15deg) brightness(1.1);
+  opacity: 1;
 }
 
 [data-theme="boilerplate"] #date-btn:hover:not(:disabled) .icon svg,
 [data-theme="boilerplate"] #save-bookmark:hover:not(:disabled) .icon svg,
 [data-theme="boilerplate"] #refresh-anchors:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(160deg) brightness(1.1);
+  opacity: 1;
 }
 
 [data-theme="boilerplate"] #clear-color:hover:not(:disabled) .icon svg {
-  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1) !important;
-  opacity: 1 !important;
+  filter: brightness(0) invert(1) sepia(100%) saturate(400%) hue-rotate(320deg) brightness(1.1);
+  opacity: 1;
 }
 
 [data-theme="boilerplate"] #settings-btn:hover:not(:disabled) .icon svg {
@@ -6644,6 +6785,18 @@ i.grip {
   left: calc(var(--footer-height) + var(--spacing-sm));
 }
 
+#footer-width-toggle.footer-icon-btn .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#footer-width-toggle.footer-icon-btn .icon svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
 /* Toggle width button - match active toggle states */
 #footer-width-toggle.footer-icon-btn:hover {
   color: var(--figma-color-border-brand, #18a0fb);
@@ -6774,8 +6927,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   border-radius: 0;
   height: calc(var(--spacing-lg) * 5);
   width: 100%;
-  padding: var(--spacing-xxl) 6px var(--spacing-xxl) 6px;
-  gap: var(--spacing-lg);
+  padding: var(--spacing-xxl) 4px var(--spacing-xxl) 2px;
+  gap: 0;
   align-self: stretch;
   box-sizing: border-box;
   position: relative;
@@ -6799,7 +6952,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 .header-left {
-  gap: calc(var(--spacing-xxl) - var(--spacing-sm));
+  gap: 4px;
 }
 
 .header-right {
@@ -6807,39 +6960,37 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   margin-left: auto;
 }
 
-/* Arrow States - Unified expand/collapse indicators */
-.arrow {
-  font-size: var(--icon-size-lg);
-  font-weight: var(--font-weight-heavy);
-  color: var(--color-text-primary);
-  width: var(--arrow-width);
-}
-
-.arrow::before {
-  display: flex;
+/* Header caret - Lucide chevron-down / chevron-right (unified block) */
+.header-caret {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  line-height: 1;
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 
-.section-header[aria-expanded="true"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.header-caret svg {
+  width: var(--arrow-width);
+  height: var(--arrow-width);
+  display: block;
+  color: inherit;
 }
 
-.section-header[aria-expanded="true"] .arrow::before {
-  content: "−";
+.section-header[aria-expanded="true"] .header-caret-right {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-normal);
+.section-header[aria-expanded="false"] .header-caret-down {
+  display: none;
 }
 
-.section-header[aria-expanded="false"] .arrow::before {
-  content: "+";
+.section-header:hover .header-caret,
+.section-header:focus-visible .header-caret {
+  opacity: 1;
 }
 
 .section-header[aria-expanded="true"] {
@@ -7499,6 +7650,53 @@ body.compact-mode #mode-strip {
   color: var(--theme-text-primary);
 }
 
+/* Scope selector — segmented control */
+.lint-scope-bar {
+  display: flex;
+  padding: var(--spacing-sm) var(--spacing-xxl);
+  border-bottom: 1px solid var(--theme-border-primary);
+  flex-shrink: 0;
+}
+
+.lint-scope-btn {
+  flex: 1;
+  height: 24px;
+  margin-right: -1px; /* collapse shared borders */
+  position: relative;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-scope-btn:first-child {
+  border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+}
+
+.lint-scope-btn:last-child {
+  margin-right: 0;
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+}
+
+.lint-scope-btn:hover {
+  z-index: 1;
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-scope-btn.active {
+  z-index: 1;
+  background: var(--figma-color-bg-selected, rgba(24, 160, 251, 0.15));
+  border-color: var(--figma-color-border-brand, #18a0fb);
+  color: var(--figma-color-border-brand, #18a0fb);
+}
+
 /* Filter pills */
 .lint-filter-pills {
   display: flex;
@@ -7605,6 +7803,26 @@ body.compact-mode #mode-strip {
   color: var(--theme-text-tertiary);
 }
 
+.lint-cancel-btn {
+  height: 22px;
+  padding: 0 12px;
+  background: none;
+  border: 1px solid var(--theme-border-primary);
+  border-radius: var(--border-radius-sm);
+  color: var(--theme-text-tertiary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lint-cancel-btn:hover {
+  background: var(--theme-overlay-weak);
+  color: var(--theme-text-primary);
+  border-color: var(--theme-border-secondary);
+}
+
 /* Validate main inherits scrollable-content flex behavior */
 #validate-main {
   display: flex;
@@ -7613,5 +7831,191 @@ body.compact-mode #mode-strip {
 
 
 /* ===== LINT ERROR ITEMS ===== */
-/* .lint-error-item, .lint-item-row, .lint-cat-badge, etc.  */
-/* Added in Phase 2 lint engine commit (lint-engine.ts)      */
+
+.lint-error-item {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--theme-border-primary);
+  padding: 0;
+  transition: background var(--transition-fast);
+  cursor: pointer;
+}
+
+.lint-error-item:last-child {
+  border-bottom: none;
+}
+
+/* Hover covers the entire card — badge, name, detail, and action row */
+.lint-error-item:hover {
+  background: var(--theme-overlay-xweak);
+}
+
+/* Last-navigated item — persists after hover leaves, like current-anchor in bookmarks */
+.lint-item--active {
+  background: var(--figma-color-bg-selected-secondary, rgba(24, 160, 251, 0.1));
+}
+
+.lint-item--active:hover {
+  background: var(--figma-color-bg-selected-secondary, rgba(24, 160, 251, 0.14));
+}
+
+/* Name+badge row — now a div, click is handled by the parent li */
+.lint-item-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-xxl);
+  padding-bottom: 2px;
+  pointer-events: none; /* let clicks fall through to .lint-error-item */
+}
+
+/* Category badges */
+.lint-cat-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.4px;
+  color: #fff;
+}
+
+.lint-cat-fill    { background: #9b59b6; }
+.lint-cat-stroke  { background: #2980b9; }
+.lint-cat-text    { background: #16a085; }
+.lint-cat-effects { background: #e67e22; }
+.lint-cat-radius  { background: #8e44ad; }
+
+.lint-item-name {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--theme-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.lint-item-detail {
+  padding: 0 var(--spacing-xxl) 4px;
+  font-size: 10px;
+  color: var(--theme-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Fix / Ignore action row */
+.lint-item-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: 4px var(--spacing-xxl) var(--spacing-sm);
+}
+
+.lint-action-btn {
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--border-radius-sm);
+  font-size: 10px;
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  border: 1px solid var(--theme-border-primary);
+  background: none;
+  color: var(--theme-text-secondary);
+}
+
+.lint-fix-btn {
+  border-color: var(--figma-color-border-brand, #18a0fb);
+  color: var(--figma-color-border-brand, #18a0fb);
+}
+
+.lint-fix-btn:hover {
+  background: rgba(24, 160, 251, 0.12);
+}
+
+.lint-ignore-btn:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+/* ===== LINT BATCH ACTION BAR ===== */
+
+.lint-batch-bar {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+}
+
+.lint-batch-btn {
+  flex: 1;
+  height: var(--button-height-sm);
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--theme-surface);
+  color: var(--theme-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.lint-batch-btn:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-primary);
+}
+
+.lint-batch-btn--primary {
+  border-color: var(--color-blue-500, #3b82f6);
+  color: var(--color-blue-500, #3b82f6);
+}
+
+.lint-batch-btn--primary:hover {
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--color-blue-600, #2563eb);
+}
+
+.lint-batch-btn--danger {
+  border-color: var(--theme-border);
+  color: var(--theme-text-tertiary);
+}
+
+.lint-batch-btn--danger:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--theme-text-secondary);
+}
+
+/* ===== LINT SETTINGS ===== */
+
+.lint-category-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.lint-radii-input {
+  width: 100%;
+  height: var(--button-height-sm);
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--theme-input-bg, var(--theme-surface));
+  color: var(--theme-text-primary);
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-top: var(--spacing-xs);
+}
+
+.lint-radii-input:focus {
+  outline: none;
+  border-color: var(--theme-accent, var(--color-blue-500, #3b82f6));
+}

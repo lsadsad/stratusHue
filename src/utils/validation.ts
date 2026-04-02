@@ -7,6 +7,7 @@ import { validateAndSyncBookmarks, validateRecentHistory, validateCurrentAnchor,
 import { sendBookmarksToUI } from '../ui/ui-communication';
 import { shouldValidate, updateValidationTime } from '../core/state';
 import { debounce } from './utils';
+import { getCurrentMode } from '../core/lint-state';
 
 // ===== VALIDATION CONSTANTS =====
 const VALIDATION_INTERVAL = 30000; // 30 seconds
@@ -113,30 +114,53 @@ function triggerBatchedUpdate(): void {
   }, 300);
 }
 
+// ===== LINT RESCAN =====
+// Debounced at 2s to avoid hammering the engine on every keystroke.
+const debouncedLintRescan = debounce(() => {
+  // Dynamic import keeps lint code zero-cost unless lint mode is used.
+  // Skip if a scan is already running — the current scan is still valid.
+  // When the user makes changes while scanning, let the scan complete
+  // naturally rather than interrupting it with a restart.
+  import('../features/lint-engine').then(({ runLintScan, isScanInProgress }) => {
+    if (!isScanInProgress()) {
+      // 'auto' preserves the pinned selection snapshot so that navigating to
+      // a lint-error item (which changes canvas selection) doesn't alter the
+      // effective scan scope on this background re-scan.
+      runLintScan('auto').catch(console.error);
+    }
+  }).catch(console.error);
+}, 2000);
+
 /**
- * Handle document changes efficiently - only update bookmarks when their names change
+ * Handle document changes efficiently - only update bookmarks when their names change.
+ * Also triggers a debounced lint re-scan when lint mode is active.
  */
 export function handleDocumentChange(event: DocumentChangeEvent): void {
   try {
+    // Trigger debounced lint re-scan if in lint mode
+    if (getCurrentMode() === 'lint') {
+      debouncedLintRescan();
+    }
+
     // Quick synchronous check - no async imports needed for initial filtering
     const bookmarks = figma.root.getPluginData('bookmarks');
     if (!bookmarks) return;
-    
+
     const bookmarksData = JSON.parse(bookmarks);
     const bookmarkedIds = new Set(bookmarksData.map((b: { id: string }) => b.id));
-    
+
     // Check if any bookmarked nodes had property changes
     for (const change of event.documentChanges) {
       if (change.type === 'PROPERTY_CHANGE') {
         const nodeId = change.id;
-        
+
         // Only care about changes to bookmarked nodes
         if (bookmarkedIds.has(nodeId)) {
           changedNodeIds.add(nodeId);
         }
       }
     }
-    
+
     // If any bookmarked nodes changed, trigger batched update
     if (changedNodeIds.size > 0) {
       triggerBatchedUpdate();

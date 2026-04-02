@@ -71,23 +71,6 @@ function inlineAssetDataUris(html) {
 		}
 	});
 	
-	// Handle Lottie files with data-lottie-src attributes
-	html = html.replace(/data-lottie-src=["']\.?\/?assets\/([^"']+\.json)["']/g, (match, relPath) => {
-		const assetPath = path.join('assets', relPath);
-		if (!fs.existsSync(assetPath)) return match;
-		try {
-			const jsonData = fs.readFileSync(assetPath, 'utf8');
-			// Verify it's a valid Lottie file by checking for required properties
-			const lottieData = JSON.parse(jsonData);
-			if (lottieData.v && lottieData.layers) {
-				return `data-lottie='${jsonData.replace(/'/g, "&#39;")}'`;
-			}
-		} catch (_err) {
-			// If it's not a valid Lottie file, return original
-		}
-		return match;
-	});
-	
 	return html;
 }
 

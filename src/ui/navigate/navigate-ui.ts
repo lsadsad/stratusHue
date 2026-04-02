@@ -6,10 +6,10 @@ import {
   computeFitHeight,
   updateScrollBehavior,
   updateToggleUI,
-  setIsAutoFitEnabled
+  setIsAutoFitEnabled,
+  MAX_UI_HEIGHT,
 } from '../shared/layout';
 import { activeTimers } from '../shared/cleanup';
-import { initializeAllLottieElements } from '../shared/lottie';
 import { initializeQuickActionTooltips } from '../shared/tooltip-manager';
 import { setupThemeSwitching } from '../shared/theme-manager-ui';
 import { setupAccessibilitySupport } from '../shared/accessibility';
@@ -76,11 +76,11 @@ export function initializePlugin(): void {
   // Initialize auto-fit button state
   updateAutoFitButtonState();
 
-  // Initialize Lottie animations
-  initializeAllLottieElements();
-
   // Initialize scroll behavior
   updateScrollBehavior();
+
+  // Initialize JS-driven sticky section headers
+  setupStickyHeaders();
 
   // Trigger initial auto-fit if enabled
   if (getIsAutoFitEnabled()) {
@@ -233,6 +233,41 @@ export function setupEventListeners(): void {
   const widthToggleBtn = document.getElementById('footer-width-toggle');
   const resizeHandle = document.getElementById('footer-resize');
   const collapsibleHeaders = Array.from(document.querySelectorAll<HTMLElement>('.section-header.collapsible'));
+  const headerActionButtons: HTMLElement[] = [
+    newPageBtn,
+    dateBtn,
+    clearBtn,
+    saveBtn,
+    refreshAnchorsBtn,
+    backBtn,
+    forwardBtn
+  ].filter((btn): btn is HTMLElement => btn instanceof HTMLElement);
+
+  ['tags-header', 'anchors-header', 'controls-header'].forEach((headerId) => {
+    const header = document.getElementById(headerId) as HTMLElement | null;
+    if (!header) return;
+    const activateColorContext = () => {
+      header.classList.add('header-color-context-active');
+    };
+    const deactivateColorContext = () => {
+      header.classList.remove('header-color-context-active');
+    };
+    header.addEventListener('mouseenter', () => {
+      activateColorContext();
+    });
+    header.addEventListener('mouseleave', () => {
+      deactivateColorContext();
+    });
+    header.addEventListener('focusin', () => {
+      activateColorContext();
+    });
+    header.addEventListener('focusout', (e: FocusEvent) => {
+      const nextTarget = e.relatedTarget as Node | null;
+      if (!nextTarget || !header.contains(nextTarget)) {
+        deactivateColorContext();
+      }
+    });
+  });
 
   if (backBtn) {
     backBtn.addEventListener('click', () => {
@@ -249,9 +284,10 @@ export function setupEventListeners(): void {
   }
 
   if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      console.log('Clear clicked');
-      sendMessage('clear-emoji');
+    clearBtn.addEventListener('click', (e: MouseEvent) => {
+      const messageType = e.shiftKey ? 'clear-emoji-recursive' : 'clear-emoji';
+      console.log('Clear clicked:', messageType);
+      sendMessage(messageType);
     });
 
     // Add hover preview for clear button - hide emoji to show removal effect
@@ -567,16 +603,19 @@ export function setupEventListeners(): void {
       // Toggle the state
       isWidthCompact = !isWidthCompact;
 
-      // Toggle the compact-mode class on scrollable-content
-      const scrollableContent = document.querySelector('.scrollable-content');
-      if (scrollableContent) {
+      // Toggle the compact-mode class on all scrollable-content mains (navigate + validate)
+      const allScrollable = document.querySelectorAll('.scrollable-content');
+      allScrollable.forEach((el) => {
         if (isWidthCompact) {
-          scrollableContent.classList.add('compact-mode');
-          widthToggleBtn.classList.add('active');
+          el.classList.add('compact-mode');
         } else {
-          scrollableContent.classList.remove('compact-mode');
-          widthToggleBtn.classList.remove('active');
+          el.classList.remove('compact-mode');
         }
+      });
+      if (isWidthCompact) {
+        widthToggleBtn.classList.add('active');
+      } else {
+        widthToggleBtn.classList.remove('active');
       }
 
       sendMessage('toggle-width');
@@ -604,15 +643,16 @@ export function setupEventListeners(): void {
 
   // Drag to resize height
   if (resizeHandle) {
-    // Double-click to toggle auto-fit mode
+    // Double-click: toggle auto-fit. When enabling, snap to content height
+    // (already capped at MAX_UI_HEIGHT inside computeFitHeight). When content
+    // exceeds MAX_UI_HEIGHT, this acts as a "snap to max height" gesture.
     resizeHandle.addEventListener('dblclick', () => {
       setIsAutoFitEnabled(!getIsAutoFitEnabled());
       updateAutoFitButtonState();
 
       if (getIsAutoFitEnabled()) {
-        // Immediately fit to current content when enabling
-        const contentHeight = computeFitHeight();
-        console.log('Auto-fit enabled: adjusting height to', contentHeight);
+        const contentHeight = computeFitHeight(); // capped at MAX_UI_HEIGHT
+        console.log('Auto-fit enabled: adjusting height to', contentHeight, '(max:', MAX_UI_HEIGHT, ')');
         sendMessage('resize-ui', { height: contentHeight });
         setLastAutoFitHeight(contentHeight);
       } else {
@@ -760,6 +800,108 @@ export function setupEventListeners(): void {
 
   // Initialize Figma-like tooltips for quick action buttons
   initializeQuickActionTooltips();
+}
+
+/**
+ * JS-driven sticky headers — position:sticky is unsupported in Figma's iframe.
+ * Bidirectional: headers pin to top when scrolled past AND pin to bottom when
+ * pushed below the visible area. Headers stack at both edges.
+ * Uses translateY (GPU compositor) — no reflow on scroll.
+ */
+export function setupStickyHeaders(): void {
+  const scrollContainer = document.getElementById('navigate-main');
+  if (!scrollContainer) return;
+
+  const headerIds = ['tags-header', 'anchors-header', 'controls-header'];
+  const headers = headerIds
+    .map(id => document.getElementById(id))
+    .filter((h): h is HTMLElement => h !== null);
+
+  if (headers.length === 0) return;
+
+  // Cache of each header's natural offsetTop (recalculated after layout changes)
+  let offsets: number[] = [];
+
+  function recalcOffsets(): void {
+    // Temporarily remove transforms so offsetTop reflects natural position
+    const savedTransforms: string[] = [];
+    for (const h of headers) {
+      savedTransforms.push(h.style.transform);
+      h.style.transform = '';
+    }
+    offsets = headers.map(h => h.offsetTop);
+    // Restore transforms
+    for (let i = 0; i < headers.length; i++) {
+      headers[i].style.transform = savedTransforms[i];
+    }
+  }
+
+  function onScroll(): void {
+    const scrollTop = scrollContainer!.scrollTop;
+    const viewH = scrollContainer!.clientHeight;
+
+    // Reset all headers
+    for (const h of headers) {
+      h.style.transform = '';
+      h.style.zIndex = '';
+      h.classList.remove('sticky-stuck', 'sticky-stuck-bottom');
+    }
+
+    // Pass 1: Top sticky (forward — earlier headers stick first)
+    let topStack = 0;
+    const stuckTop = new Set<number>();
+
+    for (let i = 0; i < headers.length; i++) {
+      const naturalVisPos = offsets[i] - scrollTop;
+      if (naturalVisPos < topStack) {
+        const dy = scrollTop + topStack - offsets[i];
+        headers[i].style.transform = `translateY(${dy}px)`;
+        headers[i].style.zIndex = String(headers.length - i + 10);
+        headers[i].classList.add('sticky-stuck');
+        topStack += headers[i].offsetHeight;
+        stuckTop.add(i);
+      }
+    }
+
+    // Pass 2: Bottom sticky (backward — later headers stick first)
+    let bottomStack = 0;
+
+    for (let i = headers.length - 1; i >= 0; i--) {
+      if (stuckTop.has(i)) continue;
+
+      const headerH = headers[i].offsetHeight;
+      const naturalVisPos = offsets[i] - scrollTop;
+      const bottomEdge = viewH - bottomStack;
+
+      if (naturalVisPos + headerH > bottomEdge) {
+        const targetVisPos = bottomEdge - headerH;
+        const dy = targetVisPos - naturalVisPos;
+        headers[i].style.transform = `translateY(${dy}px)`;
+        headers[i].style.zIndex = String(i + 10);
+        headers[i].classList.add('sticky-stuck', 'sticky-stuck-bottom');
+        bottomStack += headerH;
+      }
+    }
+  }
+
+  // Initial offset calculation
+  recalcOffsets();
+
+  scrollContainer.addEventListener('scroll', onScroll, { passive: true });
+
+  // Recalculate offsets after section collapse/expand transitions
+  scrollContainer.addEventListener('transitionend', (e) => {
+    if ((e.target as HTMLElement)?.classList?.contains('collapsible-content')) {
+      recalcOffsets();
+      onScroll();
+    }
+  });
+
+  // Recalculate on window resize (plugin window can be resized)
+  window.addEventListener('resize', () => {
+    recalcOffsets();
+    onScroll();
+  });
 }
 
 // Global interaction state management to prevent stuck hover states

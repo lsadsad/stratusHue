@@ -108,8 +108,13 @@ export function parsePageTitleParts(rawName: string): PageTitleParts {
     date = dateMatch ? dateMatch[1] : null;
   }
 
-  // Title is everything after the colon, trimmed of only leading spaces
-  const title = afterColon.length > 0 ? afterColon.replace(/^\s+/, '') : name.replace(/^(\s*↳\s*)/, '');
+  // Title is everything after the colon. For unstructured names (no colon),
+  // remove arrow token and any leading emoji tag so compose() won't duplicate it.
+  let title = afterColon.length > 0 ? afterColon.replace(/^\s+/, '') : name.replace(/^(\s*↳\s*)/, '');
+  if (afterColon.length === 0) {
+    const { remainder } = detectLeadingEmoji(title);
+    title = remainder.replace(/^\s+/, '');
+  }
 
   return { leadingSpaces, emoji, date, title };
 }

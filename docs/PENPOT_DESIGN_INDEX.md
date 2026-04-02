@@ -371,7 +371,7 @@ Generate developer handoff documentation for [SECTION]:
 | Current CSS | `src/styles.css` | Style implementation |
 | SVG Icons | `assets/` | All icon assets |
 | Feature Docs | `docs/features/` | Feature specifications |
-| Architecture | `docs/features/CURRENT_PLUGIN_STRUCTURE_ANALYSIS.md` | Code architecture |
+| Architecture | `docs/features/reference/currentPluginStructureAnalysis.md` | Code architecture |
 
 ### External Resources
 | Resource | URL | Purpose |

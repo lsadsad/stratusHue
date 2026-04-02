@@ -4,6 +4,16 @@
 
 export type PluginMode = 'navigate' | 'lint' | 'scaffold';
 
+// ===== LINT SCOPE =====
+
+/**
+ * Controls which nodes are fed to the scanner.
+ * - selection: only nodes currently selected on canvas (opt-in, zero noise)
+ * - tagged:    only top-level frames whose name contains lintScopeEmoji
+ * - page:      entire current page (original behaviour, power-user escape hatch)
+ */
+export type LintScope = 'selection' | 'tagged' | 'page';
+
 // ===== LINT CATEGORIES =====
 
 export type LintCategory = 'fill' | 'stroke' | 'text' | 'effects' | 'radius';
@@ -43,6 +53,19 @@ export interface LintSettings {
   enableRadius: boolean;
   /** Comma-separated allowed border-radius values in px */
   allowedRadii: number[];
+  /**
+   * Case-insensitive substrings — any node whose name contains one of these
+   * is skipped entirely, along with its children. Useful for excluding
+   * annotation frames, spec labels, and other non-component layers.
+   */
+  skipLayerNames: string[];
+  /** Which nodes to feed into the scanner (default: 'selection'). */
+  lintScope: LintScope;
+  /**
+   * Emoji used to opt frames into "tagged" scope mode.
+   * Any top-level frame whose name contains this emoji is included.
+   */
+  lintScopeEmoji: string;
 }
 
 export const DEFAULT_LINT_SETTINGS: LintSettings = {
@@ -52,6 +75,9 @@ export const DEFAULT_LINT_SETTINGS: LintSettings = {
   enableEffects: true,
   enableRadius: true,
   allowedRadii: [0, 2, 4, 8, 16, 24, 100],
+  skipLayerNames: [],
+  lintScope: 'selection',
+  lintScopeEmoji: '✅',
 };
 
 // ===== IGNORE =====

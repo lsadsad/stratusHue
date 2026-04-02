@@ -50,6 +50,10 @@ export interface PageTitleParts {
 
 
 // ===== UI MESSAGE TYPES =====
+// Known message types from UI → sandbox:
+//   'add-emoji', 'clear-emoji', 'navigate-emoji-set'
+//   'add-emoji-recursive', 'clear-emoji-recursive'
+//   'save-bookmark', 'refresh-anchors', ... (see code.ts switch dispatch)
 export interface UIMessage {
   type: string;
   [key: string]: unknown;

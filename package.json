@@ -1,6 +1,6 @@
 {
   "name": "stratushue",
-  "version": "1.3.0",
+  "version": "1.4.2",
   "description": "Your Figma Plugin",
   "main": "code.js",
   "type": "module",
@@ -19,7 +19,7 @@
     "clean:all": "node -e \"import fs from 'fs'; ['dist','plugin-ready'].forEach(d => { if(fs.existsSync(d)) { fs.rmSync(d,{recursive:true,force:true}); console.log('🧹 Cleaned '+d+' directory'); } })\"",
     "lint": "eslint --ext .ts,.tsx --ignore-pattern node_modules .",
     "lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix .",
-    "validate": "npm run lint && npm run test:critical && npm run build && echo Build validation completed successfully",
+    "validate": "npm run type-check && npm run lint && npm run test:critical && npm run build && echo Build validation completed successfully",
     "type-check": "tsc --noEmit && tsc -p tsconfig.ui.json",
     "test": "vitest --run",
     "test:watch": "vitest",
@@ -28,7 +28,7 @@
     "test:navigation": "tsx src/test/run-tests.ts",
     "test:navigation:unit": "vitest --run src/test/navigation.test.ts src/test/navigation-context.test.ts",
     "test:navigation:integration": "vitest --run src/test/navigation-integration.test.ts src/test/navigation-ui-integration.test.ts",
-    "test:critical": "vitest --run src/test/bookmarks.test.ts src/test/emoji-manager.test.ts src/test/navigation.test.ts src/test/navigation-history.test.ts src/test/navigation-integration.test.ts src/test/message-contracts.test.ts",
+    "test:critical": "vitest --run src/test/bookmarks.test.ts src/test/emoji-manager.test.ts src/test/navigation.test.ts src/test/navigation-history.test.ts src/test/navigation-integration.test.ts src/test/message-contracts.test.ts src/test/smoke-dispatch.test.ts",
     "test:navigation:settings": "vitest --run src/test/navigation-settings.test.ts",
     "info": "node -e \"import fs from 'fs'; const files=['dist/code.js','dist/ui.js','dist/styles.css']; console.log('📊 Build Output:'); files.forEach(f => { if(fs.existsSync(f)) { const size=(fs.statSync(f).size/1024).toFixed(1); console.log('  '+f+': '+size+' KB'); } });\"",
     "sync:prototype": "node scripts/sync-prototype.js"

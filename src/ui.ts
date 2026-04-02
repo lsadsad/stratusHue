@@ -1,8 +1,6 @@
 // Figma Plugin UI - TypeScript Implementation
 // Handles all UI interactions and communication with the plugin sandbox
 
-// Temporarily disable lottie to debug
-// import lottie from 'lottie-web';
 import type { NavigationContext } from './types';
 // UI should not import plugin-side storage (which uses `figma`).
 // We request and persist UI section states via postMessage to the plugin.
@@ -20,7 +18,6 @@ import {
   updateScrollBehavior,
   setIsAutoFitEnabled
 } from './ui/shared/layout';
-import { destroyAllLottieAnimations } from './ui/shared/lottie';
 import {
   themeManager,
   isThemeInitialized,
@@ -215,8 +212,61 @@ function handlePluginMessage(event: MessageEvent): void {
       applyRestoredMode(message.mode as string);
       break;
 
-    // lint-progress / lint-results / lint-error-ignored / lint-cancelled
-    // wired in Phase 2 lint engine commit (lint-engine.ts)
+    case 'lint-progress':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintProgress }) => {
+          handleLintProgress(message.scanned as number, message.total as number);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-results':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintResults }) => {
+          handleLintResults(message.errors as unknown[], message.nodeCount as number ?? 0);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-error-ignored':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleErrorIgnored }) => {
+          handleErrorIgnored(message.errorId as string);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-cancelled':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintCancelled }) => {
+          handleLintCancelled();
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-ignored-all':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleIgnoredAll }) => {
+          handleIgnoredAll(message.errorIds as string[]);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-large-file':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintLargeFile }) => {
+          handleLintLargeFile(message.nodeCount as number);
+        }).catch(console.error);
+      }
+      break;
+
+    case 'lint-settings-loaded':
+      if (lintUIInitialized) {
+        import('./ui/lint/lint-ui').then(({ handleLintSettingsLoaded }) => {
+          handleLintSettingsLoaded(message.settings as Record<string, unknown>);
+        }).catch(console.error);
+      }
+      break;
 
     case 'styled-text-html': {
       const html = message.html as string;
@@ -355,9 +405,6 @@ function setupCleanupHandlers(): void {
     if (themeManager) {
       themeManager.destroy();
     }
-
-    // Destroy all Lottie animations
-    destroyAllLottieAnimations();
 
     // Clear any remaining timers
     clearAllTimers();

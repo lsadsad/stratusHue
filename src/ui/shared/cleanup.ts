@@ -1,4 +1,3 @@
-import { activeLottieAnimations } from './lottie';
 import { updateScrollBehavior } from './layout';
 
 // Timer management for cleanup
@@ -113,13 +112,6 @@ export function pauseNonEssentialOperations(): void {
   nonEssentialOperationsPaused = true;
   console.log('⏸️ Pausing non-essential operations (tab hidden)');
 
-  // Pause Lottie animations
-  activeLottieAnimations.forEach((animation) => {
-    if (animation.isPaused === false) {
-      animation.pause();
-    }
-  });
-
   // Reduce update frequency for scroll behavior
   const scrollUpdateInterval = setInterval(updateScrollBehavior, 1000); // Reduce to 1s
   activeTimers.add(scrollUpdateInterval);
@@ -130,13 +122,6 @@ export function resumeNonEssentialOperations(): void {
 
   nonEssentialOperationsPaused = false;
   console.log('▶️ Resuming non-essential operations (tab visible)');
-
-  // Resume Lottie animations
-  activeLottieAnimations.forEach((animation) => {
-    if (animation.isPaused === true) {
-      animation.play();
-    }
-  });
 
   // Restore normal update frequency
   updateScrollBehavior();

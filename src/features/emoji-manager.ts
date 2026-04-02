@@ -8,6 +8,19 @@ import { currentLayerEmojiSetIndex, currentPageEmojiSetIndex, setLayerEmojiSetIn
 import { replaceColorEmoji, removeEmojiPrefix, parsePageTitleParts, composePageTitle } from '../utils';
 import { updateBookmarkIfExists, updateBookmarksForPage } from './bookmarks';
 
+/**
+ * Recursively walk all descendants of a node, applying fn to each.
+ * No intermediate array — applies inline during traversal.
+ */
+export function walkDescendants(node: SceneNode, fn: (n: SceneNode) => void): void {
+  if ('children' in node) {
+    for (const child of (node as SceneNode & ChildrenMixin).children) {
+      fn(child as SceneNode);
+      walkDescendants(child as SceneNode, fn);
+    }
+  }
+}
+
 // ===== EMOJI SET MANAGEMENT =====
 export function getCurrentEmojiSet(isLayer: boolean) {
   if (isLayer) {
@@ -103,6 +116,54 @@ export async function addEmojiToSelection(emoji: string): Promise<{ success: boo
   }
 }
 
+export async function addEmojiToSelectionRecursive(emoji: string): Promise<{ success: boolean; message: string; count: number }> {
+  try {
+    const selection = figma.currentPage.selection;
+
+    if (selection.length === 0) {
+      return { success: false, message: 'Select a layer to tag recursively', count: 0 };
+    }
+
+    let updatedCount = 0;
+    let skippedLocked = 0;
+
+    for (const node of selection) {
+      if ('name' in node) {
+        if ('locked' in node && node.locked) {
+          skippedLocked++;
+        } else {
+          (node as SceneNode & { name: string }).name = replaceColorEmoji(node.name, emoji);
+          updatedCount++;
+        }
+
+        walkDescendants(node, (descendant) => {
+          if ('name' in descendant) {
+            if ('locked' in descendant && descendant.locked) {
+              skippedLocked++;
+            } else {
+              (descendant as SceneNode & { name: string }).name = replaceColorEmoji(descendant.name, emoji);
+              updatedCount++;
+            }
+          }
+        });
+
+        // Update bookmark for root selected node only
+        updateBookmarkIfExists(node.id, node.name).catch(console.error);
+      }
+    }
+
+    const lockedSuffix = skippedLocked > 0 ? ` (${skippedLocked} locked layer${skippedLocked > 1 ? 's' : ''} skipped)` : '';
+    return {
+      success: updatedCount > 0,
+      message: `Tagged ${updatedCount} layer${updatedCount !== 1 ? 's' : ''} with ${emoji}${lockedSuffix}`,
+      count: updatedCount
+    };
+  } catch (error) {
+    console.error('Error adding emoji recursively:', error);
+    return { success: false, message: 'Failed to add emoji recursively. Please try again.', count: 0 };
+  }
+}
+
 export async function clearEmojiFromSelection(): Promise<{ success: boolean; message: string; count: number }> {
   try {
     const selection = figma.currentPage.selection;
@@ -163,6 +224,64 @@ export async function clearEmojiFromSelection(): Promise<{ success: boolean; mes
       message: 'Failed to clear emoji. Please try again.',
       count: 0
     };
+  }
+}
+
+export async function clearEmojiFromSelectionRecursive(): Promise<{ success: boolean; message: string; count: number }> {
+  try {
+    const selection = figma.currentPage.selection;
+
+    if (selection.length === 0) {
+      return { success: false, message: 'Select a layer to clear recursively', count: 0 };
+    }
+
+    let clearedCount = 0;
+    let skippedLocked = 0;
+
+    for (const node of selection) {
+      if ('name' in node) {
+        if ('locked' in node && node.locked) {
+          skippedLocked++;
+        } else {
+          const oldName = node.name;
+          const newName = removeEmojiPrefix(oldName);
+          if (oldName !== newName) {
+            (node as SceneNode & { name: string }).name = newName;
+            clearedCount++;
+          }
+        }
+
+        walkDescendants(node, (descendant) => {
+          if ('name' in descendant) {
+            if ('locked' in descendant && descendant.locked) {
+              skippedLocked++;
+            } else {
+              const oldName = descendant.name;
+              const newName = removeEmojiPrefix(oldName);
+              if (oldName !== newName) {
+                (descendant as SceneNode & { name: string }).name = newName;
+                clearedCount++;
+              }
+            }
+          }
+        });
+
+        // Update bookmark for root selected node only
+        updateBookmarkIfExists(node.id, node.name).catch(console.error);
+      }
+    }
+
+    const lockedSuffix = skippedLocked > 0 ? ` (${skippedLocked} locked layer${skippedLocked > 1 ? 's' : ''} skipped)` : '';
+    return {
+      success: clearedCount > 0,
+      message: clearedCount > 0
+        ? `Cleared emoji from ${clearedCount} layer${clearedCount !== 1 ? 's' : ''}${lockedSuffix}`
+        : `No emojis found to clear${lockedSuffix}`,
+      count: clearedCount
+    };
+  } catch (error) {
+    console.error('Error clearing emoji recursively:', error);
+    return { success: false, message: 'Failed to clear emoji recursively. Please try again.', count: 0 };
   }
 }
 
