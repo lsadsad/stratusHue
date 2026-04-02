@@ -24,8 +24,8 @@ Develop a lightweight framework for writing spec and leave-behind documents that
 
 ## Tested on
 
-- `docs/features/versions/templateAuditQuestions_v2.md` — trimmed from 124 → 82 lines, same 38 questions
-- `docs/features/versions/stratusHueOverviewForReview.md` — companion page for external reader
+- `docs/shared/templateAuditQuestionsV2.md` — trimmed from 124 → 82 lines, same 38 questions
+- `docs/shared/stratusHueOverviewForReview.md` — companion page for external reader
 
 ## Next
 

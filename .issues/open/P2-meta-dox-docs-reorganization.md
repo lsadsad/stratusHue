@@ -28,7 +28,7 @@ The docs folder has grown into a dumping ground — no clear structure, 15 top-l
 - Remove empty `features/` and `navigation/` folders after redistribution
 - Update `CLAUDE.md` reference to `figmaFunctionalDebugPlaybook.md`
 - Sweep all `docs/features/` cross-references in ROADMAP, issues, .github, context/, and .memory/
-- Update `.issues/open/P1-meta-aud-template-methodology-audit.md` output paths from `docs/features/` → `docs/shared/`
+- ~~Update `.issues/open/P1-meta-aud-template-methodology-audit.md` output paths~~ ✓ done
 - Add README.md to new top-level folders (navigate, validate, scaffold, shared, dev)
 
 ## Reference

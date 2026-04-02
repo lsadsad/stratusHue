@@ -193,7 +193,7 @@ Both set `noEmit: true` — esbuild does the actual compilation, `tsc` is type-c
 - Rebuild with `npm run build` and relaunch plugin from `manifest.json` before verification.
 - Instrument parser/composer style bugs at 3 points: input, parsed parts, composed output.
 - Add a focused regression test for the failing input string when possible.
-- Reference: `docs/fixes/FIGMA_FUNCTIONAL_DEBUG_PLAYBOOK.md`.
+- Reference: `docs/fixes/figmaFunctionalDebugPlaybook.md`.
 
 ## Prototype System
 

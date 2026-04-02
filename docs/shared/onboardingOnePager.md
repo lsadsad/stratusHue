@@ -141,9 +141,9 @@ This is expected. The contract is being refined before full enforcement is expan
 ## Where to Go Next
 
 If you are new and want details in order:
-1. `docs/features/CONTENT_AUDIT_WORKFLOWS.md` (working model and operational flow)
-2. `docs/features/TEMPLATE_AUDIT_REVIEW.md` (current decisions and open questions)
-3. `docs/features/TEMPLATE_AUDIT_ANALYSIS.md` (full synthesis and rationale)
+1. `docs/shared/contentAuditWorkflows.md` (working model and operational flow)
+2. `docs/shared/templateAuditReview.md` (current decisions and open questions)
+3. `docs/shared/templateAuditAnalysis.md` (full synthesis and rationale)
 
 If you are implementing behavior:
 - map one policy rule at a time to Scaffold or Validate

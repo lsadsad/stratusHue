@@ -741,7 +741,7 @@ Build the Tags Section:
 
 - `@PENPOT_CONTEXT.md` - Penpot MCP setup and integration guide
 - `README.md` - StratusHue plugin feature overview
-- `docs/features/CURRENT_PLUGIN_STRUCTURE_ANALYSIS.md` - Architecture reference
+- `docs/shared/currentPluginStructureAnalysis.md` - Architecture reference
 - `.kiro/steering/design-tokens.md` - Complete design token reference
 
 ---

@@ -8,7 +8,7 @@ type: context
 
 Restructured the template audit questions and created a companion overview doc for the UX lead (Jen), who hasn't seen the stratusHue plans yet.
 
-## Deliverables (in `docs/features/versions/`)
+## Deliverables (in `docs/shared/`)
 
 - **templateAuditQuestions_v2.md** — 38 questions, baseline answers pre-filled, Jen column for response
 - **stratusHueOverviewForReview.md** — companion page explaining stratusHue and the audit/build distinction

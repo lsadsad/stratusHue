@@ -28,16 +28,16 @@
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "chat.tools.terminal.autoApprove": {
     "mkdir": true,
-    "/^node -e \"JSON\\.parse\\(require\\('fs'\\)\\.readFileSync\\('/Users/es5017/Documents/Github/stratusHue/docs/features/recipes/product-design-full\\.recipe\\.json','utf8'\\)\\); console\\.log\\('valid JSON'\\)\" && ls -la /Users/es5017/Documents/Github/stratusHue/docs/features/recipes/$/": {
+    "/^node -e \"JSON\\.parse\\(require\\('fs'\\)\\.readFileSync\\('/Users/es5017/Documents/Github/stratusHue/docs/scaffold/recipes/product-design-full\\.recipe\\.json','utf8'\\)\\); console\\.log\\('valid JSON'\\)\" && ls -la /Users/es5017/Documents/Github/stratusHue/docs/scaffold/recipes/$/": {
       "approve": true,
       "matchCommandLine": true
     },
-    "/^node -e \"JSON\\.parse\\(require\\('fs'\\)\\.readFileSync\\('docs/features/recipes/product-design-full\\.recipe\\.json','utf8'\\)\\); console\\.log\\('valid JSON'\\)\" && git status --short$/": {
+    "/^node -e \"JSON\\.parse\\(require\\('fs'\\)\\.readFileSync\\('docs/scaffold/recipes/product-design-full\\.recipe\\.json','utf8'\\)\\); console\\.log\\('valid JSON'\\)\" && git status --short$/": {
       "approve": true,
       "matchCommandLine": true
     },
     "bd": true,
-    "/^node -e \"JSON\\.parse\\(require\\('fs'\\)\\.readFileSync\\('docs/features/recipes/product-design-full\\.recipe\\.json','utf8'\\)\\); console\\.log\\('valid JSON'\\)\"$/": {
+    "/^node -e \"JSON\\.parse\\(require\\('fs'\\)\\.readFileSync\\('docs/scaffold/recipes/product-design-full\\.recipe\\.json','utf8'\\)\\); console\\.log\\('valid JSON'\\)\"$/": {
       "approve": true,
       "matchCommandLine": true
     },

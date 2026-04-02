@@ -113,8 +113,8 @@ Is policy clear?
 
 ## First Week Checklist (New Teammate)
 
-1. Read the current decision log in `docs/features/TEMPLATE_AUDIT_REVIEW.md`.
-2. Skim current synthesis in `docs/features/TEMPLATE_AUDIT_ANALYSIS.md`.
+1. Read the current decision log in `docs/shared/templateAuditReview.md`.
+2. Skim current synthesis in `docs/shared/templateAuditAnalysis.md`.
 3. Review this workflow doc and confirm the rule types with your lead.
 4. Identify which open questions block your workstream.
 5. If building behavior, map one rule at a time to Scaffold or Validate.
@@ -160,9 +160,9 @@ Open items to resolve:
 
 ```text
 Policy decisions
-  -> docs/features/TEMPLATE_AUDIT_REVIEW.md
-  -> docs/features/TEMPLATE_SPEC_REVISED.md
-  -> docs/features/TEMPLATE_SPEC_FINAL.md
+  -> docs/shared/templateAuditReview.md
+  -> docs/shared/templateSpecRevised.md
+  -> docs/shared/templateSpecFinal.md
   -> Scaffold schema + Validate checks
 ```
 

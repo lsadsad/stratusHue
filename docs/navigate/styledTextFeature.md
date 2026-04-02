@@ -48,7 +48,7 @@ Content teams use this during the design phase to import formatted copy from Doc
 
 > **Future integration note**: Styled Text could eventually become part of a **Scaffold** workflow — seeding template pages with real content during project kickoff. This is a natural extension but not the initial placement.
 
-See also: `docs/features/DESIGN_LINT_FEATURE.md` for the full three-mode framework (Scaffold / Navigate / Validate).
+See also: `docs/validate/designLintFeature.md` for the full three-mode framework (Scaffold / Navigate / Validate).
 
 ## Motivation
 
@@ -378,9 +378,9 @@ The UI-side parser must handle multiple CSS color formats:
 ## Related Files
 
 - Feature specification: This document
-- UI reference: `docs/features/LAYOUT_SIZING_FEATURE.md` (similar 2-button pattern)
-- Plugin architecture: `docs/features/CURRENT_PLUGIN_STRUCTURE_ANALYSIS.md`
-- Accessibility patterns: `docs/features/ACCESSIBILITY_IMPLEMENTATION_SUMMARY.md`
+- UI reference: `docs/navigate/layoutSizingFeature.md` (similar 2-button pattern)
+- Plugin architecture: `docs/shared/currentPluginStructureAnalysis.md`
+- Accessibility patterns: `docs/navigate/accessibilityImplementationSummary.md`
 - UI HTML: `src/ui.html`
 - UI TypeScript: `src/ui.ts`
 - Plugin code: `src/code.ts`
