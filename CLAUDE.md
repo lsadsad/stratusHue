@@ -257,6 +257,8 @@ After adding, run `npm run validate` to confirm the full gate passes.
 
 ## finePrint — Issue Tracking (`.issues/`)
 
+For a concise agent-facing operational summary, see `fineprint/AI_AGENT_REFERENCE.md`.
+
 Issues are plain markdown files with YAML frontmatter, tracked in git. No external tools needed.
 
 ```
@@ -397,6 +399,8 @@ Casual phrases that drive finePrint actions. Say any of these.
 | "block X on Y" | Add Y to X's `depends_on` |
 
 ## finePrint — Project Memory (`.memory/`)
+
+For a concise agent-facing operational summary, see `fineprint/AI_AGENT_REFERENCE.md`.
 
 Append-only knowledge base for decisions, context, and open questions. See `.memory/README.md` for full format and conventions.
 

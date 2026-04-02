@@ -5,10 +5,12 @@ stratusHue is a **Figma plugin** (TypeScript + esbuild). Two isolated processes:
 
 ## Issue Tracking
 This project uses **markdown files** in `.issues/open/` and `.issues/closed/` with YAML frontmatter.
+For the concise finePrint operating reference, see `fineprint/AI_AGENT_REFERENCE.md`.
 Check `.issues/open/` before starting. `git push` before ending.
 
 ## Project Memory
 Project memory in `.memory/` — see `.memory/README.md`. Append-only, never edit entries.
+For the concise finePrint operating reference, see `fineprint/AI_AGENT_REFERENCE.md`.
 
 ## Key Commands
 ```bash

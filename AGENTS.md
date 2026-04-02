@@ -2,6 +2,8 @@
 
 This project uses **markdown files** in `.issues/` for issue tracking. No external tools or databases needed.
 
+For the concise finePrint operating reference, see `fineprint/AI_AGENT_REFERENCE.md`.
+
 ## Quick Reference
 
 ```bash

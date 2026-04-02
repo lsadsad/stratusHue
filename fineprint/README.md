@@ -12,11 +12,11 @@ cross-project command center.
  │              f i n e P r i n t              │
  │                                             │
  │   .issues/          .memory/                │
- │     open/             decisions              │
- │     closed/           questions              │
- │                       context                │
- │   plain markdown ─ tracked in git            │
- │   works with AI agents + Obsidian            │
+ │     open/             decisions             │
+ │     closed/           questions             │
+ │                       context               │
+ │   plain markdown ─ tracked in git           │
+ │   works with AI agents + Obsidian           │
  └─────────────────────────────────────────────┘
 ```
 
@@ -25,6 +25,7 @@ cross-project command center.
 ```
 fineprint/
   README.md                  # you are here
+  AI_AGENT_REFERENCE.md      # concise operating reference for AI agents
   template/
     .issues/
       README.md              # issue tracking how-to
@@ -102,3 +103,8 @@ See `scripts/fp-obsidian-link.sh` for details.
 3. **print** — typography, published output (the permanent record)
 
 Every project has fine print. This system makes sure it's written down.
+
+## Agent reference
+
+For a concise, repo-friendly operating guide for future AI agents, see
+`fineprint/AI_AGENT_REFERENCE.md`.
