@@ -30,8 +30,8 @@ What this means:
 ```text
 1) POLICY DEFINITION (audit)
    -> agree on intent, completion, threshold rules
-   -> record in TEMPLATE_AUDIT_REVIEW.md
-   -> formalize in TEMPLATE_SPEC_REVISED.md / TEMPLATE_SPEC_FINAL.md
+   -> record in templateAuditReview.md
+   -> formalize in templateSpecRevised.md / templateSpecFinal.md
 
 2) PROJECT START (Scaffold mode)
    -> select recipe variant
@@ -113,8 +113,8 @@ Is policy clear?
 
 ## First Week Checklist (New Teammate)
 
-1. Read the current decision log in `docs/features/TEMPLATE_AUDIT_REVIEW.md`.
-2. Skim current synthesis in `docs/features/TEMPLATE_AUDIT_ANALYSIS.md`.
+1. Read the current decision log in `docs/features/audit/templateAuditReview.md`.
+2. Skim current synthesis in `docs/features/audit/templateAuditAnalysis.md`.
 3. Review this workflow doc and confirm the rule types with your lead.
 4. Identify which open questions block your workstream.
 5. If building behavior, map one rule at a time to Scaffold or Validate.
@@ -160,9 +160,9 @@ Open items to resolve:
 
 ```text
 Policy decisions
-  -> docs/features/TEMPLATE_AUDIT_REVIEW.md
-  -> docs/features/TEMPLATE_SPEC_REVISED.md
-  -> docs/features/TEMPLATE_SPEC_FINAL.md
+  -> docs/features/audit/templateAuditReview.md
+  -> docs/features/audit/templateSpecRevised.md
+  -> docs/features/audit/templateSpecFinal.md
   -> Scaffold schema + Validate checks
 ```
 

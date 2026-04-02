@@ -182,5 +182,5 @@ If you encounter any issues:
 1. Check the browser console for errors
 2. Verify the build completed successfully
 3. Ensure you're testing with the correct layer types
-4. Refer to the implementation summary: `LAYOUT_SIZING_FEATURE.md`
+4. Refer to the implementation summary: `docs/features/reference/layoutSizingFeature.md`
 

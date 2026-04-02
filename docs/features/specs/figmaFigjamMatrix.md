@@ -4,7 +4,7 @@
 **Source files:**
 - Figma: Delivery Template Draft File — `CAL87CQlzeFN0T3dtrkm24`
 - FigJam: AT&T App Design Workflow Board (6 frames collected)
-- Repo docs: `SCAFFOLD_MODE.md`, `ROADMAP.md`, `stratushue-synthesis.html`
+- Repo docs: `docs/features/specs/scaffoldMode.md`, `ROADMAP.md`, `stratushue-synthesis.html`
 
 **Collection method:** Multi-select section first → spatial map → drill into on-canvas targets individually.
 
@@ -289,7 +289,7 @@ Review contexts are **not a fixed enum** — designer adds relevant contexts per
 
 | Concept | FigJam evidence | Figma evidence | Docs assumption | Verdict |
 |---|---|---|---|---|
-| Page group order | Frame 2: Cover→VQA→Final→Legal→PR→Design→UX→Archive→Sandboxes | Screenshot: same order | `SCAFFOLD_MODE.md` similar but lighter | ✅ Confirmed |
+| Page group order | Frame 2: Cover→VQA→Final→Legal→PR→Design→UX→Archive→Sandboxes | Screenshot: same order | `scaffoldMode.md` similar but lighter | ✅ Confirmed |
 | Emoji prefixes on groups | Frame 2: emoji per group | Screenshot: visible | Not in docs | ✅ Confirmed |
 | Cover status enum (library) | Frame 3: references status | Node `2245:9324`: 6-value enum | Not in docs | ✅ Confirmed — library cover only |
 | Cover fileStatus enum (delivery) | Not explicit | Node `2163:39095`: 8-value workflow enum | Not in docs | ✅ Confirmed — delivery cover |

@@ -7,8 +7,8 @@ supersedes: 2026-03-30-audit-complete-epic-expanded
 
 ## What happened
 
-- **Phase 2 (Analyze):** Built `TEMPLATE_AUDIT_ANALYSIS.md` with 5 deliverables: element disposition table (7 keep, 4 rethink, 2 drop), gaps & contradictions, threshold registry (12 rules, 8 confirmed), variant matrix, delivery pain map
-- **Phase 3 (UX Lead Review):** Built `TEMPLATE_AUDIT_REVIEW.md` — async review doc with 7 decisions for sign-off, 7 open questions, 3 clarifications, 3 recommendations
+- **Phase 2 (Analyze):** Built `templateAuditAnalysis.md` with 5 deliverables: element disposition table (7 keep, 4 rethink, 2 drop), gaps & contradictions, threshold registry (12 rules, 8 confirmed), variant matrix, delivery pain map
+- **Phase 3 (UX Lead Review):** Built `templateAuditReview.md` — async review doc with 7 decisions for sign-off, 7 open questions, 3 clarifications, 3 recommendations
 
 ## Key decisions captured
 

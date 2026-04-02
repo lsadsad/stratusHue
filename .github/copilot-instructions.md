@@ -31,7 +31,7 @@ npm run sync:prototype   # build + patch prototype/plugin.html
 - Wrap feature handlers: `withErrorBoundary(fn, ErrorType.X)` from `src/core/error-handling.ts`
 
 ## Scaffold Mode (Phase 3 — in design)
-Discovery matrix: `docs/features/FIGMA_FIGJAM_MATRIX.md`
+Discovery matrix: `docs/features/specs/figmaFigjamMatrix.md`
 Recipe file: `docs/features/recipes/product-design-full.recipe.json`
 Issues: `.issues/open/P1-sob-recipe-json-schema.md` (schema), `.issues/open/P1-xq7-recipe-loader-parser.md` (loader/parser)
 `src/ui/scaffold/scaffold-ui.ts` is a 4-line placeholder — do not implement until matrix is approved.

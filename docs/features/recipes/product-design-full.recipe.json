@@ -1,6 +1,6 @@
 {
   "$schema": "https://stratushue.local/recipe.schema.json",
-  "$comment": "Evidence-based recipe draft. Fields added only after MCP confirmation from Delivery Template Draft File (CAL87CQlzeFN0T3dtrkm24). See FIGMA_FIGJAM_MATRIX.md for provenance.",
+  "$comment": "Evidence-based recipe draft. Fields added only after MCP confirmation from Delivery Template Draft File (CAL87CQlzeFN0T3dtrkm24). See docs/features/specs/figmaFigjamMatrix.md for provenance.",
   "id": "product-design-full",
   "version": "0.1.0-draft",
   "label": "Product Design Delivery File",

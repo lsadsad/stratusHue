@@ -2,7 +2,7 @@
 
 Generated 2026-03-28 from issue `aud` (P1-meta-aud-template-methodology-audit).
 
-Reference: `docs/features/DISCOVERY_AUDIT.md`
+Reference: `docs/features/audit/discoveryAudit.md`
 
 ---
 

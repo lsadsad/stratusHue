@@ -16,7 +16,7 @@ Audit the UX template with the team to confirm which elements are genuinely load
 ## Phase 1: Questionnaire ✅
 
 Questionnaire drafted (35 questions, 6 sections). **All 35 answers recorded.**
-See `docs/features/TEMPLATE_AUDIT_QUESTIONS.md` for full Q&A.
+See `docs/features/audit/templateAuditQuestions.md` for full Q&A.
 
 ### Findings
 
@@ -66,7 +66,7 @@ Distill the 35 answers into an actionable analysis document.
 - [x] **Variant matrix** — base template + variant dimensions mapped; deliverable types TBD
 - [x] **Delivery pain map** — 7 pain points mapped to plugin capabilities; 4 out-of-scope items identified
 
-Output: `docs/features/TEMPLATE_AUDIT_ANALYSIS.md`
+Output: `docs/features/audit/templateAuditAnalysis.md`
 
 ---
 
@@ -82,7 +82,7 @@ Package findings into an async-friendly review document for the UX lead.
 
 **Action required from UX lead:** Provide annotation components from library to answer B1–B3.
 
-Output: `docs/features/TEMPLATE_AUDIT_REVIEW.md` — structured for async comment/approve/reject per item
+Output: `docs/features/audit/templateAuditReview.md` — structured for async comment/approve/reject per item
 
 ---
 
@@ -94,7 +94,7 @@ Output: `docs/features/TEMPLATE_AUDIT_REVIEW.md` — structured for async commen
 - [ ] Resolve open questions from Phase 3 (B1–B7, C1–C3)
 - [ ] Document final decisions with rationale
 
-Output: Updated `TEMPLATE_AUDIT_REVIEW.md` with decision log
+Output: Updated `templateAuditReview.md` with decision log
 
 ---
 
@@ -108,7 +108,7 @@ Incorporate all decisions into a revised template specification.
 - [ ] **Compliance rules** — style coverage, component library references, detach policy, version currency
 - [ ] **Variant definitions** — if variants are needed, define each variant's delta from the base template
 
-Output: `docs/features/TEMPLATE_SPEC_REVISED.md`
+Output: `docs/features/audit/templateSpecRevised.md`
 
 ---
 
@@ -121,13 +121,13 @@ Lock the spec and translate it into stratusHue recipe schema requirements.
 - [ ] **Scaffold requirements** — what Scaffold mode needs to create from a recipe (feeds `scf` epic)
 - [ ] **Sign-off** — UX lead confirms the finalized spec is build-ready
 
-Output: `docs/features/TEMPLATE_SPEC_FINAL.md` — the canonical reference for all downstream build work
+Output: `docs/features/audit/templateSpecFinal.md` — the canonical reference for all downstream build work
 
 ---
 
 ## References
 
-- `docs/features/DISCOVERY_AUDIT.md`
-- `docs/features/TEMPLATE_AUDIT_QUESTIONS.md`
-- `docs/features/CONTENT_AUDIT_WORKFLOWS.md`
+- `docs/features/audit/discoveryAudit.md`
+- `docs/features/audit/templateAuditQuestions.md`
+- `docs/features/audit/contentAuditWorkflows.md`
 - `.memory/2026-03-29-audit-findings-partial.md`

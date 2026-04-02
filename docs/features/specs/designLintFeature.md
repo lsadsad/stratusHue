@@ -42,7 +42,7 @@ VALIDATE (before handoff)
 
 Scaffold and Validate are mirrors — Scaffold creates the file structure from a recipe, Validate verifies it's still intact and compliant. They share the same underlying recipe format.
 
-See also: `docs/features/SCAFFOLD_MODE.md` for the Scaffold concept.
+See also: `docs/features/specs/scaffoldMode.md` for the Scaffold concept.
 
 ## Architecture
 

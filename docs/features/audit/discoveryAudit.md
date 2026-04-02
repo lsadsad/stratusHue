@@ -1,6 +1,6 @@
 # Discovery Audit — What's There vs What's Missing
 
-Generated from brainstorming session on 2026-03-24. Based on review of `FIGMA_FIGJAM_MATRIX.md` and `recipes/product-design-full.recipe.json`.
+Generated from brainstorming session on 2026-03-24. Based on review of `docs/features/specs/figmaFigjamMatrix.md` and `recipes/product-design-full.recipe.json`.
 
 ```
 📋 DISCOVERY AUDIT — What's There vs What's Missing

@@ -146,5 +146,5 @@ Integration with Styled Text to populate template pages with starter content dur
 - Should Scaffold mode be accessible from an empty file only, or also mid-project?
 
 ## Related Docs
-- `docs/features/DESIGN_LINT_FEATURE.md` — Validate mode (the mirror of Scaffold)
-- `docs/features/STYLED_TEXT_FEATURE.md` — Navigate mode, potential Scaffold content seeding integration
+- `docs/features/specs/designLintFeature.md` — Validate mode (the mirror of Scaffold)
+- `docs/features/specs/styledTextFeature.md` — Navigate mode, potential Scaffold content seeding integration
