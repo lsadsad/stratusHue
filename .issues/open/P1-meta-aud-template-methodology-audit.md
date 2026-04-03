@@ -86,21 +86,39 @@ Output: `docs/shared/templateAuditReview.md` — structured for async comment/ap
 
 ---
 
-## Phase 4: Async Review & Discussion ← ACTIVE (2026-03-31)
+## Phase 4: Async Review & Discussion ← ACTIVE
 
 - [x] Deliver review doc to UX lead
-- [ ] **Review meeting today (2026-03-31)** — content writer approach discussion
-- [ ] Collect feedback — approvals, rejections, modifications, new constraints
+- [x] Restructure questionnaire → v2 (38 questions, baseline answers pre-filled, Jen column)
+- [x] Create stratusHue overview companion doc for UX lead
+- [ ] Deliver next steps overview to UX lead — signal what's coming
+- [ ] Collect Jen's v2 questionnaire responses — confirms, corrections, additions
 - [ ] Resolve open questions from Phase 3 (B1–B7, C1–C3)
+- [ ] Resolve decisions A1–A7 — sign-offs on element dispositions
 - [ ] Document final decisions with rationale
 
-Output: Updated `TEMPLATE_AUDIT_REVIEW.md` with decision log
+Output: Completed `templateAuditQuestionsV2.md` with Jen's responses
+
+---
+
+## Phase 4b: Re-Analyze with UX Lead Input
+
+Re-run the analysis from Phase 2, now incorporating Jen's responses. The original Phase 2 analysis was based solely on template-user experience. Jen's input may shift element dispositions, resolve ambiguities, introduce new constraints, or surface conflicts with v1 findings.
+
+- [ ] **Reconcile v1 vs v2 answers** — flag where Jen's responses confirm, correct, or contradict baseline
+- [ ] **Update element disposition table** — re-evaluate keep/rethink/drop classifications
+- [ ] **Resolve threshold registry** — fill in the 4 items previously blocked on UX lead input
+- [ ] **Update variant matrix** — incorporate deliverable types and variant definitions from Jen
+- [ ] **Revised gap list** — close resolved ambiguities, surface any new ones
+- [ ] **Section 3 team poll decision** — determine if Element Check questions go to broader team
+
+Output: Updated `docs/shared/templateAuditAnalysis.md` (v2) or new `templateAuditAnalysisV2.md`
 
 ---
 
 ## Phase 5: Revised Template Spec
 
-Incorporate all decisions into a revised template specification.
+Incorporate all decisions into a revised template specification. Blocked on Phase 4b.
 
 - [ ] **Revised element inventory** — final list of what the template contains, per variant if applicable
 - [ ] **Section map** — pages, sections, ordering, emoji prefixes, optional vs required
@@ -129,5 +147,9 @@ Output: `docs/shared/templateSpecFinal.md` — the canonical reference for all d
 
 - `docs/shared/discoveryAudit.md`
 - `docs/shared/templateAuditQuestions.md`
+- `docs/shared/templateAuditQuestionsV2.md`
+- `docs/shared/stratusHueOverviewForReview.md`
+- `docs/shared/templateAuditAnalysis.md`
 - `docs/shared/contentAuditWorkflows.md`
 - `.memory/2026-03-29-audit-findings-partial.md`
+- `.memory/2026-04-02-audit-v2-restructure.md`
