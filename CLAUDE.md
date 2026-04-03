@@ -422,8 +422,9 @@ Files are named `YYYY-MM-DD-slug.md` with optional YAML frontmatter. Types: `dec
 | Phrase | Action |
 |---|---|
 | "run down" | Full status report on a topic — pull together issues, memories, related context, and current state |
-| "distill this" | Synthesize the session — extract decisions, milestones, and context into `.memory/` entries; update issues with progress; surface untracked work as new issues |
-| "wrap up" | File issues for remaining work, run quality gates, close completed issues, commit and push |
+| "distill this" | Synthesize the session — extract decisions, milestones, and context into `.memory/` entries; update issues with progress; surface untracked work as new issues; prime next session with the next concrete action on each in-progress issue |
+| "distill and wrap" | Full end-of-session ritual — distill + prime + close completed issues + quality gates + commit and push |
+| "wrap up" | Quality gates, close completed issues, commit and push (no synthesis) |
 | "ship it" | Commit all changes and push to remote |
 | "what changed" | Git summary — branch, recent commits, dirty state |
 
