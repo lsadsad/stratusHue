@@ -388,12 +388,11 @@ Casual phrases that drive finePrint actions. Say any of these.
 
 | Phrase | Action |
 |---|---|
-| "issues plz" | List all open issues |
+| "issues plz" | List all open issues (priority view) |
+| "issues by location" | List all open issues (location view) |
 | "what's ready" | Show unblocked issues only |
-| "show X" | Read a specific issue |
-| "show deats" | Show full issue details (frontmatter + body) |
-| "issue it" | Create a new issue from current context |
-| "track this" | Create a new issue (with description) |
+| "show deats X" | Show full issue details (frontmatter + body) |
+| "issue it" / "track this" | Create a new issue from context or description |
 | "done X" | Close issue — `git mv` to `closed/` |
 | "bump X" | Raise an issue's priority |
 | "block X on Y" | Add Y to X's `depends_on` |
@@ -412,10 +411,10 @@ Files are named `YYYY-MM-DD-slug.md` with optional YAML frontmatter. Types: `dec
 
 | Phrase | Action |
 |---|---|
-| "save context" | Write new `.memory/YYYY-MM-DD-slug.md` |
+| "save context" | Write new `.memory/YYYY-MM-DD-slug.md` (include "Supersedes: slug" in context to replace an old entry) |
 | "check memory" | List all memory entries |
 | "recall X" | Search `.memory/` for topic |
-| "this replaces X" | New entry with "Supersedes:" reference |
+| "doc this" | Write a usage guide to `docs/guides/` and update `docs/guides/INDEX.md` |
 
 ### shortHand — Session
 

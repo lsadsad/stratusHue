@@ -20,6 +20,7 @@ Follow up on the v2 questionnaire and overview docs — collect Jen's responses,
 - [ ] **Resolve decisions** — A1–A7 sign-offs: drop Components in Use, simplify discipline chips, VQA as failure log, etc.
 - [ ] **Re-analyze with Jen's input (Phase 4b)** — reconcile v1 vs v2 answers, update dispositions, resolve thresholds, revise gap list
 - [ ] **Section 3 team poll decision** — determine if Element Check questions go to broader team
+- [ ] **Transfer Content Workflow to wiki + App Creatives Teams channel** — migrate from individual channel into shared/discoverable locations so the team can access and maintain the workflow going forward
 - [ ] **Hand off to Phase 5** — feed confirmed decisions into the revised template spec (`templateSpecRevised.md`)
 
 ## Context
