@@ -427,6 +427,15 @@ Files are named `YYYY-MM-DD-slug.md` with optional YAML frontmatter. Types: `dec
 | "ship it" | Commit all changes and push to remote |
 | "what changed" | Git summary — branch, recent commits, dirty state |
 
+### shortHand — Todoist
+
+| Phrase | Action |
+|---|---|
+| "sync to todo" | Push finePrint issues → Todoist tasks |
+| "sync from todo" | Pull Todoist completions → close finePrint issues |
+| "todo status" | Compare finePrint vs Todoist, show drift |
+| "todo full sync" | Bidirectional: sync-to then sync-from |
+
 ## Session Completion
 
 **When ending a work session**, you MUST complete ALL steps below.
