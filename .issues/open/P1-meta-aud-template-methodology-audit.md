@@ -1,12 +1,14 @@
 ---
 id: aud
 category: meta
-title: "Template methodology audit — analyze, review with lead, revise, finalize for build"
+title: >-
+  EPC — Template methodology audit — analyze, review with lead, revise, finalize
+  for build
 type: epic
 priority: 1
 status: open
 depends_on: []
-created: 2026-03-27
+created: 2026-03-27T00:00:00.000Z
 ---
 
 Audit the UX template with the team to confirm which elements are genuinely load-bearing, then analyze findings, review with UX lead, revise the template spec, and finalize for the stratusHue build.

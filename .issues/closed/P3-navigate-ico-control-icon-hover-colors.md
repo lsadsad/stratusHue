@@ -1,12 +1,12 @@
 ---
 id: ico
 category: navigate
-title: "Functional color on control icon hover"
+title: FTR — Functional color on control icon hover
 type: feature
 priority: 3
 status: open
 depends_on: []
-created: 2026-03-28
+created: 2026-03-28T00:00:00.000Z
 ---
 
 # Functional color on control icon hover

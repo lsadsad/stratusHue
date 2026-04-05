@@ -1,12 +1,12 @@
 ---
 id: mcp
 category: meta
-title: "MCP server for project-aware Claude Code sessions"
+title: FTR — MCP server for project-aware Claude Code sessions
 type: feature
 priority: 3
 status: closed
 depends_on: []
-created: 2026-03-28
+created: 2026-03-28T00:00:00.000Z
 ---
 
 Build a local MCP server that gives Claude Code structured, typed access to stratusHue project state — issues, memory, build health, git context — instead of ad-hoc file reads and grep.

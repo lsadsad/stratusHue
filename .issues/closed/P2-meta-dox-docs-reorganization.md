@@ -1,12 +1,12 @@
 ---
 id: dox
 category: meta
-title: "Execute docs/ reorganization"
+title: TSK — Execute docs/ reorganization
 type: task
 priority: 2
 status: open
 depends_on: []
-created: 2026-04-02
+created: 2026-04-02T00:00:00.000Z
 ---
 
 ## What

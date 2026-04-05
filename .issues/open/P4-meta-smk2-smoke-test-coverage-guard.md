@@ -1,12 +1,12 @@
 ---
 id: smk2
 category: meta
-title: "Auto-detect missing smoke tests for new message handlers"
+title: FTR — Auto-detect missing smoke tests for new message handlers
 type: feature
 priority: 4
 status: open
 depends_on: []
-created: 2026-03-28
+created: 2026-03-28T00:00:00.000Z
 ---
 
 ## Problem

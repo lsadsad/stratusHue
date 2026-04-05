@@ -1,12 +1,12 @@
 ---
 id: ret
 category: navigate
-title: "Recursive emoji tagging via Shift+click"
+title: FTR — Recursive emoji tagging via Shift+click
 type: feature
 priority: 2
 status: closed
 depends_on: []
-created: 2026-03-27
+created: 2026-03-27T00:00:00.000Z
 ---
 
 # Recursive emoji tagging via Shift+click

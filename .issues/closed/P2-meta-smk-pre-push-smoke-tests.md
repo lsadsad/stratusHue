@@ -1,13 +1,13 @@
 ---
 id: smk
 category: meta
-title: "Pre-push validation gate with smoke tests for all message handlers"
+title: FTR — Pre-push validation gate with smoke tests for all message handlers
 type: feature
 priority: 2
 status: closed
 depends_on: []
-created: 2026-03-28
-closed: 2026-03-28
+created: 2026-03-28T00:00:00.000Z
+closed: 2026-03-28T00:00:00.000Z
 ---
 
 ## Summary

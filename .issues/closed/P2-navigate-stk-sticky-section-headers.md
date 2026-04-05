@@ -1,12 +1,12 @@
 ---
 id: stk
 category: navigate
-title: "Bidirectional sticky section headers"
+title: FTR — Bidirectional sticky section headers
 type: feature
 priority: 2
 status: closed
 depends_on: []
-created: 2026-03-27
+created: 2026-03-27T00:00:00.000Z
 ---
 
 # Bidirectional sticky section headers

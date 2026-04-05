@@ -1,12 +1,12 @@
 ---
 id: hdr
 category: navigate
-title: "Header action icons don't light up on header hover"
+title: BUG — Header action icons don't light up on header hover
 type: bug
 priority: 1
 status: closed
 depends_on: []
-created: 2026-03-28
+created: 2026-03-28T00:00:00.000Z
 ---
 
 # Header action icons don't light up on header hover
