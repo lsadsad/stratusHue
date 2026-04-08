@@ -1,7 +1,7 @@
 ---
 id: pgs
 category: scaffold
-title: 'TSK — Sandbox: create pages and structure from recipe (layer ①)'
+title: "TSK — Create pages from recipe"
 type: task
 priority: 2
 status: open

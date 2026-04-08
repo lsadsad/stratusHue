@@ -1,7 +1,7 @@
 ---
 id: cmp
 category: validate
-title: 'FTR — Validate Phase 3: Component check (library compliance)'
+title: "FTR — Component check validation"
 type: feature
 priority: 3
 status: open

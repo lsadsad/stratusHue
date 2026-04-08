@@ -1,7 +1,7 @@
 ---
 id: stm
 category: scaffold
-title: 'TSK — Sandbox: stamp recipe to file (recipe metadata)'
+title: "TSK — Stamp recipe metadata"
 type: task
 priority: 2
 status: open

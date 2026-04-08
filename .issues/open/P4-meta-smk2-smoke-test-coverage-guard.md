@@ -1,7 +1,7 @@
 ---
 id: smk2
 category: meta
-title: FTR — Auto-detect missing smoke tests for new message handlers
+title: "FTR — Smoke test coverage guard"
 type: feature
 priority: 4
 status: open

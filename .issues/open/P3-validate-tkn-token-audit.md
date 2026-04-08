@@ -1,7 +1,7 @@
 ---
 id: tkn
 category: validate
-title: 'FTR — Validate Phase 2: Token audit (variable coverage)'
+title: "FTR — Token audit validation"
 type: feature
 priority: 3
 status: open

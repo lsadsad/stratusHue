@@ -1,7 +1,7 @@
 ---
 id: rdy
 category: validate
-title: 'FTR — Readiness Check: full recipe audit (recipe diff)'
+title: "FTR — Readiness check audit"
 type: feature
 priority: 3
 status: open

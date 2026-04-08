@@ -1,7 +1,7 @@
 ---
 id: scf
 category: scaffold
-title: 'FTR — Phase 3: Scaffold mode — epic'
+title: "FTR — Scaffold mode epic"
 type: feature
 priority: 2
 status: open

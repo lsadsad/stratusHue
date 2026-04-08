@@ -1,7 +1,7 @@
 ---
 id: tpl
 category: scaffold
-title: 'TSK — Sandbox: create content templates from recipe (layer ②)'
+title: "TSK — Content templates from recipe"
 type: task
 priority: 2
 status: open

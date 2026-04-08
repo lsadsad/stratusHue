@@ -273,7 +273,7 @@ Issues are plain markdown files with YAML frontmatter, tracked in git. No extern
 ---
 id: sch              # short mnemonic ID (3 chars; 4 for epics)
 category: scaffold   # feature area: scaffold | validate | navigate | meta
-title: "..."
+title: "TYPE — short name"
 type: task|feature|bug|epic
 priority: 1          # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
 status: open
@@ -281,6 +281,15 @@ depends_on: []       # list of IDs this issue is blocked by
 created: 2026-03-21
 ---
 ```
+
+### Title convention
+
+Titles use the format `TYPE — short name`. Keep them scannable — identify the issue at a glance, details go in the body.
+
+- **~50 char soft cap** — one `TYPE — name` phrase, no subtitles
+- **TYPE prefix** — `TSK`, `FTR`, `BUG`, or `EPC`
+- **Name = what**, not how — no method lists, no implementation detail
+- Move elaboration (steps, scope, context) to the issue body
 
 ### Categories
 

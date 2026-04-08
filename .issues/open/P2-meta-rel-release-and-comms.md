@@ -1,7 +1,7 @@
 ---
 id: rel
 category: meta
-title: 'TSK — Cut a release — version check, changelog, comms'
+title: "TSK — Cut a release"
 type: task
 priority: 2
 status: open

@@ -1,7 +1,7 @@
 ---
 id: pth
 category: scaffold
-title: FTR — Add pathing characters to file tree anchors
+title: "FTR — File tree pathing characters"
 type: feature
 priority: 2
 status: open

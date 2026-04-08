@@ -1,7 +1,7 @@
 ---
 id: anim-ref
 category: meta
-title: TSK — Animation system reference — catalog of all motion in stratusHue
+title: "TSK — Animation system reference"
 type: task
 priority: 4
 status: open

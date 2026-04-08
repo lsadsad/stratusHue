@@ -1,9 +1,7 @@
 ---
 id: aud
 category: meta
-title: >-
-  EPC — Template methodology audit — analyze, review with lead, revise, finalize
-  for build
+title: "EPC — Template methodology audit"
 type: epic
 priority: 1
 status: open

@@ -1,7 +1,7 @@
 ---
 id: tab
 category: scaffold
-title: 'TSK — UI: Scaffold tab — recipe selector and apply'
+title: "TSK — Scaffold tab UI"
 type: task
 priority: 2
 status: open

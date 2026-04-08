@@ -1,7 +1,7 @@
 ---
 id: sch
 category: scaffold
-title: TSK — Design recipe JSON schema (layers ①②)
+title: "TSK — Recipe JSON schema"
 type: task
 priority: 2
 status: open

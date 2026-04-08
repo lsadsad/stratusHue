@@ -1,7 +1,7 @@
 ---
 id: anc
 category: navigate
-title: BUG — Anchors list accepts max entries but doesn't display or persist them
+title: "BUG — Anchors max entries not displayed"
 type: bug
 priority: 2
 status: open

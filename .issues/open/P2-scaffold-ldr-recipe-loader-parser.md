@@ -1,7 +1,7 @@
 ---
 id: ldr
 category: scaffold
-title: 'TSK — Sandbox: recipe loader and parser'
+title: "TSK — Recipe loader and parser"
 type: task
 priority: 2
 status: open

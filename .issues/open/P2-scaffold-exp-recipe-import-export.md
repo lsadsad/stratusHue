@@ -1,7 +1,7 @@
 ---
 id: exp
 category: scaffold
-title: FTR — Recipe JSON import/export and team sharing
+title: "FTR — Recipe import/export"
 type: feature
 priority: 2
 status: open

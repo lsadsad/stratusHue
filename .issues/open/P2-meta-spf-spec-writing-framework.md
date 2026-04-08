@@ -1,7 +1,7 @@
 ---
 id: spf
 category: meta
-title: TSK — Spec writing framework — concise async docs
+title: "TSK — Spec writing framework"
 type: task
 priority: 2
 status: open
