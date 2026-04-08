@@ -155,3 +155,4 @@ Output: `docs/shared/templateSpecFinal.md` — the canonical reference for all d
 - `docs/shared/contentAuditWorkflows.md`
 - `.memory/2026-03-29-audit-findings-partial.md`
 - `.memory/2026-04-02-audit-v2-restructure.md`
+- Template Methodology PDF: `/Users/levinsadsad/Library/CloudStorage/GoogleDrive-lsadsad@gmail.com/My Drive/NOT3BOOK-gDrive/Personal/stratusHue/TemplateMethodology.pdf`
