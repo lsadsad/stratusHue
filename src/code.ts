@@ -1176,7 +1176,7 @@ const handleSaveBookmark = withErrorBoundary(async () => {
   try {
     const bookmark = await addBookmark(node as SceneNode & { name: string });
     figma.notify(`Bookmarked: ${bookmark.name}`);
-    await updateUIAfterNavigation();
+    await updateUIAfterBookmarkChange();
   } catch (error) {
     if (error instanceof Error) {
       figma.notify(error.message);
