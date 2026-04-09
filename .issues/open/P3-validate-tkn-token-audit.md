@@ -5,7 +5,7 @@ title: FTR — Token audit validation
 type: feature
 priority: 3
 status: open
-depends_on: []
+depends_on: [sch]
 created: 2026-03-21
 ---
 

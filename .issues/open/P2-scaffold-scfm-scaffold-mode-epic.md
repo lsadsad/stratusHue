@@ -1,8 +1,8 @@
 ---
-id: scf
+id: scfm
 category: scaffold
-title: FTR — Scaffold mode epic
-type: feature
+title: EPC — Scaffold mode
+type: epic
 priority: 2
 status: open
 depends_on:

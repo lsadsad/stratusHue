@@ -5,7 +5,7 @@ title: FTR — Readiness check audit
 type: feature
 priority: 3
 status: open
-depends_on: []
+depends_on: [stm]
 created: 2026-03-21
 ---
 

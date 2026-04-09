@@ -5,7 +5,7 @@ title: TSK — Recipe loader and parser
 type: task
 priority: 2
 status: open
-depends_on: []
+depends_on: [sch]
 created: 2026-03-21
 ---
 
