@@ -6,16 +6,20 @@ Generated from brainstorming session on 2026-03-24. Based on review of `FIGMA_FI
 📋 DISCOVERY AUDIT — What's There vs What's Missing
 ═══════════════════════════════════════════════════════
 
-✅ CAPTURED                          ❌ MISSING
+✅ CAPTURED (updated 2026-04-09)      ❌ MISSING
 ─────────────────────────────────    ─────────────────────────────────
- Page hierarchy (9 sections)          Component inventory
+ Page hierarchy (8 sections)          Component inventory
  Section order + emoji prefixes       Design tokens / color styles
  Cover fields + 2 variants            Text styles / typography tokens
- Status dot legend (5-color)          Annotation schema per page
- VQA template structure               Frame sizing conventions
- Dev Hand Off header fields           Variables (Figma native)
- Project Resources intake form
- Review round format (R1+date)
+ Status dot legend (5→4 proposed)     Frame sizing conventions
+ VQA template structure               Variables (Figma native)
+ Dev Hand Off header fields
+ Project Resources intake form      🟡 PARTIALLY RESOLVED
+ Review round format (R1+date)      ─────────────────────────────────
+ 5 libraries identified               Annotation schema (3 categories
+ Dev Ready mechanics (4-part)            known, page mapping TBD)
+ Annotation categories (3)            Never-hardcode style list (open)
+ Bottom-to-top convention             Detach policy (partial)
 
 ⚠️ CAPTURED BUT QUESTIONABLE
 ─────────────────────────────────────────────────────
@@ -30,68 +34,81 @@ Generated from brainstorming session on 2026-03-24. Based on review of `FIGMA_FI
 🔬 BEHAVIORAL GAPS — Structure ≠ Usage
 ══════════════════════════════════════════
 
-  📄 Template          ❓ Reality
+  📄 Template          ✅ Reality (resolved via v2 questionnaire, 2026-04-09)
   (what exists)        (how it's used)
        │                    │
        ▼                    ▼
   ┌──────────┐       ┌──────────────────┐
-  │ R1 seeded│  but  │ Is R1 pre-seeded │
-  │ at start │──❓──▶│ or added on first│
-  │          │       │ actual review?   │
+  │ R1 seeded│  ──▶  │ ✅ Added when    │
+  │ at start │       │ ready. Section   │
+  │          │       │ header is base   │
+  │          │       │ expectation.     │
   └──────────┘       └──────────────────┘
   ┌──────────┐       ┌──────────────────┐
-  │ 5 status │  but  │ Who updates them?│
-  │ dots     │──❓──▶│ Manual rename?   │
-  │ defined  │       │ Component prop?  │
+  │ 5 status │  ──▶  │ ✅ Simplify to 4:│
+  │ dots     │       │ not started, in  │
+  │ defined  │       │ review, approved,│
+  │          │       │ not to be used   │
   └──────────┘       └──────────────────┘
   ┌──────────┐       ┌──────────────────┐
-  │ 9 sections│ but  │ Are all 9 used   │
-  │ locked   │──❓──▶│ every project?   │
+  │ 8 sections│ ──▶  │ ✅ All 8 every   │
+  │ (not 9)  │       │ time, rare       │
+  │          │       │ exceptions only  │
   └──────────┘       └──────────────────┘
   ┌──────────┐       ┌──────────────────┐
-  │ Lifecycle│  but  │ Linear flow or   │
-  │ order    │──❓──▶│ sections skipped/│
-  │ bottom→up│       │ reordered?       │
+  │ Lifecycle│  ──▶  │ ✅ Both designer │
+  │ order    │       │ & reviewer conv. │
+  │ bottom→up│       │ All audiences.   │
   └──────────┘       └──────────────────┘
 
 
 🎯 READINESS CHECK vs SCAN COVERAGE
 ═════════════════════════════════════
 
-  Readiness Layer          Scan Evidence
+  Readiness Layer          Scan Evidence (updated 2026-04-09)
   ─────────────────        ─────────────
-  ① Structure              ✅ pages + order
-  ② Content                🟡 fields listed, fill behavior unknown
-  ③ Annotations            ❌ no annotation schema captured
-  ④ Token thresholds       ❌ no styles/variables captured
-  ⑤ Component compliance   ❌ no component inventory captured
+  ① Structure              ✅ pages + order (8 sections confirmed)
+  ② Content                ✅ fill behavior confirmed (About This Project = readiness gate)
+  ③ Annotations            🟡 3 categories: Standard, Image, Design System
+                              Dev Ready mechanics known (4-part signal, missed 80%)
+                              Mandatory pages + format convention still partial
+  ④ Token thresholds       🟡 100% style ref confirmed, variables confirmed
+                              5 libraries identified (not 2)
+                              Never-hardcode list still open
+  ⑤ Component compliance   🟡 5 libraries: App Components, App Foundations,
+                              App Wireframes, App Media & Illustrations,
+                              AT&T Icon Library. Detach policy partial.
 
           ┌─────────────────────────────┐
-          │  Readiness Check can only   │
-          │  validate layers ① and ②    │
-          │  with current scan data.    │
-          │                             │
-          │  Layers ③④⑤ have NOTHING    │
-          │  to diff against.           │
+          │  Readiness Check can now    │
+          │  validate layers ①②③④⑤     │
+          │  partially. Layers ③④⑤     │
+          │  have baseline data but     │
+          │  still need specifics       │
+          │  (B2, B3, B5 open).         │
           └─────────────────────────────┘
 
 
 🍴 THE RECIPE IDENTITY CRISIS
 ══════════════════════════════
 
-        ❓ Is this recipe...
+        ✅ Resolved (2026-04-09): "A recipe" — flexible standard
 
       ╱              │              ╲
-  "THE recipe"    "A recipe"    "A snapshot"
+  "THE recipe"    "A recipe"  ◀──  "A snapshot"
   (universal)     (one variant)   (one file)
-      │              │              │
-  All projects    Needs siblings  Needs scanner
-  use this        (lite, library, to generalize
-  structure       internal...)    from N files
-      │              │              │
-  Schema is       Schema needs    Schema needs
-  simple          inheritance     extraction
-                  + overrides     rules
+      │           ▲  │              │
+  All projects    │  Needs siblings  Needs scanner
+  use this        │  (lite, library, to generalize
+  structure       │  internal...)    from N files
+      │           │  │              │
+  Schema is       │  Schema needs    Schema needs
+  simple          │  inheritance     extraction
+                  │  + overrides     rules
+                  │
+                  └── Jen: "a flexible standard to set
+                      baseline expectations for anyone
+                      arriving in a file"
 ```
 
 ## Key Findings
@@ -109,19 +126,19 @@ Generated from brainstorming session on 2026-03-24. Based on review of `FIGMA_FI
 - **Layer ④ Token thresholds:** No Figma-native styles, variables, or design tokens were extracted
 - **Layer ⑤ Component compliance:** No component inventory — we don't know which components the template expects
 
-### Behavioral unknowns
-- Review rounds (R1, R2...): pre-seeded or added on demand?
-- Status dots: updated via page rename, component prop, or something else?
-- Section usage: are all 9 sections used on every project?
-- Lifecycle: linear bottom-to-top flow, or do teams skip/reorder?
+### Behavioral unknowns (all resolved 2026-04-09)
+- Review rounds: ✅ Added when ready. Section header is the base expectation.
+- Status dots: ✅ Simplify from 5→4. Yellow/orange confusion confirmed. Method question (Q8) wasn't understood — needs rephrasing.
+- Section usage: ✅ 8 sections (not 9), all present every time with rare exceptions (UI-only or UX/IA-only projects).
+- Lifecycle: ✅ Bottom-to-top is both designer and reviewer convention. Enforced, not advisory.
 
-### Questionable captures
-- Teaching tools may be template meta-content, not recipe content
+### Questionable captures (partially resolved 2026-04-09)
+- Teaching tools: ✅ Confirmed template meta — must be deleted at handoff. Readiness check rule.
 - Library cover is off-canvas — may not belong in the recipe at all
-- "About this project" intake form may be aspirational (rarely filled)
-- 3 sandbox slots assumes a specific team size
-- LEGAL placement (standalone vs nested in FINAL) may vary by team
-- Date format inconsistency (MM.DD.YYYY vs MM/DD/YYYY) — intentional or drift?
+- "About this project": ✅ Confirmed genuinely filled. Readiness gate — if you can't fill it, design isn't ready.
+- 3 sandbox slots assumes a specific team size — unresolved
+- LEGAL placement (standalone vs nested in FINAL) may vary by team — unresolved
+- Date format inconsistency (MM.DD.YYYY vs MM/DD/YYYY) — unresolved
 
 ### The recipe identity question
 Before building the scanner or schema, we need to resolve: is this **the** recipe (universal), **a** recipe (one variant among many), or **a snapshot** (one file's state)? This determines whether the schema needs variants/inheritance.
@@ -273,6 +290,8 @@ The trigger example: the "Components in Use" panel requires designers to manuall
 ### Three buckets
 
 ```
+  Updated 2026-04-09 with Jen's v2 questionnaire responses
+
   ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
   │  🟢 KEEP        │  │  🟡 RETHINK     │  │  🔴 REDUNDANT   │
   │                 │  │                 │  │                 │
@@ -281,23 +300,25 @@ The trigger example: the "Components in Use" panel requires designers to manuall
   │ express natively│  │ execution is    │  │ do this — manual│
   │                 │  │ wrong medium    │  │ effort wasted   │
   ├─────────────────┤  ├─────────────────┤  ├─────────────────┤
-  │ Status dots     │  │ VQA ceremony    │  │ Components in   │
-  │ Cover status    │  │ (need exists,   │  │ Use panel       │
-  │ Section order   │  │  but Dev Mode   │  │                 │
-  │ Review rounds   │  │  overlay may    │  │ iTrack links    │
-  │ Emoji prefixes  │  │  replace it)    │  │ (Jira plugin)   │
-  │ Naming patterns │  │                 │  │                 │
-  │                 │  │ About this      │  │ Teaching tools  │
-  │                 │  │ project (need   │  │ (one-time, use  │
-  │                 │  │ exists, wrong   │  │ Community tmpl) │
-  │                 │  │ system — this   │  │                 │
-  │                 │  │ is Confluence)  │  │ Collaborator    │
-  │                 │  │                 │  │ strip (Figma    │
-  │                 │  │ Discipline      │  │ shows this)     │
-  │                 │  │ chips (need     │  │                 │
-  │                 │  │ exists, but 9   │  │                 │
-  │                 │  │ manual chips?)  │  │                 │
+  │ Status dots     │  │ Components in   │  │ iTrack links    │
+  │ Cover status    │  │ Use (dev asked  │  │ (Jira plugin)   │
+  │ Section order   │  │ for it, but     │  │                 │
+  │ Review rounds   │  │ automated sweep │  │ Teaching tools  │
+  │ Emoji prefixes  │  │ replaces manual │  │ (one-time, must │
+  │ Naming patterns │  │ panel)          │  │ delete at       │
+  │ VQA section ⬆   │  │                 │  │ handoff)        │
+  │ (active wkspace │  │ Discipline      │  │                 │
+  │  + evidence     │  │ chips (reframed │  │                 │
+  │  trail — Jen)   │  │ as readiness    │  │                 │
+  │ About This ⬆    │  │ gate: who's on  │  │                 │
+  │ (readiness gate │  │ this project?)  │  │                 │
+  │  — Jen)         │  │                 │  │                 │
+  │ Collaborator ⬆  │  │                 │  │                 │
+  │ (tripod grooms  │  │                 │  │                 │
+  │  as a team)     │  │                 │  │                 │
   └─────────────────┘  └─────────────────┘  └─────────────────┘
+
+  ⬆ = moved from RETHINK/REDUNDANT based on Jen's responses
 ```
 
 ### The deeper question: Process theater vs load-bearing process
