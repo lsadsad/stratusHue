@@ -6,8 +6,8 @@ type: feature
 priority: 2
 status: closed
 depends_on: []
-created: 2026-03-28T00:00:00.000Z
-closed: 2026-03-28T00:00:00.000Z
+created: 2026-03-28
+closed: 2026-03-28 00:00:00+00:00
 ---
 
 ## Summary

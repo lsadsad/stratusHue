@@ -6,7 +6,7 @@ type: feature
 priority: 3
 status: open
 depends_on: []
-created: 2026-03-28T00:00:00.000Z
+created: 2026-03-28
 ---
 
 # Functional color on control icon hover

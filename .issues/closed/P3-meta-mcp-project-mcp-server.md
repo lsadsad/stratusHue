@@ -6,7 +6,7 @@ type: feature
 priority: 3
 status: closed
 depends_on: []
-created: 2026-03-28T00:00:00.000Z
+created: 2026-03-28
 ---
 
 Build a local MCP server that gives Claude Code structured, typed access to stratusHue project state — issues, memory, build health, git context — instead of ad-hoc file reads and grep.

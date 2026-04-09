@@ -1,12 +1,12 @@
 ---
 id: spf
 category: meta
-title: "TSK — Spec writing framework"
+title: TSK — Spec writing framework
 type: task
 priority: 2
 status: open
 depends_on: []
-created: 2026-04-02T00:00:00.000Z
+created: 2026-04-02
 ---
 
 Develop a lightweight framework for writing spec and leave-behind documents that prioritizes density and async readability.

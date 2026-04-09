@@ -1,12 +1,12 @@
 ---
 id: anc
 category: navigate
-title: "BUG — Anchors max entries not displayed"
+title: BUG — Anchors max entries not displayed
 type: bug
 priority: 2
 status: open
 depends_on: []
-created: 2026-03-29T00:00:00.000Z
+created: 2026-03-29
 ---
 
 ## Description

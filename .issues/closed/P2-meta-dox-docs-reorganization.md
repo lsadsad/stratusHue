@@ -6,7 +6,7 @@ type: task
 priority: 2
 status: open
 depends_on: []
-created: 2026-04-02T00:00:00.000Z
+created: 2026-04-02
 ---
 
 ## What

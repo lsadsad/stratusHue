@@ -1,12 +1,12 @@
 ---
 id: aud
 category: meta
-title: "EPC — Template methodology audit"
+title: EPC — Template methodology audit
 type: epic
 priority: 1
 status: open
 depends_on: []
-created: 2026-03-27T00:00:00.000Z
+created: 2026-03-27
 ---
 
 Audit the UX template with the team to confirm which elements are genuinely load-bearing, then analyze findings, review with UX lead, revise the template spec, and finalize for the stratusHue build.

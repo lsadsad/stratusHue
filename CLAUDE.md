@@ -402,3 +402,78 @@ Append-only knowledge base for decisions, context, and open questions. See `.mem
 ### Format
 
 Files are named `YYYY-MM-DD-slug.md` with optional YAML frontmatter. Types: `decision`, `question`, `context`, `workaround`.
+
+### shortHand — Issues
+
+Casual phrases that drive finePrint actions. Say any of these. All phrases are also available as **MCP prompts** via groundControl — works on mobile (Tailscale) and cloud sessions.
+
+| Phrase | MCP Prompt | Action |
+|---|---|---|
+| "issues plz" | `issues-plz` | List all open issues (priority view) |
+| "issues by location" | `issues-by-location` | List all open issues (location view) |
+| "what's ready" | `whats-ready` | Show unblocked issues only |
+| "show deats X" | `show-deats` | Show full issue details (frontmatter + body) |
+| "issue it" / "track this" | `issue-it` | Create a new issue from context or description |
+| "done X" | `done-issue` | Close issue — `git mv` to `closed/` |
+| "bump X" | `bump-issue` | Raise an issue's priority |
+| "block X on Y" | `block-issue` | Add Y to X's `depends_on` |
+| "all issues" | `all-issues` | List open issues across all repos |
+
+### shortHand — Memory
+
+| Phrase | MCP Prompt | Action |
+|---|---|---|
+| "save context" | `save-context` | Write new `.memory/YYYY-MM-DD-slug.md` (include "Supersedes: slug" in context to replace an old entry) |
+| "check memory" | `check-memory` | List all memory entries |
+| "recall X" | `recall` | Search `.memory/` for topic |
+| "doc this" | `doc-this` | Write a usage guide to `docs/guides/` and update `docs/guides/INDEX.md` |
+| "note this" | `note-this` | Save content to today's Obsidian daily note (appends to Morning/Afternoon/Evening section) |
+| "search kb" | `search-kb` | Search knowledge base docs by keyword |
+| "browse kb" | `browse-kb` | List all KB docs grouped by category |
+| "kb context X" | `kb-context` | Get multi-doc context on topic X (brief/standard/deep) |
+
+### shortHand — Session
+
+| Phrase | MCP Prompt | Action |
+|---|---|---|
+| "run down" | — | Full status report on a topic — pull together issues, memories, related context, and current state |
+| "distill this" | `distill` | Synthesize the session — extract decisions, milestones, and context into `.memory/` entries; update issues with progress; surface untracked work as new issues; prime next session with the next concrete action on each in-progress issue |
+| "distill and wrap" | `distill-and-wrap` | Full end-of-session ritual — distill + prime + close completed issues + quality gates + commit and push |
+| "wrap up" | `wrap-up` | Quality gates, close completed issues, commit and push (no synthesis) |
+| "ship it" | `ship-it` | Commit all changes and push to remote |
+| "what changed" | `what-changed` | Git summary — branch, recent commits, dirty state |
+| "update ticket" | `update-ticket` | Pull recent repo work, diff against last update, draft iTrack ticket bullets to daily note |
+
+### shortHand — Todoist
+
+| Phrase | MCP Prompt | Action |
+|---|---|---|
+| "sync to todo" | `sync-to-todo` | Push finePrint issues → Todoist tasks |
+| "sync from todo" | `sync-from-todo` | Pull Todoist completions → close finePrint issues |
+| "todo status" | `todo-status` | Compare finePrint vs Todoist, show drift |
+| "todo full sync" | `todo-full-sync` | Bidirectional: sync-to then sync-from |
+
+> **Note:** Todoist phrases call deterministic sync tools (`sync-to-todoist`, `todoist-status`, etc.) that diff and sync algorithmically. The shortHand prompts are thin wrappers.
+
+### shortHand — Planning
+
+| Phrase | MCP Prompt / Tool | Action |
+|---|---|---|
+| "plan this" | `plan-epic` (prompt) | Break an initiative into phased epics (discovery → design → test → spec → build → integration). Customizable phases. |
+| "create epic" | `create-epic` (tool) | Materialize a plan-epic output as issues with dependency chains. Each phase blocks the next — `ready-issues` surfaces current phase only. |
+
+## Session Completion
+
+**When ending a work session**, you MUST complete ALL steps below.
+
+1. **File issues** for remaining work (create new `.issues/open/*.md` files)
+2. **Run quality gates** (if code changed) — tests, type-check, build
+3. **Update issue status** — move completed issues to `closed/`
+4. **PUSH TO REMOTE**:
+   ```bash
+   git pull --rebase
+   git push
+   git status  # MUST show "up to date with origin"
+   ```
+5. **Verify** — all changes committed AND pushed
+

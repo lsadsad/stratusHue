@@ -1,12 +1,12 @@
 ---
 id: anim-ref
 category: meta
-title: "TSK — Animation system reference"
+title: TSK — Animation system reference
 type: task
 priority: 4
 status: open
 depends_on: []
-created: 2026-03-28T00:00:00.000Z
+created: 2026-03-28
 ---
 
 ## Purpose
