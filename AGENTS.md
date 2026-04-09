@@ -1,8 +1,8 @@
 # Agent Instructions
 
-This project uses **markdown files** in `.issues/` for issue tracking. No external tools or databases needed.
+This project uses **finePrint** conventions for issue tracking (`.issues/`) and **shortHand** casual phrases for agent interaction.
 
-For the concise finePrint operating reference, see `fineprint/AI_AGENT_REFERENCE.md`.
+See **CLAUDE.md** for the canonical reference: issue schema, categories, priorities, file naming, shortHand phrase tables, memory conventions, and session workflows.
 
 ## Quick Reference
 
@@ -36,92 +36,9 @@ cp -rf source dest          # NOT: cp -r source dest
 - `apt-get` - use `-y` flag
 - `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
 
-## Issue Tracking with `.issues/`
+## Issue Tracking and Memory
 
-**IMPORTANT**: This project uses **markdown files in `.issues/`** for ALL issue tracking. Do NOT use external trackers, databases, or CLI tools.
-
-### Structure
-
-```
-.issues/
-  open/       # active issues (YAML frontmatter + description)
-  closed/     # completed issues (git mv from open/)
-```
-
-### Issue Format
-
-Each issue is a markdown file with YAML frontmatter:
-
-```yaml
----
-id: abc
-title: "Issue title"
-type: task|feature|bug|epic
-priority: 1      # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
-status: open
-depends_on: []   # IDs of blocking issues
-created: 2026-03-21
----
-
-Description of the issue...
-```
-
-### File Naming
-
-`P{priority}-{id}-{slug}.md` — e.g., `P1-sob-recipe-json-schema.md`
-
-### Workflow for AI Agents
-
-1. **Find ready work**: scan `open/` for issues with empty `depends_on` or all deps in `closed/`
-2. **Read the issue**: `cat .issues/open/P1-foo.md`
-3. **Work on it**: implement, test, document
-4. **Discover new work?** Create a new `.issues/open/P{n}-{id}-{slug}.md` file
-5. **Complete**: `git mv .issues/open/P1-foo.md .issues/closed/`
-
-### Priorities
-
-- `0` - Critical (security, data loss, broken builds)
-- `1` - High (major features, important bugs)
-- `2` - Medium (default)
-- `3` - Low (polish, optimization)
-- `4` - Backlog (future ideas)
-
-### Important Rules
-
-- Use `.issues/` markdown files for ALL task tracking
-- Issues sync automatically via git push/pull — no special sync needed
-- Link dependencies using the `depends_on` array in frontmatter
-- Do NOT create markdown TODO lists outside `.issues/`
-
-## Project Memory (`.memory/`)
-
-Append-only knowledge base for decisions, context, and open questions. Use `.memory/` for all persistent knowledge. See `.memory/README.md` for full format and conventions.
-
-### Agent behavior at session start
-
-1. List `.memory/` filenames
-2. Always read `decision` and `question` entries
-3. Read `context` entries if tags/slug match current work
-4. Skip `workaround` entries unless relevant to the task
-
-### Trigger phrases
-
-| Shortcut | Natural language | Action |
-|---|---|---|
-| `/memory` | "check memory" | List all memory entries |
-| `/recall X` | "what do we know about X" | Grep `.memory/` for topic |
-| `/remember` | "remember this" | Write new `.memory/YYYY-MM-DD-slug.md` |
-| `/supersede X` | "this replaces the decision on X" | New entry with "Supersedes:" reference |
-
-### Issue shortcuts (see `.issues/` section above)
-
-| Shortcut | Action |
-|---|---|
-| `/issues` | List all open issues |
-| `/ready` | Show unblocked issues only |
-| `/issue X` | Read a specific issue |
-| `/track X` | Create a new issue |
-| `/close X` | Close an issue |
+See **CLAUDE.md** for full finePrint issue schema, memory conventions, and all shortHand phrases.
 
 ## Session Completion
 

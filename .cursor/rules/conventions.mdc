@@ -1,0 +1,17 @@
+---
+description: Project conventions for issue tracking, memory, and session workflows
+globs:
+alwaysApply: true
+---
+
+# Conventions
+
+This project follows **finePrint** conventions for issue tracking and **shortHand** casual phrases for agent interaction.
+
+All canonical definitions live in **CLAUDE.md** at the repo root:
+
+- Issue schema, categories, priorities, and file naming: see "finePrint -- Issue Tracking" section
+- shortHand phrase tables (issues, memory, session, Todoist, planning): see "shortHand" sections
+- Session completion workflow: see "Session Completion" section
+
+Do not duplicate CLAUDE.md content in Cursor rules. Refer to it directly.
