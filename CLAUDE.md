@@ -426,8 +426,10 @@ Casual phrases that drive finePrint actions. Say any of these. All phrases are a
 | "save context" | `save-context` | Write new `.memory/YYYY-MM-DD-slug.md` (include "Supersedes: slug" in context to replace an old entry) |
 | "check memory" | `check-memory` | List all memory entries |
 | "recall X" | `recall` | Search `.memory/` for topic |
+| "tidy memory" | `memory-hygiene` | Scan `.memory/` for staleness, duplication, and supersession chains |
+| "memory hygiene" | `memory-hygiene` | Alias for "tidy memory" |
 | "doc this" | `doc-this` | Write a usage guide to `docs/guides/` and update `docs/guides/INDEX.md` |
-| "note this" | `note-this` | Save content to today's Obsidian daily note (appends to Morning/Afternoon/Evening section) |
+| "note this" | `note-this` | Save content to today's Obsidian daily note using nibble/bite/chew structure — auto-routes chew-sized content to `Projects/` files with wikilink stubs. See `docs/guides/note-taking-structure.md`. |
 | "search kb" | `search-kb` | Search knowledge base docs by keyword |
 | "browse kb" | `browse-kb` | List all KB docs grouped by category |
 | "kb context X" | `kb-context` | Get multi-doc context on topic X (brief/standard/deep) |
