@@ -278,9 +278,22 @@ type: task|feature|bug|epic
 priority: 1          # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
 status: open
 depends_on: []       # list of IDs this issue is blocked by
+surface: any         # optional: laptop | mobile | any (default: any)
 created: 2026-03-21
 ---
 ```
+
+### Surface field
+
+The `surface` field indicates where a task can be worked on. Used by `ready-issues` and `dependency-chain` to filter by session type.
+
+| Value | Meaning |
+|---|---|
+| `laptop` | Requires local tools — Docker, Fly CLI, Tailscale, filesystem config, worktree access |
+| `mobile` | Can be done from web/cloud sessions — code changes, prompt edits, MCP tool work |
+| `any` | Works either way (default when omitted) |
+
+When filtering by surface (e.g. `ready-issues` with `surface: "mobile"`), issues tagged `mobile` or `any` (or untagged) are returned. Issues tagged `laptop` are excluded. This lets "what's ready" show only actionable work for the current session type.
 
 ### Title convention
 
@@ -411,7 +424,7 @@ Casual phrases that drive finePrint actions. Say any of these. All phrases are a
 |---|---|---|
 | "issues plz" | `issues-plz` | List all open issues (priority view) |
 | "issues by location" | `issues-by-location` | List all open issues (location view) |
-| "what's ready" | `whats-ready` | Show unblocked issues only |
+| "what's ready" | `whats-ready` | Show unblocked issues + dependency chains (optional surface filter) |
 | "show deats X" | `show-deats` | Show full issue details (frontmatter + body) |
 | "issue it" / "track this" | `issue-it` | Create a new issue from context or description |
 | "done X" | `done-issue` | Close issue — `git mv` to `closed/` |
@@ -445,6 +458,7 @@ Casual phrases that drive finePrint actions. Say any of these. All phrases are a
 | "ship it" | `ship-it` | Commit all changes and push to remote |
 | "what changed" | `what-changed` | Git summary — branch, recent commits, dirty state |
 | "update ticket" | `update-ticket` | Pull recent repo work, diff against last update, draft iTrack ticket bullets to daily note |
+| "prep handoff" | `prep-handoff` | Verify future session has breadcrumbs for critical path: create NEXT memory + tracking issue, verify session-start view |
 
 ### shortHand — Todoist
 
@@ -463,6 +477,20 @@ Casual phrases that drive finePrint actions. Say any of these. All phrases are a
 |---|---|---|
 | "plan this" | `plan-epic` (prompt) | Break an initiative into phased epics (discovery → design → test → spec → build → integration). Customizable phases. |
 | "create epic" | `create-epic` (tool) | Materialize a plan-epic output as issues with dependency chains. Each phase blocks the next — `ready-issues` surfaces current phase only. |
+| "triage issues" | `triage-issues` (prompt) | Triage all open issues for agent readiness — clarify, decompose, tag steps |
+| "triage X" | `triage-issues` (prompt) | Triage a single issue by ID |
+
+### Agent Tools
+
+Deterministic MCP tools that automate repetitive workflows:
+
+| Tool | Action |
+|---|---|
+| `session-start` | Aggregated briefing: top 3 ready issues (with surface tags), git state, build health, recent memories |
+| `session-pipeline` | Structured distill: close issues, update next actions, create issues, save memories, quality gates, commit, push, Todoist sync |
+| `dependency-chain` | Show all open issues with depth ordering and chain visibility. Depth 0 = ready, 1 = next, 2+ = deeper. Optional surface filter. |
+| `propagate-conventions` | Diff and propagate CLAUDE.md sections to all connected repos |
+| `memory-hygiene` | Scan `.memory/` for staleness, duplication, and supersession chains |
 
 ## Session Completion
 
