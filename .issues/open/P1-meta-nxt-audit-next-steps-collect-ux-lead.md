@@ -1,7 +1,7 @@
 ---
 id: nxt
 category: meta
-title: "TSK — Template methodology audit next steps"
+title: TSK — Template methodology audit next steps
 type: task
 priority: 1
 status: open
@@ -34,3 +34,7 @@ Follow up on the v2 questionnaire and overview docs — collect Jen's responses,
 ## Context
 
 Phase 4 of the `aud` epic is active. Jen's v2 questionnaire responses arrived 2026-04-09 via PDF. Analysis complete — 4 element dispositions shifted (Components in Use, VQA, About This Project, Discipline Chips), 4 open questions resolved, 5 still need input. Discovery audit updated with all resolved behavioral gaps, readiness layer progress, and revised three-bucket classifications. Next steps overview drafted and ready to deliver. Critical path: send next steps → Jen's remaining answers → formal Phase 4b → Phase 5.
+
+
+## Next Action
+Send auditNextSteps.md to Jen — drafted and ready, just needs to go out
