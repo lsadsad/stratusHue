@@ -492,6 +492,18 @@ Deterministic MCP tools that automate repetitive workflows:
 | `propagate-conventions` | Diff and propagate CLAUDE.md sections to all connected repos |
 | `memory-hygiene` | Scan `.memory/` for staleness, duplication, and supersession chains |
 
+## ASCII Diagram Conventions
+
+When drawing ASCII/Unicode diagrams in chat (with or without the `ascii-visuals` skill):
+
+- **2-space left pad** on every line — content needs room to breathe
+- **Unicode box-drawing only** (`│ ─ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼ ▼ ▲`) — never ASCII fallbacks (`|` `-` `+`)
+- **Junctions match**: vertical-meets-horizontal is `┬ ┴ ├ ┤`, never freehand
+- **No `╱ ╲` diagonals** for connectors — they misalign across rows; use `│ ├ └` instead
+- **Box widths matched** within a diagram so edges align across rows
+
+Full template library lives in `~/.claude/skills/ascii-visuals/SKILL.md`.
+
 ## Session Completion
 
 **When ending a work session**, you MUST complete ALL steps below.
