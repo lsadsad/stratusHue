@@ -1,6 +1,7 @@
 import { sendMessage } from '../shared/send-message';
 import { updateScrollBehavior } from '../shared/layout';
 import { ICON_EYE_OPEN, ICON_EYE_CLOSED, ICON_LOCK_OPEN, ICON_LOCK_CLOSED } from '../shared/icons';
+import type { DateFormat } from '../../core/types';
 
 // Timer for debouncing anatomy emoji reset between button hovers
 export let emojiPreviewResetTimer: number | null = null;
@@ -157,12 +158,17 @@ export function parseLayerName(name: string): { emoji: string | null; date: stri
   return { emoji, date };
 }
 
-// Get today's date in MM.DD format
-export function getTodayDate(): string {
+// Get today's date formatted for display (matches sandbox getTodayDateToken)
+export function getTodayDate(format: DateFormat = 'numeric'): string {
   const now = new Date();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
-  return `${mm}.${dd}`;
+  const yyyy = String(now.getFullYear());
+  if (format === 'alpha') {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[now.getMonth()]}.${dd}.${yyyy}`;
+  }
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  return `${mm}.${dd}.${yyyy}`;
 }
 
 // Update anatomy section with current page/layer information

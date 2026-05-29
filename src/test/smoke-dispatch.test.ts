@@ -241,6 +241,18 @@ describe('sandbox message dispatch', () => {
     await dispatchAndAssertNoCrash({ type: 'add-date' });
   });
 
+  it('handles "get-date-settings"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'get-date-settings' });
+  });
+
+  it('handles "set-date-settings" with numeric+prefix', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'set-date-settings', format: 'numeric', position: 'prefix' });
+  });
+
+  it('handles "set-date-settings" with alpha+suffix', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'set-date-settings', format: 'alpha', position: 'suffix' });
+  });
+
   it('handles "create-new-page"', { timeout: 2000 }, async () => {
     await dispatchAndAssertNoCrash({ type: 'create-new-page' });
   });

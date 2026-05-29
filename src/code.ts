@@ -4,8 +4,9 @@
 // Optimized modular architecture with error handling and performance
 
 // ===== IMPORTS =====
-import { debounce, addOrReplaceDateInLayerName, addOrReplaceDateInPageTitle } from './utils';
+import { debounce, addOrReplaceDateInLayerName, addOrReplaceDateInPageTitle, getTodayDateToken } from './utils';
 // import { ThemePreference } from './core/types'; // Unused import
+import type { DateFormat, DatePosition } from './core/types';
 import {
   loadAnchorState,
   loadUISectionStates,
@@ -429,6 +430,16 @@ figma.ui.onmessage = async (msg) => {
 
       case 'add-date':
         await handleAddDate();
+        break;
+
+      case 'get-date-settings':
+        await handleGetDateSettings();
+        break;
+
+      case 'set-date-settings':
+        if ('format' in msg && 'position' in msg) {
+          await handleSetDateSettings(msg.format as DateFormat, msg.position as DatePosition);
+        }
         break;
 
       case 'create-new-page':
@@ -1247,13 +1258,18 @@ const handleImportPluginData = withErrorBoundary(async () => {
 }, ErrorType.STORAGE_ERROR);
 
 const handleAddDate = withErrorBoundary(async () => {
+  const storedFormat = await figma.clientStorage.getAsync('dateFormat') as DateFormat | undefined;
+  const storedPosition = await figma.clientStorage.getAsync('datePosition') as DatePosition | undefined;
+  const format: DateFormat = storedFormat ?? 'numeric';
+  const position: DatePosition = storedPosition ?? 'prefix';
+
   const selection = figma.currentPage.selection;
 
   if (selection.length === 0) {
     // Apply to current page title
     const page = figma.currentPage;
     const oldName = page.name;
-    const newName = addOrReplaceDateInPageTitle(oldName);
+    const newName = addOrReplaceDateInPageTitle(oldName, format, position);
     if (newName !== oldName) {
       page.name = newName;
       figma.notify(`Updated page title: ${newName}`);
@@ -1266,7 +1282,7 @@ const handleAddDate = withErrorBoundary(async () => {
     for (const node of selection) {
       if ('name' in node) {
         const oldName = (node as SceneNode & { name: string }).name;
-        const newName = addOrReplaceDateInLayerName(oldName);
+        const newName = addOrReplaceDateInLayerName(oldName, format, position);
         if (newName !== oldName) {
           (node as SceneNode & { name: string }).name = newName;
           updatedCount++;
@@ -1279,7 +1295,17 @@ const handleAddDate = withErrorBoundary(async () => {
   await updateUIAfterNavigation();
 }, ErrorType.UNKNOWN);
 
-// Insert 4 spaces before the current page title's text
+const handleGetDateSettings = withErrorBoundary(async () => {
+  const format = (await figma.clientStorage.getAsync('dateFormat') as DateFormat | undefined) ?? 'numeric';
+  const position = (await figma.clientStorage.getAsync('datePosition') as DatePosition | undefined) ?? 'prefix';
+  figma.ui.postMessage({ type: 'date-settings', format, position });
+}, ErrorType.UNKNOWN);
+
+const handleSetDateSettings = withErrorBoundary(async (format: DateFormat, position: DatePosition) => {
+  await figma.clientStorage.setAsync('dateFormat', format);
+  await figma.clientStorage.setAsync('datePosition', position);
+  figma.ui.postMessage({ type: 'date-settings', format, position });
+}, ErrorType.UNKNOWN);
 const handleIndentTitle = withErrorBoundary(async () => {
   const page = figma.currentPage;
   const oldName = page.name;
@@ -1312,8 +1338,9 @@ const handleOutdentTitle = withErrorBoundary(async () => {
 const handleCreateNewPage = withErrorBoundary(async () => {
   // Create page
   const page = figma.createPage();
-  // Title format: "↳ MM.DD : newPage"
-  const today = (await import('./utils')).getTodayDateToken();
+  const storedFormat = await figma.clientStorage.getAsync('dateFormat') as DateFormat | undefined;
+  const format: DateFormat = storedFormat ?? 'numeric';
+  const today = getTodayDateToken(format);
   const baseTitle = 'newPage';
   page.name = `↳ ${today} : ${baseTitle}`;
 

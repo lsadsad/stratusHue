@@ -58,7 +58,8 @@ import {
   updateGroupTogglesUI,
   applyGroupVisibility
 } from './ui/navigate/controls-ui';
-import { updateNudgeSettingsUI } from './ui/navigate/settings-ui';
+import { updateNudgeSettingsUI, updateDateSettingsUI } from './ui/navigate/settings-ui';
+import type { DateFormat, DatePosition } from './core/types';
 import {
   initializePlugin,
   setupEventListeners,
@@ -193,6 +194,9 @@ function handlePluginMessage(event: MessageEvent): void {
       break;
     case 'nudge-settings':
       updateNudgeSettingsUI(message.smallNudge as number, message.bigNudge as number);
+      break;
+    case 'date-settings':
+      updateDateSettingsUI(message.format as DateFormat, message.position as DatePosition);
       break;
     case 'navigation-action-result':
       // Announce the actual navigation result to screen readers

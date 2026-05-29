@@ -485,6 +485,25 @@
           <p class="settings-help-text" id="small-nudge-desc">Used with Arrow keys. <span id="big-nudge-desc">Hold Shift for big nudge.</span></p>
         </div>
 
+        <!-- Date Settings Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">📅 Date Tagger</h3>
+          <div class="setting-item setting-item--row">
+            <span class="nudge-label">Format</span>
+            <div class="segmented-control" id="date-format-control" role="group" aria-label="Date format">
+              <button class="segmented-btn active" data-value="numeric" tabindex="-1">mm.dd.yyyy</button>
+              <button class="segmented-btn" data-value="alpha" tabindex="-1">Mon.dd.yyyy</button>
+            </div>
+          </div>
+          <div class="setting-item setting-item--row">
+            <span class="nudge-label">Position</span>
+            <div class="segmented-control" id="date-position-control" role="group" aria-label="Date position">
+              <button class="segmented-btn active" data-value="prefix" tabindex="-1">Prefix</button>
+              <button class="segmented-btn" data-value="suffix" tabindex="-1">Suffix</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Data Migration Section -->
         <!-- COMMENTED OUT: Data Migration Feature
         <div class="settings-section">
