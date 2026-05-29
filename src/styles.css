@@ -8117,3 +8117,49 @@ body.compact-mode #mode-strip {
   margin-top: var(--spacing-xs);
   margin-bottom: 2px;
 }
+
+/* ===== SEGMENTED CONTROL (Date Settings) ===== */
+.segmented-control {
+  display: flex;
+  gap: 2px;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--figma-color-border);
+  border-radius: var(--border-radius-sm);
+  padding: 2px;
+}
+
+.segmented-btn {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-xs);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.segmented-btn:hover {
+  background: var(--theme-overlay-xweak);
+  color: var(--color-text-primary);
+}
+
+.segmented-btn.active {
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+}
+
+.setting-item--row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.setting-item--row .nudge-label {
+  min-width: 52px;
+}
