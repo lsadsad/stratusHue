@@ -180,14 +180,18 @@ function stripDateTokens(name: string): string {
 
 export function addOrReplaceDateInPageTitle(rawName: string, format: DateFormat = 'numeric', position: DatePosition = 'prefix'): string {
   const token = getTodayDateToken(format);
-  if (position === 'suffix') {
-    const stripped = stripDateTokens(rawName);
-    // Also clean up a trailing ' :' that would be orphaned after stripping a prefix-format date
-    const clean = stripped.replace(/\s*:\s*$/, '').trimEnd();
-    return `${clean} - ${token}`;
-  }
-  // prefix: use structured ↳ [emoji] [date] : [title] format
   const parts = parsePageTitleParts(rawName);
+  // Always strip any stale date from the title (handles suffix→prefix and re-apply)
+  const cleanTitle = stripDateTokens(parts.title);
+
+  if (position === 'suffix') {
+    // Drop the structured ↳ prefix; format as [emoji] [title] - [date]
+    const emojiPart = parts.emoji ? `${parts.emoji} ` : '';
+    return `${parts.leadingSpaces}${emojiPart}${cleanTitle} - ${token}`;
+  }
+
+  // prefix: structured ↳ [emoji] [date] : [title] format
+  parts.title = cleanTitle;
   parts.date = token;
   return composePageTitle(parts);
 }
@@ -195,19 +199,16 @@ export function addOrReplaceDateInPageTitle(rawName: string, format: DateFormat 
 export function addOrReplaceDateInLayerName(rawName: string, format: DateFormat = 'numeric', position: DatePosition = 'prefix'): string {
   const token = getTodayDateToken(format);
   const { emoji, remainder } = detectLeadingEmoji(rawName);
+  // Strip all date tokens from remainder (handles both prefix and suffix existing dates)
+  const cleanRemainder = stripDateTokens(remainder).replace(/^\s*:\s*/, '').trimStart();
+  const emojiPrefix = emoji ? `${emoji} ` : '';
 
   if (position === 'suffix') {
-    // Strip any existing date token (including '- ' prefix) from anywhere in the remainder
-    const cleanRemainder = stripDateTokens(remainder).replace(/^\s*:\s*/, '').trimStart();
-    const emojiPrefix = emoji ? `${emoji} ` : '';
     return `${emojiPrefix}${cleanRemainder} - ${token}`.trimEnd();
   }
 
   // prefix: [emoji] [token] : [title]
-  // Strip existing leading date token from the remainder (handles MM.DD, MM.DD.YYYY, Mon.DD.YYYY)
-  const remainderSansDate = remainder.replace(/^\s*(?:[A-Z][a-z]{2}|\d{2})\.\d{2}(?:\.\d{4})?\s*:\s*/, '');
-  const emojiPrefix = emoji ? `${emoji} ` : '';
-  return `${emojiPrefix}${token} : ${remainderSansDate.trimStart()}`;
+  return `${emojiPrefix}${token} : ${cleanRemainder}`;
 }
 
 // Detect a leading emoji tag (from either page or layer sets) and return it with the remainder of the name
