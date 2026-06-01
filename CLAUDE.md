@@ -271,15 +271,16 @@ Issues are plain markdown files with YAML frontmatter, tracked in git. No extern
 
 ```yaml
 ---
-id: sch              # short mnemonic ID (3 chars; 4 for epics)
-category: scaffold   # feature area: scaffold | validate | navigate | meta
+id: scaf             # 4-char mnemonic ID (globally unique across all projects)
+alias: scaffold      # optional readable name for conversational use
+category: mcp-server # feature area
 title: "TYPE — short name"
 type: task|feature|bug|epic
 priority: 1          # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
 status: open
 depends_on: []       # list of IDs this issue is blocked by
 surface: any         # optional: laptop | mobile | any (default: any)
-created: 2026-03-21
+created: 2026-03-28
 ---
 ```
 
@@ -503,6 +504,47 @@ When drawing ASCII/Unicode diagrams in chat (with or without the `ascii-visuals`
 - **Box widths matched** within a diagram so edges align across rows
 
 Full template library lives in `~/.claude/skills/ascii-visuals/SKILL.md`.
+
+### File naming
+
+```
+P{priority}-{category}-{id}-{slug}.md
+```
+
+| Segment       | Description                                                                   | Examples                    |
+| ------------- | ----------------------------------------------------------------------------- | --------------------------- |
+| `P{priority}` | Priority level: `P0`=critical, `P1`=high, `P2`=medium, `P3`=low, `P4`=backlog | `P1`, `P3`                  |
+| `{category}`  | Feature area (defined per project)                                            | `mcp-server`, `web`, `meta` |
+| `{id}`        | 4-char mnemonic ID, globally unique across the registry                       | `scaf`, `grph`, `devc`      |
+| `{slug}`      | Kebab-case description (auto-generated, max 40 chars)                         | `scaffold-project-tool`     |
+
+#### ID naming
+
+IDs are **4-char noun-truncations** describing the task — not random hashes or ticket numbers. They appear in filenames, `depends_on` arrays, conversation references, and Todoist task-title suffixes (`[grph]`).
+
+- **Exactly 4 characters** for every issue type (task, feature, bug, AND epic). Type is signaled by the `type:` frontmatter field and the `⬡` marker in tree renders, not by ID length.
+- Lowercase alphanumeric only
+- **Globally unique across all projects** — `create-issue` blocks on collision via `collectAllIds(config.projects)`. Use `restructure-ids` (dry-run by default; `apply: true` to commit) for the one-shot sweep that migrated the registry from 3-char per-project IDs.
+- Prefer noun-truncation that reads as the concept (`grph` for graph, `devc` for device, `comp` for component, `scaf` for scaffold).
+- Fallback hierarchy when the primary noun is taken or unclear: **alternate noun → numeric suffix (`grp2`, `grp3`) → 4-char initialism** (e.g. `dswr` for "Design System + RN/Web Wrappers", multi-domain).
+- Avoid generic IDs like `fxix`, `tskk` — be specific.
+
+When migrating from external trackers, replace auto-generated IDs with descriptive ones.
+
+> ::note See `docs/superpowers/specs/2026-05-30-id-restructuring-design.md` for the full convention spec and `docs/superpowers/plans/2026-05-30-id-restructuring.md` for the implementation plan.
+
+
+### Aliases
+
+Issues support an optional `alias` field — a readable kebab-case name for conversational use. All tools that accept an issue ID also accept an alias, so `close draw-canvas` works the same as `close dcr`.
+
+- **Format:** lowercase kebab-case (`draw-canvas`, `bookmarks`, `web-ui`)
+- **Uniqueness:** must not collide with any existing ID or alias
+- **Optional:** existing issues work unchanged
+- **Canonical ID stays short:** filenames and `depends_on` arrays use the 4-char ID
+
+When creating issues, always include an alias.
+
 
 ## Session Completion
 
