@@ -17,6 +17,7 @@
     "src/ui/navigate/**/*.ts",
     "src/ui/lint/**/*.ts",
     "src/ui/scaffold/**/*.ts",
+    "src/ui/bridge/**/*.ts",
     "src/types/**/*.d.ts"
   ],
   "exclude": ["node_modules", "dist"]
