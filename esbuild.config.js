@@ -124,7 +124,8 @@ async function build() {
         target: 'es2017',
         format: 'iife',
         minify: process.env.NODE_ENV === 'production',
-        sourcemap: process.env.NODE_ENV !== 'production'
+        // Inline source maps: relative URLs can't be fetched inside Figma's iframe CSP
+        sourcemap: process.env.NODE_ENV !== 'production' ? 'inline' : false
       });
     }
 

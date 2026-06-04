@@ -8029,6 +8029,16 @@ body.compact-mode #mode-strip {
   height: 100%;
 }
 
+#bridge-status-dots {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 52px; /* sits just left of the logo (~48px wide) */
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
 .bridge-dot {
   display: inline-block;
   width: 6px;
