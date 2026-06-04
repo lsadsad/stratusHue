@@ -207,35 +207,6 @@ export async function sendInitialUIState(): Promise<void> {
   }
 }
 
-// ===== BRIDGE EVENT SENDERS =====
-// Called from selectionchange / currentpagechange / documentchange handlers in code.ts
-// so the bridge can broadcast these events over WebSocket to connected MCP clients.
-
-export function sendBridgeSelectionEvent(): void {
-  const selection = figma.currentPage.selection;
-  figma.ui.postMessage({
-    type: 'bridge-selection-change',
-    selection: selection.map(n => ({ id: n.id, name: n.name, type: n.type })),
-    pageId: figma.currentPage.id,
-  });
-}
-
-export function sendBridgeDocumentEvent(): void {
-  figma.ui.postMessage({
-    type: 'bridge-document-change',
-    pageId: figma.currentPage.id,
-    pageName: figma.currentPage.name,
-  });
-}
-
-export function sendBridgePageEvent(): void {
-  figma.ui.postMessage({
-    type: 'bridge-page-change',
-    pageId: figma.currentPage.id,
-    pageName: figma.currentPage.name,
-  });
-}
-
 // ===== UI RESIZE HELPERS =====
 export function resizeUI(width: number, height: number): void {
   const clampedWidth = Math.max(188, Math.min(400, width));

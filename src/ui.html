@@ -554,28 +554,6 @@
           </div>
         </div>
 
-        <!-- Bridge Section -->
-        <div class="settings-section" id="bridge-settings-section">
-          <h3 class="settings-section-title">🔌 Bridge</h3>
-          <div class="settings-row">
-            <label class="settings-label" for="bridge-enable-toggle">Enable MCP bridge</label>
-            <label class="toggle-switch">
-              <input type="checkbox" id="bridge-enable-toggle" tabindex="-1">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div id="bridge-cloud-section" hidden>
-            <div class="settings-subsection-title">Cloud relay (Claude.ai)</div>
-            <div class="bridge-pair-row">
-              <input id="bridge-cloud-pair-input" class="settings-input" type="text"
-                placeholder="6-char code" maxlength="6" spellcheck="false" autocomplete="off"
-                aria-label="Cloud pairing code" tabindex="-1">
-              <button id="bridge-cloud-connect-btn" class="settings-btn-sm" tabindex="-1">Connect</button>
-              <button id="bridge-cloud-disconnect-btn" class="settings-btn-sm settings-btn-danger" hidden tabindex="-1">Disconnect</button>
-            </div>
-          </div>
-        </div>
-
         <!-- Support Section -->
         <div class="settings-section">
           <div class="support-section">
@@ -609,12 +587,6 @@
         <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel (double-click to toggle auto-fit)" tabindex="-1">
           <i class="grip">: : :</i>
         </div>
-      </li>
-      <li id="bridge-status-dots" hidden aria-label="Bridge connection status">
-        <span class="bridge-dot-wrap">
-          <span id="bridge-status-local" class="bridge-dot" data-bridge-type="local" data-bridge-state="disconnected" title="Bridge local: disconnected"></span>
-          <span id="bridge-status-cloud" class="bridge-dot" data-bridge-type="cloud" data-bridge-state="disconnected" title="Bridge cloud: disconnected"></span>
-        </span>
       </li>
       <li>
         <span class="made-with">
