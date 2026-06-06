@@ -7,6 +7,7 @@ import type { Bookmark } from '../core/types';
 import { getBookmarks, currentAnchorState, recentHistoryState } from '../core/state';
 import { getNavigationState, hasAnySelectionEntry } from '../features/navigation';
 import { getCurrentEmojiSet, getEmojiNavigationState } from '../features/emoji-manager';
+import { buildFileInfo } from '../features/bridge/file-info';
 
 // ===== UI MESSAGE SENDERS =====
 export async function sendBookmarksToUI(options?: { forceReload?: boolean }): Promise<void> {
@@ -233,6 +234,15 @@ export function sendBridgePageEvent(): void {
     type: 'bridge-page-change',
     pageId: figma.currentPage.id,
     pageName: figma.currentPage.name,
+  });
+}
+
+// Pushes the current file identity to the UI so bridge-client can send the
+// FILE_INFO identification handshake the figma-studio server requires on connect.
+export function sendBridgeFileInfo(): void {
+  figma.ui.postMessage({
+    type: 'bridge-file-info',
+    fileInfo: buildFileInfo(),
   });
 }
 

@@ -5,6 +5,8 @@
 // in bridge-client.ts → parent.postMessage → here) and replies with
 // figma.ui.postMessage({ type: 'BRIDGE_RESPONSE', requestId, result | error }).
 
+import { buildFileInfo } from './file-info';
+
 function reply(requestId: string, result: unknown): void {
   figma.ui.postMessage({ type: 'BRIDGE_RESPONSE', requestId, result });
 }
@@ -65,6 +67,18 @@ export async function handleBridgeExecuteCode(requestId: string, code: string): 
     const fn = new Function('figma', `return (async () => { ${code} })()`);
     const result = await fn(figma);
     reply(requestId, { success: true, result: result ?? null });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}
+
+// ===== FILE INFO =====
+
+// Mirrors the original Figma Desktop Bridge plugin's GET_FILE_INFO_RESULT.fileInfo —
+// the figma-studio server keys probe success on `result.fileInfo` being present.
+export function handleBridgeGetFileInfo(requestId: string): void {
+  try {
+    reply(requestId, { success: true, fileInfo: buildFileInfo() });
   } catch (e) {
     replyError(requestId, e instanceof Error ? e.message : String(e));
   }

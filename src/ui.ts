@@ -219,6 +219,13 @@ function handlePluginMessage(event: MessageEvent): void {
       }).catch(console.error);
       break;
 
+    case 'bridge-file-info':
+      // Sandbox pushed file identity — cache it for the FILE_INFO handshake.
+      import('./ui/bridge/bridge-client').then(({ setBridgeFileInfo }) => {
+        setBridgeFileInfo(message.fileInfo as { fileKey: string | null;[key: string]: unknown });
+      }).catch(console.error);
+      break;
+
     case 'BRIDGE_RESPONSE':
       // Route a sandbox command response back to the waiting WS request.
       import('./ui/bridge/bridge-client').then(({ handleBridgeResponse }) => {

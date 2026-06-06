@@ -43,6 +43,10 @@ let statusChangeCallback: StatusChangeCallback | null = null;
 
 let bridgeEnabled = false;
 
+// Latest file identity pushed from the sandbox. Sent as the FILE_INFO handshake
+// on every (re)connect so the figma-studio server can identify this client's file.
+let localFileInfo: { fileKey: string | null;[key: string]: unknown } | null = null;
+
 export function onStatusChange(cb: StatusChangeCallback): void {
   statusChangeCallback = cb;
 }
@@ -106,6 +110,14 @@ export function broadcastEvent(eventType: string, payload: unknown): void {
 
 // ===== LOCAL WS (port scanning) =====
 
+// The figma-studio server holds every new client "pending" and closes it after 30s
+// unless it sends a FILE_INFO message carrying a fileKey. Send it on connect.
+function sendFileInfo(ws: WebSocket): void {
+  if (!localFileInfo || !localFileInfo.fileKey) return;
+  if (ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: 'FILE_INFO', data: localFileInfo }));
+}
+
 function connectToPort(port: number): void {
   if (!bridgeEnabled) return;
 
@@ -121,6 +133,7 @@ function connectToPort(port: number): void {
     localSockets.set(port, ws);
     updateLocalStatus('connected', port);
     sendMessage('bridge-connected', { transport: 'local', port });
+    sendFileInfo(ws);
   };
 
   ws.onmessage = (event: MessageEvent) => {
@@ -263,4 +276,12 @@ export function disconnectCloudRelay(): void {
 
 export function getStatus(): BridgeStatus {
   return status;
+}
+
+// Called when the sandbox pushes updated file identity (on enable / page change).
+// Caches it for future connects and re-sends to any already-open sockets that may
+// still be pending identification.
+export function setBridgeFileInfo(info: { fileKey: string | null;[key: string]: unknown }): void {
+  localFileInfo = info;
+  for (const ws of localSockets.values()) sendFileInfo(ws);
 }

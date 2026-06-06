@@ -45,6 +45,7 @@ import {
   sendBridgeSelectionEvent,
   sendBridgeDocumentEvent,
   sendBridgePageEvent,
+  sendBridgeFileInfo,
 } from './ui/ui-communication';
 import {
   triggerValidationOnSelectionChange,
@@ -192,6 +193,9 @@ const initializePlugin = withErrorBoundary(async () => {
     enabled: bridgeEnabled,
     pairCode: storedPairCode ?? '',
   });
+  // If the bridge restores enabled, push file identity so the UI can complete
+  // the FILE_INFO handshake as soon as it reconnects to the MCP server.
+  if (bridgeEnabled) sendBridgeFileInfo();
 }, ErrorType.STORAGE_ERROR);
 
 // ===== DEBOUNCED FUNCTIONS =====
@@ -237,8 +241,12 @@ const debouncedPageChange = debounce(async () => {
   addPageChangeToHistory();
   triggerValidationOnPageChange();
 
-  // Broadcast to bridge clients when enabled
-  if (bridgeEnabled) sendBridgePageEvent();
+  // Broadcast to bridge clients when enabled, and refresh file identity
+  // (currentPage/currentPageId changed) for the FILE_INFO handshake.
+  if (bridgeEnabled) {
+    sendBridgePageEvent();
+    sendBridgeFileInfo();
+  }
 }, 200);
 
 // ===== EVENT HANDLERS =====
@@ -715,6 +723,8 @@ figma.ui.onmessage = async (msg) => {
         if ('enabled' in msg && typeof msg.enabled === 'boolean') {
           bridgeEnabled = msg.enabled;
           await figma.clientStorage.setAsync('bridgeEnabled', msg.enabled);
+          // On enable, push file identity so the UI can send FILE_INFO on connect.
+          if (msg.enabled) sendBridgeFileInfo();
         }
         break;
       }
@@ -740,6 +750,14 @@ figma.ui.onmessage = async (msg) => {
         if ('requestId' in msg && 'code' in msg && typeof msg.requestId === 'string' && typeof msg.code === 'string') {
           const { handleBridgeExecuteCode } = await import('./features/bridge/bridge-handlers');
           await handleBridgeExecuteCode(msg.requestId, msg.code);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-get-file-info': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeGetFileInfo } = await import('./features/bridge/bridge-handlers');
+          handleBridgeGetFileInfo(msg.requestId);
         }
         break;
       }
@@ -981,7 +999,17 @@ figma.ui.onmessage = async (msg) => {
       }
 
       default:
-        console.log('Unknown message type:', msg.type);
+        // Unhandled bridge commands must still reply, or the MCP client's request
+        // hangs until it times out. Send an explicit error so the server fails fast.
+        if (msg.type.startsWith('bridge-cmd-') && 'requestId' in msg && typeof msg.requestId === 'string') {
+          figma.ui.postMessage({
+            type: 'BRIDGE_RESPONSE',
+            requestId: msg.requestId,
+            error: `Unsupported bridge command: ${msg.type}`,
+          });
+        } else {
+          console.log('Unknown message type:', msg.type);
+        }
     }
   } catch (error) {
     handleError(error);

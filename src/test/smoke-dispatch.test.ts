@@ -467,4 +467,93 @@ describe('sandbox message dispatch', () => {
   it('handles "bridge-cmd-set-node-description"', { timeout: 2000 }, async () => {
     await dispatchAndAssertNoCrash({ type: 'bridge-cmd-set-node-description', requestId: 'test_25', nodeId: 'node_1', description: 'A component' });
   });
+
+  it('handles "bridge-cmd-get-file-info"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-get-file-info', requestId: 'test_26' });
+  });
+});
+
+// Behavior tests — assert the actual BRIDGE_RESPONSE payload, not just "no crash".
+describe('bridge command responses', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function findBridgeResponse(requestId: string): Record<string, unknown> | undefined {
+    const post = (globalThis as any).figma.ui.postMessage as ReturnType<typeof vi.fn>;
+    return post.mock.calls
+      .map((c: unknown[]) => c[0] as Record<string, unknown>)
+      .find((m) => m?.type === 'BRIDGE_RESPONSE' && m?.requestId === requestId);
+  }
+
+  it('bridge-cmd-get-file-info replies with the file name, key, and current page', { timeout: 2000 }, async () => {
+    // Set inputs explicitly — other smoke tests mutate the shared figma mock's
+    // currentPage.name (add-date/indent-title), so don't rely on defaults.
+    (globalThis as any).figma.fileKey = 'FILEKEY123';
+    (globalThis as any).figma.root.name = 'L3Vs Sandbox';
+    (globalThis as any).figma.currentPage.name = 'Cover';
+    (globalThis as any).figma.currentPage.id = 'page-99';
+    (globalThis as any).figma.editorType = 'figma';
+
+    await (onmessage as (m: unknown) => Promise<void>)({
+      type: 'bridge-cmd-get-file-info',
+      requestId: 'fileinfo_1',
+    });
+
+    const res = findBridgeResponse('fileinfo_1');
+    expect(res, 'expected a BRIDGE_RESPONSE for fileinfo_1').toBeTruthy();
+    expect(res!.error).toBeUndefined();
+    // The figma-studio server keys probe success on result.fileInfo being present.
+    expect(res!.result).toMatchObject({
+      success: true,
+      fileInfo: {
+        fileName: 'L3Vs Sandbox',
+        fileKey: 'FILEKEY123',
+        currentPage: 'Cover',
+        currentPageId: 'page-99',
+        selectionCount: 0,
+        editorType: 'figma',
+      },
+    });
+  });
+
+  it('an unknown bridge-cmd-* replies with an error instead of hanging', { timeout: 2000 }, async () => {
+    await (onmessage as (m: unknown) => Promise<void>)({
+      type: 'bridge-cmd-this-method-does-not-exist',
+      requestId: 'unknown_1',
+    });
+
+    const res = findBridgeResponse('unknown_1');
+    expect(res, 'expected a BRIDGE_RESPONSE error for unknown_1').toBeTruthy();
+    expect(typeof res!.error).toBe('string');
+    expect(res!.error as string).toContain('bridge-cmd-this-method-does-not-exist');
+  });
+
+  it('a non-bridge unknown type does NOT emit a BRIDGE_RESPONSE', { timeout: 2000 }, async () => {
+    await (onmessage as (m: unknown) => Promise<void>)({
+      type: 'totally-unknown-non-bridge-type',
+      requestId: 'unknown_2',
+    });
+
+    expect(findBridgeResponse('unknown_2')).toBeUndefined();
+  });
+
+  it('enabling the bridge pushes file identity to the UI for the FILE_INFO handshake', { timeout: 2000 }, async () => {
+    (globalThis as any).figma.fileKey = 'FILEKEY777';
+    (globalThis as any).figma.root.name = 'Handshake File';
+    (globalThis as any).figma.currentPage.name = 'P1';
+    (globalThis as any).figma.editorType = 'figma';
+
+    await (onmessage as (m: unknown) => Promise<void>)({ type: 'bridge-set-enabled', enabled: true });
+
+    const post = (globalThis as any).figma.ui.postMessage as ReturnType<typeof vi.fn>;
+    const fileInfoMsg = post.mock.calls
+      .map((c: unknown[]) => c[0] as Record<string, unknown>)
+      .find((m) => m?.type === 'bridge-file-info');
+    expect(fileInfoMsg, 'expected a bridge-file-info push on enable').toBeTruthy();
+    expect(fileInfoMsg!.fileInfo).toMatchObject({
+      fileKey: 'FILEKEY777',
+      fileName: 'Handshake File',
+    });
+  });
 });
