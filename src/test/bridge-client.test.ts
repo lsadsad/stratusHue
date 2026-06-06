@@ -85,4 +85,31 @@ describe('bridge-client FILE_INFO handshake', () => {
 
     expect(ws.fileInfoMessages()).toHaveLength(0);
   });
+
+  it('sends FILE_INFO over the cloud relay socket on connect', async () => {
+    const mod = await freshClient();
+    mod.setBridgeFileInfo({ fileKey: 'CKEY', fileName: 'Cloud File' });
+    mod.initBridgeClient(true, 'ABCDEF'); // enable + pair to cloud relay
+
+    const cloudWs = FakeWebSocket.instances.find((w) => w.url.includes('/ws/pair'));
+    expect(cloudWs, 'expected a cloud relay socket').toBeTruthy();
+    cloudWs!.simulateOpen();
+
+    const msgs = cloudWs!.fileInfoMessages();
+    expect(msgs).toHaveLength(1);
+    expect(msgs[0].data).toMatchObject({ fileKey: 'CKEY', fileName: 'Cloud File' });
+  });
+
+  it('re-sends FILE_INFO to the cloud socket when identity arrives late', async () => {
+    const mod = await freshClient();
+    mod.initBridgeClient(true, 'ABCDEF');
+
+    const cloudWs = FakeWebSocket.instances.find((w) => w.url.includes('/ws/pair'));
+    cloudWs!.simulateOpen();
+    expect(cloudWs!.fileInfoMessages()).toHaveLength(0);
+
+    mod.setBridgeFileInfo({ fileKey: 'CKEY2', fileName: 'Late Cloud File' });
+
+    expect(cloudWs!.fileInfoMessages()[0].data.fileKey).toBe('CKEY2');
+  });
 });

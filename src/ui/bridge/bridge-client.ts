@@ -198,6 +198,8 @@ function connectToCloud(pairCode: string): void {
     cloudReconnectDelay = RECONNECT_DELAY_MS;
     updateCloudStatus('connected');
     sendMessage('bridge-connected', { transport: 'cloud', pairCode });
+    // The cloud relay forwards the same FILE_INFO identification the local server needs.
+    sendFileInfo(ws);
   };
 
   ws.onmessage = (event: MessageEvent) => {
@@ -284,4 +286,5 @@ export function getStatus(): BridgeStatus {
 export function setBridgeFileInfo(info: { fileKey: string | null;[key: string]: unknown }): void {
   localFileInfo = info;
   for (const ws of localSockets.values()) sendFileInfo(ws);
+  if (cloudSocket) sendFileInfo(cloudSocket);
 }
