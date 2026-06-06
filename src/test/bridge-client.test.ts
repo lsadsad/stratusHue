@@ -112,4 +112,22 @@ describe('bridge-client FILE_INFO handshake', () => {
 
     expect(cloudWs!.fileInfoMessages()[0].data.fileKey).toBe('CKEY2');
   });
+
+  it('broadcastEvent keys events by `type` (server contract), not `event`', async () => {
+    const mod = await freshClient();
+    mod.setBridgeFileInfo({ fileKey: 'K', fileName: 'F' });
+    mod.initBridgeClient(true);
+    const ws = FakeWebSocket.instances[0];
+    ws.simulateOpen();
+    ws.sent = []; // drop the FILE_INFO sent on open
+
+    mod.broadcastEvent('SELECTION_CHANGE', { nodes: [], count: 0, page: 'P', timestamp: 1 });
+
+    const sent = ws.sent.map((s) => JSON.parse(s));
+    const evt = sent.find((m) => m.type === 'SELECTION_CHANGE');
+    expect(evt, 'server matches on message.type, so it must be keyed `type`').toBeTruthy();
+    expect(evt.data).toMatchObject({ count: 0, page: 'P' });
+    // Must NOT use the old `event` key the server ignores.
+    expect(sent.find((m) => m.event === 'SELECTION_CHANGE')).toBeFalsy();
+  });
 });

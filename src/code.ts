@@ -168,7 +168,7 @@ const initializePlugin = withErrorBoundary(async () => {
   if (!documentChangeRegistered) {
     figma.on('documentchange', (event: DocumentChangeEvent) => {
       handleDocumentChange(event);
-      if (bridgeEnabled) sendBridgeDocumentEvent();
+      if (bridgeEnabled) sendBridgeDocumentEvent(event);
     });
     documentChangeRegistered = true;
   }

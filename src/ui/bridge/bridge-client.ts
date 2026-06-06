@@ -99,7 +99,9 @@ export function handleBridgeResponse(requestId: string, result: unknown, error?:
 // ===== EVENT BROADCASTING (sandbox → all connected WS clients) =====
 
 export function broadcastEvent(eventType: string, payload: unknown): void {
-  const msg = JSON.stringify({ event: eventType, data: payload });
+  // Server matches incoming events on `message.type` (not `event`); keep this key
+  // aligned with the figma-studio websocket-server contract.
+  const msg = JSON.stringify({ type: eventType, data: payload });
   for (const ws of localSockets.values()) {
     if (ws.readyState === WebSocket.OPEN) ws.send(msg);
   }
