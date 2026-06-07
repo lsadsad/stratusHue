@@ -27,11 +27,6 @@ beforeAll(async () => {
   // figma.ui.resize — used by resize-ui and toggle-width handlers
   (globalThis as any).figma.ui.resize = vi.fn();
 
-  // figma.getLocal*StylesAsync — used by lint-engine when running scans
-  (globalThis as any).figma.getLocalPaintStylesAsync = vi.fn().mockResolvedValue([]);
-  (globalThis as any).figma.getLocalTextStylesAsync = vi.fn().mockResolvedValue([]);
-  (globalThis as any).figma.getLocalEffectStylesAsync = vi.fn().mockResolvedValue([]);
-
   // figma.createPage — used by create-new-page handler
   (globalThis as any).figma.createPage = vi.fn().mockReturnValue({ id: 'new-page', name: 'Page', type: 'PAGE' });
 
@@ -241,6 +236,18 @@ describe('sandbox message dispatch', () => {
     await dispatchAndAssertNoCrash({ type: 'add-date' });
   });
 
+  it('handles "get-date-settings"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'get-date-settings' });
+  });
+
+  it('handles "set-date-settings" with numeric+prefix', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'set-date-settings', format: 'numeric', position: 'prefix' });
+  });
+
+  it('handles "set-date-settings" with alpha+suffix', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'set-date-settings', format: 'alpha', position: 'suffix' });
+  });
+
   it('handles "create-new-page"', { timeout: 2000 }, async () => {
     await dispatchAndAssertNoCrash({ type: 'create-new-page' });
   });
@@ -302,52 +309,209 @@ describe('sandbox message dispatch', () => {
     await dispatchAndAssertNoCrash({ type: 'open-kofi' });
   });
 
-  // ===== LINT =====
-  it('handles "lint-run-scan"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-run-scan' });
+  // ===== BRIDGE =====
+  it('handles "bridge-set-enabled"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-set-enabled', enabled: false });
   });
 
-  it('handles "lint-cancel-scan"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-cancel-scan' });
+  it('handles "bridge-set-pair-code"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-set-pair-code', pairCode: '' });
   });
 
-  it('handles "lint-set-scope"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-set-scope', scope: 'page' });
+  it('handles "bridge-connected"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-connected', transport: 'local', port: 9223 });
   });
 
-  it('handles "lint-apply-fix"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-apply-fix', nodeId: 'test', category: 'fill', styleId: 'test' });
+  it('handles "bridge-disconnected"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-disconnected', transport: 'local' });
   });
 
-  it('handles "lint-fix-all"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-fix-all', fixes: [] });
+  it('handles "bridge-cmd-execute-code"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-execute-code', requestId: 'test_1', code: 'return {}' });
   });
 
-  it('handles "lint-ignore-error"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-ignore-error', errorId: 'test' });
+  it('handles "bridge-cmd-get-variables"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-get-variables', requestId: 'test_2' });
   });
 
-  it('handles "lint-ignore-all"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-ignore-all', errorIds: [] });
+  it('handles "bridge-cmd-refresh-variables"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-refresh-variables', requestId: 'test_3' });
   });
 
-  it('handles "lint-select-all"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-select-all', nodeIds: [] });
+  it('handles "bridge-cmd-update-variable"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-update-variable', requestId: 'test_4', variableId: 'v1', modeId: 'm1', value: '#ff0000' });
   });
 
-  it('handles "lint-clear-ignored"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-clear-ignored' });
+  it('handles "bridge-cmd-create-variable"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-variable', requestId: 'test_5', name: 'test', collectionId: 'c1', resolvedType: 'COLOR' });
   });
 
-  it('handles "lint-select-node"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-select-node', nodeId: 'test-id' });
+  it('handles "bridge-cmd-delete-variable"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-delete-variable', requestId: 'test_6', variableId: 'v1' });
   });
 
-  it('handles "lint-update-settings"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-update-settings', settings: {} });
+  it('handles "bridge-cmd-rename-variable"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-rename-variable', requestId: 'test_7', variableId: 'v1', newName: 'new-name' });
   });
 
-  it('handles "lint-get-settings"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-get-settings' });
+  it('handles "bridge-cmd-create-variable-collection"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-variable-collection', requestId: 'test_8', name: 'Test Collection' });
+  });
+
+  it('handles "bridge-cmd-delete-variable-collection"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-delete-variable-collection', requestId: 'test_9', collectionId: 'c1' });
+  });
+
+  it('handles "bridge-cmd-add-mode"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-add-mode', requestId: 'test_10', collectionId: 'c1', modeName: 'Dark' });
+  });
+
+  it('handles "bridge-cmd-rename-mode"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-rename-mode', requestId: 'test_11', collectionId: 'c1', modeId: 'm1', newName: 'Light' });
+  });
+
+  it('handles "bridge-cmd-get-component"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-get-component', requestId: 'test_12', nodeId: 'node_1' });
+  });
+
+  it('handles "bridge-cmd-get-local-components"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-get-local-components', requestId: 'test_13' });
+  });
+
+  it('handles "bridge-cmd-instantiate-component"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-instantiate-component', requestId: 'test_14', componentKey: 'abc123' });
+  });
+
+  it('handles "bridge-cmd-get-metadata"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-get-metadata', requestId: 'test_15', nodeId: 'node_1' });
+  });
+
+  it('handles "bridge-cmd-resize-node"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-resize-node', requestId: 'test_16', nodeId: 'node_1', width: 100, height: 100 });
+  });
+
+  it('handles "bridge-cmd-move-node"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-move-node', requestId: 'test_17', nodeId: 'node_1', x: 0, y: 0 });
+  });
+
+  it('handles "bridge-cmd-set-node-fills"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-set-node-fills', requestId: 'test_18', nodeId: 'node_1', fills: [{ type: 'SOLID', color: '#ff0000' }] });
+  });
+
+  it('handles "bridge-cmd-set-node-strokes"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-set-node-strokes', requestId: 'test_19', nodeId: 'node_1', strokes: [{ type: 'SOLID', color: '#000000' }] });
+  });
+
+  it('handles "bridge-cmd-clone-node"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-clone-node', requestId: 'test_20', nodeId: 'node_1' });
+  });
+
+  it('handles "bridge-cmd-delete-node"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-delete-node', requestId: 'test_21', nodeId: 'node_1' });
+  });
+
+  it('handles "bridge-cmd-rename-node"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-rename-node', requestId: 'test_22', nodeId: 'node_1', newName: 'Renamed Node' });
+  });
+
+  it('handles "bridge-cmd-set-text"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-set-text', requestId: 'test_23', nodeId: 'node_1', text: 'Hello' });
+  });
+
+  it('handles "bridge-cmd-create-child"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-child', requestId: 'test_24', parentId: 'node_1', nodeType: 'RECTANGLE' });
+  });
+
+  it('handles "bridge-cmd-set-node-description"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-set-node-description', requestId: 'test_25', nodeId: 'node_1', description: 'A component' });
+  });
+
+  it('handles "bridge-cmd-get-file-info"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-get-file-info', requestId: 'test_26' });
+  });
+});
+
+// Behavior tests — assert the actual BRIDGE_RESPONSE payload, not just "no crash".
+describe('bridge command responses', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function findBridgeResponse(requestId: string): Record<string, unknown> | undefined {
+    const post = (globalThis as any).figma.ui.postMessage as ReturnType<typeof vi.fn>;
+    return post.mock.calls
+      .map((c: unknown[]) => c[0] as Record<string, unknown>)
+      .find((m) => m?.type === 'BRIDGE_RESPONSE' && m?.requestId === requestId);
+  }
+
+  it('bridge-cmd-get-file-info replies with the file name, key, and current page', { timeout: 2000 }, async () => {
+    // Set inputs explicitly — other smoke tests mutate the shared figma mock's
+    // currentPage.name (add-date/indent-title), so don't rely on defaults.
+    (globalThis as any).figma.fileKey = 'FILEKEY123';
+    (globalThis as any).figma.root.name = 'L3Vs Sandbox';
+    (globalThis as any).figma.currentPage.name = 'Cover';
+    (globalThis as any).figma.currentPage.id = 'page-99';
+    (globalThis as any).figma.editorType = 'figma';
+
+    await (onmessage as (m: unknown) => Promise<void>)({
+      type: 'bridge-cmd-get-file-info',
+      requestId: 'fileinfo_1',
+    });
+
+    const res = findBridgeResponse('fileinfo_1');
+    expect(res, 'expected a BRIDGE_RESPONSE for fileinfo_1').toBeTruthy();
+    expect(res!.error).toBeUndefined();
+    // The figma-studio server keys probe success on result.fileInfo being present.
+    expect(res!.result).toMatchObject({
+      success: true,
+      fileInfo: {
+        fileName: 'L3Vs Sandbox',
+        fileKey: 'FILEKEY123',
+        currentPage: 'Cover',
+        currentPageId: 'page-99',
+        selectionCount: 0,
+        editorType: 'figma',
+      },
+    });
+  });
+
+  it('an unknown bridge-cmd-* replies with an error instead of hanging', { timeout: 2000 }, async () => {
+    await (onmessage as (m: unknown) => Promise<void>)({
+      type: 'bridge-cmd-this-method-does-not-exist',
+      requestId: 'unknown_1',
+    });
+
+    const res = findBridgeResponse('unknown_1');
+    expect(res, 'expected a BRIDGE_RESPONSE error for unknown_1').toBeTruthy();
+    expect(typeof res!.error).toBe('string');
+    expect(res!.error as string).toContain('bridge-cmd-this-method-does-not-exist');
+  });
+
+  it('a non-bridge unknown type does NOT emit a BRIDGE_RESPONSE', { timeout: 2000 }, async () => {
+    await (onmessage as (m: unknown) => Promise<void>)({
+      type: 'totally-unknown-non-bridge-type',
+      requestId: 'unknown_2',
+    });
+
+    expect(findBridgeResponse('unknown_2')).toBeUndefined();
+  });
+
+  it('enabling the bridge pushes file identity to the UI for the FILE_INFO handshake', { timeout: 2000 }, async () => {
+    (globalThis as any).figma.fileKey = 'FILEKEY777';
+    (globalThis as any).figma.root.name = 'Handshake File';
+    (globalThis as any).figma.currentPage.name = 'P1';
+    (globalThis as any).figma.editorType = 'figma';
+
+    await (onmessage as (m: unknown) => Promise<void>)({ type: 'bridge-set-enabled', enabled: true });
+
+    const post = (globalThis as any).figma.ui.postMessage as ReturnType<typeof vi.fn>;
+    const fileInfoMsg = post.mock.calls
+      .map((c: unknown[]) => c[0] as Record<string, unknown>)
+      .find((m) => m?.type === 'bridge-file-info');
+    expect(fileInfoMsg, 'expected a bridge-file-info push on enable').toBeTruthy();
+    expect(fileInfoMsg!.fileInfo).toMatchObject({
+      fileKey: 'FILEKEY777',
+      fileName: 'Handshake File',
+    });
   });
 });

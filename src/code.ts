@@ -4,8 +4,9 @@
 // Optimized modular architecture with error handling and performance
 
 // ===== IMPORTS =====
-import { debounce, addOrReplaceDateInLayerName, addOrReplaceDateInPageTitle } from './utils';
+import { debounce, addOrReplaceDateInLayerName, addOrReplaceDateInPageTitle, getTodayDateToken } from './utils';
 // import { ThemePreference } from './core/types'; // Unused import
+import type { DateFormat, DatePosition } from './core/types';
 import {
   loadAnchorState,
   loadUISectionStates,
@@ -41,7 +42,11 @@ import {
   updateUIAfterBookmarkChange,
   resizeUI,
   toggleUIWidth,
-  sendNavigationStateToUI
+  sendNavigationStateToUI,
+  sendBridgeSelectionEvent,
+  sendBridgeDocumentEvent,
+  sendBridgePageEvent,
+  sendBridgeFileInfo,
 } from './ui/ui-communication';
 import {
   triggerValidationOnSelectionChange,
@@ -57,16 +62,35 @@ import {
 import {
   loadPluginMode,
   persistPluginMode,
-  getCurrentMode,
-  persistLintSettings,
-  loadLintSettings,
-} from './core/lint-state';
-
-/** Maximum node count for automatic scan on mode entry. Above this, show a manual-scan prompt. */
-const AUTO_SCAN_NODE_LIMIT = 5000;
+} from './core/plugin-mode';
 
 // Figma layer nodes have an 'expanded' property not in plugin typings.
 type WithExpanded = { expanded: boolean };
+
+// ===== BRIDGE =====
+// Tracks whether the bridge client is enabled (loaded from clientStorage on init).
+let bridgeEnabled = false;
+
+// Intercept console.* in the sandbox and forward logs to the bridge UI for relay to MCP.
+function installConsoleBridge(): void {
+  const originalLog = console.log.bind(console);
+  const originalWarn = console.warn.bind(console);
+  const originalError = console.error.bind(console);
+
+  function forwardLog(level: string, args: unknown[]): void {
+    if (!bridgeEnabled) return;
+    try {
+      const message = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+      figma.ui.postMessage({ type: 'bridge-console-log', level, message });
+    } catch { /* ignore */ }
+  }
+
+  console.log = (...args: unknown[]) => { originalLog(...args); forwardLog('log', args); };
+  console.warn = (...args: unknown[]) => { originalWarn(...args); forwardLog('warn', args); };
+  console.error = (...args: unknown[]) => { originalError(...args); forwardLog('error', args); };
+}
+
+installConsoleBridge();
 
 // ===== VIEWPORT ANIMATION =====
 /**
@@ -137,7 +161,10 @@ const initializePlugin = withErrorBoundary(async () => {
   
   // Register documentchange handler once after pages are loaded
   if (!documentChangeRegistered) {
-    figma.on('documentchange', handleDocumentChange);
+    figma.on('documentchange', (event: DocumentChangeEvent) => {
+      handleDocumentChange(event);
+      if (bridgeEnabled) sendBridgeDocumentEvent(event);
+    });
     documentChangeRegistered = true;
   }
   
@@ -148,9 +175,21 @@ const initializePlugin = withErrorBoundary(async () => {
   await sendInitialUIState();
   sendStyledTextStateToUI();
 
-  // Restore persisted plugin mode — UI will update tab strip accordingly.
-  const restoredMode = await loadPluginMode();
-  figma.ui.postMessage({ type: 'plugin-mode-restored', mode: restoredMode });
+  // Restore persisted plugin mode (migrates legacy 'lint' → 'navigate').
+  await loadPluginMode();
+
+  // Restore bridge enabled state and pair code
+  const storedBridgeEnabled = await figma.clientStorage.getAsync('bridgeEnabled') as boolean | undefined;
+  const storedPairCode = await figma.clientStorage.getAsync('bridgePairCode') as string | undefined;
+  bridgeEnabled = storedBridgeEnabled ?? false;
+  figma.ui.postMessage({
+    type: 'bridge-init',
+    enabled: bridgeEnabled,
+    pairCode: storedPairCode ?? '',
+  });
+  // If the bridge restores enabled, push file identity so the UI can complete
+  // the FILE_INFO handshake as soon as it reconnects to the MCP server.
+  if (bridgeEnabled) sendBridgeFileInfo();
 }, ErrorType.STORAGE_ERROR);
 
 // ===== DEBOUNCED FUNCTIONS =====
@@ -181,6 +220,9 @@ const debouncedSelectionUpdate = debounce(() => {
   debouncedNavigationContextUpdate();
 
   triggerValidationOnSelectionChange();
+
+  // Broadcast to bridge clients when enabled
+  if (bridgeEnabled) sendBridgeSelectionEvent();
 }, 100);
 
 const debouncedPageChange = debounce(async () => {
@@ -192,6 +234,13 @@ const debouncedPageChange = debounce(async () => {
   await updateUIAfterNavigation();
   addPageChangeToHistory();
   triggerValidationOnPageChange();
+
+  // Broadcast to bridge clients when enabled, and refresh file identity
+  // (currentPage/currentPageId changed) for the FILE_INFO handshake.
+  if (bridgeEnabled) {
+    sendBridgePageEvent();
+    sendBridgeFileInfo();
+  }
 }, 200);
 
 // ===== EVENT HANDLERS =====
@@ -431,6 +480,16 @@ figma.ui.onmessage = async (msg) => {
         await handleAddDate();
         break;
 
+      case 'get-date-settings':
+        await handleGetDateSettings();
+        break;
+
+      case 'set-date-settings':
+        if ('format' in msg && 'position' in msg) {
+          await handleSetDateSettings(msg.format as DateFormat, msg.position as DatePosition);
+        }
+        break;
+
       case 'create-new-page':
         await handleCreateNewPage();
         break;
@@ -454,157 +513,12 @@ figma.ui.onmessage = async (msg) => {
       case 'set-plugin-mode': {
         if ('mode' in msg && typeof msg.mode === 'string') {
           const mode = msg.mode;
-          if (mode === 'navigate' || mode === 'lint' || mode === 'scaffold') {
-            // Cancel any in-flight scan when leaving lint mode
-            if (getCurrentMode() === 'lint' && mode !== 'lint') {
-              const { cancelLintScan } = await import('./features/lint-engine');
-              cancelLintScan();
-            }
+          if (mode === 'navigate' || mode === 'scaffold') {
             await persistPluginMode(mode);
-            if (mode === 'lint') {
-              // Load settings to check scope before deciding whether to gate.
-              // Selection and tagged scopes are inherently bounded, so the
-              // large-file guard only applies to page scope.
-              const lintSettings = await loadLintSettings();
-              const lintScope = lintSettings.lintScope ?? 'selection';
-              if (lintScope === 'page') {
-                const nodeCount = figma.currentPage.findAll(() => true).length;
-                if (nodeCount > AUTO_SCAN_NODE_LIMIT) {
-                  figma.ui.postMessage({ type: 'lint-large-file', nodeCount });
-                  break;
-                }
-              }
-              const { runLintScan } = await import('./features/lint-engine');
-              await runLintScan();
-            }
+          } else if (mode === 'lint') {
+            await persistPluginMode('navigate');
           }
         }
-        break;
-      }
-
-      case 'lint-run-scan': {
-        const { runLintScan } = await import('./features/lint-engine');
-        await runLintScan();
-        break;
-      }
-
-      case 'lint-cancel-scan': {
-        const { cancelLintScan } = await import('./features/lint-engine');
-        cancelLintScan();
-        break;
-      }
-
-      case 'lint-set-scope': {
-        if ('scope' in msg && typeof msg.scope === 'string') {
-          const scope = msg.scope;
-          if (scope === 'selection' || scope === 'tagged' || scope === 'page') {
-            await persistLintSettings({ lintScope: scope });
-            const { runLintScan } = await import('./features/lint-engine');
-            await runLintScan();
-          }
-        }
-        break;
-      }
-
-      case 'lint-apply-fix': {
-        if (
-          'nodeId' in msg && typeof msg.nodeId === 'string' &&
-          'category' in msg && typeof msg.category === 'string' &&
-          'styleId' in msg && typeof msg.styleId === 'string'
-        ) {
-          const { applyLintFix } = await import('./features/lint-engine');
-          const result = await applyLintFix(msg.nodeId, msg.category, msg.styleId);
-          figma.notify(result.message, { error: !result.success });
-          if (result.success) {
-            const { runLintScan: reScan } = await import('./features/lint-engine');
-            await reScan();
-          }
-        }
-        break;
-      }
-
-      case 'lint-fix-all': {
-        if ('fixes' in msg && Array.isArray(msg.fixes)) {
-          const { runLintFixAll } = await import('./features/lint-engine');
-          await runLintFixAll(msg.fixes as Array<{ nodeId: string; category: string; styleId: string }>);
-        }
-        break;
-      }
-
-      case 'lint-ignore-error': {
-        if ('errorId' in msg && typeof msg.errorId === 'string') {
-          const { addIgnoredError } = await import('./core/lint-state');
-          await addIgnoredError(msg.errorId);
-          figma.ui.postMessage({ type: 'lint-error-ignored', errorId: msg.errorId });
-        }
-        break;
-      }
-
-      case 'lint-ignore-all': {
-        if ('errorIds' in msg && Array.isArray(msg.errorIds)) {
-          const { addIgnoredError } = await import('./core/lint-state');
-          for (const id of msg.errorIds as string[]) {
-            await addIgnoredError(id);
-          }
-          figma.ui.postMessage({ type: 'lint-ignored-all', errorIds: msg.errorIds });
-        }
-        break;
-      }
-
-      case 'lint-select-all': {
-        if ('nodeIds' in msg && Array.isArray(msg.nodeIds)) {
-          const nodes: SceneNode[] = [];
-          for (const id of msg.nodeIds as string[]) {
-            const node = await figma.getNodeByIdAsync(id);
-            if (node && node.type !== 'DOCUMENT' && node.type !== 'PAGE') {
-              nodes.push(node as SceneNode);
-            }
-          }
-          if (nodes.length > 0) {
-            figma.currentPage.selection = nodes;
-            figma.viewport.scrollAndZoomIntoView(nodes);
-            figma.notify(`Selected ${nodes.length} node${nodes.length === 1 ? '' : 's'}`);
-          }
-        }
-        break;
-      }
-
-      case 'lint-clear-ignored': {
-        const { clearIgnoredErrors } = await import('./core/lint-state');
-        await clearIgnoredErrors();
-        const { runLintScan: reScan2 } = await import('./features/lint-engine');
-        await reScan2();
-        break;
-      }
-
-      case 'lint-select-node': {
-        if ('nodeId' in msg && typeof msg.nodeId === 'string') {
-          const node = await figma.getNodeByIdAsync(msg.nodeId);
-          if (node && node.type !== 'DOCUMENT' && node.type !== 'PAGE') {
-            // Select the node (layer-panel visibility) then scroll to it.
-            // Auto re-scans call runLintScan('auto'), which reuses the pinned
-            // selection snapshot from the last user-initiated scan — so this
-            // selection change does NOT alter the effective scan scope.
-            figma.currentPage.selection = [node as SceneNode];
-            figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
-          }
-        }
-        break;
-      }
-
-      case 'lint-update-settings': {
-        if ('settings' in msg && typeof msg.settings === 'object' && msg.settings !== null) {
-          await persistLintSettings(msg.settings as Parameters<typeof persistLintSettings>[0]);
-          // Re-scan to reflect the updated settings
-          const { runLintScan: reScan3 } = await import('./features/lint-engine');
-          await reScan3();
-        }
-        break;
-      }
-
-      case 'lint-get-settings': {
-        const settings = await loadLintSettings();
-        figma.ui.postMessage({ type: 'lint-settings-loaded', settings });
         break;
       }
 
@@ -663,8 +577,298 @@ figma.ui.onmessage = async (msg) => {
 
       // Removed license management message handlers
 
+      // === BRIDGE ===
+      case 'bridge-set-enabled': {
+        if ('enabled' in msg && typeof msg.enabled === 'boolean') {
+          bridgeEnabled = msg.enabled;
+          await figma.clientStorage.setAsync('bridgeEnabled', msg.enabled);
+          // On enable, push file identity so the UI can send FILE_INFO on connect.
+          if (msg.enabled) sendBridgeFileInfo();
+        }
+        break;
+      }
+
+      case 'bridge-set-pair-code': {
+        if ('pairCode' in msg && typeof msg.pairCode === 'string') {
+          await figma.clientStorage.setAsync('bridgePairCode', msg.pairCode);
+        }
+        break;
+      }
+
+      case 'bridge-connected':
+      case 'bridge-disconnected':
+        // Informational — no sandbox action needed
+        break;
+
+      // ---- Bridge command dispatch ----
+      // All bridge-cmd-* types are handled by lazy-importing bridge-handlers.ts.
+      // The requestId is echoed in the BRIDGE_RESPONSE so the WS client can route
+      // the reply back to the correct MCP request.
+
+      case 'bridge-cmd-execute-code': {
+        if ('requestId' in msg && 'code' in msg && typeof msg.requestId === 'string' && typeof msg.code === 'string') {
+          const { handleBridgeExecuteCode } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeExecuteCode(msg.requestId, msg.code);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-get-file-info': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeGetFileInfo } = await import('./features/bridge/bridge-handlers');
+          handleBridgeGetFileInfo(msg.requestId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-get-variables': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeGetVariables } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeGetVariables(msg.requestId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-refresh-variables': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeGetVariables } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeGetVariables(msg.requestId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-update-variable': {
+        if ('requestId' in msg && 'variableId' in msg && 'modeId' in msg && 'value' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.variableId === 'string' && typeof msg.modeId === 'string') {
+          const { handleBridgeUpdateVariable } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeUpdateVariable(msg.requestId, msg.variableId, msg.modeId, msg.value);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-create-variable': {
+        if ('requestId' in msg && 'name' in msg && 'collectionId' in msg && 'resolvedType' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.name === 'string' &&
+            typeof msg.collectionId === 'string' && typeof msg.resolvedType === 'string') {
+          const { handleBridgeCreateVariable } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateVariable(msg.requestId, msg.name, msg.collectionId,
+            msg.resolvedType as VariableResolvedDataType,
+            'options' in msg ? msg.options as Record<string, unknown> : undefined
+          );
+        }
+        break;
+      }
+
+      case 'bridge-cmd-delete-variable': {
+        if ('requestId' in msg && 'variableId' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.variableId === 'string') {
+          const { handleBridgeDeleteVariable } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeDeleteVariable(msg.requestId, msg.variableId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-rename-variable': {
+        if ('requestId' in msg && 'variableId' in msg && 'newName' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.variableId === 'string' && typeof msg.newName === 'string') {
+          const { handleBridgeRenameVariable } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeRenameVariable(msg.requestId, msg.variableId, msg.newName);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-create-variable-collection': {
+        if ('requestId' in msg && 'name' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.name === 'string') {
+          const { handleBridgeCreateVariableCollection } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateVariableCollection(msg.requestId, msg.name,
+            'options' in msg ? msg.options as Record<string, unknown> : undefined
+          );
+        }
+        break;
+      }
+
+      case 'bridge-cmd-delete-variable-collection': {
+        if ('requestId' in msg && 'collectionId' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.collectionId === 'string') {
+          const { handleBridgeDeleteVariableCollection } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeDeleteVariableCollection(msg.requestId, msg.collectionId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-add-mode': {
+        if ('requestId' in msg && 'collectionId' in msg && 'modeName' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.collectionId === 'string' && typeof msg.modeName === 'string') {
+          const { handleBridgeAddMode } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeAddMode(msg.requestId, msg.collectionId, msg.modeName);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-rename-mode': {
+        if ('requestId' in msg && 'collectionId' in msg && 'modeId' in msg && 'newName' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.collectionId === 'string' &&
+            typeof msg.modeId === 'string' && typeof msg.newName === 'string') {
+          const { handleBridgeRenameMode } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeRenameMode(msg.requestId, msg.collectionId, msg.modeId, msg.newName);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-get-component': {
+        if ('requestId' in msg && 'nodeId' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string') {
+          const { handleBridgeGetComponent } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeGetComponent(msg.requestId, msg.nodeId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-get-local-components': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeGetLocalComponents } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeGetLocalComponents(msg.requestId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-instantiate-component': {
+        if ('requestId' in msg && 'componentKey' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.componentKey === 'string') {
+          const { handleBridgeInstantiateComponent } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeInstantiateComponent(msg.requestId, msg.componentKey,
+            'options' in msg ? msg.options as Record<string, unknown> : undefined
+          );
+        }
+        break;
+      }
+
+      case 'bridge-cmd-get-metadata': {
+        if ('requestId' in msg && 'nodeId' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string') {
+          const { handleBridgeGetMetadata } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeGetMetadata(msg.requestId, msg.nodeId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-resize-node': {
+        if ('requestId' in msg && 'nodeId' in msg && 'width' in msg && 'height' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' &&
+            typeof msg.width === 'number' && typeof msg.height === 'number') {
+          const { handleBridgeResizeNode } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeResizeNode(msg.requestId, msg.nodeId, msg.width, msg.height,
+            'withConstraints' in msg ? !!(msg.withConstraints) : true
+          );
+        }
+        break;
+      }
+
+      case 'bridge-cmd-move-node': {
+        if ('requestId' in msg && 'nodeId' in msg && 'x' in msg && 'y' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' &&
+            typeof msg.x === 'number' && typeof msg.y === 'number') {
+          const { handleBridgeMoveNode } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeMoveNode(msg.requestId, msg.nodeId, msg.x, msg.y);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-set-node-fills': {
+        if ('requestId' in msg && 'nodeId' in msg && 'fills' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && Array.isArray(msg.fills)) {
+          const { handleBridgeSetNodeFills } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeSetNodeFills(msg.requestId, msg.nodeId, msg.fills as Array<{ type: 'SOLID'; color: string; opacity?: number }>);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-set-node-strokes': {
+        if ('requestId' in msg && 'nodeId' in msg && 'strokes' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && Array.isArray(msg.strokes)) {
+          const { handleBridgeSetNodeStrokes } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeSetNodeStrokes(msg.requestId, msg.nodeId,
+            msg.strokes as Array<{ type: 'SOLID'; color: string; opacity?: number }>,
+            'strokeWeight' in msg && typeof msg.strokeWeight === 'number' ? msg.strokeWeight : undefined
+          );
+        }
+        break;
+      }
+
+      case 'bridge-cmd-clone-node': {
+        if ('requestId' in msg && 'nodeId' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string') {
+          const { handleBridgeCloneNode } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCloneNode(msg.requestId, msg.nodeId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-delete-node': {
+        if ('requestId' in msg && 'nodeId' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string') {
+          const { handleBridgeDeleteNode } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeDeleteNode(msg.requestId, msg.nodeId);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-rename-node': {
+        if ('requestId' in msg && 'nodeId' in msg && 'newName' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && typeof msg.newName === 'string') {
+          const { handleBridgeRenameNode } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeRenameNode(msg.requestId, msg.nodeId, msg.newName);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-set-text': {
+        if ('requestId' in msg && 'nodeId' in msg && 'text' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && typeof msg.text === 'string') {
+          const { handleBridgeSetText } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeSetText(msg.requestId, msg.nodeId, msg.text,
+            'fontSize' in msg && typeof msg.fontSize === 'number' ? msg.fontSize : undefined
+          );
+        }
+        break;
+      }
+
+      case 'bridge-cmd-create-child': {
+        if ('requestId' in msg && 'parentId' in msg && 'nodeType' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.parentId === 'string' && typeof msg.nodeType === 'string') {
+          const { handleBridgeCreateChild } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateChild(msg.requestId, msg.parentId,
+            msg.nodeType as 'RECTANGLE' | 'ELLIPSE' | 'FRAME' | 'TEXT' | 'LINE',
+            'properties' in msg ? msg.properties as Record<string, unknown> : undefined
+          );
+        }
+        break;
+      }
+
+      case 'bridge-cmd-set-node-description': {
+        if ('requestId' in msg && 'nodeId' in msg && 'description' in msg &&
+            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && typeof msg.description === 'string') {
+          const { handleBridgeSetNodeDescription } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeSetNodeDescription(msg.requestId, msg.nodeId, msg.description,
+            'descriptionMarkdown' in msg && typeof msg.descriptionMarkdown === 'string' ? msg.descriptionMarkdown : undefined
+          );
+        }
+        break;
+      }
+
       default:
-        console.log('Unknown message type:', msg.type);
+        // Unhandled bridge commands must still reply, or the MCP client's request
+        // hangs until it times out. Send an explicit error so the server fails fast.
+        if (msg.type.startsWith('bridge-cmd-') && 'requestId' in msg && typeof msg.requestId === 'string') {
+          figma.ui.postMessage({
+            type: 'BRIDGE_RESPONSE',
+            requestId: msg.requestId,
+            error: `Unsupported bridge command: ${msg.type}`,
+          });
+        } else {
+          console.log('Unknown message type:', msg.type);
+        }
     }
   } catch (error) {
     handleError(error);
@@ -1176,7 +1380,7 @@ const handleSaveBookmark = withErrorBoundary(async () => {
   try {
     const bookmark = await addBookmark(node as SceneNode & { name: string });
     figma.notify(`Bookmarked: ${bookmark.name}`);
-    await updateUIAfterNavigation();
+    await updateUIAfterBookmarkChange();
   } catch (error) {
     if (error instanceof Error) {
       figma.notify(error.message);
@@ -1247,13 +1451,18 @@ const handleImportPluginData = withErrorBoundary(async () => {
 }, ErrorType.STORAGE_ERROR);
 
 const handleAddDate = withErrorBoundary(async () => {
+  const storedFormat = await figma.clientStorage.getAsync('dateFormat') as DateFormat | undefined;
+  const storedPosition = await figma.clientStorage.getAsync('datePosition') as DatePosition | undefined;
+  const format: DateFormat = storedFormat ?? 'numeric';
+  const position: DatePosition = storedPosition ?? 'prefix';
+
   const selection = figma.currentPage.selection;
 
   if (selection.length === 0) {
     // Apply to current page title
     const page = figma.currentPage;
     const oldName = page.name;
-    const newName = addOrReplaceDateInPageTitle(oldName);
+    const newName = addOrReplaceDateInPageTitle(oldName, format, position);
     if (newName !== oldName) {
       page.name = newName;
       figma.notify(`Updated page title: ${newName}`);
@@ -1266,7 +1475,7 @@ const handleAddDate = withErrorBoundary(async () => {
     for (const node of selection) {
       if ('name' in node) {
         const oldName = (node as SceneNode & { name: string }).name;
-        const newName = addOrReplaceDateInLayerName(oldName);
+        const newName = addOrReplaceDateInLayerName(oldName, format, position);
         if (newName !== oldName) {
           (node as SceneNode & { name: string }).name = newName;
           updatedCount++;
@@ -1279,7 +1488,17 @@ const handleAddDate = withErrorBoundary(async () => {
   await updateUIAfterNavigation();
 }, ErrorType.UNKNOWN);
 
-// Insert 4 spaces before the current page title's text
+const handleGetDateSettings = withErrorBoundary(async () => {
+  const format = (await figma.clientStorage.getAsync('dateFormat') as DateFormat | undefined) ?? 'numeric';
+  const position = (await figma.clientStorage.getAsync('datePosition') as DatePosition | undefined) ?? 'prefix';
+  figma.ui.postMessage({ type: 'date-settings', format, position });
+}, ErrorType.UNKNOWN);
+
+const handleSetDateSettings = withErrorBoundary(async (format: DateFormat, position: DatePosition) => {
+  await figma.clientStorage.setAsync('dateFormat', format);
+  await figma.clientStorage.setAsync('datePosition', position);
+  figma.ui.postMessage({ type: 'date-settings', format, position });
+}, ErrorType.UNKNOWN);
 const handleIndentTitle = withErrorBoundary(async () => {
   const page = figma.currentPage;
   const oldName = page.name;
@@ -1312,8 +1531,9 @@ const handleOutdentTitle = withErrorBoundary(async () => {
 const handleCreateNewPage = withErrorBoundary(async () => {
   // Create page
   const page = figma.createPage();
-  // Title format: "↳ MM.DD : newPage"
-  const today = (await import('./utils')).getTodayDateToken();
+  const storedFormat = await figma.clientStorage.getAsync('dateFormat') as DateFormat | undefined;
+  const format: DateFormat = storedFormat ?? 'numeric';
+  const today = getTodayDateToken(format);
   const baseTitle = 'newPage';
   page.name = `↳ ${today} : ${baseTitle}`;
 

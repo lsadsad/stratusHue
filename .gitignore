@@ -144,3 +144,13 @@ packages
 # Excalidraw files
 *.excalidraw
 .DS_Store
+
+# Local MCP token overlay (optional)
+.cursor/mcp.secrets.json
+
+# Playwright artifacts
+test-results/
+playwright-report/
+
+# Local MCP token overlay (optional — not read by Cursor automatically)
+.cursor/mcp.secrets.json

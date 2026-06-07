@@ -48,6 +48,14 @@ export interface PageTitleParts {
   title: string; // text after colon, or full name if no colon
 }
 
+export type DateFormat = 'numeric' | 'alpha'; // numeric = MM.DD.YYYY, alpha = Mon.DD.YYYY
+export type DatePosition = 'prefix' | 'suffix'; // prefix = beginning, suffix = end
+
+export interface DateSettings {
+  format: DateFormat;
+  position: DatePosition;
+}
+
 
 // ===== UI MESSAGE TYPES =====
 // Known message types from UI → sandbox:

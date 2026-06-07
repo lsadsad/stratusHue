@@ -1,3 +1,11 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "figma-console": {
+      "command": "/Users/levinsadsad/Projects/stratusHue/.cursor/scripts/figma-console-mcp.sh",
+      "args": [],
+      "env": {
+        "ENABLE_MCP_APPS": "true"
+      }
+    }
+  }
 }

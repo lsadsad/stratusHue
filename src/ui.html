@@ -9,20 +9,8 @@
 </head>
 
 <body>
-  <!-- ===== MODE STRIP ===== -->
-  <nav id="mode-strip" role="tablist" aria-label="Plugin mode">
-    <button id="tab-navigate" class="mode-tab active" role="tab"
-      aria-selected="true" aria-controls="navigate-main" data-mode="navigate" tabindex="0">
-      Navigate
-    </button>
-    <button id="tab-validate" class="mode-tab" role="tab"
-      aria-selected="false" aria-controls="validate-main" data-mode="validate" tabindex="-1">
-      Validate
-    </button>
-  </nav>
-
   <!-- ===== NAVIGATE MAIN ===== -->
-  <main id="navigate-main" class="scrollable-content" role="tabpanel" aria-labelledby="tab-navigate">
+  <main id="navigate-main" class="scrollable-content" role="main">
     <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="-1"
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
@@ -374,12 +362,6 @@
     </section>
   </main>
 
-  <!-- ===== VALIDATE MAIN ===== -->
-  <main id="validate-main" class="scrollable-content" role="tabpanel"
-    aria-labelledby="tab-validate" hidden>
-    <!-- Populated by lint-ui.ts on first activation -->
-  </main>
-
   <div id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="settings-panel" role="document">
       <header class="settings-header">
@@ -436,6 +418,41 @@
           </div>
         </div>
 
+        <!-- Nudge Settings Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">↔️ Nudge Amount</h3>
+          <div class="setting-item nudge-settings">
+            <div class="nudge-input-group">
+              <label for="small-nudge-input" class="nudge-label">Small nudge</label>
+              <input type="number" id="small-nudge-input" class="nudge-input" min="1" max="100" value="1" aria-describedby="small-nudge-desc" tabindex="-1">
+            </div>
+            <div class="nudge-input-group">
+              <label for="big-nudge-input" class="nudge-label">Big nudge</label>
+              <input type="number" id="big-nudge-input" class="nudge-input" min="1" max="100" value="8" aria-describedby="big-nudge-desc" tabindex="-1">
+            </div>
+          </div>
+          <p class="settings-help-text" id="small-nudge-desc">Used with Arrow keys. <span id="big-nudge-desc">Hold Shift for big nudge.</span></p>
+        </div>
+
+        <!-- Date Settings Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">📅 Date Tagger</h3>
+          <div class="setting-item setting-item--row">
+            <span class="nudge-label">Format</span>
+            <div class="segmented-control" id="date-format-control" role="group" aria-label="Date format">
+              <button class="segmented-btn active" data-value="numeric" tabindex="-1">mm.dd.yyyy</button>
+              <button class="segmented-btn" data-value="alpha" tabindex="-1">Mon.dd.yyyy</button>
+            </div>
+          </div>
+          <div class="setting-item setting-item--row">
+            <span class="nudge-label">Position</span>
+            <div class="segmented-control" id="date-position-control" role="group" aria-label="Date position">
+              <button class="segmented-btn active" data-value="prefix" tabindex="-1">Prefix</button>
+              <button class="segmented-btn" data-value="suffix" tabindex="-1">Suffix</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Controls Section -->
         <div class="settings-section">
           <h3 class="settings-section-title">🧭 Controls</h3>
@@ -469,22 +486,6 @@
           </div>
         </div>
 
-        <!-- Nudge Settings Section -->
-        <div class="settings-section">
-          <h3 class="settings-section-title">↔️ Nudge Amount</h3>
-          <div class="setting-item nudge-settings">
-            <div class="nudge-input-group">
-              <label for="small-nudge-input" class="nudge-label">Small nudge</label>
-              <input type="number" id="small-nudge-input" class="nudge-input" min="1" max="100" value="1" aria-describedby="small-nudge-desc" tabindex="-1">
-            </div>
-            <div class="nudge-input-group">
-              <label for="big-nudge-input" class="nudge-label">Big nudge</label>
-              <input type="number" id="big-nudge-input" class="nudge-input" min="1" max="100" value="8" aria-describedby="big-nudge-desc" tabindex="-1">
-            </div>
-          </div>
-          <p class="settings-help-text" id="small-nudge-desc">Used with Arrow keys. <span id="big-nudge-desc">Hold Shift for big nudge.</span></p>
-        </div>
-
         <!-- Data Migration Section -->
         <!-- COMMENTED OUT: Data Migration Feature
         <div class="settings-section">
@@ -501,56 +502,25 @@
         </div>
         -->
 
-        <!-- Design Lint Section -->
-        <div class="settings-section" id="lint-settings-section">
-          <h3 class="settings-section-title">🔍 Design Lint</h3>
-
-          <!-- Category Toggles -->
-          <div class="setting-item">
-            <p class="settings-help-text">Check for missing styles in these categories:</p>
-            <div class="lint-category-toggles">
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Fill</span>
-                <input type="checkbox" id="lint-toggle-fill" checked tabindex="-1">
-              </label>
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Stroke</span>
-                <input type="checkbox" id="lint-toggle-stroke" checked tabindex="-1">
-              </label>
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Text</span>
-                <input type="checkbox" id="lint-toggle-text" checked tabindex="-1">
-              </label>
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Effects</span>
-                <input type="checkbox" id="lint-toggle-effects" checked tabindex="-1">
-              </label>
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Border Radius</span>
-                <input type="checkbox" id="lint-toggle-radius" checked tabindex="-1">
-              </label>
+        <!-- Bridge Section -->
+        <div class="settings-section" id="bridge-settings-section">
+          <h3 class="settings-section-title">🔌 Bridge</h3>
+          <div class="settings-row">
+            <label class="settings-label" for="bridge-enable-toggle">Enable MCP bridge</label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="bridge-enable-toggle" tabindex="-1">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div id="bridge-cloud-section" hidden>
+            <div class="settings-subsection-title">Cloud relay (Claude.ai)</div>
+            <div class="bridge-pair-row">
+              <input id="bridge-cloud-pair-input" class="settings-input" type="text"
+                placeholder="6-char code" maxlength="6" spellcheck="false" autocomplete="off"
+                aria-label="Cloud pairing code" tabindex="-1">
+              <button id="bridge-cloud-connect-btn" class="settings-btn-sm" tabindex="-1">Connect</button>
+              <button id="bridge-cloud-disconnect-btn" class="settings-btn-sm settings-btn-danger" hidden tabindex="-1">Disconnect</button>
             </div>
-          </div>
-
-          <!-- Allowed Border Radii -->
-          <div class="setting-item">
-            <label for="lint-allowed-radii" class="nudge-label">Allowed border radii (px)</label>
-            <input type="text" id="lint-allowed-radii" class="lint-radii-input" value="0, 2, 4, 8, 16, 24, 100" placeholder="0, 4, 8, 16…" aria-describedby="lint-radii-desc" tabindex="-1">
-            <p class="settings-help-text" id="lint-radii-desc">Comma-separated values. Radii not in this list are flagged.</p>
-          </div>
-
-          <!-- Skip layer names -->
-          <div class="setting-item">
-            <label for="lint-skip-names" class="nudge-label">Skip layers containing</label>
-            <input type="text" id="lint-skip-names" class="lint-radii-input" placeholder="_spec, annotation, redline…" aria-describedby="lint-skip-names-desc" tabindex="-1">
-            <p class="settings-help-text" id="lint-skip-names-desc">Comma-separated substrings. Matching layers and their children are excluded from the scan.</p>
-          </div>
-
-          <!-- Tagged scope emoji -->
-          <div class="setting-item">
-            <label for="lint-scope-emoji" class="nudge-label">Tagged scope emoji</label>
-            <input type="text" id="lint-scope-emoji" class="lint-radii-input" value="✅" maxlength="4" placeholder="✅" aria-describedby="lint-scope-emoji-desc" tabindex="-1">
-            <p class="settings-help-text" id="lint-scope-emoji-desc">When scope is "Tagged", frames whose name contains this emoji are scanned.</p>
           </div>
         </div>
 
@@ -587,6 +557,12 @@
         <div id="footer-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel (double-click to toggle auto-fit)" tabindex="-1">
           <i class="grip">: : :</i>
         </div>
+      </li>
+      <li id="bridge-status-dots" hidden aria-label="Bridge connection status">
+        <span class="bridge-dot-wrap">
+          <span id="bridge-status-local" class="bridge-dot" data-bridge-type="local" data-bridge-state="disconnected" title="Bridge local: disconnected"></span>
+          <span id="bridge-status-cloud" class="bridge-dot" data-bridge-type="cloud" data-bridge-state="disconnected" title="Bridge cloud: disconnected"></span>
+        </span>
       </li>
       <li>
         <span class="made-with">

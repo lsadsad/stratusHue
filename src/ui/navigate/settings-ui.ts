@@ -14,6 +14,14 @@ import {
   setSmallNudgeAmount,
   setBigNudgeAmount
 } from './controls-ui';
+import type { DateFormat, DatePosition } from '../../core/types';
+
+// Module-level date settings (mirrored from sandbox storage)
+export let currentDateFormat: DateFormat = 'numeric';
+export let currentDatePosition: DatePosition = 'prefix';
+
+export function setCurrentDateFormat(f: DateFormat): void { currentDateFormat = f; }
+export function setCurrentDatePosition(p: DatePosition): void { currentDatePosition = p; }
 
 // Setup controls settings
 export function setupControlsSettings(): void {
@@ -107,4 +115,46 @@ export function updateNudgeSettingsUI(small: number, big: number): void {
   if (bigNudgeInput) {
     bigNudgeInput.value = String(big);
   }
+}
+
+// Setup date format/position segmented controls
+export function setupDateSettings(): void {
+  setupSegmentedControl('date-format-control', (value) => {
+    const format = value as DateFormat;
+    currentDateFormat = format;
+    sendMessage('set-date-settings', { format: currentDateFormat, position: currentDatePosition });
+  });
+  setupSegmentedControl('date-position-control', (value) => {
+    const position = value as DatePosition;
+    currentDatePosition = position;
+    sendMessage('set-date-settings', { format: currentDateFormat, position: currentDatePosition });
+  });
+}
+
+function setupSegmentedControl(containerId: string, onChange: (value: string) => void): void {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll<HTMLButtonElement>('.segmented-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      onChange(btn.dataset.value ?? '');
+    });
+  });
+}
+
+// Update date settings UI when settings are loaded from storage
+export function updateDateSettingsUI(format: DateFormat, position: DatePosition): void {
+  currentDateFormat = format;
+  currentDatePosition = position;
+  setSegmentedValue('date-format-control', format);
+  setSegmentedValue('date-position-control', position);
+}
+
+function setSegmentedValue(containerId: string, value: string): void {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll<HTMLButtonElement>('.segmented-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.value === value);
+  });
 }

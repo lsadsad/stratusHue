@@ -7,6 +7,7 @@ import type { Bookmark } from '../core/types';
 import { getBookmarks, currentAnchorState, recentHistoryState } from '../core/state';
 import { getNavigationState, hasAnySelectionEntry } from '../features/navigation';
 import { getCurrentEmojiSet, getEmojiNavigationState } from '../features/emoji-manager';
+import { buildFileInfo } from '../features/bridge/file-info';
 
 // ===== UI MESSAGE SENDERS =====
 export async function sendBookmarksToUI(options?: { forceReload?: boolean }): Promise<void> {
@@ -205,6 +206,75 @@ export async function sendInitialUIState(): Promise<void> {
     console.error('Failed to send initial UI state:', error);
     sendErrorToUI('Failed to initialize plugin state');
   }
+}
+
+// ===== BRIDGE EVENT SENDERS =====
+// Called from selectionchange / currentpagechange / documentchange handlers in code.ts
+// so the bridge can broadcast these events over WebSocket to connected MCP clients.
+
+// Payload fields below the `type` routing key must match the server's SelectionInfo /
+// DocumentChangeEntry / PAGE_CHANGE contracts (figma-studio websocket-server.ts).
+
+export function sendBridgeSelectionEvent(): void {
+  const selection = figma.currentPage.selection;
+  const nodes = [];
+  for (let i = 0; i < Math.min(selection.length, 50); i++) {
+    const n = selection[i];
+    try {
+      nodes.push({ id: n.id, name: n.name, type: n.type, width: n.width, height: n.height });
+    } catch (_err) {
+      // Slot sublayers / table cells may not be fully resolvable — skip rather than crash.
+    }
+  }
+  figma.ui.postMessage({
+    type: 'bridge-selection-change',
+    nodes,
+    count: selection.length,
+    page: figma.currentPage.name,
+    timestamp: Date.now(),
+  });
+}
+
+export function sendBridgeDocumentEvent(event: DocumentChangeEvent): void {
+  let hasStyleChanges = false;
+  let hasNodeChanges = false;
+  const changedNodeIds: string[] = [];
+  for (const change of event.documentChanges) {
+    if (change.type === 'STYLE_CREATE' || change.type === 'STYLE_DELETE' || change.type === 'STYLE_PROPERTY_CHANGE') {
+      hasStyleChanges = true;
+    } else if (change.type === 'CREATE' || change.type === 'DELETE' || change.type === 'PROPERTY_CHANGE') {
+      hasNodeChanges = true;
+      if (change.id && changedNodeIds.length < 50) changedNodeIds.push(change.id);
+    }
+  }
+  // Mirror the original plugin: only forward changes the server cares about.
+  if (!hasStyleChanges && !hasNodeChanges) return;
+  figma.ui.postMessage({
+    type: 'bridge-document-change',
+    hasStyleChanges,
+    hasNodeChanges,
+    changedNodeIds,
+    changeCount: event.documentChanges.length,
+    timestamp: Date.now(),
+  });
+}
+
+export function sendBridgePageEvent(): void {
+  figma.ui.postMessage({
+    type: 'bridge-page-change',
+    pageId: figma.currentPage.id,
+    pageName: figma.currentPage.name,
+    timestamp: Date.now(),
+  });
+}
+
+// Pushes the current file identity to the UI so bridge-client can send the
+// FILE_INFO identification handshake the figma-studio server requires on connect.
+export function sendBridgeFileInfo(): void {
+  figma.ui.postMessage({
+    type: 'bridge-file-info',
+    fileInfo: buildFileInfo(),
+  });
 }
 
 // ===== UI RESIZE HELPERS =====

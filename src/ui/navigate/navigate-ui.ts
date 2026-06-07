@@ -13,7 +13,7 @@ import { activeTimers } from '../shared/cleanup';
 import { initializeQuickActionTooltips } from '../shared/tooltip-manager';
 import { setupThemeSwitching } from '../shared/theme-manager-ui';
 import { setupAccessibilitySupport } from '../shared/accessibility';
-import { setupControlsSettings, setupNudgeSettings } from './settings-ui';
+import { setupControlsSettings, setupNudgeSettings, setupDateSettings, currentDateFormat } from './settings-ui';
 import {
   updateControlButtons,
   smallNudgeAmount,
@@ -233,15 +233,6 @@ export function setupEventListeners(): void {
   const widthToggleBtn = document.getElementById('footer-width-toggle');
   const resizeHandle = document.getElementById('footer-resize');
   const collapsibleHeaders = Array.from(document.querySelectorAll<HTMLElement>('.section-header.collapsible'));
-  const headerActionButtons: HTMLElement[] = [
-    newPageBtn,
-    dateBtn,
-    clearBtn,
-    saveBtn,
-    refreshAnchorsBtn,
-    backBtn,
-    forwardBtn
-  ].filter((btn): btn is HTMLElement => btn instanceof HTMLElement);
 
   ['tags-header', 'anchors-header', 'controls-header'].forEach((headerId) => {
     const header = document.getElementById(headerId) as HTMLElement | null;
@@ -328,7 +319,7 @@ export function setupEventListeners(): void {
     dateBtn.addEventListener('mouseenter', () => {
       const anatomyDate = document.querySelector('.anatomy-date') as HTMLElement;
       if (anatomyDate) {
-        const today = getTodayDate();
+        const today = getTodayDate(currentDateFormat);
         anatomyDate.textContent = `${today} :`;
         anatomyDate.style.display = 'flex';
         anatomyDate.style.opacity = '1';
@@ -368,7 +359,7 @@ export function setupEventListeners(): void {
       const modeAffordance = document.querySelector('.mode-affordance') as HTMLElement;
 
       if (anatomyDate) {
-        const today = getTodayDate();
+        const today = getTodayDate(currentDateFormat);
         anatomyDate.textContent = `${today} :`;
         anatomyDate.style.display = 'flex';
         anatomyDate.style.opacity = '1';
@@ -1547,6 +1538,7 @@ export function initializeControls(): void {
   setupControls();
   setupControlsSettings();
   setupNudgeSettings();
+  setupDateSettings();
 
   // Initialize accessibility features
   initializeAccessibilityFeatures();
@@ -1555,6 +1547,7 @@ export function initializeControls(): void {
   sendMessage('get-controls-setting');
   sendMessage('get-controls-group-settings');
   sendMessage('get-nudge-settings');
+  sendMessage('get-date-settings');
 }
 
 // Initialize accessibility features for controls

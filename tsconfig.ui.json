@@ -15,7 +15,6 @@
     "src/ui.ts",
     "src/ui/shared/**/*.ts",
     "src/ui/navigate/**/*.ts",
-    "src/ui/lint/**/*.ts",
     "src/ui/scaffold/**/*.ts",
     "src/types/**/*.d.ts"
   ],

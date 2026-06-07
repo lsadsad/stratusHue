@@ -58,17 +58,27 @@ const titleBar = `\
     </div>`;
 
 // Insert opener + title bar immediately before the mode strip nav (if present)
-// or before <main class="scrollable-content"> (legacy fallback).
+// or before the first scrollable main block (navigate-only or legacy markup).
+const MAIN_SCROLLABLE = /(\s*)<main(\s[^>]*?)class="scrollable-content"/;
+
 if (html.includes('<nav id="mode-strip"')) {
   html = html.replace(
     /(\s*)(<nav id="mode-strip")/,
     `\n${titleBar}\n$1$2`
   );
-} else {
+} else if (MAIN_SCROLLABLE.test(html)) {
   html = html.replace(
-    /(\s*)<main class="scrollable-content">/,
-    `\n${titleBar}\n$1<main class="scrollable-content">`
+    MAIN_SCROLLABLE,
+    `\n${titleBar}\n$1<main$2class="scrollable-content"`
   );
+} else {
+  console.error('✗  Could not find anchor for #plugin-chrome wrapper (expected mode strip or scrollable main)');
+  process.exit(1);
+}
+
+if (!html.includes('id="plugin-chrome"')) {
+  console.error('✗  #plugin-chrome wrapper was not injected');
+  process.exit(1);
 }
 
 // Close the chrome div right after </footer>

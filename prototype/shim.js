@@ -17,6 +17,12 @@
             // Echo back so ui.ts updates controls visibility
             sendPluginMsg({ type: 'controls-setting', enabled: msg.enabled });
           }
+          if (msg.type === 'set-date-settings') {
+            sendPluginMsg({ type: 'date-settings', format: msg.format, position: msg.position });
+          }
+          if (msg.type === 'get-date-settings') {
+            sendPluginMsg({ type: 'date-settings', format: 'numeric', position: 'prefix' });
+          }
           if (msg.type === 'toggle-width') {
             protoIsCompact = !protoIsCompact;
             var w = protoIsCompact ? '188px' : '240px';
@@ -208,6 +214,9 @@
 
       // Nudge defaults
       sendPluginMsg({ type: 'nudge-settings', smallNudge: 1, bigNudge: 8 });
+
+      // Bridge UI init (dev build)
+      sendPluginMsg({ type: 'bridge-init', enabled: false });
 
       // Layout sizing state
       sendPluginMsg({ type: 'update-layout-state', horizontal: null, vertical: null });

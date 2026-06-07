@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node esbuild.config.js",
-    "build:prod": "cross-env NODE_ENV=production node esbuild.config.js",
+    "build:prod": "node -e \"import fs from 'fs'; fs.copyFileSync('manifest.prod.json','manifest.json'); console.log('📋 manifest.json ← manifest.prod.json');\" && cross-env NODE_ENV=production node esbuild.config.js",
     "build:plugin-ready": "npm run build:prod && node scripts/build-plugin-ready.js",
     "build:plugin-ready:zip": "npm run build:prod && node scripts/build-plugin-ready.js --package",
     "pkg": "npm run build:plugin-ready:zip",
@@ -14,12 +14,15 @@
     "package": "node scripts/package-plugin.js",
     "package:desktop": "node scripts/package-plugin.js \"%USERPROFILE%\\Desktop\"",
     "package:custom": "node scripts/package-plugin.js",
-    "dev": "node esbuild.config.js --watch",
+    "dev": "node -e \"import fs from 'fs'; fs.copyFileSync('manifest.dev.json','manifest.json'); console.log('📋 manifest.json ← manifest.dev.json');\" && node esbuild.config.js --watch",
+    "use-manifest:dev": "node -e \"import fs from 'fs'; fs.copyFileSync('manifest.dev.json','manifest.json'); console.log('📋 manifest.json ← manifest.dev.json');\"",
+    "use-manifest:prod": "node -e \"import fs from 'fs'; fs.copyFileSync('manifest.prod.json','manifest.json'); console.log('📋 manifest.json ← manifest.prod.json');\"",
     "clean": "node -e \"import fs from 'fs'; if(fs.existsSync('dist')) fs.rmSync('dist',{recursive:true,force:true}); console.log('🧹 Cleaned dist directory')\"",
     "clean:all": "node -e \"import fs from 'fs'; ['dist','plugin-ready'].forEach(d => { if(fs.existsSync(d)) { fs.rmSync(d,{recursive:true,force:true}); console.log('🧹 Cleaned '+d+' directory'); } })\"",
     "lint": "eslint --ext .ts,.tsx --ignore-pattern node_modules .",
     "lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix .",
     "validate": "npm run type-check && npm run lint && npm run test:critical && npm run build && echo Build validation completed successfully",
+    "validate:full": "npm run validate && npm run test:prototype:sync",
     "type-check": "tsc --noEmit && tsc -p tsconfig.ui.json",
     "test": "vitest --run",
     "test:watch": "vitest",
@@ -28,7 +31,9 @@
     "test:navigation": "tsx src/test/run-tests.ts",
     "test:navigation:unit": "vitest --run src/test/navigation.test.ts src/test/navigation-context.test.ts",
     "test:navigation:integration": "vitest --run src/test/navigation-integration.test.ts src/test/navigation-ui-integration.test.ts",
-    "test:critical": "vitest --run src/test/bookmarks.test.ts src/test/emoji-manager.test.ts src/test/navigation.test.ts src/test/navigation-history.test.ts src/test/navigation-integration.test.ts src/test/message-contracts.test.ts src/test/smoke-dispatch.test.ts",
+    "test:critical": "vitest --run src/test/bookmarks.test.ts src/test/emoji-manager.test.ts src/test/navigation.test.ts src/test/navigation-history.test.ts src/test/navigation-integration.test.ts src/test/message-contracts.test.ts src/test/smoke-dispatch.test.ts src/test/date-tagger.test.ts src/test/settings-ui.test.ts",
+    "test:prototype": "playwright test",
+    "test:prototype:sync": "npm run sync:prototype && playwright test",
     "test:navigation:settings": "vitest --run src/test/navigation-settings.test.ts",
     "info": "node -e \"import fs from 'fs'; const files=['dist/code.js','dist/ui.js','dist/styles.css']; console.log('📊 Build Output:'); files.forEach(f => { if(fs.existsSync(f)) { const size=(fs.statSync(f).size/1024).toFixed(1); console.log('  '+f+': '+size+' KB'); } });\"",
     "sync:prototype": "node scripts/sync-prototype.js"
@@ -38,6 +43,7 @@
   "devDependencies": {
     "@figma/eslint-plugin-figma-plugins": "*",
     "@figma/plugin-typings": "^1.75.0",
+    "@playwright/test": "^1.60.0",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^24.5.2",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
@@ -71,7 +77,8 @@
       "scripts/**",
       "**/*.test.ts",
       "**/*.spec.ts",
-      "vitest.config.ts"
+      "vitest.config.ts",
+      "playwright.config.ts"
     ],
     "root": true,
     "rules": {
