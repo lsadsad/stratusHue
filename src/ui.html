@@ -9,20 +9,8 @@
 </head>
 
 <body>
-  <!-- ===== MODE STRIP ===== -->
-  <nav id="mode-strip" role="tablist" aria-label="Plugin mode">
-    <button id="tab-navigate" class="mode-tab active" role="tab"
-      aria-selected="true" aria-controls="navigate-main" data-mode="navigate" tabindex="0">
-      Navigate
-    </button>
-    <button id="tab-validate" class="mode-tab" role="tab"
-      aria-selected="false" aria-controls="validate-main" data-mode="validate" tabindex="-1">
-      Validate
-    </button>
-  </nav>
-
   <!-- ===== NAVIGATE MAIN ===== -->
-  <main id="navigate-main" class="scrollable-content" role="tabpanel" aria-labelledby="tab-navigate">
+  <main id="navigate-main" class="scrollable-content" role="main">
     <header id="tags-header" class="section-header collapsible" data-target="color-section" role="button" tabindex="-1"
       aria-expanded="true" aria-controls="color-section">
       <div class="header-left">
@@ -374,12 +362,6 @@
     </section>
   </main>
 
-  <!-- ===== VALIDATE MAIN ===== -->
-  <main id="validate-main" class="scrollable-content" role="tabpanel"
-    aria-labelledby="tab-validate" hidden>
-    <!-- Populated by lint-ui.ts on first activation -->
-  </main>
-
   <div id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="settings-panel" role="document">
       <header class="settings-header">
@@ -519,59 +501,6 @@
           </div>
         </div>
         -->
-
-        <!-- Design Lint Section -->
-        <div class="settings-section" id="lint-settings-section">
-          <h3 class="settings-section-title">🔍 Design Lint</h3>
-
-          <!-- Category Toggles -->
-          <div class="setting-item">
-            <p class="settings-help-text">Check for missing styles in these categories:</p>
-            <div class="lint-category-toggles">
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Fill</span>
-                <input type="checkbox" id="lint-toggle-fill" checked tabindex="-1">
-              </label>
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Stroke</span>
-                <input type="checkbox" id="lint-toggle-stroke" checked tabindex="-1">
-              </label>
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Text</span>
-                <input type="checkbox" id="lint-toggle-text" checked tabindex="-1">
-              </label>
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Effects</span>
-                <input type="checkbox" id="lint-toggle-effects" checked tabindex="-1">
-              </label>
-              <label class="setting-label-small sub-toggle">
-                <span class="checkbox-description">Border Radius</span>
-                <input type="checkbox" id="lint-toggle-radius" checked tabindex="-1">
-              </label>
-            </div>
-          </div>
-
-          <!-- Allowed Border Radii -->
-          <div class="setting-item">
-            <label for="lint-allowed-radii" class="nudge-label">Allowed border radii (px)</label>
-            <input type="text" id="lint-allowed-radii" class="lint-radii-input" value="0, 2, 4, 8, 16, 24, 100" placeholder="0, 4, 8, 16…" aria-describedby="lint-radii-desc" tabindex="-1">
-            <p class="settings-help-text" id="lint-radii-desc">Comma-separated values. Radii not in this list are flagged.</p>
-          </div>
-
-          <!-- Skip layer names -->
-          <div class="setting-item">
-            <label for="lint-skip-names" class="nudge-label">Skip layers containing</label>
-            <input type="text" id="lint-skip-names" class="lint-radii-input" placeholder="_spec, annotation, redline…" aria-describedby="lint-skip-names-desc" tabindex="-1">
-            <p class="settings-help-text" id="lint-skip-names-desc">Comma-separated substrings. Matching layers and their children are excluded from the scan.</p>
-          </div>
-
-          <!-- Tagged scope emoji -->
-          <div class="setting-item">
-            <label for="lint-scope-emoji" class="nudge-label">Tagged scope emoji</label>
-            <input type="text" id="lint-scope-emoji" class="lint-radii-input" value="✅" maxlength="4" placeholder="✅" aria-describedby="lint-scope-emoji-desc" tabindex="-1">
-            <p class="settings-help-text" id="lint-scope-emoji-desc">When scope is "Tagged", frames whose name contains this emoji are scanned.</p>
-          </div>
-        </div>
 
         <!-- Bridge Section -->
         <div class="settings-section" id="bridge-settings-section">

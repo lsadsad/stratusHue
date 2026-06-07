@@ -74,7 +74,6 @@ import {
   registerUpdateEmojiButtons,
   updateStyledTextButtons
 } from './ui/navigate/navigate-ui';
-import { sendMessage } from './ui/shared/send-message';
 
 console.log('🔍 Script executing, DOM ready state:', document.readyState);
 
@@ -211,10 +210,6 @@ function handlePluginMessage(event: MessageEvent): void {
     case 'update-styled-text-state':
       updateStyledTextButtons(message.hasTextNode as boolean);
       break;
-    case 'plugin-mode-restored':
-      // Sandbox sends this on init with the persisted mode; restore UI to match.
-      applyRestoredMode(message.mode as string);
-      break;
 
     case 'bridge-init':
       // Sandbox sends bridge enabled state + saved pair code on startup.
@@ -268,62 +263,6 @@ function handlePluginMessage(event: MessageEvent): void {
       import('./ui/bridge/bridge-client').then(({ broadcastEvent }) => {
         broadcastEvent('PAGE_CHANGE', message);
       }).catch(console.error);
-      break;
-
-    case 'lint-progress':
-      if (lintUIInitialized) {
-        import('./ui/lint/lint-ui').then(({ handleLintProgress }) => {
-          handleLintProgress(message.scanned as number, message.total as number);
-        }).catch(console.error);
-      }
-      break;
-
-    case 'lint-results':
-      if (lintUIInitialized) {
-        import('./ui/lint/lint-ui').then(({ handleLintResults }) => {
-          handleLintResults(message.errors as unknown[], message.nodeCount as number ?? 0);
-        }).catch(console.error);
-      }
-      break;
-
-    case 'lint-error-ignored':
-      if (lintUIInitialized) {
-        import('./ui/lint/lint-ui').then(({ handleErrorIgnored }) => {
-          handleErrorIgnored(message.errorId as string);
-        }).catch(console.error);
-      }
-      break;
-
-    case 'lint-cancelled':
-      if (lintUIInitialized) {
-        import('./ui/lint/lint-ui').then(({ handleLintCancelled }) => {
-          handleLintCancelled();
-        }).catch(console.error);
-      }
-      break;
-
-    case 'lint-ignored-all':
-      if (lintUIInitialized) {
-        import('./ui/lint/lint-ui').then(({ handleIgnoredAll }) => {
-          handleIgnoredAll(message.errorIds as string[]);
-        }).catch(console.error);
-      }
-      break;
-
-    case 'lint-large-file':
-      if (lintUIInitialized) {
-        import('./ui/lint/lint-ui').then(({ handleLintLargeFile }) => {
-          handleLintLargeFile(message.nodeCount as number);
-        }).catch(console.error);
-      }
-      break;
-
-    case 'lint-settings-loaded':
-      if (lintUIInitialized) {
-        import('./ui/lint/lint-ui').then(({ handleLintSettingsLoaded }) => {
-          handleLintSettingsLoaded(message.settings as Record<string, unknown>);
-        }).catch(console.error);
-      }
       break;
 
     case 'styled-text-html': {
@@ -547,9 +486,6 @@ function handleDOMReady(): void {
   // Wire anatomy's showCanvasHint callback
   registerShowCanvasHintAnatomy(showCanvasHint);
 
-  // Wire mode strip tab buttons
-  setupModeStrip();
-
   // Initialize plugin functionality (includes system theme detection)
   initializePlugin();
 
@@ -681,73 +617,6 @@ function handleDOMReady(): void {
   }, 2000);
   activeTimers.add(footerCleanupInterval);
 }
-
-// ===== MODE ROUTING =====
-// Lazy-load Lint and Scaffold UI code only when activated.
-// Navigate loads eagerly (it's the default). Inactive mode code never runs.
-
-let activeMode: 'navigate' | 'lint' | 'scaffold' = 'navigate';
-let lintUIInitialized = false;
-let scaffoldUIInitialized = false;
-
-async function activateMode(mode: typeof activeMode): Promise<void> {
-  if (mode === activeMode) return;
-  activeMode = mode;
-
-  // --- Toggle <main> blocks ---
-  const navigateMain = document.getElementById('navigate-main');
-  const validateMain = document.getElementById('validate-main');
-  if (navigateMain) navigateMain.hidden = mode !== 'navigate';
-  if (validateMain) validateMain.hidden = mode !== 'lint';
-  // (scaffold-main added in Phase 3)
-
-  // --- Update tab strip active state ---
-  document.querySelectorAll<HTMLButtonElement>('.mode-tab').forEach(tab => {
-    const isActive = tab.dataset.mode === mode || (mode === 'lint' && tab.dataset.mode === 'validate');
-    tab.classList.toggle('active', isActive);
-    tab.setAttribute('aria-selected', String(isActive));
-    tab.tabIndex = isActive ? 0 : -1;
-  });
-
-  // --- Lazy-init mode UI (only on first activation) ---
-  if (mode === 'lint' && !lintUIInitialized) {
-    lintUIInitialized = true;
-    const { initializeLintUI } = await import('./ui/lint/lint-ui');
-    initializeLintUI();
-  } else if (mode === 'scaffold' && !scaffoldUIInitialized) {
-    scaffoldUIInitialized = true;
-    const { initializeScaffoldUI } = await import('./ui/scaffold/scaffold-ui');
-    initializeScaffoldUI();
-  }
-
-  // --- Notify sandbox (persists mode, triggers auto-scan if lint) ---
-  sendMessage('set-plugin-mode', { mode });
-}
-
-// Wire mode strip tab clicks
-function setupModeStrip(): void {
-  document.querySelectorAll<HTMLButtonElement>('.mode-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const raw = tab.dataset.mode;
-      if (raw === 'navigate' || raw === 'validate' || raw === 'scaffold') {
-        // 'validate' tab maps to 'lint' internally
-        const mode = raw === 'validate' ? 'lint' : raw;
-        void activateMode(mode);
-      }
-    });
-  });
-}
-
-// Restore persisted mode on load (sandbox sends 'plugin-mode-restored')
-function applyRestoredMode(mode: string): void {
-  if (mode === 'lint' || mode === 'navigate' || mode === 'scaffold') {
-    void activateMode(mode);
-  }
-}
-
-// Exported for window.activateMode (debug) and message handler
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(window as any).activateMode = activateMode;
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {

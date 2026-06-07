@@ -24,9 +24,7 @@ function updateStatusDots(status: BridgeStatus): void {
   const cloudDot = document.getElementById('bridge-status-cloud');
   setDotState(localDot, status.local);
   setDotState(cloudDot, status.cloud);
-
-  const section = document.getElementById('bridge-status-dots');
-  if (section) section.hidden = !bridgeEnabled;
+  updateToggleUI();
 }
 
 // ===== SETTINGS SECTION =====
@@ -34,8 +32,10 @@ function updateStatusDots(status: BridgeStatus): void {
 function updateToggleUI(): void {
   const toggle = document.getElementById('bridge-enable-toggle') as HTMLInputElement | null;
   const cloudSection = document.getElementById('bridge-cloud-section');
+  const statusDots = document.getElementById('bridge-status-dots');
   if (toggle) toggle.checked = bridgeEnabled;
   if (cloudSection) cloudSection.hidden = !bridgeEnabled;
+  if (statusDots) statusDots.hidden = !bridgeEnabled;
 }
 
 function wireSettingsHandlers(): void {

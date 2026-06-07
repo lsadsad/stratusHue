@@ -245,7 +245,7 @@ export async function handleBridgeGetComponent(
     const node = await figma.getNodeByIdAsync(nodeId);
     if (!node) { replyError(requestId, `Node not found: ${nodeId}`); return; }
 
-    function extractComponentData(n: BaseNode) {
+    const extractComponentData = (n: BaseNode) => {
       const base = {
         id: n.id, name: n.name, type: n.type,
         description: 'description' in n ? n.description : undefined,
@@ -255,7 +255,7 @@ export async function handleBridgeGetComponent(
           ? (n as ComponentNode).componentPropertyDefinitions : undefined,
       };
       return base;
-    }
+    };
 
     reply(requestId, { success: true, component: extractComponentData(node) });
   } catch (e) {
@@ -540,7 +540,7 @@ export async function handleBridgeGetMetadata(
     const node = await figma.getNodeByIdAsync(nodeId);
     if (!node) { replyError(requestId, `Node not found: ${nodeId}`); return; }
 
-    function serializeNode(n: BaseNode, depth = 0): unknown {
+    const serializeNode = (n: BaseNode, depth = 0): unknown => {
       const base: Record<string, unknown> = {
         id: n.id, name: n.name, type: n.type,
       };
@@ -550,7 +550,7 @@ export async function handleBridgeGetMetadata(
         base.children = (n as ChildrenMixin).children.map(c => serializeNode(c, depth + 1));
       }
       return base;
-    }
+    };
 
     reply(requestId, { success: true, node: serializeNode(node) });
   } catch (e) {

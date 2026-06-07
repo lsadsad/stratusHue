@@ -27,11 +27,6 @@ beforeAll(async () => {
   // figma.ui.resize — used by resize-ui and toggle-width handlers
   (globalThis as any).figma.ui.resize = vi.fn();
 
-  // figma.getLocal*StylesAsync — used by lint-engine when running scans
-  (globalThis as any).figma.getLocalPaintStylesAsync = vi.fn().mockResolvedValue([]);
-  (globalThis as any).figma.getLocalTextStylesAsync = vi.fn().mockResolvedValue([]);
-  (globalThis as any).figma.getLocalEffectStylesAsync = vi.fn().mockResolvedValue([]);
-
   // figma.createPage — used by create-new-page handler
   (globalThis as any).figma.createPage = vi.fn().mockReturnValue({ id: 'new-page', name: 'Page', type: 'PAGE' });
 
@@ -312,55 +307,6 @@ describe('sandbox message dispatch', () => {
   // ===== EXTERNAL =====
   it('handles "open-kofi"', { timeout: 2000 }, async () => {
     await dispatchAndAssertNoCrash({ type: 'open-kofi' });
-  });
-
-  // ===== LINT =====
-  it('handles "lint-run-scan"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-run-scan' });
-  });
-
-  it('handles "lint-cancel-scan"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-cancel-scan' });
-  });
-
-  it('handles "lint-set-scope"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-set-scope', scope: 'page' });
-  });
-
-  it('handles "lint-apply-fix"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-apply-fix', nodeId: 'test', category: 'fill', styleId: 'test' });
-  });
-
-  it('handles "lint-fix-all"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-fix-all', fixes: [] });
-  });
-
-  it('handles "lint-ignore-error"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-ignore-error', errorId: 'test' });
-  });
-
-  it('handles "lint-ignore-all"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-ignore-all', errorIds: [] });
-  });
-
-  it('handles "lint-select-all"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-select-all', nodeIds: [] });
-  });
-
-  it('handles "lint-clear-ignored"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-clear-ignored' });
-  });
-
-  it('handles "lint-select-node"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-select-node', nodeId: 'test-id' });
-  });
-
-  it('handles "lint-update-settings"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-update-settings', settings: {} });
-  });
-
-  it('handles "lint-get-settings"', { timeout: 2000 }, async () => {
-    await dispatchAndAssertNoCrash({ type: 'lint-get-settings' });
   });
 
   // ===== BRIDGE =====
