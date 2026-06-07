@@ -2,6 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Design methodology — Throughline (scoped companion layer)
+
+The **Throughline** methodology (ported verbatim from the figma-studio repo) is imported below. `CLAUDE-throughline.md` itself imports `CLAUDE-visual-craft.md`, so both load from this single reference.
+
+**Scope — read before applying.** Throughline applies **only** to Figma design-critique work — evaluating frames, design intent, and UI composition. It does **not** govern stratusHue's code, build, or repo workflow. On any conflict, **stratusHue's own conventions in this file take precedence**. Specifically:
+
+- **Spacing/sizing:** use stratusHue's `--spacing-*` / `--button-height-*` / `--icon-size-*` token scale — not Throughline's "4pt grid is non-negotiable" rule.
+- **Decisions & tracking:** use this repo's `.issues/` + `.memory/` systems — not Throughline's "DD-NNN entry in Notion."
+- **figma-studio-only references** (Nibble Card, AT&T Relay Design System, `figma-kb`, rive-studio, the ASCII → HTML → Figma → Rive iteration sequence) are AT&T/figma-studio context — treat as inherited background, not directives to follow here.
+
+figma-studio remains the canonical source; the copy here is downstream and AT&T-domain-bound by design.
+
+@CLAUDE-throughline.md
+
 ## Commands
 
 ```bash
