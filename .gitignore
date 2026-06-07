@@ -144,3 +144,7 @@ packages
 # Excalidraw files
 *.excalidraw
 .DS_Store
+
+# Playwright test output (generated)
+test-results/
+playwright-report/
