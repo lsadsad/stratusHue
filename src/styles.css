@@ -4469,6 +4469,13 @@ h3 {
 
 #anchors-section:not(.collapsed) {
   flex: 0 0 auto;
+  /* The anchors list is the only collapsible section with unbounded content.
+     The base .collapsible-content cap (max-height: 600px) combined with this
+     section's overflow: visible let 14+ anchors paint past the 600px box and
+     overlap the Controls section, while auto-fit measured only 600px and never
+     grew the window. Let the expanded section grow to its natural height; the
+     window auto-fits (up to MAX_UI_HEIGHT) and <main> scrolls beyond that. */
+  max-height: none;
   /* border-bottom: var(--border-width) solid var(--color-border-accent); */
 }
 
