@@ -112,12 +112,13 @@ describe('LayerNavigationHandler - Basic Functionality', () => {
     });
 
     it('should handle empty selection gracefully', async () => {
-      // Act
+      // Act: empty selection + 'enter' falls back to selecting the first
+      // top-level layer; with an empty page (children = []) there is none.
       const result = await LayerNavigationHandler.performNavigation('enter', []);
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.message).toContain('Select a container');
+      expect(result.message).toContain('No visible layers');
     });
 
     it('should handle invalid actions gracefully', async () => {

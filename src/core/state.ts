@@ -57,10 +57,18 @@ export async function getBookmarks(forceReload: boolean = false): Promise<Bookma
 export async function setBookmarks(bookmarks: Bookmark[]): Promise<void> {
   try {
     figma.root.setPluginData('bookmarks', JSON.stringify(bookmarks));
-    bookmarksCache = bookmarks;
   } catch (error) {
+    // Persistence failed (e.g. Figma's per-node pluginData size ceiling).
+    // Invalidate the cache so it can never report data that was never saved,
+    // then surface the failure instead of silently swallowing it — otherwise an
+    // add looks successful, the UI shows a phantom entry, and it vanishes on reload.
+    bookmarksCache = null;
     console.error('Failed to save bookmarks:', error);
+    throw error instanceof Error ? error : new Error('Failed to save bookmarks');
   }
+  // Cache only what was actually persisted, as a defensive copy so callers
+  // cannot mutate the cached array in place.
+  bookmarksCache = bookmarks.slice();
 }
 
 export function clearBookmarksCache(): void {
