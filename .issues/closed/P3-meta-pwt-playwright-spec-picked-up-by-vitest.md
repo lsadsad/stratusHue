@@ -4,9 +4,10 @@ category: meta
 title: "Playwright spec (tests/prototype) is picked up by vitest and fails the run"
 type: bug
 priority: 3
-status: open
+status: closed
 depends_on: []
 created: 2026-06-15
+closed: 2026-06-15
 ---
 
 ## Description
@@ -48,3 +49,9 @@ exclude: [
 
 - Pre-existing; unrelated to the `anc` bookmark fix.
 - Cheap, config-only fix that removes a permanent red suite from `npm run test`.
+
+## Resolution (2026-06-15)
+
+Added `'tests/**'` to the `exclude` list in `vitest.config.ts`, so vitest no longer
+collects the Playwright specs (their `testDir` is `tests/prototype`, run via
+`npm run test:prototype`). `npm run test` no longer reports the Playwright suite.
