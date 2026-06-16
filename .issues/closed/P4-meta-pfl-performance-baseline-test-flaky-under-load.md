@@ -4,9 +4,10 @@ category: meta
 title: "performance.test.ts baseline-comparison case is flaky under full-suite load"
 type: bug
 priority: 4
-status: open
+status: closed
 depends_on: []
 created: 2026-06-15
+closed: 2026-06-15
 ---
 
 ## Description
@@ -38,3 +39,18 @@ threshold occasionally trips. It is load/timing-sensitive, not logic-driven.
   the measured navigation paths). Logged because it was observed failing once this
   session — a flaky gate is a latent risk for "fully green."
 - P4: low frequency, no product impact.
+
+## Resolution (2026-06-15)
+
+Root cause: the case derived a baseline from a first sub-millisecond measurement,
+then asserted bounds (`passed === true`, `abs(percentChange) < 0.50`) on the ratio
+of two such measurements — pure timing noise under load.
+
+Fix (`src/test/performance.test.ts`): seed a fixed, generous 100ms baseline via
+`PerformanceBaselineManager.updateBaseline` that the real (microsecond) operation
+always beats, making the comparison deterministic. Assertions now verify the
+*compare-against-existing-baseline* path (`baselineTime === 100`, finite
+`percentChange`, `passed === true`) rather than noise-sensitive magnitude bounds.
+Regression detection remains covered by 'should fail when performance degrades
+beyond threshold'. Verified deterministic: 15/15 across 3 standalone runs + full
+`npm run test` 324/324.
