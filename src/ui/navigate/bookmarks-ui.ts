@@ -263,8 +263,10 @@ export function updateNavigationButtons(canGoBack: boolean, canGoForward: boolea
 export function updateLayoutSizingButtons(horizontal: string | undefined, vertical: string | undefined): void {
   const widthModeSpan = document.getElementById('width-mode');
   const heightModeSpan = document.getElementById('height-mode');
-  const widthIcon = document.getElementById('width-icon') as HTMLImageElement;
-  const heightIcon = document.getElementById('height-icon') as HTMLImageElement;
+  const widthIconSpan = document.getElementById('width-icon');
+  const heightIconSpan = document.getElementById('height-icon');
+  const widthIcon = widthIconSpan?.querySelector('img') as HTMLImageElement | null;
+  const heightIcon = heightIconSpan?.querySelector('img') as HTMLImageElement | null;
   const cycleWidthBtn = document.getElementById('cycle-width') as HTMLButtonElement;
   const cycleHeightBtn = document.getElementById('cycle-height') as HTMLButtonElement;
   const widthCaption = document.getElementById('width-caption');
