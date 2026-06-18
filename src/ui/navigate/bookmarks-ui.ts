@@ -301,18 +301,20 @@ export function updateLayoutSizingButtons(horizontal: string | undefined, vertic
     heightIcon.src = getIconDataUri(vertical);
   }
 
-  // Enable/disable buttons based on whether we have valid layout properties
-  const hasValidState = horizontal && horizontal !== '—';
+  // Enable/disable buttons based on whether we have valid layout properties (check each axis independently)
+  const hasValidHorizontal = horizontal && horizontal !== '—';
+  const hasValidVertical = vertical && vertical !== '—';
+  
   if (cycleWidthBtn) {
-    cycleWidthBtn.disabled = !hasValidState;
+    cycleWidthBtn.disabled = !hasValidHorizontal;
   }
   if (cycleHeightBtn) {
-    cycleHeightBtn.disabled = !hasValidState;
+    cycleHeightBtn.disabled = !hasValidVertical;
   }
 
   // Update caption labels: show "Width"/"Height" when disabled, show mode when enabled
   if (widthCaption) {
-    if (!hasValidState) {
+    if (!hasValidHorizontal) {
       widthCaption.textContent = 'Width';
     } else {
       const widthMode = horizontal && horizontal !== '—' ? horizontal : 'Fixed';
@@ -320,21 +322,11 @@ export function updateLayoutSizingButtons(horizontal: string | undefined, vertic
     }
   }
   if (heightCaption) {
-    if (!hasValidState) {
+    if (!hasValidVertical) {
       heightCaption.textContent = 'Height';
     } else {
       const heightMode = vertical && vertical !== '—' ? vertical : 'Fixed';
       heightCaption.textContent = heightMode.charAt(0).toUpperCase() + heightMode.slice(1).toLowerCase();
-    }
-  }
-
-  // When buttons are disabled, always reset icons to fixed (default state)
-  if (!hasValidState) {
-    if (widthIcon) {
-      widthIcon.src = ICON_FIXED;
-    }
-    if (heightIcon) {
-      heightIcon.src = ICON_FIXED;
     }
   }
 }
