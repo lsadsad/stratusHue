@@ -89,7 +89,8 @@ describe('bridge-client FILE_INFO handshake', () => {
   it('sends FILE_INFO over the cloud relay socket on connect', async () => {
     const mod = await freshClient();
     mod.setBridgeFileInfo({ fileKey: 'CKEY', fileName: 'Cloud File' });
-    mod.initBridgeClient(true, 'ABCDEF'); // enable + pair to cloud relay
+    mod.initBridgeClient(true);
+    mod.connectCloud('ABCDEF'); // explicit user pairing to cloud relay
 
     const cloudWs = FakeWebSocket.instances.find((w) => w.url.includes('/ws/pair'));
     expect(cloudWs, 'expected a cloud relay socket').toBeTruthy();
@@ -102,7 +103,8 @@ describe('bridge-client FILE_INFO handshake', () => {
 
   it('re-sends FILE_INFO to the cloud socket when identity arrives late', async () => {
     const mod = await freshClient();
-    mod.initBridgeClient(true, 'ABCDEF');
+    mod.initBridgeClient(true);
+    mod.connectCloud('ABCDEF');
 
     const cloudWs = FakeWebSocket.instances.find((w) => w.url.includes('/ws/pair'));
     cloudWs!.simulateOpen();
@@ -111,6 +113,83 @@ describe('bridge-client FILE_INFO handshake', () => {
     mod.setBridgeFileInfo({ fileKey: 'CKEY2', fileName: 'Late Cloud File' });
 
     expect(cloudWs!.fileInfoMessages()[0].data.fileKey).toBe('CKEY2');
+  });
+
+  it('does NOT auto-connect to a saved pairing code on init (one-time codes are already consumed)', async () => {
+    const mod = await freshClient();
+    mod.setBridgeFileInfo({ fileKey: 'CKEY', fileName: 'Cloud File' });
+    mod.initBridgeClient(true, 'SAVED1'); // a previously-used, now-consumed code
+
+    const cloudWs = FakeWebSocket.instances.find((w) => w.url.includes('/ws/pair'));
+    expect(cloudWs, 'must not auto-open a cloud socket with a consumed code').toBeFalsy();
+  });
+
+  it('does NOT auto-reconnect the cloud socket after it closes (would reuse a consumed code and clobber a live socket)', async () => {
+    vi.useFakeTimers();
+    try {
+      const mod = await freshClient();
+      mod.setBridgeFileInfo({ fileKey: 'CKEY', fileName: 'Cloud File' });
+      mod.initBridgeClient(true);
+      mod.connectCloud('ABCDEF');
+
+      const firstCloud = FakeWebSocket.instances.find((w) => w.url.includes('/ws/pair'))!;
+      firstCloud.simulateOpen();
+      firstCloud.readyState = FakeWebSocket.CLOSED;
+      firstCloud.onclose?.();
+
+      // The relay never reissues the same one-time code, so reconnecting is futile.
+      vi.advanceTimersByTime(60000);
+
+      const cloudSockets = FakeWebSocket.instances.filter((w) => w.url.includes('/ws/pair'));
+      expect(cloudSockets).toHaveLength(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('sends a periodic PING keepalive on the cloud socket to survive relay idle-close', async () => {
+    vi.useFakeTimers();
+    try {
+      const mod = await freshClient();
+      mod.setBridgeFileInfo({ fileKey: 'CKEY', fileName: 'Cloud File' });
+      mod.initBridgeClient(true);
+      mod.connectCloud('ABCDEF'); // explicit user pairing to cloud relay
+
+      const cloudWs = FakeWebSocket.instances.find((w) => w.url.includes('/ws/pair'))!;
+      cloudWs.simulateOpen();
+      cloudWs.sent = []; // drop the FILE_INFO sent on open
+
+      // The Cloudflare relay closes idle hibernatable sockets; a periodic frame keeps it warm.
+      vi.advanceTimersByTime(20000);
+
+      const pings = cloudWs.sent.map((s) => JSON.parse(s)).filter((m) => m.type === 'PING');
+      expect(pings.length).toBeGreaterThanOrEqual(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stops the cloud keepalive once the socket closes (no leaked timer)', async () => {
+    vi.useFakeTimers();
+    try {
+      const mod = await freshClient();
+      mod.setBridgeFileInfo({ fileKey: 'CKEY', fileName: 'Cloud File' });
+      mod.initBridgeClient(true);
+      mod.connectCloud('ABCDEF');
+
+      const cloudWs = FakeWebSocket.instances.find((w) => w.url.includes('/ws/pair'))!;
+      cloudWs.simulateOpen();
+      cloudWs.readyState = FakeWebSocket.CLOSED;
+      cloudWs.onclose?.();
+      cloudWs.sent = [];
+
+      vi.advanceTimersByTime(60000);
+
+      const pings = cloudWs.sent.map((s) => JSON.parse(s)).filter((m) => m.type === 'PING');
+      expect(pings).toHaveLength(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('broadcastEvent keys events by `type` (server contract), not `event`', async () => {

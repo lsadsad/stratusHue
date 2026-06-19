@@ -28,15 +28,17 @@ type StatusChangeCallback = (status: BridgeStatus) => void;
 const LOCAL_PORTS = [9223, 9224, 9225, 9226, 9227, 9228, 9229, 9230, 9231, 9232];
 const CLOUD_URL = 'wss://figma-console-mcp.southleft.com/ws/pair';
 const RECONNECT_DELAY_MS = 3000;
-const MAX_RECONNECT_DELAY_MS = 30000;
+// The cloud relay is a Cloudflare Durable Object using hibernatable WebSockets with no
+// server-side auto-response ping; an idle socket gets closed by the edge (~tens of seconds).
+// A periodic application frame keeps it warm. Must be well under that idle window.
+const CLOUD_KEEPALIVE_MS = 20000;
 
 // Maps requestId → WS socket so we can route responses back
 const pendingRequests = new Map<string, { ws: WebSocket; resolve: (v: unknown) => void }>();
 
 let localSockets: Map<number, WebSocket> = new Map();
 let cloudSocket: WebSocket | null = null;
-let cloudPairCode: string | null = null;
-let cloudReconnectDelay = RECONNECT_DELAY_MS;
+let cloudKeepaliveTimer: ReturnType<typeof setInterval> | null = null;
 
 let status: BridgeStatus = { local: 'disconnected', cloud: 'disconnected' };
 let statusChangeCallback: StatusChangeCallback | null = null;
@@ -176,12 +178,31 @@ function stopLocalConnections(): void {
 
 // ===== CLOUD RELAY =====
 
+// Keep the cloud socket warm. The relay (Cloudflare DO) closes idle hibernatable
+// sockets and configures no auto-response ping, so without this the connection
+// drops shortly after the last command. The relay ignores unknown message types,
+// so a bare { type: 'PING' } frame is a safe no-op on the server.
+function startCloudKeepalive(ws: WebSocket): void {
+  stopCloudKeepalive();
+  cloudKeepaliveTimer = setInterval(() => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'PING' }));
+    }
+  }, CLOUD_KEEPALIVE_MS);
+}
+
+function stopCloudKeepalive(): void {
+  if (cloudKeepaliveTimer !== null) {
+    clearInterval(cloudKeepaliveTimer);
+    cloudKeepaliveTimer = null;
+  }
+}
+
 function connectToCloud(pairCode: string): void {
   if (cloudSocket?.readyState === WebSocket.OPEN || cloudSocket?.readyState === WebSocket.CONNECTING) {
     cloudSocket.close();
   }
 
-  cloudPairCode = pairCode;
   const url = `${CLOUD_URL}?code=${encodeURIComponent(pairCode)}`;
 
   updateCloudStatus('connecting');
@@ -197,11 +218,11 @@ function connectToCloud(pairCode: string): void {
   cloudSocket = ws;
 
   ws.onopen = () => {
-    cloudReconnectDelay = RECONNECT_DELAY_MS;
     updateCloudStatus('connected');
     sendMessage('bridge-connected', { transport: 'cloud', pairCode });
     // The cloud relay forwards the same FILE_INFO identification the local server needs.
     sendFileInfo(ws);
+    startCloudKeepalive(ws);
   };
 
   ws.onmessage = (event: MessageEvent) => {
@@ -213,15 +234,12 @@ function connectToCloud(pairCode: string): void {
 
   ws.onclose = () => {
     if (cloudSocket === ws) cloudSocket = null;
+    stopCloudKeepalive();
     updateCloudStatus('disconnected');
     sendMessage('bridge-disconnected', { transport: 'cloud' });
-    // Auto-reconnect with backoff if still have a pair code
-    if (bridgeEnabled && cloudPairCode) {
-      setTimeout(() => {
-        if (bridgeEnabled && cloudPairCode) connectToCloud(cloudPairCode);
-      }, cloudReconnectDelay);
-      cloudReconnectDelay = Math.min(cloudReconnectDelay * 2, MAX_RECONNECT_DELAY_MS);
-    }
+    // No auto-reconnect: pairing codes are one-time use (the relay deletes them on
+    // first connect), so retrying a stored code only 404s and can clobber a freshly
+    // paired live socket. The user must request a fresh code and re-pair.
   };
 
   ws.onerror = () => {
@@ -230,7 +248,7 @@ function connectToCloud(pairCode: string): void {
 }
 
 function disconnectCloud(): void {
-  cloudPairCode = null;
+  stopCloudKeepalive();
   if (cloudSocket) {
     cloudSocket.onclose = null;
     cloudSocket.close();
@@ -241,15 +259,14 @@ function disconnectCloud(): void {
 
 // ===== PUBLIC API =====
 
-export function initBridgeClient(enabled: boolean, savedPairCode?: string): void {
+export function initBridgeClient(enabled: boolean, _savedPairCode?: string): void {
   bridgeEnabled = enabled;
   if (!enabled) return;
 
+  // Local servers (localhost ports) are reusable, so reconnect freely. The cloud
+  // relay is NOT auto-connected here: a stored pairing code is already consumed
+  // (one-time use), so the user must re-pair with a fresh code via connectCloud().
   startLocalConnections();
-
-  if (savedPairCode) {
-    connectToCloud(savedPairCode);
-  }
 }
 
 export function setBridgeEnabled(enabled: boolean): void {
@@ -258,7 +275,6 @@ export function setBridgeEnabled(enabled: boolean): void {
 
   if (enabled) {
     startLocalConnections();
-    if (cloudPairCode) connectToCloud(cloudPairCode);
   } else {
     stopLocalConnections();
     disconnectCloud();
@@ -268,7 +284,6 @@ export function setBridgeEnabled(enabled: boolean): void {
 }
 
 export function connectCloud(pairCode: string): void {
-  cloudReconnectDelay = RECONNECT_DELAY_MS;
   connectToCloud(pairCode);
   sendMessage('bridge-set-pair-code', { pairCode });
 }
