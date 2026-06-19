@@ -7563,7 +7563,9 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 52px; /* sits just left of the logo (~48px wide) */
+  /* Anchored just right of the width-toggle button: two footer-icon-btns wide
+     (each = footer-height + spacing-sm). The wrap's 0 4px padding adds the gap. */
+  left: calc(2 * (var(--footer-height) + var(--spacing-sm)));
   height: 100%;
   display: flex;
   align-items: center;
