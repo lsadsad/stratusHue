@@ -2059,8 +2059,8 @@ const handleCycleLayoutSizing = withErrorBoundary(async (axis: 'horizontal' | 'v
     return;
   }
 
-  // Cycle order: HUG → FILL → FIXED
-  const cycleOrder: Array<'HUG' | 'FILL' | 'FIXED'> = ['HUG', 'FILL', 'FIXED'];
+  // Cycle order: FIXED → FILL → HUG
+  const cycleOrder: Array<'HUG' | 'FILL' | 'FIXED'> = ['FIXED', 'FILL', 'HUG'];
 
   let count = 0;
   let newMode: 'HUG' | 'FILL' | 'FIXED' | undefined;
