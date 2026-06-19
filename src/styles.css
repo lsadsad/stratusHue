@@ -7614,6 +7614,22 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   font-size: var(--font-size-xs);
 }
 
+/* Cloud status line — textual feedback for the Connect button */
+.bridge-cloud-status {
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  min-height: 1em;
+  color: var(--theme-text-secondary, var(--color-gray-400, #9ca3af));
+}
+
+.bridge-cloud-status[data-state="connected"] {
+  color: #22c55e;
+}
+
+.bridge-cloud-status[data-state="connecting"] {
+  color: #f59e0b;
+}
+
 .settings-btn-sm {
   padding: 2px 8px;
   font-size: var(--font-size-xs);
