@@ -4,9 +4,10 @@ category: meta
 title: "Cloud relay bridge drops: one-time-code reconnect clobber + no keepalive"
 type: bug
 priority: 1
-status: open
+status: closed
 depends_on: []
 created: 2026-06-19
+closed: 2026-06-19
 ---
 
 ## Symptom
@@ -46,15 +47,12 @@ connected, and served data over the cloud relay. (The user's separate
 `figma_get_variables` failure that day was unrelated — they were on a FigJam board,
 which has no Variables API; see memory note.)
 
-## Remaining
-- [x] Connect-button feedback text ("Connecting… / Connected / Failed") — commit `f6d230d`
-      (status line in `ui.html`/`styles.css`, `cloudStatusLabel` unit-tested in `bridge-ui.test.ts`).
-- [x] Commit on `feature/desktop-bridge-dev` — `b492a0d` (fix) + `f6d230d` (feedback).
-- [ ] Eyeball-confirm the status text renders in the live plugin UI.
-- [ ] Push to remote.
-- [ ] ⚠️ Do NOT merge this branch's `manifest.json` to `main` — it is the dev manifest
-      (relay domains whitelisted). `main` must keep the locked-down `networkAccess: none`
-      prod manifest.
+## Resolved (2026-06-19)
+- [x] Connect-button feedback text — commit `f6d230d` (`cloudStatusLabel` unit-tested in `bridge-ui.test.ts`).
+- [x] Footer connection dots moved left of the width toggle — commit `3ad4115`.
+- [x] Committed + pushed on `feature/desktop-bridge-dev`: `b492a0d` (fix), `f6d230d` (feedback), `3ad4115` (footer).
+- [x] User confirmed the live UI ("very nice work").
+- [→] Dev-manifest-not-to-`main` caveat carried to issue `sync` (the merge-to-main tracker).
 
 ## Relay-side follow-up (figma-studio, optional but better)
 - Add `setWebSocketAutoResponse` ping/pong so the DO keeps idle sockets warm without
