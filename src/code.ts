@@ -857,6 +857,81 @@ figma.ui.onmessage = async (msg) => {
         break;
       }
 
+      // ---- FigJam bridge commands ----
+      // Params arrive spread onto msg (see bridge-client routeCommandToSandbox); the
+      // handlers validate/extract internally, so the guard only needs requestId.
+      case 'bridge-cmd-create-sticky': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeCreateSticky } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateSticky(msg.requestId, msg as unknown as Record<string, unknown>);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-create-stickies': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeCreateStickies } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateStickies(msg.requestId, msg as unknown as Record<string, unknown>);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-create-connector': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeCreateConnector } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateConnector(msg.requestId, msg as unknown as Record<string, unknown>);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-create-section': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeCreateSection } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateSection(msg.requestId, msg as unknown as Record<string, unknown>);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-create-shape-with-text': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeCreateShapeWithText } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateShapeWithText(msg.requestId, msg as unknown as Record<string, unknown>);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-create-table': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeCreateTable } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateTable(msg.requestId, msg as unknown as Record<string, unknown>);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-create-code-block': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeCreateCodeBlock } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeCreateCodeBlock(msg.requestId, msg as unknown as Record<string, unknown>);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-get-board-contents': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeGetBoardContents } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeGetBoardContents(msg.requestId, msg as unknown as Record<string, unknown>);
+        }
+        break;
+      }
+
+      case 'bridge-cmd-get-connections': {
+        if ('requestId' in msg && typeof msg.requestId === 'string') {
+          const { handleBridgeGetConnections } = await import('./features/bridge/bridge-handlers');
+          await handleBridgeGetConnections(msg.requestId);
+        }
+        break;
+      }
+
       default:
         // Unhandled bridge commands must still reply, or the MCP client's request
         // hangs until it times out. Send an explicit error so the server fails fast.
