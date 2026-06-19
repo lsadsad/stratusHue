@@ -41,11 +41,17 @@ never gates on it (ruled out live: valid fileKey, still dropped).
 - [x] Tests: `src/test/bridge-client.test.ts` (+4; 328 total green), type-check + lint clean
 - [x] Live re-verify: survived ~3m37s pure-keepalive idle, no early clobber
 
+Connection re-verified live on **claude.ai itself** (2026-06-19): it paired, stayed
+connected, and served data over the cloud relay. (The user's separate
+`figma_get_variables` failure that day was unrelated — they were on a FigJam board,
+which has no Variables API; see memory note.)
+
 ## Remaining
-- [ ] Connect-button feedback text ("Connecting… / Connected / Failed") — present in the
-      original Desktop Bridge `figma-studio/figma-desktop-bridge/ui-full.html`, dropped in the
-      stratusHue port (`bridge-ui.ts` shows status dots only → clicks look like no-ops).
-- [ ] Commit on `feature/desktop-bridge-dev`.
+- [x] Connect-button feedback text ("Connecting… / Connected / Failed") — commit `f6d230d`
+      (status line in `ui.html`/`styles.css`, `cloudStatusLabel` unit-tested in `bridge-ui.test.ts`).
+- [x] Commit on `feature/desktop-bridge-dev` — `b492a0d` (fix) + `f6d230d` (feedback).
+- [ ] Eyeball-confirm the status text renders in the live plugin UI.
+- [ ] Push to remote.
 - [ ] ⚠️ Do NOT merge this branch's `manifest.json` to `main` — it is the dev manifest
       (relay domains whitelisted). `main` must keep the locked-down `networkAccess: none`
       prod manifest.
