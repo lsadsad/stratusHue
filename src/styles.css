@@ -5040,6 +5040,7 @@ i.grip {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
+  padding: 40px clamp(16px, 3vw, 24px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -5054,8 +5055,11 @@ i.grip {
   background: var(--color-background-main);
   border: var(--border-width) solid var(--color-border-accent);
   border-radius: var(--border-radius-lg);
-  width: min(560px, 96%);
-  max-height: min(80vh, 560px);
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   box-shadow: 0 16px 40px var(--theme-shadow-heavy);
@@ -5065,7 +5069,7 @@ i.grip {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-xl) var(--spacing-xxl);
+  padding: clamp(16px, 3vw, 24px);
 }
 
 .settings-title {
@@ -5078,21 +5082,48 @@ i.grip {
 
 .settings-content {
   flex: 1;
-  padding: var(--spacing-lg) var(--spacing-xxl) var(--spacing-xxl) var(--spacing-xxl);
-  overflow: auto;
+  padding: 40px clamp(16px, 3vw, 24px);
+  overflow-y: auto;
+  overflow-x: hidden;
   color: var(--color-text-primary);
+}
+
+/* Settings section groups */
+.settings-group {
+  border: var(--border-width) solid var(--figma-color-border);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-secondary);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.settings-group-title {
+  margin: 0 0 var(--spacing-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 /* Settings sections */
 .settings-section {
-  margin-bottom: var(--spacing-xl);
+  margin: 0;
+  padding: var(--spacing-md);
+  border: var(--border-width) solid var(--figma-color-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--color-background-primary);
+}
+
+.settings-section + .settings-section {
+  margin-top: var(--spacing-md);
 }
 
 .settings-section-title {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-normal);
   color: var(--color-text-primary);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -5125,7 +5156,7 @@ i.grip {
 .settings-help-text {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
+  margin: var(--spacing-sm) 0 0;
   line-height: 1.4;
 }
 
@@ -5168,9 +5199,9 @@ i.grip {
 
 /* Support section */
 .support-section {
-  margin-top: calc(var(--spacing-xxl) * 2);
-  padding-top: var(--spacing-xl);
-  border-top: var(--border-width) solid var(--color-border-secondary);
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
 }
 
 .support-text {
@@ -5266,6 +5297,10 @@ i.grip {
 /* ===== THEME SELECTOR STYLES ===== */
 .setting-item {
   margin-bottom: var(--spacing-lg);
+}
+
+.settings-section .setting-item:last-child {
+  margin-bottom: 0;
 }
 
 .setting-label {
@@ -5535,14 +5570,16 @@ i.grip {
 
 /* ===== NUDGE SETTINGS STYLES ===== */
 .nudge-settings {
-  display: flex;
-  gap: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-md);
 }
 
 .nudge-input-group {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-xs);
   flex: 1;
 }
 
@@ -5550,11 +5587,13 @@ i.grip {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   white-space: nowrap;
+  line-height: 1.3;
 }
 
 .nudge-input {
   width: 100%;
-  max-width: 80px;
+  max-width: none;
+  min-height: 32px;
   padding: var(--spacing-xs) var(--spacing-sm);
   font-size: var(--font-size-sm);
   color: var(--color-text-primary);
@@ -5572,6 +5611,11 @@ i.grip {
   outline: none;
   border-color: var(--figma-color-border-brand);
   box-shadow: 0 0 0 1px var(--figma-color-border-brand);
+}
+
+.nudge-input:focus-visible {
+  outline: var(--outline-width) solid var(--figma-color-border-brand);
+  outline-offset: 1px;
 }
 
 .nudge-input::-webkit-inner-spin-button,
@@ -7601,11 +7645,72 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 }
 
 /* ===== BRIDGE SETTINGS ===== */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.settings-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  width: 34px;
+  height: 20px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--border-radius-pill);
+  background: var(--figma-color-border);
+  transition: background var(--transition-fast);
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform var(--transition-fast);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--figma-color-border-brand);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(14px);
+}
+
 .bridge-pair-row {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
   margin-top: var(--spacing-xs);
+}
+
+.settings-input {
+  border: 1px solid var(--figma-color-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  padding: var(--spacing-xs) var(--spacing-sm);
 }
 
 .bridge-pair-row .settings-input {
@@ -7670,6 +7775,8 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 .segmented-control {
   display: flex;
   gap: 2px;
+  width: 100%;
+  min-width: 0;
   background: var(--color-background-secondary);
   border: 1px solid var(--figma-color-border);
   border-radius: var(--border-radius-sm);
@@ -7678,6 +7785,7 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
 
 .segmented-btn {
   flex: 1;
+  min-height: 32px;
   padding: var(--spacing-xs) var(--spacing-sm);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
@@ -7702,12 +7810,37 @@ SECTION HEADERS - UNIFIED SYSTEM ===== */
   box-shadow: 0 1px 2px rgba(0,0,0,0.12);
 }
 
+.segmented-btn:focus-visible {
+  outline: var(--outline-width) solid var(--figma-color-border-brand);
+  outline-offset: 1px;
+}
+
 .setting-item--row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
   align-items: center;
   gap: var(--spacing-md);
 }
 
 .setting-item--row .nudge-label {
   min-width: 52px;
+}
+
+@media (max-width: 320px) {
+  .nudge-settings {
+    grid-template-columns: 1fr;
+  }
+
+  .setting-item--row {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xs);
+  }
+
+  .setting-item--row .nudge-label {
+    min-width: 0;
+  }
+
+  .segmented-btn {
+    padding-inline: var(--spacing-xs);
+  }
 }
