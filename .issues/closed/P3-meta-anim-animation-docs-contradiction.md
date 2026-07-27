@@ -1,9 +1,7 @@
 ---
 id: anim
 category: meta
-title: >-
-  Resolve animation docs contradiction — Lottie pipeline exists but rules say
-  'No Lottie'
+title: Resolve animation docs contradiction — Lottie pipeline exists but rules say 'No Lottie'
 type: bug
 priority: 3
 status: closed
