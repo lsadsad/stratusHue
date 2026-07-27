@@ -1,12 +1,12 @@
 ---
 id: brg
 category: meta
-title: "Integrate Desktop Bridge into stratusHue dev build"
+title: Integrate Desktop Bridge into stratusHue dev build
 type: feature
 priority: 1
-status: open
+status: closed
 depends_on: []
-created: 2026-06-04
+created: '2026-06-04'
 ---
 
 Merge the figma-console-mcp Desktop Bridge plugin into stratusHue so a single plugin launch covers both navigation/lint workflows and the MCP bridge — instead of running two plugins simultaneously.

@@ -1,12 +1,12 @@
 ---
 id: set
 category: navigate
-title: "Polish settings overlay layout and accessibility"
+title: Polish settings overlay layout and accessibility
 type: task
 priority: 2
-status: open
+status: closed
 depends_on: []
-created: 2026-06-22
+created: '2026-06-22'
 ---
 
 ## Description
