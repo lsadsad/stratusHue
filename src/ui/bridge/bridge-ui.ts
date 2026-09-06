@@ -7,9 +7,30 @@ import {
   disconnectCloudRelay,
   onStatusChange,
   type BridgeStatus,
+  type BridgeConnectionState,
 } from './bridge-client';
 
 let bridgeEnabled = false;
+let lastCloudState: BridgeConnectionState | null = null;
+
+// Maps the cloud connection state (and the state it came from) to the message shown in
+// the cloud status line. The Connect button previously gave no textual feedback — dots
+// only — so a click read as a no-op. Exported for unit testing.
+export function cloudStatusLabel(
+  state: BridgeConnectionState,
+  prev: BridgeConnectionState | null,
+): string {
+  switch (state) {
+    case 'connecting':
+      return 'Connecting…';
+    case 'connected':
+      return 'Connected';
+    case 'disconnected':
+      if (prev === 'connecting') return "Couldn't connect — check the code";
+      if (prev === 'connected') return 'Disconnected';
+      return '';
+  }
+}
 
 // ===== STATUS INDICATORS =====
 
@@ -90,6 +111,18 @@ export function initBridgeUI(enabled: boolean, savedPairCode?: string): void {
     } else if (pairInput) {
       pairInput.disabled = false;
     }
+
+    // Cloud status line + Connect-button feedback (dots alone read as a no-op).
+    const statusEl = document.getElementById('bridge-cloud-status');
+    if (statusEl) {
+      statusEl.textContent = cloudStatusLabel(status.cloud, lastCloudState);
+      statusEl.dataset.state = status.cloud;
+    }
+    if (connectBtn) {
+      (connectBtn as HTMLButtonElement).disabled = status.cloud === 'connecting';
+      connectBtn.textContent = status.cloud === 'connecting' ? 'Connecting…' : 'Connect';
+    }
+    lastCloudState = status.cloud;
   });
 
   wireSettingsHandlers();

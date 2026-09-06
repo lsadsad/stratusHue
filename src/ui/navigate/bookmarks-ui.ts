@@ -263,26 +263,25 @@ export function updateNavigationButtons(canGoBack: boolean, canGoForward: boolea
 export function updateLayoutSizingButtons(horizontal: string | undefined, vertical: string | undefined): void {
   const widthModeSpan = document.getElementById('width-mode');
   const heightModeSpan = document.getElementById('height-mode');
-  const widthIcon = document.getElementById('width-icon') as HTMLImageElement;
-  const heightIcon = document.getElementById('height-icon') as HTMLImageElement;
+  const widthIconSpan = document.getElementById('width-icon');
+  const heightIconSpan = document.getElementById('height-icon');
   const cycleWidthBtn = document.getElementById('cycle-width') as HTMLButtonElement;
   const cycleHeightBtn = document.getElementById('cycle-height') as HTMLButtonElement;
   const widthCaption = document.getElementById('width-caption');
   const heightCaption = document.getElementById('height-caption');
 
-  // Base64 data URIs for icons (matching the inlined assets in HTML)
-  const ICON_FIXED = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEgNlYxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNSA2VjEwIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEgOEgxNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
-  const ICON_HUG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYgNVYxMSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMCA1VjExIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEgOEg1IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTMgMTBMNSA4TDMgNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNSA4SDExIiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEzIDZMMTEgOEwxMyAxMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=';
-  const ICON_FILL = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwLjY2NjcgOEgxNC42NjY3IiBzdHJva2U9IndoaXRlIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEyLjY2NjcgMTBMMTQuNjY2NyA4TDEyLjY2NjcgNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMS4zMzMzIDhIMS4zMzMyNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGQ9Ik0zLjMzMzI1IDZMMS4zMzMyNSA4TDMuMzMzMjUgMTAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K';
+  // Inline SVG strings for sizing mode icons (single-line, matches build-time inlined assets)
+  const ICON_FIXED = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 6V10" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M15 6V10" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M1 8H15" stroke="white" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ICON_HUG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.5 5V11" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M0.5 8H4.5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M2.5 10L4.5 8L2.5 6" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M10.5 5V11" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M15.5 8H11.5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M13.5 6L11.5 8L13.5 10" stroke="white" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ICON_FILL = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.6667 8H14.6667" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M12.6667 10L14.6667 8L12.6667 6" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M11.3333 8H1.33325" stroke="white" stroke-linecap="round" stroke-linejoin="round"/> <path d="M3.33325 6L1.33325 8L3.33325 10" stroke="white" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-  // Helper function to get icon data URI based on mode
-  const getIconDataUri = (mode: string | undefined): string => {
-    if (!mode || mode === '—') return ICON_FIXED; // Default icon - show fixed when no hug/fill
+  // Helper function to get inline SVG based on mode
+  const getIconSvg = (mode: string | undefined): string => {
+    if (!mode || mode === '—') return ICON_FIXED;
     const modeLower = mode.toLowerCase();
     if (modeLower === 'hug') return ICON_HUG;
     if (modeLower === 'fill') return ICON_FILL;
-    if (modeLower === 'fixed') return ICON_FIXED;
-    return ICON_FIXED; // Fallback - show fixed when no hug/fill
+    return ICON_FIXED;
   };
 
   // Update button labels
@@ -293,26 +292,28 @@ export function updateLayoutSizingButtons(horizontal: string | undefined, vertic
     heightModeSpan.textContent = vertical || '—';
   }
 
-  // Update icons based on current mode
-  if (widthIcon) {
-    widthIcon.src = getIconDataUri(horizontal);
+  // Update icons based on current mode (replace span innerHTML with correct inline SVG)
+  if (widthIconSpan) {
+    widthIconSpan.innerHTML = getIconSvg(horizontal);
   }
-  if (heightIcon) {
-    heightIcon.src = getIconDataUri(vertical);
+  if (heightIconSpan) {
+    heightIconSpan.innerHTML = getIconSvg(vertical);
   }
 
-  // Enable/disable buttons based on whether we have valid layout properties
-  const hasValidState = horizontal && horizontal !== '—';
+  // Enable/disable buttons based on whether we have valid layout properties (check each axis independently)
+  const hasValidHorizontal = horizontal && horizontal !== '—';
+  const hasValidVertical = vertical && vertical !== '—';
+  
   if (cycleWidthBtn) {
-    cycleWidthBtn.disabled = !hasValidState;
+    cycleWidthBtn.disabled = !hasValidHorizontal;
   }
   if (cycleHeightBtn) {
-    cycleHeightBtn.disabled = !hasValidState;
+    cycleHeightBtn.disabled = !hasValidVertical;
   }
 
   // Update caption labels: show "Width"/"Height" when disabled, show mode when enabled
   if (widthCaption) {
-    if (!hasValidState) {
+    if (!hasValidHorizontal) {
       widthCaption.textContent = 'Width';
     } else {
       const widthMode = horizontal && horizontal !== '—' ? horizontal : 'Fixed';
@@ -320,21 +321,11 @@ export function updateLayoutSizingButtons(horizontal: string | undefined, vertic
     }
   }
   if (heightCaption) {
-    if (!hasValidState) {
+    if (!hasValidVertical) {
       heightCaption.textContent = 'Height';
     } else {
       const heightMode = vertical && vertical !== '—' ? vertical : 'Fixed';
       heightCaption.textContent = heightMode.charAt(0).toUpperCase() + heightMode.slice(1).toLowerCase();
-    }
-  }
-
-  // When buttons are disabled, always reset icons to fixed (default state)
-  if (!hasValidState) {
-    if (widthIcon) {
-      widthIcon.src = ICON_FIXED;
-    }
-    if (heightIcon) {
-      heightIcon.src = ICON_FIXED;
     }
   }
 }

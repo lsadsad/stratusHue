@@ -310,16 +310,16 @@
             </div>
 
             <button id="cycle-width" class="nav-button nav-button-sizing"
-              aria-label="Cycle width sizing (Hug → Fill → Fixed)" aria-describedby="cycle-width-desc" data-tooltip="Cycle Width (Hug → Fill → Fixed)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled tabindex="-1">
+              aria-label="Cycle width sizing (Fixed → Fill → Hug)" aria-describedby="cycle-width-desc" data-tooltip="Cycle Width (Fixed → Fill → Hug)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled tabindex="-1">
               <span id="width-icon" class="nav-icon" aria-hidden="true"><img src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="width-mode">—</span></span>
-              <span id="cycle-width-desc" class="sr-only">Cycle horizontal sizing mode between Hug, Fill, and Fixed</span>
+              <span id="cycle-width-desc" class="sr-only">Cycle horizontal sizing mode between Fixed, Fill, and Hug</span>
             </button>
             <button id="cycle-height" class="nav-button nav-button-sizing"
-              aria-label="Cycle height sizing (Hug → Fill → Fixed)" aria-describedby="cycle-height-desc" data-tooltip="Cycle Height (Hug → Fill → Fixed)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled tabindex="-1">
+              aria-label="Cycle height sizing (Fixed → Fill → Hug)" aria-describedby="cycle-height-desc" data-tooltip="Cycle Height (Fixed → Fill → Hug)" data-tooltip-placement="top-of-container" data-tooltip-delay="600" disabled tabindex="-1">
               <span id="height-icon" class="nav-icon" aria-hidden="true"><img src="./assets/ICO-fixed.svg" alt=""></span>
               <span class="nav-label"><span id="height-mode">—</span></span>
-              <span id="cycle-height-desc" class="sr-only">Cycle vertical sizing mode between Hug, Fill, and Fixed</span>
+              <span id="cycle-height-desc" class="sr-only">Cycle vertical sizing mode between Fixed, Fill, and Hug</span>
             </button>
             <div id="width-caption" class="nav-caption" aria-hidden="true">Width</div>
             <div id="height-caption" class="nav-caption" aria-hidden="true">Height</div>
@@ -369,120 +369,154 @@
         <button id="settings-close" class="action-btn" aria-label="Close settings" tabindex="-1">✕</button>
       </header>
       <div class="settings-content" tabindex="-1">
+        <div class="settings-group" aria-label="Connection and appearance settings">
+          <h3 class="settings-group-title">Connection & Appearance</h3>
 
-        <!-- Theme Section -->
-        <div class="settings-section">
-          <h3 class="settings-section-title">🎨&nbsp;Theme</h3>
+          <!-- Bridge Section -->
+          <div class="settings-section settings-section--titled" id="bridge-settings-section">
+            <h3 class="settings-section-title">🔌 Bridge</h3>
+            <div class="settings-row">
+              <label class="settings-label" for="bridge-enable-toggle">Enable MCP bridge</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="bridge-enable-toggle" tabindex="-1">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div id="bridge-cloud-section" hidden>
+              <div class="settings-subsection-title">Cloud relay (Claude.ai)</div>
+              <div class="bridge-pair-row">
+                <input id="bridge-cloud-pair-input" class="settings-input" type="text"
+                  placeholder="6-char code" maxlength="6" spellcheck="false" autocomplete="off"
+                  aria-label="Cloud pairing code" tabindex="-1">
+                <button id="bridge-cloud-connect-btn" class="settings-btn-sm" tabindex="-1">Connect</button>
+                <button id="bridge-cloud-disconnect-btn" class="settings-btn-sm settings-btn-danger" hidden tabindex="-1">Disconnect</button>
+              </div>
+              <div id="bridge-cloud-status" class="bridge-cloud-status" role="status" aria-live="polite"></div>
+            </div>
+          </div>
 
-          <!-- Theme Selection -->
-          <div class="setting-item">
-            <div class="theme-selector" role="radiogroup" aria-describedby="theme-selector-description">
-              <!-- Theme Options -->
-              <div class="theme-group primary-themes">
-                <button class="theme-option" data-theme="system" id="theme-system" aria-pressed="true"
-                  aria-describedby="system-theme-description" tabindex="-1">
-                  <span class="theme-icon" aria-hidden="true">🔄</span>
-                  <span class="theme-name">System</span>
-                  <span class="theme-description" id="system-theme-description"></span>
-                  <span class="theme-status" id="system-theme-status" aria-live="polite"></span>
-                </button>
-                <button class="theme-option" data-theme="light" id="theme-light" aria-pressed="false"
-                  aria-describedby="light-theme-description" tabindex="-1">
-                  <span class="theme-icon" aria-hidden="true">☀️</span>
-                  <span class="theme-name">Light</span>
-                  <span class="theme-description" id="light-theme-description"></span>
-                </button>
-                <button class="theme-option" data-theme="dark" id="theme-dark" aria-pressed="false"
-                  aria-describedby="dark-theme-description" tabindex="-1">
-                  <span class="theme-icon" aria-hidden="true">🌙</span>
-                  <span class="theme-name">Dark</span>
-                  <span class="theme-description" id="dark-theme-description"></span>
-                </button>
-                <button class="theme-option" data-theme="boilerplate" id="theme-boilerplate" aria-pressed="false"
-                  aria-describedby="boilerplate-theme-description" tabindex="-1">
-                  <span class="theme-icon" aria-hidden="true">⚫</span>
-                  <span class="theme-name">Boilerplate</span>
-                  <span class="theme-description" id="boilerplate-theme-description"></span>
-                </button>
-                <button class="theme-option" data-theme="cybertron" id="theme-cybertron" aria-pressed="false"
-                  aria-describedby="cybertron-theme-description" tabindex="-1">
-                  <span class="theme-icon" aria-hidden="true">🤖</span>
-                  <span class="theme-name">Cybertron</span>
-                  <span class="theme-description" id="cybertron-theme-description"></span>
-                </button>
+          <!-- Theme Section -->
+          <div class="settings-section settings-section--titled">
+            <h3 class="settings-section-title">🎨&nbsp;Theme</h3>
+
+            <!-- Theme Selection -->
+            <div class="setting-item">
+              <div class="theme-selector" role="radiogroup" aria-describedby="theme-selector-description">
+                <!-- Theme Options -->
+                <div class="theme-group primary-themes">
+                  <button class="theme-option" data-theme="system" id="theme-system" aria-pressed="true"
+                    aria-describedby="system-theme-description" tabindex="-1">
+                    <span class="theme-icon" aria-hidden="true">🔄</span>
+                    <span class="theme-name">System</span>
+                    <span class="theme-description" id="system-theme-description"></span>
+                    <span class="theme-status" id="system-theme-status" aria-live="polite"></span>
+                  </button>
+                  <button class="theme-option" data-theme="light" id="theme-light" aria-pressed="false"
+                    aria-describedby="light-theme-description" tabindex="-1">
+                    <span class="theme-icon" aria-hidden="true">☀️</span>
+                    <span class="theme-name">Light</span>
+                    <span class="theme-description" id="light-theme-description"></span>
+                  </button>
+                  <button class="theme-option" data-theme="dark" id="theme-dark" aria-pressed="false"
+                    aria-describedby="dark-theme-description" tabindex="-1">
+                    <span class="theme-icon" aria-hidden="true">🌙</span>
+                    <span class="theme-name">Dark</span>
+                    <span class="theme-description" id="dark-theme-description"></span>
+                  </button>
+                  <button class="theme-option" data-theme="boilerplate" id="theme-boilerplate" aria-pressed="false"
+                    aria-describedby="boilerplate-theme-description" tabindex="-1">
+                    <span class="theme-icon" aria-hidden="true">⚫</span>
+                    <span class="theme-name">Boilerplate</span>
+                    <span class="theme-description" id="boilerplate-theme-description"></span>
+                  </button>
+                  <button class="theme-option" data-theme="cybertron" id="theme-cybertron" aria-pressed="false"
+                    aria-describedby="cybertron-theme-description" tabindex="-1">
+                    <span class="theme-icon" aria-hidden="true">🤖</span>
+                    <span class="theme-name">Cybertron</span>
+                    <span class="theme-description" id="cybertron-theme-description"></span>
+                  </button>
+                </div>
+              </div>
+              <div id="theme-selector-description" class="sr-only">
+                Use arrow keys to navigate between theme options. Press Enter or Space to select a theme.
               </div>
             </div>
-            <div id="theme-selector-description" class="sr-only">
-              Use arrow keys to navigate between theme options. Press Enter or Space to select a theme.
+          </div>
+        </div>
+
+        <div class="settings-group" aria-label="Editing defaults">
+          <h3 class="settings-group-title">Editing Defaults</h3>
+
+          <!-- Nudge Settings Section -->
+          <div class="settings-section settings-section--titled">
+            <h3 class="settings-section-title">↔️ Nudge Amount</h3>
+            <div class="setting-item nudge-settings">
+              <div class="nudge-input-group">
+                <label for="small-nudge-input" class="nudge-label">Small nudge</label>
+                <input type="number" id="small-nudge-input" class="nudge-input" min="1" max="100" value="1" inputmode="numeric" aria-describedby="nudge-help-text">
+              </div>
+              <div class="nudge-input-group">
+                <label for="big-nudge-input" class="nudge-label">Big nudge</label>
+                <input type="number" id="big-nudge-input" class="nudge-input" min="1" max="100" value="8" inputmode="numeric" aria-describedby="nudge-help-text">
+              </div>
+            </div>
+            <p class="settings-help-text" id="nudge-help-text">Use Arrow keys for small nudges. Hold Shift for big nudges.</p>
+          </div>
+
+          <!-- Date Settings Section -->
+          <div class="settings-section settings-section--titled">
+            <h3 class="settings-section-title">📅 Date Tagger</h3>
+            <div class="setting-item setting-item--row">
+              <span class="nudge-label">Format</span>
+              <div class="segmented-control" id="date-format-control" role="radiogroup" aria-label="Date format">
+                <button class="segmented-btn active" data-value="numeric" role="radio" aria-checked="true">mm.dd.yyyy</button>
+                <button class="segmented-btn" data-value="alpha" role="radio" aria-checked="false">Mon.dd.yyyy</button>
+              </div>
+            </div>
+            <div class="setting-item setting-item--row">
+              <span class="nudge-label">Position</span>
+              <div class="segmented-control" id="date-position-control" role="radiogroup" aria-label="Date position">
+                <button class="segmented-btn active" data-value="prefix" role="radio" aria-checked="true">Prefix</button>
+                <button class="segmented-btn" data-value="suffix" role="radio" aria-checked="false">Suffix</button>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Nudge Settings Section -->
-        <div class="settings-section">
-          <h3 class="settings-section-title">↔️ Nudge Amount</h3>
-          <div class="setting-item nudge-settings">
-            <div class="nudge-input-group">
-              <label for="small-nudge-input" class="nudge-label">Small nudge</label>
-              <input type="number" id="small-nudge-input" class="nudge-input" min="1" max="100" value="1" aria-describedby="small-nudge-desc" tabindex="-1">
-            </div>
-            <div class="nudge-input-group">
-              <label for="big-nudge-input" class="nudge-label">Big nudge</label>
-              <input type="number" id="big-nudge-input" class="nudge-input" min="1" max="100" value="8" aria-describedby="big-nudge-desc" tabindex="-1">
-            </div>
-          </div>
-          <p class="settings-help-text" id="small-nudge-desc">Used with Arrow keys. <span id="big-nudge-desc">Hold Shift for big nudge.</span></p>
-        </div>
+        <div class="settings-group" aria-label="Navigation settings">
+          <h3 class="settings-group-title">Navigation</h3>
 
-        <!-- Date Settings Section -->
-        <div class="settings-section">
-          <h3 class="settings-section-title">📅 Date Tagger</h3>
-          <div class="setting-item setting-item--row">
-            <span class="nudge-label">Format</span>
-            <div class="segmented-control" id="date-format-control" role="group" aria-label="Date format">
-              <button class="segmented-btn active" data-value="numeric" tabindex="-1">mm.dd.yyyy</button>
-              <button class="segmented-btn" data-value="alpha" tabindex="-1">Mon.dd.yyyy</button>
+          <!-- Controls Section -->
+          <div class="settings-section settings-section--titled">
+            <h3 class="settings-section-title">🧭 Controls</h3>
+
+            <!-- Controls Section Toggle -->
+            <div class="setting-item">
+              <label class="setting-label-small">
+                <span class="checkbox-description">Enable layer navigation, element movement, zoom, and actions</span>
+                <input type="checkbox" id="controls-toggle" checked tabindex="-1">
+              </label>
             </div>
-          </div>
-          <div class="setting-item setting-item--row">
-            <span class="nudge-label">Position</span>
-            <div class="segmented-control" id="date-position-control" role="group" aria-label="Date position">
-              <button class="segmented-btn active" data-value="prefix" tabindex="-1">Prefix</button>
-              <button class="segmented-btn" data-value="suffix" tabindex="-1">Suffix</button>
+
+            <!-- Per-group visibility toggles -->
+            <div id="controls-group-toggles" class="setting-item controls-group-toggles">
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Movement & Zoom</span>
+                <input type="checkbox" id="toggle-movement-zoom" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Hierarchy</span>
+                <input type="checkbox" id="toggle-hierarchy" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Sizing Modes</span>
+                <input type="checkbox" id="toggle-sizing-modes" checked tabindex="-1">
+              </label>
+              <label class="setting-label-small sub-toggle">
+                <span class="checkbox-description">Styled Text</span>
+                <input type="checkbox" id="toggle-styled-text" checked tabindex="-1">
+              </label>
             </div>
-          </div>
-        </div>
-
-        <!-- Controls Section -->
-        <div class="settings-section">
-          <h3 class="settings-section-title">🧭 Controls</h3>
-
-          <!-- Controls Section Toggle -->
-          <div class="setting-item">
-            <label class="setting-label-small">
-              <span class="checkbox-description">Enable layer navigation, element movement, zoom, and actions</span>
-              <input type="checkbox" id="controls-toggle" checked tabindex="-1">
-            </label>
-          </div>
-
-          <!-- Per-group visibility toggles -->
-          <div id="controls-group-toggles" class="setting-item controls-group-toggles">
-            <label class="setting-label-small sub-toggle">
-              <span class="checkbox-description">Movement & Zoom</span>
-              <input type="checkbox" id="toggle-movement-zoom" checked tabindex="-1">
-            </label>
-            <label class="setting-label-small sub-toggle">
-              <span class="checkbox-description">Hierarchy</span>
-              <input type="checkbox" id="toggle-hierarchy" checked tabindex="-1">
-            </label>
-            <label class="setting-label-small sub-toggle">
-              <span class="checkbox-description">Sizing Modes</span>
-              <input type="checkbox" id="toggle-sizing-modes" checked tabindex="-1">
-            </label>
-            <label class="setting-label-small sub-toggle">
-              <span class="checkbox-description">Styled Text</span>
-              <input type="checkbox" id="toggle-styled-text" checked tabindex="-1">
-            </label>
           </div>
         </div>
 
@@ -502,30 +536,8 @@
         </div>
         -->
 
-        <!-- Bridge Section -->
-        <div class="settings-section" id="bridge-settings-section">
-          <h3 class="settings-section-title">🔌 Bridge</h3>
-          <div class="settings-row">
-            <label class="settings-label" for="bridge-enable-toggle">Enable MCP bridge</label>
-            <label class="toggle-switch">
-              <input type="checkbox" id="bridge-enable-toggle" tabindex="-1">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div id="bridge-cloud-section" hidden>
-            <div class="settings-subsection-title">Cloud relay (Claude.ai)</div>
-            <div class="bridge-pair-row">
-              <input id="bridge-cloud-pair-input" class="settings-input" type="text"
-                placeholder="6-char code" maxlength="6" spellcheck="false" autocomplete="off"
-                aria-label="Cloud pairing code" tabindex="-1">
-              <button id="bridge-cloud-connect-btn" class="settings-btn-sm" tabindex="-1">Connect</button>
-              <button id="bridge-cloud-disconnect-btn" class="settings-btn-sm settings-btn-danger" hidden tabindex="-1">Disconnect</button>
-            </div>
-          </div>
-        </div>
-
         <!-- Support Section -->
-        <div class="settings-section">
+        <div class="settings-section settings-section--support">
           <div class="support-section">
             <p class="support-text">Enjoying this plugin?<br>Support its development!</p>
             <button id="kofi-btn" class="kofi-button" aria-label="Support on Ko-fi" tabindex="-1">

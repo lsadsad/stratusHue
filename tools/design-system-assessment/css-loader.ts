@@ -10,21 +10,26 @@
  */
 export async function loadCSSFromFile(filePath: string): Promise<string> {
   try {
-    // In a browser environment, we'll need to fetch the file
-    if (typeof window !== 'undefined') {
-      const response = await fetch(filePath);
-      if (!response.ok) {
-        throw new Error(`Failed to load CSS file: ${response.statusText}`);
-      }
-      return await response.text();
+    // Prefer Node's filesystem whenever a Node runtime is present. Checking for
+    // `window` alone is unreliable: under the jsdom test environment `window` is
+    // defined even though we're in Node and the file must be read via `fs` (not
+    // `fetch`, which can't resolve a local path). Only fall back to `fetch` in a
+    // real browser, where `process` is absent.
+    const isNode = typeof process !== 'undefined' && !!process.versions?.node;
+    if (isNode) {
+      const fs = await import('fs');
+      const path = await import('path');
+
+      const fullPath = path.resolve(filePath);
+      return fs.readFileSync(fullPath, 'utf-8');
     }
-    
-    // In Node.js environment
-    const fs = await import('fs');
-    const path = await import('path');
-    
-    const fullPath = path.resolve(filePath);
-    return fs.readFileSync(fullPath, 'utf-8');
+
+    // Browser environment: fetch the file
+    const response = await fetch(filePath);
+    if (!response.ok) {
+      throw new Error(`Failed to load CSS file: ${response.statusText}`);
+    }
+    return await response.text();
   } catch (error) {
     throw new Error(`Failed to load CSS file: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }

@@ -27,8 +27,10 @@ export async function addBookmark(node: SceneNode & { name: string }): Promise<B
     pageName: getPageName(node)
   };
 
-  bookmarks.push(newBookmark);
-  await updateAndSaveBookmarks(bookmarks);
+  // Build a new array rather than mutating the array returned by getBookmarks()
+  // (which is the shared cache reference). This keeps the cache from diverging
+  // from disk if the save below fails.
+  await updateAndSaveBookmarks([...bookmarks, newBookmark]);
   
   // Update anchor state
   if (currentAnchorState.bookmarkId !== node.id) {

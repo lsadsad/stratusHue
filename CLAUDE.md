@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Design methodology — Throughline (scoped companion layer)
+
+The **Throughline** methodology (ported verbatim from the figma-studio repo) is imported below. `CLAUDE-throughline.md` itself imports `CLAUDE-visual-craft.md`, so both load from this single reference.
+
+**Scope — read before applying.** Throughline applies **only** to Figma design-critique work — evaluating frames, design intent, and UI composition. It does **not** govern stratusHue's code, build, or repo workflow. On any conflict, **stratusHue's own conventions in this file take precedence**. Specifically:
+
+- **Spacing/sizing:** use stratusHue's `--spacing-*` / `--button-height-*` / `--icon-size-*` token scale — not Throughline's "4pt grid is non-negotiable" rule.
+- **Decisions & tracking:** use this repo's `.issues/` + `.memory/` systems — not Throughline's "DD-NNN entry in Notion."
+- **figma-studio-only references** (Nibble Card, AT&T Relay Design System, `figma-kb`, rive-studio, the ASCII → HTML → Figma → Rive iteration sequence) are AT&T/figma-studio context — treat as inherited background, not directives to follow here.
+
+figma-studio remains the canonical source; the copy here is downstream and AT&T-domain-bound by design.
+
+@CLAUDE-throughline.md
+
+- **Claude Code** — `@` line above imports at session load
+- **Cursor** — `.cursor/rules/throughline-visual-craft.mdc` (agent-requested on Figma design-critique only; stratusHue conventions win; not always-on)
+- **Copilot (VS Code)** — `.github/instructions/throughline-visual-craft.instructions.md` (path-specific; not always-on)
+
 ## Commands
 
 ```bash
@@ -240,7 +258,7 @@ npx serve prototype
 Then open `http://localhost:3000/plugin.html`.
 
 
-## finePrint — Smoke Tests
+## Smoke Tests
 
 When adding a new message type to `figma.ui.onmessage` in `code.ts`, you **must** also add a corresponding smoke test in `src/test/smoke-dispatch.test.ts`:
 
@@ -254,186 +272,24 @@ The payload must match the validation guard in the `case` branch (e.g., if the h
 
 After adding, run `npm run validate` to confirm the full gate passes.
 
+## finePrint
 
-## finePrint — Issue Tracking (`.issues/`)
-
-Issues are plain markdown files with YAML frontmatter, tracked in git. No external tools needed.
-
-```
-.issues/
-  open/       # active issues
-  closed/     # completed issues
-```
-
-### Frontmatter schema
-
-```yaml
----
-id: sch              # short mnemonic ID (3 chars; 4 for epics)
-category: scaffold   # feature area: scaffold | validate | navigate | meta
-title: "..."
-type: task|feature|bug|epic
-priority: 1          # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
-status: open
-depends_on: []       # list of IDs this issue is blocked by
-created: 2026-03-21
----
-```
-
-### Categories
-
-| Category | Description |
-|---|---|
-| `scaffold` | Scaffold mode — recipe schema, engine, UI, sharing |
-| `validate` | Validate mode — lint, token audit, component check, readiness |
-| `navigate` | Navigate mode — bookmarks, emoji nav, controls |
-| `meta` | Cross-cutting — audits, process, infrastructure |
-
-### Conventions
-
-- File naming: `P{priority}-{category}-{id}-{slug}.md` (e.g., `P2-scaffold-sch-recipe-json-schema.md`)
-- To close an issue: `git mv .issues/open/P2-scaffold-sch-*.md .issues/closed/`
-- To find ready work: issues in `open/` with empty `depends_on` or all deps in `closed/`
-- Dependencies reference other issue IDs (check `depends_on` arrays)
-- Obsidian-compatible: open `.issues/` as a vault, use Dataview for queries
-- See `.issues/README.md` for full how-to guide
-
-### ID naming convention
-
-IDs should be **short, pronounceable abbreviations** — not random hashes or ticket numbers.
-
-- **3 characters** for regular issues, **4 characters** for epics
-- Lowercase, alphanumeric only
-- Must be globally unique within the project
-
-### Display Layouts
-
-Issues support two display layouts. Both use tree characters to visualize dependency chains — nested items are blocked by their parent.
-
-**Priority view (default)** — groups by priority level, dependencies nest under blockers:
-
-```
-■ Open Issues (17)
-│
-│ P1
-├── aud   Template methodology audit
-│
-│ P2
-├── scf   Scaffold mode epic ⬡  ← tab, tpl, stm
-├── sch   Recipe JSON schema
-│   ├── exp   Recipe import/export
-│   └── stm   Stamp recipe to file
-├── ldr   Sandbox: recipe loader
-│   ├── pgs   Create pages from recipe
-│   │   └── tpl  Content templates
-│   └── tab   Scaffold tab UI
-├── anc   Anchors list max entries
-├── pth   Pathing characters in file tree
-├── rel   Cut a release
-│
-│ P3
-├── cmp   Component check
-├── rdy   Readiness check
-├── tkn   Token audit
-│
-│ P4
-├── anim-ref  Animation system reference
-└── smk2  Auto-detect missing smoke tests
-```
-
-- Dependencies nest under their blocker within the same priority group
-- Cross-priority deps show a `← blocker` marker instead of nesting
-- `⬡` marks epics
-- `[P4]` suffix when a nested item's priority differs from its group
-
-**Location view** — groups by category (package/area), priority as suffix:
-
-```
-■ Open Issues (17)
-│
-│ scaffold/
-├── scf   Scaffold mode epic ⬡ [P2]
-│   ├── tab   Scaffold tab UI [P2]
-│   ├── tpl   Content templates [P2]
-│   └── stm   Stamp recipe to file [P2]
-├── sch   Recipe JSON schema [P2]
-│   └── exp   Recipe import/export [P2]
-├── ldr   Sandbox: recipe loader [P2]
-│   └── pgs   Create pages from recipe [P2]
-│
-│ validate/
-├── cmp   Component check [P3]
-├── rdy   Readiness check [P3]
-├── tkn   Token audit [P3]
-│
-│ navigate/
-├── anc   Anchors list max entries [P2]
-├── pth   Pathing characters [P2]
-│
-│ meta/
-├── aud   Template methodology audit [P1]
-├── rel   Cut a release [P2]
-├── anim-ref  Animation system reference [P4]
-└── smk2  Auto-detect missing smoke tests [P4]
-```
-
-- Dependencies still nest under their blocker
-- `[P2]` suffix shows priority per item
-
-### shortHand — Issues
-
-Casual phrases that drive finePrint actions. Say any of these.
-
-| Phrase | Action |
-|---|---|
-| "issues plz" | List all open issues |
-| "what's ready" | Show unblocked issues only |
-| "show X" | Read a specific issue |
-| "show deats" | Show full issue details (frontmatter + body) |
-| "issue it" | Create a new issue from current context |
-| "track this" | Create a new issue (with description) |
-| "done X" | Close issue — `git mv` to `closed/` |
-| "bump X" | Raise an issue's priority |
-| "block X on Y" | Add Y to X's `depends_on` |
-
-## finePrint — Project Memory (`.memory/`)
-
-Append-only knowledge base for decisions, context, and open questions. See `.memory/README.md` for full format and conventions.
-
-### Format
-
-Files are named `YYYY-MM-DD-slug.md` with optional YAML frontmatter. Types: `decision`, `question`, `context`, `workaround`.
-
-### shortHand — Memory
-
-| Phrase | Action |
-|---|---|
-| "save context" | Write new `.memory/YYYY-MM-DD-slug.md` |
-| "check memory" | List all memory entries |
-| "recall X" | Search `.memory/` for topic |
-| "this replaces X" | New entry with "Supersedes:" reference |
-
-### shortHand — Session
-
-| Phrase | Action |
-|---|---|
-| "run down" | Full status report on a topic — pull together issues, memories, related context, and current state |
-| "distill this" | Synthesize the session — extract decisions, milestones, and context into `.memory/` entries; update issues with progress; surface untracked work as new issues |
-| "wrap up" | File issues for remaining work, run quality gates, close completed issues, commit and push |
-| "ship it" | Commit all changes and push to remote |
-| "what changed" | Git summary — branch, recent commits, dirty state |
+Issue tracking (`.issues/`), project memory (`.memory/`), and shortHand phrases live in [`docs/finePrint.md`](docs/finePrint.md). shortHand vocabulary and MCP prompts are maintained in [groundControl CLAUDE.md](https://github.com/lsadsad/groundControl/blob/main/CLAUDE.md).
 
 ## Session Completion
 
 **When ending a work session**, you MUST complete ALL steps below.
 
-1. **File issues** for remaining work (create new `.issues/open/*.md` files)
-2. **Run quality gates** (if code changed) — tests, linters, builds
-3. **Update issue status** — move completed issues to `closed/`
-4. **PUSH TO REMOTE**:
+> **Distill is the standing close.** End active sessions with a `.memory/` entry (say "distill this" or "distill and wrap"). `wrap up` alone closes/commits/pushes but writes no memory.
+
+1. **Distill** — extract decisions, context, and open questions into `.memory/YYYY-MM-DD-slug.md`; update issues with progress
+2. **File issues** for remaining work (create new `.issues/open/*.md` files)
+3. **Run quality gates** (if code changed) — tests, linters, builds
+4. **Update issue status** — move completed issues to `closed/`
+5. **PUSH TO REMOTE**:
    ```bash
    git pull --rebase
    git push
    git status  # MUST show "up to date with origin"
    ```
-5. **Verify** — all changes committed AND pushed
+6. **Verify** — all changes committed AND pushed, and a `.memory/` entry exists for this session

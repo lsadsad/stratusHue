@@ -557,3 +557,290 @@ export async function handleBridgeGetMetadata(
     replyError(requestId, e instanceof Error ? e.message : String(e));
   }
 }
+
+// ===== FIGJAM =====
+// Ported from the original Desktop Bridge (figma-studio/figma-desktop-bridge/code.js).
+// These commands only function on a FigJam board (figma.editorType === 'figjam').
+// Result `data` shapes mirror the reference so the figma-console-mcp server's
+// per-tool parsers accept them unchanged.
+
+const STICKY_COLORS: Record<string, RGB> = {
+  YELLOW: { r: 1, g: 0.85, b: 0.4 },
+  BLUE: { r: 0.53, g: 0.78, b: 1 },
+  GREEN: { r: 0.55, g: 0.87, b: 0.53 },
+  PINK: { r: 1, g: 0.6, b: 0.78 },
+  ORANGE: { r: 1, g: 0.71, b: 0.42 },
+  PURPLE: { r: 0.78, g: 0.65, b: 1 },
+  RED: { r: 1, g: 0.55, b: 0.55 },
+  LIGHT_GRAY: { r: 0.9, g: 0.9, b: 0.9 },
+  GRAY: { r: 0.7, g: 0.7, b: 0.7 },
+};
+
+function ensureFigJam(command: string): void {
+  if (figma.editorType !== 'figjam') {
+    throw new Error(`${command} is only available in FigJam files`);
+  }
+}
+
+const asStr = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
+const asNum = (v: unknown): number | undefined => (typeof v === 'number' ? v : undefined);
+
+function solidFromHex(hex: string): SolidPaint {
+  const { r, g, b } = hexToRgb(hex);
+  return { type: 'SOLID', color: { r, g, b } };
+}
+
+export async function handleBridgeCreateSticky(requestId: string, p: Record<string, unknown>): Promise<void> {
+  try {
+    ensureFigJam('CREATE_STICKY');
+    const sticky = figma.createSticky();
+    await figma.loadFontAsync(sticky.text.fontName as FontName);
+    sticky.text.characters = asStr(p.text) ?? '';
+    const x = asNum(p.x); if (x !== undefined) sticky.x = x;
+    const y = asNum(p.y); if (y !== undefined) sticky.y = y;
+    const color = asStr(p.color);
+    if (color && STICKY_COLORS[color.toUpperCase()]) {
+      sticky.fills = [{ type: 'SOLID', color: STICKY_COLORS[color.toUpperCase()] }];
+    }
+    reply(requestId, { success: true, data: { id: sticky.id, type: sticky.type, name: sticky.name, x: sticky.x, y: sticky.y } });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}
+
+export async function handleBridgeCreateStickies(requestId: string, p: Record<string, unknown>): Promise<void> {
+  try {
+    ensureFigJam('CREATE_STICKIES');
+    const specs = Array.isArray(p.stickies) ? (p.stickies as Array<Record<string, unknown>>) : [];
+    const created: Array<Record<string, unknown>> = [];
+    const errors: Array<{ index: number; error: string }> = [];
+    let fontLoaded = false;
+    for (let i = 0; i < specs.length; i++) {
+      try {
+        const spec = specs[i];
+        const sticky = figma.createSticky();
+        if (!fontLoaded) { await figma.loadFontAsync(sticky.text.fontName as FontName); fontLoaded = true; }
+        sticky.text.characters = asStr(spec.text) ?? '';
+        const sx = asNum(spec.x); if (sx !== undefined) sticky.x = sx;
+        const sy = asNum(spec.y); if (sy !== undefined) sticky.y = sy;
+        const sc = asStr(spec.color);
+        if (sc && STICKY_COLORS[sc.toUpperCase()]) sticky.fills = [{ type: 'SOLID', color: STICKY_COLORS[sc.toUpperCase()] }];
+        created.push({ id: sticky.id, type: sticky.type, name: sticky.name, x: sticky.x, y: sticky.y });
+      } catch (e) {
+        errors.push({ index: i, error: e instanceof Error ? e.message : String(e) });
+      }
+    }
+    reply(requestId, { success: errors.length === 0, data: { created: created.length, failed: errors.length, results: created, errors } });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}
+
+export async function handleBridgeCreateConnector(requestId: string, p: Record<string, unknown>): Promise<void> {
+  try {
+    ensureFigJam('CREATE_CONNECTOR');
+    const startNodeId = asStr(p.startNodeId);
+    const endNodeId = asStr(p.endNodeId);
+    if (!startNodeId || !endNodeId) throw new Error('CREATE_CONNECTOR requires startNodeId and endNodeId');
+    const startNode = await figma.getNodeByIdAsync(startNodeId);
+    const endNode = await figma.getNodeByIdAsync(endNodeId);
+    if (!startNode) throw new Error(`Start node not found: ${startNodeId}`);
+    if (!endNode) throw new Error(`End node not found: ${endNodeId}`);
+    const connector = figma.createConnector();
+    connector.connectorStart = { endpointNodeId: startNodeId, magnet: asStr(p.startMagnet) ?? 'AUTO' } as ConnectorEndpoint;
+    connector.connectorEnd = { endpointNodeId: endNodeId, magnet: asStr(p.endMagnet) ?? 'AUTO' } as ConnectorEndpoint;
+    const label = asStr(p.label);
+    if (label) {
+      try { await figma.loadFontAsync(connector.text.fontName as FontName); }
+      catch { await figma.loadFontAsync({ family: 'Inter', style: 'Medium' }); connector.text.fontName = { family: 'Inter', style: 'Medium' }; }
+      connector.text.characters = label;
+    }
+    reply(requestId, { success: true, data: { id: connector.id, type: connector.type, name: connector.name } });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}
+
+export async function handleBridgeCreateSection(requestId: string, p: Record<string, unknown>): Promise<void> {
+  try {
+    ensureFigJam('CREATE_SECTION');
+    const section = figma.createSection();
+    const name = asStr(p.name); if (name) section.name = name;
+    const x = asNum(p.x); if (x !== undefined) section.x = x;
+    const y = asNum(p.y); if (y !== undefined) section.y = y;
+    const w = asNum(p.width); const h = asNum(p.height);
+    if (w !== undefined && h !== undefined) section.resizeWithoutConstraints(w, h);
+    const fillColor = asStr(p.fillColor);
+    if (fillColor) section.fills = [solidFromHex(fillColor)];
+    reply(requestId, { success: true, data: { id: section.id, type: section.type, name: section.name, x: section.x, y: section.y, width: section.width, height: section.height } });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}
+
+export async function handleBridgeCreateShapeWithText(requestId: string, p: Record<string, unknown>): Promise<void> {
+  try {
+    ensureFigJam('CREATE_SHAPE_WITH_TEXT');
+    const shape = figma.createShapeWithText();
+    const shapeType = asStr(p.shapeType);
+    if (shapeType) shape.shapeType = shapeType as ShapeWithTextNode['shapeType'];
+    const x = asNum(p.x); if (x !== undefined) shape.x = x;
+    const y = asNum(p.y); if (y !== undefined) shape.y = y;
+    const w = asNum(p.width); const h = asNum(p.height);
+    if (w !== undefined && h !== undefined) shape.resize(w, h);
+    else if (w !== undefined) shape.resize(w, shape.height);
+    else if (h !== undefined) shape.resize(shape.width, h);
+    const fillColor = asStr(p.fillColor);
+    if (fillColor) shape.fills = [solidFromHex(fillColor)];
+    const strokeColor = asStr(p.strokeColor);
+    if (strokeColor) { shape.strokes = [solidFromHex(strokeColor)]; shape.strokeWeight = 1; }
+    const dash = asStr(p.strokeDashPattern);
+    if (dash) shape.dashPattern = dash.split(',').map((s) => parseFloat(s.trim()));
+    const text = asStr(p.text);
+    if (text) {
+      try { await figma.loadFontAsync(shape.text.fontName as FontName); }
+      catch { await figma.loadFontAsync({ family: 'Inter', style: 'Medium' }); shape.text.fontName = { family: 'Inter', style: 'Medium' }; }
+      shape.text.characters = text;
+      const fs = asNum(p.fontSize); if (fs !== undefined) shape.text.fontSize = fs;
+    }
+    reply(requestId, { success: true, data: { id: shape.id, type: shape.type, name: shape.name, x: shape.x, y: shape.y, width: shape.width, height: shape.height } });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}
+
+export async function handleBridgeCreateTable(requestId: string, p: Record<string, unknown>): Promise<void> {
+  try {
+    ensureFigJam('CREATE_TABLE');
+    const rows = asNum(p.rows); const columns = asNum(p.columns);
+    if (rows === undefined || columns === undefined) throw new Error('CREATE_TABLE requires rows and columns');
+    const table = figma.createTable(rows, columns);
+    const x = asNum(p.x); if (x !== undefined) table.x = x;
+    const y = asNum(p.y); if (y !== undefined) table.y = y;
+    const data = Array.isArray(p.data) ? (p.data as unknown[][]) : null;
+    if (data) {
+      for (let row = 0; row < data.length && row < rows; row++) {
+        const rowArr = Array.isArray(data[row]) ? data[row] : [];
+        for (let col = 0; col < rowArr.length && col < columns; col++) {
+          const cell = table.cellAt(row, col);
+          if (cell && rowArr[col] != null) {
+            await figma.loadFontAsync(cell.text.fontName as FontName);
+            cell.text.characters = String(rowArr[col]);
+          }
+        }
+      }
+    }
+    reply(requestId, { success: true, data: { id: table.id, type: table.type, name: table.name, rows, columns } });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}
+
+export async function handleBridgeCreateCodeBlock(requestId: string, p: Record<string, unknown>): Promise<void> {
+  try {
+    ensureFigJam('CREATE_CODE_BLOCK');
+    const codeBlock = figma.createCodeBlock();
+    try { await figma.loadFontAsync({ family: 'Source Code Pro', style: 'Medium' }); }
+    catch { await figma.loadFontAsync({ family: 'Inter', style: 'Medium' }); }
+    const code = asStr(p.code); if (code) codeBlock.code = code;
+    const language = asStr(p.language); if (language) codeBlock.codeLanguage = language as CodeBlockNode['codeLanguage'];
+    const x = asNum(p.x); if (x !== undefined) codeBlock.x = x;
+    const y = asNum(p.y); if (y !== undefined) codeBlock.y = y;
+    reply(requestId, { success: true, data: { id: codeBlock.id, type: codeBlock.type, name: codeBlock.name, x: codeBlock.x, y: codeBlock.y } });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}
+
+export async function handleBridgeGetBoardContents(requestId: string, p: Record<string, unknown>): Promise<void> {
+  try {
+    ensureFigJam('GET_BOARD_CONTENTS');
+    const maxNodes = asNum(p.maxNodes) ?? 500;
+    const filterTypes = Array.isArray(p.nodeTypes) ? (p.nodeTypes as string[]) : null;
+    const figjamTypes = ['STICKY', 'SHAPE_WITH_TEXT', 'CONNECTOR', 'TABLE', 'CODE_BLOCK', 'SECTION', 'FRAME', 'TEXT'];
+    const allNodes = figma.currentPage.children;
+    const results: Array<Record<string, unknown>> = [];
+    let truncated = false;
+    for (let ni = 0; ni < allNodes.length && results.length < maxNodes; ni++) {
+      const node = allNodes[ni];
+      if (filterTypes && filterTypes.indexOf(node.type) === -1) continue;
+      if (!filterTypes && figjamTypes.indexOf(node.type) === -1) continue;
+      const geo = node as unknown as { x?: number; y?: number; width?: number; height?: number };
+      const entry: Record<string, unknown> = { id: node.id, type: node.type, name: node.name, x: geo.x, y: geo.y, width: geo.width, height: geo.height };
+      if (node.type === 'STICKY') {
+        const s = node as StickyNode;
+        entry.text = s.text ? s.text.characters : '';
+        const fills = s.fills;
+        if (Array.isArray(fills) && fills.length > 0 && fills[0].type === 'SOLID') entry.color = (fills[0] as SolidPaint).color;
+      } else if (node.type === 'SHAPE_WITH_TEXT') {
+        const sh = node as ShapeWithTextNode;
+        entry.text = sh.text ? sh.text.characters : '';
+        entry.shapeType = sh.shapeType;
+      } else if (node.type === 'CONNECTOR') {
+        const c = node as ConnectorNode;
+        entry.connectorStart = c.connectorStart ?? null;
+        entry.connectorEnd = c.connectorEnd ?? null;
+        entry.text = c.text ? c.text.characters : '';
+      } else if (node.type === 'CODE_BLOCK') {
+        const cb = node as CodeBlockNode;
+        entry.code = cb.code ?? '';
+        entry.codeLanguage = cb.codeLanguage ?? '';
+      } else if (node.type === 'TABLE') {
+        const t = node as TableNode;
+        entry.numRows = t.numRows;
+        entry.numColumns = t.numColumns;
+        const cellData: string[][] = [];
+        const maxCellRows = Math.min(t.numRows, 10);
+        for (let row = 0; row < maxCellRows; row++) {
+          const rowData: string[] = [];
+          for (let col = 0; col < t.numColumns; col++) {
+            try { const cell = t.cellAt(row, col); rowData.push(cell && cell.text ? cell.text.characters : ''); }
+            catch { rowData.push(''); }
+          }
+          cellData.push(rowData);
+        }
+        entry.cellData = cellData;
+        if (t.numRows > 10) entry.cellDataTruncated = true;
+      } else if (node.type === 'SECTION') {
+        const sec = node as SectionNode;
+        entry.childCount = sec.children ? sec.children.length : 0;
+      } else if (node.type === 'TEXT') {
+        const tx = node as TextNode;
+        entry.text = typeof tx.characters === 'string' ? tx.characters : '';
+      }
+      results.push(entry);
+    }
+    if (results.length >= maxNodes) truncated = true;
+    reply(requestId, { success: true, data: { nodes: results, totalFound: results.length, truncated, page: figma.currentPage.name } });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}
+
+export async function handleBridgeGetConnections(requestId: string): Promise<void> {
+  try {
+    ensureFigJam('GET_CONNECTIONS');
+    const connectors = figma.currentPage.findAll((n) => n.type === 'CONNECTOR') as ConnectorNode[];
+    const edges: Array<Record<string, unknown>> = [];
+    const nodeMap: Record<string, unknown> = {};
+    const endpointId = (ep: ConnectorEndpoint | undefined): string | null =>
+      ep && 'endpointNodeId' in ep ? ep.endpointNodeId : null;
+    const summarize = (n: BaseNode): Record<string, unknown> => {
+      const wt = n as unknown as { text?: { characters?: string }; characters?: string };
+      const text = wt.text && typeof wt.text.characters === 'string'
+        ? wt.text.characters
+        : (typeof wt.characters === 'string' ? wt.characters : '');
+      return { id: n.id, type: n.type, name: n.name, text };
+    };
+    for (const conn of connectors) {
+      const startId = endpointId(conn.connectorStart);
+      const endId = endpointId(conn.connectorEnd);
+      edges.push({ connectorId: conn.id, startNodeId: startId, endNodeId: endId, label: conn.text ? conn.text.characters : '' });
+      if (startId && !nodeMap[startId]) { const sn = await figma.getNodeByIdAsync(startId); if (sn) nodeMap[startId] = summarize(sn); }
+      if (endId && !nodeMap[endId]) { const en = await figma.getNodeByIdAsync(endId); if (en) nodeMap[endId] = summarize(en); }
+    }
+    reply(requestId, { success: true, data: { edges, connectedNodes: nodeMap, totalConnectors: connectors.length, totalConnectedNodes: Object.keys(nodeMap).length } });
+  } catch (e) {
+    replyError(requestId, e instanceof Error ? e.message : String(e));
+  }
+}

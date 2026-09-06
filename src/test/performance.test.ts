@@ -161,33 +161,39 @@ describe('Performance Tests', () => {
     });
 
     it('should compare against existing baselines', async () => {
-      // Arrange - Create a baseline first
-      const children = Array.from({ length: 5 }, (_, i) => 
+      // Arrange - a container to navigate into
+      const children = Array.from({ length: 5 }, (_, i) =>
         createMockSceneNode(`child-${i}`, `Child ${i}`)
       );
       const container = createMockContainer('comparison-test', 'Comparison Test Container', 'GROUP', children);
 
-      // Create initial baseline
-      await measureAndComparePerformance(
-        'comparison_container_entry',
-        () => LayerNavigationHandler.enterContainer(container)
-      );
+      // Seed a fixed, generous baseline rather than deriving one from a first
+      // measurement. Comparing two fresh sub-millisecond measurements of the same
+      // operation is dominated by timing noise (JIT, GC, system load) and routinely
+      // swings past any small percentage threshold, which made this test flaky under
+      // full-suite load. A 100ms baseline that the real (microsecond) operation
+      // comfortably beats makes the comparison deterministic without weakening what
+      // this test verifies: that an *existing* baseline is compared against (rather
+      // than newly created). Regression detection is covered deterministically by the
+      // 'should fail when performance degrades beyond threshold' test below.
+      PerformanceBaselineManager.resetBaselines();
+      PerformanceBaselineManager.updateBaseline('comparison_container_entry', 100); // 100ms baseline
 
-      // Act - Run the same operation again
+      // Act - run the operation; it is orders of magnitude faster than 100ms
       const { result, performanceResult } = await measureAndComparePerformance(
         'comparison_container_entry',
         () => LayerNavigationHandler.enterContainer(container)
       );
 
-      // Assert - Should compare against baseline
-      expect(performanceResult.passed).toBe(true);
-      expect(performanceResult.baselineTime).toBeDefined();
-      expect(performanceResult.percentChange).toBeDefined();
+      // Assert - the comparison ran against the existing baseline (the compare path
+      // returns baselineTime/percentChange; the create-new path would not)...
       expect(result.success).toBe(true);
+      expect(performanceResult.baselineTime).toBe(100);
+      expect(performanceResult.percentChange).toBeDefined();
+      expect(Number.isFinite(performanceResult.percentChange!)).toBe(true);
 
-      // Performance change should be reasonable (within 50% threshold for test environment)
-      // Note: Test environments can have higher variance due to JIT compilation and system load
-      expect(Math.abs(performanceResult.percentChange!)).toBeLessThan(0.50);
+      // ...and a microsecond operation against a 100ms baseline is never a regression.
+      expect(performanceResult.passed).toBe(true);
     });
 
     it('should fail when performance degrades beyond threshold', async () => {

@@ -134,11 +134,53 @@ export function setupDateSettings(): void {
 function setupSegmentedControl(containerId: string, onChange: (value: string) => void): void {
   const container = document.getElementById(containerId);
   if (!container) return;
-  container.querySelectorAll<HTMLButtonElement>('.segmented-btn').forEach(btn => {
+  const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>('.segmented-btn'));
+  const updateSelection = (selected: HTMLButtonElement): void => {
+    buttons.forEach((button) => {
+      const isActive = button === selected;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-checked', String(isActive));
+    });
+    onChange(selected.dataset.value ?? '');
+  };
+
+  buttons.forEach((btn, index) => {
     btn.addEventListener('click', () => {
-      container.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      onChange(btn.dataset.value ?? '');
+      updateSelection(btn);
+    });
+
+    btn.addEventListener('keydown', (event) => {
+      const lastIndex = buttons.length - 1;
+      let targetIndex = index;
+
+      switch (event.key) {
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          targetIndex = index === 0 ? lastIndex : index - 1;
+          break;
+        case 'ArrowRight':
+        case 'ArrowDown':
+          targetIndex = index === lastIndex ? 0 : index + 1;
+          break;
+        case 'Home':
+          targetIndex = 0;
+          break;
+        case 'End':
+          targetIndex = lastIndex;
+          break;
+        case ' ':
+        case 'Enter':
+          event.preventDefault();
+          updateSelection(btn);
+          return;
+        default:
+          return;
+      }
+
+      event.preventDefault();
+      const targetButton = buttons[targetIndex];
+      targetButton.focus();
+      updateSelection(targetButton);
     });
   });
 }
@@ -155,6 +197,8 @@ function setSegmentedValue(containerId: string, value: string): void {
   const container = document.getElementById(containerId);
   if (!container) return;
   container.querySelectorAll<HTMLButtonElement>('.segmented-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.value === value);
+    const isActive = btn.dataset.value === value;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-checked', String(isActive));
   });
 }
