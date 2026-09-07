@@ -71,5 +71,5 @@ bumped to 1.6.0; `docs/releases/v1.6.0.md` drafted; `docs/releases/v1.5.0.md` ca
 
 Still open on this issue: tag the release, publish to Figma Community, and the comms plan.
 
-⚠️ **Blocked by `btg`** — the bridge toggle ships visible but non-functional in the Community build.
-Resolve before publishing.
+~~⚠️ **Blocked by `btg`**~~ — resolved 2026-09-07. The bridge settings section and status dots are
+now hidden in production builds via the `__BRIDGE_UI__` esbuild define. Publishing is unblocked.

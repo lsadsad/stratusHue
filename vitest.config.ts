@@ -1,6 +1,8 @@
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  // Mirror esbuild's build-time flags so modules that reference them load.
+  define: { __BRIDGE_UI__: 'true' },
   test: {
     environment: 'jsdom',
     globals: true,
