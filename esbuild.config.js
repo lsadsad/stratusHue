@@ -99,6 +99,14 @@ function copyAssets() {
 	console.log('📦 Copied assets → dist/assets');
 }
 
+// Build-time flags. The prod build ships manifest.prod.json (networkAccess
+// ["none"]), so the bridge cannot open a socket — expose its UI only elsewhere.
+// `npm run build` (dev/prototype) leaves it on, which is what the prototype
+// Playwright specs assert against.
+const BUILD_DEFINES = {
+  __BRIDGE_UI__: JSON.stringify(process.env.NODE_ENV !== 'production')
+};
+
 async function build() {
   try {
     // Build plugin code (runs in Figma sandbox)
@@ -111,7 +119,8 @@ async function build() {
       format: 'cjs',
       external: [],
       minify: process.env.NODE_ENV === 'production',
-      sourcemap: process.env.NODE_ENV !== 'production'
+      sourcemap: process.env.NODE_ENV !== 'production',
+      define: BUILD_DEFINES
     });
 
     // Build UI code (runs in browser iframe) - ONLY if you have src/ui.ts
@@ -125,7 +134,8 @@ async function build() {
         format: 'iife',
         minify: process.env.NODE_ENV === 'production',
         // Inline source maps: relative URLs can't be fetched inside Figma's iframe CSP
-        sourcemap: process.env.NODE_ENV !== 'production' ? 'inline' : false
+        sourcemap: process.env.NODE_ENV !== 'production' ? 'inline' : false,
+        define: BUILD_DEFINES
       });
     }
 

@@ -4,9 +4,10 @@ category: meta
 title: "Bridge toggle ships visible but non-functional in the Community build"
 type: bug
 priority: 1
-status: open
+status: closed
 depends_on: []
 created: 2026-09-07
+closed: 2026-09-07
 ---
 
 ## Problem
@@ -44,3 +45,25 @@ Recommend option 1 for v1.6.0 and keep `bfl` as the real fix.
 - `bfl` — MCP bridge compile-out with two build flavors
 - `CLAUDE.md` § MCP Bridge Subsystem → Bridge & Build Flavors documents why the runtime toggle alone
   is not a sufficient gate
+
+## Resolution (2026-09-07) — option 1, runtime hide behind a build flag
+
+- `esbuild.config.js` defines `__BRIDGE_UI__` as `process.env.NODE_ENV !== 'production'` for both
+  the sandbox and UI bundles.
+- `src/types/build-flags.d.ts` declares it; `vitest.config.ts` mirrors it as `true`.
+- `applyBridgeUIVisibility(enabled)` in `bridge-ui.ts` hides `#bridge-settings-section` and
+  `#bridge-status-dots`. `initBridgeUI()` calls it with the flag and returns early when false, so
+  no handlers are wired in a prod build.
+
+Verified by building both flavors and driving each `dist/ui.html` with a real `bridge-init`
+message in the Figma envelope:
+
+| build | `#bridge-settings-section` | `#bridge-status-dots` |
+|---|---|---|
+| prod (`NODE_ENV=production`) | hidden | hidden |
+| dev (`npm run build`) | visible | hidden (bridge off — correct) |
+
+Three unit tests in `src/test/bridge-ui.test.ts` cover the gate, including the no-markup case.
+
+Note the bridge code is still in the bundle — this hides the controls, it does not compile the
+bridge out. `bfl` remains the real fix and supersedes `__BRIDGE_UI__`.
