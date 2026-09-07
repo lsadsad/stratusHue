@@ -1,0 +1,16 @@
+---
+description: Scoped Throughline + visual-craft for Figma design-critique only (not plugin code). stratusHue conventions win on conflict. Apply when evaluating frames, design intent, or UI composition.
+alwaysApply: false
+---
+
+# Throughline × visual craft (scoped, on-demand)
+
+Do **not** duplicate canon here — read the scoped import chain at repo root:
+
+1. **`CLAUDE.md`** § Design methodology — Throughline (scope + precedence guardrails)
+2. **`CLAUDE-throughline.md`** — Throughline operating layer (downstream copy from figma-studio)
+3. **`CLAUDE-visual-craft.md`** — visual-craft companion (imported by Throughline)
+
+**Scope:** Figma design-critique work only — frames, design intent, UI composition. Does **not** govern stratusHue plugin code, build, or repo workflow. On conflict, **stratusHue conventions in `CLAUDE.md` win** (spacing tokens, `.issues/`/`.memory/`, not Notion DD-NNN).
+
+Load before Dual Read / visual-craft critique. For plugin architecture, lint, prototype, and sandbox/UI boundaries, use `CLAUDE.md` and the other `.cursor/rules/` files instead.

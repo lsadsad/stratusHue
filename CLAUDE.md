@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Design methodology — Throughline (scoped companion layer)
+
+The **Throughline** methodology (ported verbatim from the figma-studio repo) is imported below. `CLAUDE-throughline.md` itself imports `CLAUDE-visual-craft.md`, so both load from this single reference.
+
+**Scope — read before applying.** Throughline applies **only** to Figma design-critique work — evaluating frames, design intent, and UI composition. It does **not** govern stratusHue's code, build, or repo workflow. On any conflict, **stratusHue's own conventions in this file take precedence**. Specifically:
+
+- **Spacing/sizing:** use stratusHue's `--spacing-*` / `--button-height-*` / `--icon-size-*` token scale — not Throughline's "4pt grid is non-negotiable" rule.
+- **Decisions & tracking:** use this repo's `.issues/` + `.memory/` systems — not Throughline's "DD-NNN entry in Notion."
+- **figma-studio-only references** (Nibble Card, AT&T Relay Design System, `figma-kb`, rive-studio, the ASCII → HTML → Figma → Rive iteration sequence) are AT&T/figma-studio context — treat as inherited background, not directives to follow here.
+
+figma-studio remains the canonical source; the copy here is downstream and AT&T-domain-bound by design.
+
+@CLAUDE-throughline.md
+
+- **Claude Code** — `@` line above imports at session load
+- **Cursor** — `.cursor/rules/throughline-visual-craft.mdc` (agent-requested on Figma design-critique only; stratusHue conventions win; not always-on)
+- **Copilot (VS Code)** — `.github/instructions/throughline-visual-craft.instructions.md` (path-specific; not always-on)
+
 ## Commands
 
 ```bash
@@ -11,10 +29,15 @@ npm run build:prod       # minified, no sourcemaps
 npm run type-check       # tsc --noEmit (both tsconfigs)
 npm run lint             # ESLint
 npm run lint:fix
-npm run validate         # lint + build
+npm run validate         # type-check + lint + test:critical + build
+npm run validate:full    # validate + prototype sync + Playwright
 npm run test             # vitest --run
 npm run test:watch
+npm run test:critical    # the focused vitest subset `validate` runs
+npm run test:prototype   # Playwright against prototype/plugin.html
 npm run sync:prototype   # full build then patch prototype
+npm run use-manifest:dev   # manifest.json <- manifest.dev.json
+npm run use-manifest:prod  # manifest.json <- manifest.prod.json
 ```
 
 ## Architecture
@@ -48,10 +71,11 @@ src/ui/
     controls-ui.ts        control buttons, group visibility
     settings-ui.ts        controls/nudge settings wiring
     navigate-ui.ts        setupEventListeners(), initializePlugin()
-  lint/
-    lint-ui.ts            Design Lint tab UI (lazy-loaded)
+  bridge/
+    bridge-client.ts      MCP WebSocket client (lazy-loaded, off by default)
+    bridge-ui.ts          bridge settings toggle + footer status dots
   scaffold/
-    scaffold-ui.ts        Scaffold tab UI placeholder (Phase 3)
+    scaffold-ui.ts        Scaffold UI placeholder (Phase 3, not wired to any tab)
 ```
 
 **Critical:** `src/ui/ui-communication.ts` and `src/ui/index.ts` are **sandbox-side** files that live in `src/ui/` for historical reasons. They begin with `/// <reference types="@figma/plugin-typings" />`. `tsconfig.ui.json` explicitly excludes them via targeted glob includes — never use a blanket `src/ui/**/*.ts` pattern there.
@@ -66,25 +90,18 @@ All outbound sandbox messages are centralised in `src/ui/ui-communication.ts` �
 
 ### Plugin Modes
 
-The plugin has three modes, toggled via the tab strip. Only one mode's UI is active at a time.
+The shipped UI is **navigate-only**. Validate (Design Lint) was removed in `704ea67` — `src/ui/lint/`, `src/features/lint-*.ts` and `src/core/lint-*.ts` no longer exist, and `src/ui.html` has no mode strip.
 
-| Mode | Tab label | Main element | Status |
-|---|---|---|---|
-| `navigate` | Navigate | `#navigate-main` | Complete — default mode |
-| `lint` | Validate | `#validate-main` | Phase 2 complete |
-| `scaffold` | Scaffold | `#scaffold-main` | Phase 3 placeholder |
+Mode plumbing survives sandbox-side in `src/core/plugin-mode.ts` for the planned Scaffold work:
 
-`activateMode(mode)` in `ui.ts` toggles the `hidden` attribute on `<main>` blocks and lazy-imports the mode's UI module on first activation:
+| Mode | Status |
+|---|---|
+| `navigate` | Shipping — the only mode with UI |
+| `scaffold` | Phase 3 — `src/ui/scaffold/scaffold-ui.ts` placeholder, not wired to any tab |
 
-```typescript
-if (mode === 'lint' && !lintUIInitialized) {
-  lintUIInitialized = true;
-  const { initializeLintUI } = await import('./ui/lint/lint-ui');
-  initializeLintUI();
-}
-```
+`loadPluginMode()` reads `pluginMode` from `figma.clientStorage` and migrates a stored legacy `'lint'` value to `'navigate'`. `persistPluginMode(mode)` writes it back. `code.ts` accepts `set-plugin-mode` for `'navigate' | 'scaffold'` only.
 
-The sandbox persists the active mode via `figma.clientStorage` and restores it on load by sending `plugin-mode-restored`. Switching to lint mode auto-triggers a scan (or large-file warning if node count > 5000). Switching away from lint mode cancels any in-flight scan.
+When Scaffold gets a UI, lazy-import its module on first activation — the way `ui.ts` dynamically imports the bridge modules — so startup cost stays at zero for inactive modes.
 
 ### State Management (`src/core/state.ts`)
 Two persistence layers — choose deliberately:
@@ -97,7 +114,7 @@ Two persistence layers — choose deliberately:
 
 Bookmarks are document-scoped (travel with the file). History, section states, and theme preference are user-scoped (follow the user). Cache-aside pattern: always check in-memory cache first; invalidate with `clearBookmarksCache()`.
 
-Lint settings and ignored errors are also persisted via `figma.clientStorage` — see `src/core/lint-state.ts`.
+The MCP bridge's enabled flag and cloud pair code are user-scoped too — `bridgeEnabled` and `bridgePairCode` in `figma.clientStorage`, read in `code.ts` on init.
 
 ### Feature Modules (`src/features/`)
 All user-facing operations return `Promise<{ success: boolean; message: string }>`. The message is forwarded directly to `figma.notify()`. Wrap with `withErrorBoundary()` from `src/core/error-handling.ts` when registering in `code.ts`:
@@ -111,18 +128,31 @@ const handleAddEmoji = withErrorBoundary(async (emoji: string) => {
 
 All Figma node lookups are async: use `figma.getNodeByIdAsync(id)`, not the sync version.
 
-### Lint Subsystem
+### MCP Bridge Subsystem
+
+An opt-in WebSocket bridge that exposes the open Figma file to an MCP server. **Off by default and gated twice** — read *Bridge & Build Flavors* below before touching it.
 
 | File | Role |
 |---|---|
-| `src/core/lint-types.ts` | `LintError`, `LintSettings`, `DEFAULT_LINT_SETTINGS`, message payload types |
-| `src/core/lint-state.ts` | In-memory + persisted state for settings, ignored errors, plugin mode |
-| `src/features/lint-engine.ts` | Async tree-walker (`runLintScan`), fix-all (`runLintFixAll`), cancel flag |
-| `src/features/lint-checks.ts` | Per-node check logic — fill, stroke, text, effects, radius |
-| `src/features/lint-styles.ts` | Style cache loader + fuzzy color matcher |
-| `src/ui/lint/lint-ui.ts` | All Validate tab DOM — lazy-loaded on first mode activation |
+| `src/ui/bridge/bridge-client.ts` | Browser-side WS client — local ports 9223-9232 and the cloud relay `wss://figma-console-mcp.southleft.com/ws/pair`; keepalive, reconnect, `broadcastEvent()` |
+| `src/ui/bridge/bridge-ui.ts` | Settings toggle, cloud pair-code row, footer status dots |
+| `src/features/bridge/bridge-handlers.ts` | Sandbox-side command handlers — variables, components, nodes, text, FigJam |
+| `src/features/bridge/file-info.ts` | `buildFileInfo()` + `PLUGIN_VERSION` for the FILE_INFO handshake |
 
-`lint-engine.ts` sets `figma.skipInvisibleInstanceChildren = true` before scanning and restores it on all exit paths. Locked nodes are skipped. A debounced re-scan (2000ms) fires on `documentchange` when lint mode is active — see `src/utils/validation.ts`.
+Sandbox routing lives in `code.ts`: `bridge-set-enabled`, `bridge-set-pair-code`, `bridge-connected`/`-disconnected`, and ~35 `bridge-cmd-*` cases that lazy-import `bridge-handlers.ts`. UI routing is a set of `bridge-*` cases in `ui.ts` that dynamically import `bridge-client.ts` — which is why `tsconfig.ui.json` type-checks the bridge modules without listing them.
+
+#### Bridge & Build Flavors
+
+Two independent gates keep the bridge inert in the Community build:
+
+1. **`manifest.json` `networkAccess`** — platform-enforced by Figma. `manifest.prod.json` declares `{ "allowedDomains": ["none"] }`; `manifest.dev.json` whitelists localhost 9223-9232 plus the relay and adds `"inspect"` + `enablePrivatePluginApi`. `npm run build:prod` copies the prod manifest over `manifest.json`; `npm run dev` copies the dev one.
+2. **`bridgeEnabled` runtime toggle** — defaults `false` in `code.ts`, persisted in `figma.clientStorage`. Every broadcast path is guarded by it.
+
+**`main` must always commit the prod manifest.** Merging a dev branch without excluding `manifest.json` reintroduces the network permissions on the AT&T-approved / Community build.
+
+The toggle is **not** a substitute for the manifest. `#bridge-settings-section` in `ui.html` ships visible in every build, and `clientStorage` is keyed by plugin id — identical in both manifests — so a user who enabled the bridge in the dev build has it restored in the prod build. Only the manifest stops the sockets opening.
+
+Compile-out (a `__BRIDGE__` build flag stripping the bridge from the community bundle entirely) is designed but **not implemented** — see issue `bfl` and `docs/superpowers/specs/2026-07-10-mcp-bridge-compile-out-design.md`.
 
 ### Error Handling (`src/core/error-handling.ts`)
 - `withErrorBoundary(fn, errorType)` — async wrapper, returns `null` on failure
@@ -159,13 +189,12 @@ Two tsconfigs because the two processes have different module requirements:
   "src/ui.ts",
   "src/ui/shared/**/*.ts",
   "src/ui/navigate/**/*.ts",
-  "src/ui/lint/**/*.ts",
   "src/ui/scaffold/**/*.ts",
   "src/types/**/*.d.ts"
 ]
 ```
 
-This deliberately excludes `src/ui/ui-communication.ts` and `src/ui/index.ts` (sandbox-side).
+This deliberately excludes `src/ui/ui-communication.ts` and `src/ui/index.ts` (sandbox-side). `src/ui/bridge/**` is absent by design — `ui.ts` imports it dynamically, so `tsc` pulls it in transitively.
 
 Both set `noEmit: true` — esbuild does the actual compilation, `tsc` is type-check only.
 
@@ -180,10 +209,9 @@ Both set `noEmit: true` — esbuild does the actual compilation, `tsc` is type-c
   | Page change | 200ms |
   | Nav context | 50ms |
   | Section state save | 300ms |
-  | Lint re-scan (documentchange) | 2000ms |
 
 - **Dynamic imports in `code.ts`**: large feature modules are `await import()`'d lazily. Keep this pattern for new features — it keeps startup cost zero for inactive modes.
-- **Mode UI is lazy-loaded in `ui.ts`**: each mode's UI module is imported only on first activation (`lintUIInitialized` guard). Follow this pattern for Scaffold (Phase 3).
+- **Optional UI is lazy-loaded in `ui.ts`**: bridge modules are `await import()`'d from inside their `bridge-*` message cases, never at module top level. Follow this pattern for Scaffold (Phase 3).
 - **`ui.ts` must not import anything that uses `figma.*`** — `ui-communication.ts` and `index.ts` in `src/ui/` are sandbox-only.
 - **SVG assets** in `assets/` are inlined as raw `<svg>` markup at build time by `esbuild.config.js` (not base64). Use `<img src="./assets/ICO-*.svg">` in `ui.html`; the build replaces every such tag with the SVG markup, collapsed to a single line so it is safe inside JS string literals. All icons use `stroke="currentColor"`. Dynamic icons swapped at runtime are stored as single-line SVG string constants in `src/ui/shared/icons.ts` and injected via `element.innerHTML`. See `.cursor/rules/icons-and-animation.mdc` for the full convention.
 
@@ -240,7 +268,7 @@ npx serve prototype
 Then open `http://localhost:3000/plugin.html`.
 
 
-## finePrint — Smoke Tests
+## Smoke Tests
 
 When adding a new message type to `figma.ui.onmessage` in `code.ts`, you **must** also add a corresponding smoke test in `src/test/smoke-dispatch.test.ts`:
 
@@ -254,186 +282,24 @@ The payload must match the validation guard in the `case` branch (e.g., if the h
 
 After adding, run `npm run validate` to confirm the full gate passes.
 
+## finePrint
 
-## finePrint — Issue Tracking (`.issues/`)
-
-Issues are plain markdown files with YAML frontmatter, tracked in git. No external tools needed.
-
-```
-.issues/
-  open/       # active issues
-  closed/     # completed issues
-```
-
-### Frontmatter schema
-
-```yaml
----
-id: sch              # short mnemonic ID (3 chars; 4 for epics)
-category: scaffold   # feature area: scaffold | validate | navigate | meta
-title: "..."
-type: task|feature|bug|epic
-priority: 1          # 0=critical, 1=high, 2=medium, 3=low, 4=backlog
-status: open
-depends_on: []       # list of IDs this issue is blocked by
-created: 2026-03-21
----
-```
-
-### Categories
-
-| Category | Description |
-|---|---|
-| `scaffold` | Scaffold mode — recipe schema, engine, UI, sharing |
-| `validate` | Validate mode — lint, token audit, component check, readiness |
-| `navigate` | Navigate mode — bookmarks, emoji nav, controls |
-| `meta` | Cross-cutting — audits, process, infrastructure |
-
-### Conventions
-
-- File naming: `P{priority}-{category}-{id}-{slug}.md` (e.g., `P2-scaffold-sch-recipe-json-schema.md`)
-- To close an issue: `git mv .issues/open/P2-scaffold-sch-*.md .issues/closed/`
-- To find ready work: issues in `open/` with empty `depends_on` or all deps in `closed/`
-- Dependencies reference other issue IDs (check `depends_on` arrays)
-- Obsidian-compatible: open `.issues/` as a vault, use Dataview for queries
-- See `.issues/README.md` for full how-to guide
-
-### ID naming convention
-
-IDs should be **short, pronounceable abbreviations** — not random hashes or ticket numbers.
-
-- **3 characters** for regular issues, **4 characters** for epics
-- Lowercase, alphanumeric only
-- Must be globally unique within the project
-
-### Display Layouts
-
-Issues support two display layouts. Both use tree characters to visualize dependency chains — nested items are blocked by their parent.
-
-**Priority view (default)** — groups by priority level, dependencies nest under blockers:
-
-```
-■ Open Issues (17)
-│
-│ P1
-├── aud   Template methodology audit
-│
-│ P2
-├── scf   Scaffold mode epic ⬡  ← tab, tpl, stm
-├── sch   Recipe JSON schema
-│   ├── exp   Recipe import/export
-│   └── stm   Stamp recipe to file
-├── ldr   Sandbox: recipe loader
-│   ├── pgs   Create pages from recipe
-│   │   └── tpl  Content templates
-│   └── tab   Scaffold tab UI
-├── anc   Anchors list max entries
-├── pth   Pathing characters in file tree
-├── rel   Cut a release
-│
-│ P3
-├── cmp   Component check
-├── rdy   Readiness check
-├── tkn   Token audit
-│
-│ P4
-├── anim-ref  Animation system reference
-└── smk2  Auto-detect missing smoke tests
-```
-
-- Dependencies nest under their blocker within the same priority group
-- Cross-priority deps show a `← blocker` marker instead of nesting
-- `⬡` marks epics
-- `[P4]` suffix when a nested item's priority differs from its group
-
-**Location view** — groups by category (package/area), priority as suffix:
-
-```
-■ Open Issues (17)
-│
-│ scaffold/
-├── scf   Scaffold mode epic ⬡ [P2]
-│   ├── tab   Scaffold tab UI [P2]
-│   ├── tpl   Content templates [P2]
-│   └── stm   Stamp recipe to file [P2]
-├── sch   Recipe JSON schema [P2]
-│   └── exp   Recipe import/export [P2]
-├── ldr   Sandbox: recipe loader [P2]
-│   └── pgs   Create pages from recipe [P2]
-│
-│ validate/
-├── cmp   Component check [P3]
-├── rdy   Readiness check [P3]
-├── tkn   Token audit [P3]
-│
-│ navigate/
-├── anc   Anchors list max entries [P2]
-├── pth   Pathing characters [P2]
-│
-│ meta/
-├── aud   Template methodology audit [P1]
-├── rel   Cut a release [P2]
-├── anim-ref  Animation system reference [P4]
-└── smk2  Auto-detect missing smoke tests [P4]
-```
-
-- Dependencies still nest under their blocker
-- `[P2]` suffix shows priority per item
-
-### shortHand — Issues
-
-Casual phrases that drive finePrint actions. Say any of these.
-
-| Phrase | Action |
-|---|---|
-| "issues plz" | List all open issues |
-| "what's ready" | Show unblocked issues only |
-| "show X" | Read a specific issue |
-| "show deats" | Show full issue details (frontmatter + body) |
-| "issue it" | Create a new issue from current context |
-| "track this" | Create a new issue (with description) |
-| "done X" | Close issue — `git mv` to `closed/` |
-| "bump X" | Raise an issue's priority |
-| "block X on Y" | Add Y to X's `depends_on` |
-
-## finePrint — Project Memory (`.memory/`)
-
-Append-only knowledge base for decisions, context, and open questions. See `.memory/README.md` for full format and conventions.
-
-### Format
-
-Files are named `YYYY-MM-DD-slug.md` with optional YAML frontmatter. Types: `decision`, `question`, `context`, `workaround`.
-
-### shortHand — Memory
-
-| Phrase | Action |
-|---|---|
-| "save context" | Write new `.memory/YYYY-MM-DD-slug.md` |
-| "check memory" | List all memory entries |
-| "recall X" | Search `.memory/` for topic |
-| "this replaces X" | New entry with "Supersedes:" reference |
-
-### shortHand — Session
-
-| Phrase | Action |
-|---|---|
-| "run down" | Full status report on a topic — pull together issues, memories, related context, and current state |
-| "distill this" | Synthesize the session — extract decisions, milestones, and context into `.memory/` entries; update issues with progress; surface untracked work as new issues |
-| "wrap up" | File issues for remaining work, run quality gates, close completed issues, commit and push |
-| "ship it" | Commit all changes and push to remote |
-| "what changed" | Git summary — branch, recent commits, dirty state |
+Issue tracking (`.issues/`), project memory (`.memory/`), and shortHand phrases live in [`docs/finePrint.md`](docs/finePrint.md). shortHand vocabulary and MCP prompts are maintained in [groundControl CLAUDE.md](https://github.com/lsadsad/groundControl/blob/main/CLAUDE.md).
 
 ## Session Completion
 
 **When ending a work session**, you MUST complete ALL steps below.
 
-1. **File issues** for remaining work (create new `.issues/open/*.md` files)
-2. **Run quality gates** (if code changed) — tests, linters, builds
-3. **Update issue status** — move completed issues to `closed/`
-4. **PUSH TO REMOTE**:
+> **Distill is the standing close.** End active sessions with a `.memory/` entry (say "distill this" or "distill and wrap"). `wrap up` alone closes/commits/pushes but writes no memory.
+
+1. **Distill** — extract decisions, context, and open questions into `.memory/YYYY-MM-DD-slug.md`; update issues with progress
+2. **File issues** for remaining work (create new `.issues/open/*.md` files)
+3. **Run quality gates** (if code changed) — tests, linters, builds
+4. **Update issue status** — move completed issues to `closed/`
+5. **PUSH TO REMOTE**:
    ```bash
    git pull --rebase
    git push
    git status  # MUST show "up to date with origin"
    ```
-5. **Verify** — all changes committed AND pushed
+6. **Verify** — all changes committed AND pushed, and a `.memory/` entry exists for this session

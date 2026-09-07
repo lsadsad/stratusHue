@@ -233,19 +233,29 @@ describe('UI State Persistence Integration', () => {
     });
 
     it('should continue working when some sections fail to restore', async () => {
+      // Each mock element gets its OWN spy instances. Spreading the shared
+      // `mockElement` would copy its vi.fn() spies by reference, so a call on one
+      // header would register on another — breaking the negative assertion below.
       const mockGoodHeader = {
-        ...mockElement,
         id: 'good-header',
-        getAttribute: vi.fn().mockReturnValue('good-section')
+        getAttribute: vi.fn().mockReturnValue('good-section'),
+        setAttribute: vi.fn(),
+        classList: { add: vi.fn(), remove: vi.fn() }
       };
-      
+
       const mockBadHeader = {
-        ...mockElement,
         id: 'bad-header',
-        getAttribute: vi.fn().mockReturnValue(null) // Missing target
+        getAttribute: vi.fn().mockReturnValue(null), // Missing target
+        setAttribute: vi.fn(),
+        classList: { add: vi.fn(), remove: vi.fn() }
       };
-      
-      const mockGoodSection = { ...mockElement, id: 'good-section' };
+
+      const mockGoodSection = {
+        id: 'good-section',
+        getAttribute: vi.fn(),
+        setAttribute: vi.fn(),
+        classList: { add: vi.fn(), remove: vi.fn() }
+      };
       
       mockDocument.querySelectorAll.mockReturnValue([mockGoodHeader, mockBadHeader]);
       mockDocument.getElementById.mockImplementation((id) => {

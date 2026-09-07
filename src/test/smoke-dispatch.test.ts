@@ -429,6 +429,44 @@ describe('sandbox message dispatch', () => {
   it('handles "bridge-cmd-get-file-info"', { timeout: 2000 }, async () => {
     await dispatchAndAssertNoCrash({ type: 'bridge-cmd-get-file-info', requestId: 'test_26' });
   });
+
+  // FigJam bridge commands (ported from Desktop Bridge). Under a non-FigJam mock the
+  // handlers reply with a guarded error instead of crashing — that's the smoke contract.
+  it('handles "bridge-cmd-create-sticky"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-sticky', requestId: 'test_fj1', text: 'hi', x: 0, y: 0 });
+  });
+
+  it('handles "bridge-cmd-create-stickies"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-stickies', requestId: 'test_fj2', stickies: [{ text: 'a' }] });
+  });
+
+  it('handles "bridge-cmd-create-connector"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-connector', requestId: 'test_fj3', startNodeId: 'n1', endNodeId: 'n2' });
+  });
+
+  it('handles "bridge-cmd-create-section"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-section', requestId: 'test_fj4', name: 'S' });
+  });
+
+  it('handles "bridge-cmd-create-shape-with-text"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-shape-with-text', requestId: 'test_fj5', text: 'Box', shapeType: 'ROUNDED_RECTANGLE' });
+  });
+
+  it('handles "bridge-cmd-create-table"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-table', requestId: 'test_fj6', rows: 2, columns: 2 });
+  });
+
+  it('handles "bridge-cmd-create-code-block"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-create-code-block', requestId: 'test_fj7', code: 'x=1' });
+  });
+
+  it('handles "bridge-cmd-get-board-contents"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-get-board-contents', requestId: 'test_fj8' });
+  });
+
+  it('handles "bridge-cmd-get-connections"', { timeout: 2000 }, async () => {
+    await dispatchAndAssertNoCrash({ type: 'bridge-cmd-get-connections', requestId: 'test_fj9' });
+  });
 });
 
 // Behavior tests — assert the actual BRIDGE_RESPONSE payload, not just "no crash".

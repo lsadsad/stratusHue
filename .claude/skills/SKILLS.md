@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-08-22):** this predates the groundControl session rituals. End-of-session synthesis is now `distill-session` (the standing close — writes `.memory/`), and this file is not Skill-tool loadable (non-standard name, no frontmatter). Kept for its trigger-phrase vocabulary; do not follow it in place of the distill ritual.
+
 # Conversation Synthesis Skill
 
 ## Purpose

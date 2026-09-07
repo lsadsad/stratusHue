@@ -1,12 +1,12 @@
 ---
 id: ico
 category: navigate
-title: "Functional color on control icon hover"
+title: Functional color on control icon hover
 type: feature
 priority: 3
-status: open
+status: closed
 depends_on: []
-created: 2026-03-28
+created: '2026-03-28'
 ---
 
 # Functional color on control icon hover

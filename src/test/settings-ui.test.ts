@@ -64,5 +64,23 @@ describe('settings-ui date controls', () => {
 
     expect(document.querySelector('#date-format-control [data-value="alpha"]')?.classList.contains('active')).toBe(true);
     expect(document.querySelector('#date-position-control [data-value="suffix"]')?.classList.contains('active')).toBe(true);
+    expect(document.querySelector('#date-format-control [data-value="alpha"]')?.getAttribute('aria-checked')).toBe('true');
+    expect(document.querySelector('#date-position-control [data-value="suffix"]')?.getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('setupDateSettings supports keyboard navigation for segmented controls', async () => {
+    const { setupDateSettings, setCurrentDateFormat, setCurrentDatePosition } = await import('../ui/navigate/settings-ui');
+    setCurrentDateFormat('numeric');
+    setCurrentDatePosition('prefix');
+    setupDateSettings();
+
+    const numericBtn = document.querySelector('#date-format-control [data-value="numeric"]') as HTMLButtonElement;
+    numericBtn.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+    expect(postMessage).toHaveBeenCalledWith('set-date-settings', {
+      format: 'alpha',
+      position: 'prefix',
+    });
+    expect(document.querySelector('#date-format-control [data-value="alpha"]')?.getAttribute('aria-checked')).toBe('true');
   });
 });
