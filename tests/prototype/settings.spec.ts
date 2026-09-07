@@ -49,7 +49,9 @@ test.describe('prototype plugin UI', () => {
   test('bridge settings section is present on dev build', async ({ page }) => {
     await page.locator('#settings-btn').click();
     await expect(page.locator('#bridge-settings-section')).toBeVisible();
-    await expect(page.locator('#bridge-enable-toggle')).toBeVisible();
+    // The native checkbox is deliberately opacity:0/0x0 (.toggle-switch input in
+    // styles.css) — the .toggle-slider span is the visible control. Assert on that.
+    await expect(page.locator('#bridge-settings-section .toggle-slider')).toBeVisible();
   });
 
   test('footer bridge status dots render when bridge is enabled', async ({ page }) => {
