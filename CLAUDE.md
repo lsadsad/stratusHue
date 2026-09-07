@@ -29,10 +29,15 @@ npm run build:prod       # minified, no sourcemaps
 npm run type-check       # tsc --noEmit (both tsconfigs)
 npm run lint             # ESLint
 npm run lint:fix
-npm run validate         # lint + build
+npm run validate         # type-check + lint + test:critical + build
+npm run validate:full    # validate + prototype sync + Playwright
 npm run test             # vitest --run
 npm run test:watch
+npm run test:critical    # the focused vitest subset `validate` runs
+npm run test:prototype   # Playwright against prototype/plugin.html
 npm run sync:prototype   # full build then patch prototype
+npm run use-manifest:dev   # manifest.json <- manifest.dev.json
+npm run use-manifest:prod  # manifest.json <- manifest.prod.json
 ```
 
 ## Architecture
@@ -66,10 +71,11 @@ src/ui/
     controls-ui.ts        control buttons, group visibility
     settings-ui.ts        controls/nudge settings wiring
     navigate-ui.ts        setupEventListeners(), initializePlugin()
-  lint/
-    lint-ui.ts            Design Lint tab UI (lazy-loaded)
+  bridge/
+    bridge-client.ts      MCP WebSocket client (lazy-loaded, off by default)
+    bridge-ui.ts          bridge settings toggle + footer status dots
   scaffold/
-    scaffold-ui.ts        Scaffold tab UI placeholder (Phase 3)
+    scaffold-ui.ts        Scaffold UI placeholder (Phase 3, not wired to any tab)
 ```
 
 **Critical:** `src/ui/ui-communication.ts` and `src/ui/index.ts` are **sandbox-side** files that live in `src/ui/` for historical reasons. They begin with `/// <reference types="@figma/plugin-typings" />`. `tsconfig.ui.json` explicitly excludes them via targeted glob includes — never use a blanket `src/ui/**/*.ts` pattern there.
@@ -84,25 +90,18 @@ All outbound sandbox messages are centralised in `src/ui/ui-communication.ts` �
 
 ### Plugin Modes
 
-The plugin has three modes, toggled via the tab strip. Only one mode's UI is active at a time.
+The shipped UI is **navigate-only**. Validate (Design Lint) was removed in `704ea67` — `src/ui/lint/`, `src/features/lint-*.ts` and `src/core/lint-*.ts` no longer exist, and `src/ui.html` has no mode strip.
 
-| Mode | Tab label | Main element | Status |
-|---|---|---|---|
-| `navigate` | Navigate | `#navigate-main` | Complete — default mode |
-| `lint` | Validate | `#validate-main` | Phase 2 complete |
-| `scaffold` | Scaffold | `#scaffold-main` | Phase 3 placeholder |
+Mode plumbing survives sandbox-side in `src/core/plugin-mode.ts` for the planned Scaffold work:
 
-`activateMode(mode)` in `ui.ts` toggles the `hidden` attribute on `<main>` blocks and lazy-imports the mode's UI module on first activation:
+| Mode | Status |
+|---|---|
+| `navigate` | Shipping — the only mode with UI |
+| `scaffold` | Phase 3 — `src/ui/scaffold/scaffold-ui.ts` placeholder, not wired to any tab |
 
-```typescript
-if (mode === 'lint' && !lintUIInitialized) {
-  lintUIInitialized = true;
-  const { initializeLintUI } = await import('./ui/lint/lint-ui');
-  initializeLintUI();
-}
-```
+`loadPluginMode()` reads `pluginMode` from `figma.clientStorage` and migrates a stored legacy `'lint'` value to `'navigate'`. `persistPluginMode(mode)` writes it back. `code.ts` accepts `set-plugin-mode` for `'navigate' | 'scaffold'` only.
 
-The sandbox persists the active mode via `figma.clientStorage` and restores it on load by sending `plugin-mode-restored`. Switching to lint mode auto-triggers a scan (or large-file warning if node count > 5000). Switching away from lint mode cancels any in-flight scan.
+When Scaffold gets a UI, lazy-import its module on first activation — the way `ui.ts` dynamically imports the bridge modules — so startup cost stays at zero for inactive modes.
 
 ### State Management (`src/core/state.ts`)
 Two persistence layers — choose deliberately:
@@ -115,7 +114,7 @@ Two persistence layers — choose deliberately:
 
 Bookmarks are document-scoped (travel with the file). History, section states, and theme preference are user-scoped (follow the user). Cache-aside pattern: always check in-memory cache first; invalidate with `clearBookmarksCache()`.
 
-Lint settings and ignored errors are also persisted via `figma.clientStorage` — see `src/core/lint-state.ts`.
+The MCP bridge's enabled flag and cloud pair code are user-scoped too — `bridgeEnabled` and `bridgePairCode` in `figma.clientStorage`, read in `code.ts` on init.
 
 ### Feature Modules (`src/features/`)
 All user-facing operations return `Promise<{ success: boolean; message: string }>`. The message is forwarded directly to `figma.notify()`. Wrap with `withErrorBoundary()` from `src/core/error-handling.ts` when registering in `code.ts`:
@@ -129,18 +128,31 @@ const handleAddEmoji = withErrorBoundary(async (emoji: string) => {
 
 All Figma node lookups are async: use `figma.getNodeByIdAsync(id)`, not the sync version.
 
-### Lint Subsystem
+### MCP Bridge Subsystem
+
+An opt-in WebSocket bridge that exposes the open Figma file to an MCP server. **Off by default and gated twice** — read *Bridge & Build Flavors* below before touching it.
 
 | File | Role |
 |---|---|
-| `src/core/lint-types.ts` | `LintError`, `LintSettings`, `DEFAULT_LINT_SETTINGS`, message payload types |
-| `src/core/lint-state.ts` | In-memory + persisted state for settings, ignored errors, plugin mode |
-| `src/features/lint-engine.ts` | Async tree-walker (`runLintScan`), fix-all (`runLintFixAll`), cancel flag |
-| `src/features/lint-checks.ts` | Per-node check logic — fill, stroke, text, effects, radius |
-| `src/features/lint-styles.ts` | Style cache loader + fuzzy color matcher |
-| `src/ui/lint/lint-ui.ts` | All Validate tab DOM — lazy-loaded on first mode activation |
+| `src/ui/bridge/bridge-client.ts` | Browser-side WS client — local ports 9223-9232 and the cloud relay `wss://figma-console-mcp.southleft.com/ws/pair`; keepalive, reconnect, `broadcastEvent()` |
+| `src/ui/bridge/bridge-ui.ts` | Settings toggle, cloud pair-code row, footer status dots |
+| `src/features/bridge/bridge-handlers.ts` | Sandbox-side command handlers — variables, components, nodes, text, FigJam |
+| `src/features/bridge/file-info.ts` | `buildFileInfo()` + `PLUGIN_VERSION` for the FILE_INFO handshake |
 
-`lint-engine.ts` sets `figma.skipInvisibleInstanceChildren = true` before scanning and restores it on all exit paths. Locked nodes are skipped. A debounced re-scan (2000ms) fires on `documentchange` when lint mode is active — see `src/utils/validation.ts`.
+Sandbox routing lives in `code.ts`: `bridge-set-enabled`, `bridge-set-pair-code`, `bridge-connected`/`-disconnected`, and ~35 `bridge-cmd-*` cases that lazy-import `bridge-handlers.ts`. UI routing is a set of `bridge-*` cases in `ui.ts` that dynamically import `bridge-client.ts` — which is why `tsconfig.ui.json` type-checks the bridge modules without listing them.
+
+#### Bridge & Build Flavors
+
+Two independent gates keep the bridge inert in the Community build:
+
+1. **`manifest.json` `networkAccess`** — platform-enforced by Figma. `manifest.prod.json` declares `{ "allowedDomains": ["none"] }`; `manifest.dev.json` whitelists localhost 9223-9232 plus the relay and adds `"inspect"` + `enablePrivatePluginApi`. `npm run build:prod` copies the prod manifest over `manifest.json`; `npm run dev` copies the dev one.
+2. **`bridgeEnabled` runtime toggle** — defaults `false` in `code.ts`, persisted in `figma.clientStorage`. Every broadcast path is guarded by it.
+
+**`main` must always commit the prod manifest.** Merging a dev branch without excluding `manifest.json` reintroduces the network permissions on the AT&T-approved / Community build.
+
+The toggle is **not** a substitute for the manifest. `#bridge-settings-section` in `ui.html` ships visible in every build, and `clientStorage` is keyed by plugin id — identical in both manifests — so a user who enabled the bridge in the dev build has it restored in the prod build. Only the manifest stops the sockets opening.
+
+Compile-out (a `__BRIDGE__` build flag stripping the bridge from the community bundle entirely) is designed but **not implemented** — see issue `bfl` and `docs/superpowers/specs/2026-07-10-mcp-bridge-compile-out-design.md`.
 
 ### Error Handling (`src/core/error-handling.ts`)
 - `withErrorBoundary(fn, errorType)` — async wrapper, returns `null` on failure
@@ -177,13 +189,12 @@ Two tsconfigs because the two processes have different module requirements:
   "src/ui.ts",
   "src/ui/shared/**/*.ts",
   "src/ui/navigate/**/*.ts",
-  "src/ui/lint/**/*.ts",
   "src/ui/scaffold/**/*.ts",
   "src/types/**/*.d.ts"
 ]
 ```
 
-This deliberately excludes `src/ui/ui-communication.ts` and `src/ui/index.ts` (sandbox-side).
+This deliberately excludes `src/ui/ui-communication.ts` and `src/ui/index.ts` (sandbox-side). `src/ui/bridge/**` is absent by design — `ui.ts` imports it dynamically, so `tsc` pulls it in transitively.
 
 Both set `noEmit: true` — esbuild does the actual compilation, `tsc` is type-check only.
 
@@ -198,10 +209,9 @@ Both set `noEmit: true` — esbuild does the actual compilation, `tsc` is type-c
   | Page change | 200ms |
   | Nav context | 50ms |
   | Section state save | 300ms |
-  | Lint re-scan (documentchange) | 2000ms |
 
 - **Dynamic imports in `code.ts`**: large feature modules are `await import()`'d lazily. Keep this pattern for new features — it keeps startup cost zero for inactive modes.
-- **Mode UI is lazy-loaded in `ui.ts`**: each mode's UI module is imported only on first activation (`lintUIInitialized` guard). Follow this pattern for Scaffold (Phase 3).
+- **Optional UI is lazy-loaded in `ui.ts`**: bridge modules are `await import()`'d from inside their `bridge-*` message cases, never at module top level. Follow this pattern for Scaffold (Phase 3).
 - **`ui.ts` must not import anything that uses `figma.*`** — `ui-communication.ts` and `index.ts` in `src/ui/` are sandbox-only.
 - **SVG assets** in `assets/` are inlined as raw `<svg>` markup at build time by `esbuild.config.js` (not base64). Use `<img src="./assets/ICO-*.svg">` in `ui.html`; the build replaces every such tag with the SVG markup, collapsed to a single line so it is safe inside JS string literals. All icons use `stroke="currentColor"`. Dynamic icons swapped at runtime are stored as single-line SVG string constants in `src/ui/shared/icons.ts` and injected via `element.innerHTML`. See `.cursor/rules/icons-and-animation.mdc` for the full convention.
 
