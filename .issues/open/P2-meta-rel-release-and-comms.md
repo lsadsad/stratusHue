@@ -51,3 +51,25 @@ Two more things to catch in the same pass:
 
 Also open: whether `develop` is retired or reconciled. It is ~3 months behind and represents
 the abandoned Validate line.
+
+## Version decided (2026-09-07): 1.6.0
+
+`main` goes 1.4.2 → **1.6.0** directly. Reasoning:
+
+- **1.5.0 cannot be reused.** It shipped — tag `v1.5.0`, `docs/releases/v1.5.0.md`, and commit
+  `d23c425` "v1.5.0 released — Figma Community update". Users have it installed.
+- **Not 2.0.0.** The only thing 1.5.0 users lose is the Validate tab, which its own release notes
+  called "a preview". Withdrawing an explicitly provisional feature is not a broken promise, and an
+  end-user plugin has no API contract to break.
+- **No other regressions.** Verified `comm`-diff of `git ls-tree v1.5.0 src/` against `main`: every
+  non-lint source file in v1.5.0 is present on `main`. Recursive emoji tagging
+  (`add-emoji-recursive` / `clear-emoji-recursive`) and sticky headers spot-checked directly.
+
+Done in this pass: `package.json` and `PLUGIN_VERSION` in `src/features/bridge/file-info.ts` both
+bumped to 1.6.0; `docs/releases/v1.6.0.md` drafted; `docs/releases/v1.5.0.md` carried onto `main`
+(it only ever existed on `develop`).
+
+Still open on this issue: tag the release, publish to Figma Community, and the comms plan.
+
+⚠️ **Blocked by `btg`** — the bridge toggle ships visible but non-functional in the Community build.
+Resolve before publishing.
