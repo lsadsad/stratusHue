@@ -13,6 +13,19 @@ import {
 let bridgeEnabled = false;
 let lastCloudState: BridgeConnectionState | null = null;
 
+// The bridge settings row and footer status dots are static markup in ui.html, so
+// they ship in every build. In production the manifest declares networkAccess
+// ["none"] and no socket can open — leaving the controls visible gives users a
+// toggle that silently does nothing (btg). Hide them instead. Exported for tests;
+// initBridgeUI passes the __BRIDGE_UI__ build flag.
+export function applyBridgeUIVisibility(enabled: boolean): void {
+  if (enabled) return;
+  const section = document.getElementById('bridge-settings-section');
+  const statusDots = document.getElementById('bridge-status-dots');
+  if (section) section.hidden = true;
+  if (statusDots) statusDots.hidden = true;
+}
+
 // Maps the cloud connection state (and the state it came from) to the message shown in
 // the cloud status line. The Connect button previously gave no textual feedback — dots
 // only — so a click read as a no-op. Exported for unit testing.
@@ -94,6 +107,12 @@ function wireSettingsHandlers(): void {
 // ===== INIT =====
 
 export function initBridgeUI(enabled: boolean, savedPairCode?: string): void {
+  // Production build: hide the controls and wire nothing.
+  if (!__BRIDGE_UI__) {
+    applyBridgeUIVisibility(false);
+    return;
+  }
+
   bridgeEnabled = enabled;
 
   // Register status update handler before init so we catch initial state

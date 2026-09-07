@@ -130,7 +130,7 @@ All Figma node lookups are async: use `figma.getNodeByIdAsync(id)`, not the sync
 
 ### MCP Bridge Subsystem
 
-An opt-in WebSocket bridge that exposes the open Figma file to an MCP server. **Off by default and gated twice** — read *Bridge & Build Flavors* below before touching it.
+An opt-in WebSocket bridge that exposes the open Figma file to an MCP server. **Off by default and gated three ways** — read *Bridge & Build Flavors* below before touching it.
 
 | File | Role |
 |---|---|
@@ -143,16 +143,17 @@ Sandbox routing lives in `code.ts`: `bridge-set-enabled`, `bridge-set-pair-code`
 
 #### Bridge & Build Flavors
 
-Two independent gates keep the bridge inert in the Community build:
+Three independent gates keep the bridge inert in the Community build:
 
-1. **`manifest.json` `networkAccess`** — platform-enforced by Figma. `manifest.prod.json` declares `{ "allowedDomains": ["none"] }`; `manifest.dev.json` whitelists localhost 9223-9232 plus the relay and adds `"inspect"` + `enablePrivatePluginApi`. `npm run build:prod` copies the prod manifest over `manifest.json`; `npm run dev` copies the dev one.
-2. **`bridgeEnabled` runtime toggle** — defaults `false` in `code.ts`, persisted in `figma.clientStorage`. Every broadcast path is guarded by it.
+1. **`manifest.json` `networkAccess`** — platform-enforced by Figma, and the only one that actually stops a socket opening. `manifest.prod.json` declares `{ "allowedDomains": ["none"] }`; `manifest.dev.json` whitelists localhost 9223-9232 plus the relay and adds `"inspect"` + `enablePrivatePluginApi`. `npm run build:prod` copies the prod manifest over `manifest.json`; `npm run dev` copies the dev one.
+2. **`__BRIDGE_UI__` build flag** — esbuild `define` in `esbuild.config.js`, set to `process.env.NODE_ENV !== 'production'`. When false, `initBridgeUI()` calls `applyBridgeUIVisibility(false)` and returns without wiring anything, hiding `#bridge-settings-section` and `#bridge-status-dots`. Declared in `src/types/build-flags.d.ts`; mirrored as `true` in `vitest.config.ts` so modules referencing it load under test.
+3. **`bridgeEnabled` runtime toggle** — defaults `false` in `code.ts`, persisted in `figma.clientStorage`. Every broadcast path is guarded by it.
 
 **`main` must always commit the prod manifest.** Merging a dev branch without excluding `manifest.json` reintroduces the network permissions on the AT&T-approved / Community build.
 
-The toggle is **not** a substitute for the manifest. `#bridge-settings-section` in `ui.html` ships visible in every build, and `clientStorage` is keyed by plugin id — identical in both manifests — so a user who enabled the bridge in the dev build has it restored in the prod build. Only the manifest stops the sockets opening.
+Why all three. The toggle alone is not enough: `clientStorage` is keyed by plugin id — identical in `manifest.dev.json` and `manifest.prod.json` — so a user who enabled the bridge in the dev build has `bridgeEnabled: true` restored in the prod build. And the manifest alone is not enough either: it blocks the sockets but leaves a settings control that looks functional and silently does nothing, which is what `__BRIDGE_UI__` fixes (issue `btg`).
 
-Compile-out (a `__BRIDGE__` build flag stripping the bridge from the community bundle entirely) is designed but **not implemented** — see issue `bfl` and `docs/superpowers/specs/2026-07-10-mcp-bridge-compile-out-design.md`.
+`__BRIDGE_UI__` hides the controls; the bridge code is still in the bundle. Full compile-out (a `__BRIDGE__` flag stripping it entirely, for a "provably absent" review story) is designed but **not implemented** — see issue `bfl` and `docs/superpowers/specs/2026-07-10-mcp-bridge-compile-out-design.md`. `__BRIDGE_UI__` is the interim gate and `bfl` supersedes it.
 
 ### Error Handling (`src/core/error-handling.ts`)
 - `withErrorBoundary(fn, errorType)` — async wrapper, returns `null` on failure
