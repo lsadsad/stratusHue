@@ -7,7 +7,7 @@
 // being present and requires `fileKey` to promote a client out of "pending".
 
 // Keep in sync with package.json "version".
-export const PLUGIN_VERSION = '1.4.2';
+export const PLUGIN_VERSION = '1.6.0';
 
 export interface BridgeFileInfo {
   fileName: string;
