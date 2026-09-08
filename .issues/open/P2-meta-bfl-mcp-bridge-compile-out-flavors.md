@@ -35,8 +35,30 @@ It fixed the real bug — the Community build shipped a bridge toggle that looke
 ## 1. Discovery
 
 - [ ] Re-read the spec end to end; confirm the approved design still matches the current source (bridge surface has grown since 2026-07-10 — ~35 `bridge-cmd-*` cases now)
-- [ ] Inventory every current bridge touchpoint: `installConsoleBridge()`, the three event sends, all `bridge-*` cases in `code.ts`, the 7 in `ui.ts`, and the `__BRIDGE_UI__` call sites from `btg`
-- [ ] Confirm esbuild DCE actually drops an unreferenced dynamically-imported module — spike it before building on the assumption, since the whole "zero bytes" claim rests on it
+- [x] Inventory bridge import shape — 42 dynamic `import('…bridge…')` call sites; exactly **one** static chain (see findings)
+- [x] Confirm esbuild DCE actually drops an unreferenced dynamically-imported module — **spiked 2026-09-08, holds in every case tested**
+
+### Discovery findings (2026-09-08) — DCE spike
+
+The "zero bridge bytes" guarantee holds. Spiked against `esbuild --bundle --format=cjs --platform=neutral --target=es2017` (matching the real `code.ts` build) with `--define:__BRIDGE__=false|true`.
+
+| Case tested | `__BRIDGE__=false` | `__BRIDGE__=true` |
+|---|---|---|
+| Module reached only via `await import()` inside a dead guard | dropped | present |
+| Transitive: dead dispatch module → its own lazy import | both dropped | both present |
+| Module with **top-level side effects** (`console.log`, module-scope consts) | dropped | present |
+| Non-minified build (`npm run build`, no `NODE_ENV`) | dropped | present |
+| Mixed module — bridge export dead, normal export live | bridge export dropped, normal kept | both present |
+| Static chain `entry → comms → file-info`, bridge export dead | whole chain dropped incl. `PLUGIN_VERSION` | present |
+
+Two results worth noting because they were the actual risks:
+
+1. **Top-level side effects do not pin a module.** esbuild drops a dynamically-imported module wholesale when its only import site is dead code, side effects included. This was the most likely way the guarantee could have failed.
+2. **DCE does not depend on minification.** It works in the plain `npm run build` too, so the post-build assertion can run on both flavors rather than only `build:prod`.
+
+**The one static chain to watch:** `code.ts` statically imports `sendBridgeSelectionEvent` / `sendBridgeDocumentEvent` / `sendBridgePageEvent` / `sendBridgeFileInfo` from `ui-communication.ts`, which in turn statically imports `buildFileInfo` from `features/bridge/file-info.ts`. Spiked that exact shape — it drops cleanly once all four call sites are behind `if (__BRIDGE__)`. Everything else is already lazy.
+
+Caveat: `PLUGIN_VERSION` lives in `file-info.ts` and gets dropped with it. Harmless today (nothing outside the bridge reads it) but if anything non-bridge ever needs the version, move the constant out rather than reaching back into a bridge module.
 
 ## 2. Build flag foundations
 
