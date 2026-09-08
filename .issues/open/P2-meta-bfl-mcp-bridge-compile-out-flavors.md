@@ -2,38 +2,95 @@
 id: bfl
 category: meta
 title: "MCP bridge compile-out with two build flavors"
-type: feature
+type: epic
 priority: 2
 status: open
 depends_on: []
 created: 2026-07-13
+surface: laptop
 ---
 
 Ship the MCP bridge to teammates without changing the AT&T-approved / Community stratusHue build — by producing two flavors from one source: a community flavor with **zero** bridge code, and a team flavor with the bridge enabled.
 
 ## Motivation
 
-stratusHue is on AT&T's allowed-plugins list as a locked-down plugin (`networkAccess: none`). The MCP bridge (WebSocket relay to local/cloud MCP servers, including an `EXECUTE_CODE` escape hatch) is currently compiled into the same bundle and gated only by `manifest.dev.json`'s network permissions plus a settings toggle — not usable by teammates without the full dev/npm setup.
-
-Teammates need a prebuilt, minified package they can import directly (no repo, no npm). The strongest AT&T review story is a published artifact that provably contains no bridge code at all, not merely one where it's inert.
+stratusHue is on AT&T's allowed-plugins list as a locked-down plugin (`networkAccess: none`). The MCP bridge (WebSocket relay to local/cloud MCP servers, including an `EXECUTE_CODE` escape hatch) is currently compiled into the same bundle and gated only by manifest network permissions plus a settings toggle. Teammates need a prebuilt, minified package they can import directly (no repo, no npm). The strongest AT&T review story is a published artifact that provably contains no bridge code at all, not merely one where it's inert.
 
 Full design: [`docs/superpowers/specs/2026-07-10-mcp-bridge-compile-out-design.md`](../../docs/superpowers/specs/2026-07-10-mcp-bridge-compile-out-design.md)
 
-## Scope
+## ⚠️ `__BRIDGE_UI__` blocks the team flavor — delete it, don't layer on it
 
-- [ ] `esbuild.config.js` — read `STRATUSHUE_BRIDGE` env var, inject `__BRIDGE__` define into both `code.ts`/`ui.ts` builds, strip `<!-- BRIDGE:START/END -->` HTML block when off, add community build assertion (grep `dist/code.js`/`dist/ui.html` for bridge markers, fail build if found)
-- [ ] `src/types/build-flags.d.ts` — new ambient `declare const __BRIDGE__: boolean;`, included in both tsconfigs
-- [ ] `src/features/bridge/bridge-dispatch.ts` — new; centralizes sandbox-side `handleBridgeMessage(msg)`, owns lazy handler imports
-- [ ] `src/code.ts` — guard `installConsoleBridge()` + bridge event sends + `bridge-*` message routing behind `__BRIDGE__`; remove scattered inline bridge cases
-- [ ] `src/ui/bridge/bridge-dispatch-ui.ts` — new; centralizes UI-side `handleBridgeUIMessage(message)`
-- [ ] `src/ui.ts` — guard bridge message routing behind `__BRIDGE__` via `handleBridgeUIMessage`
-- [ ] `src/ui.html` — wrap `#bridge-settings-section` and `#bridge-status-dots` in `BRIDGE:START`/`BRIDGE:END` sentinel comments
-- [ ] `manifest.team.json` — new team manifest (`stratusHue (MCP)` name, bridge `networkAccess`, `capabilities: ["inspect"]`)
-- [ ] `scripts/build-plugin-ready.js` — branch manifest + write teammate README based on `STRATUSHUE_BRIDGE`
-- [ ] `package.json` — add `build:team`, `pkg:team` scripts
-- [ ] `src/test/smoke-dispatch.test.ts` + vitest config — define `__BRIDGE__` for tests; add community-flavor "unknown bridge message doesn't crash" assertion
-- [ ] `CLAUDE.md` — add a "Bridge & Build Flavors" subsection (+ `Commands` table entries for `build:team`/`pkg:team`) so future AI sessions can discover the two-flavor mechanism without grepping source or `.issues/closed/`
-- [ ] Manual Figma spot-check both flavors (community: no Bridge UI, `networkAccess: none`; team: toggle works, MCP connects)
+`btg` (closed 2026-09-07) shipped an interim gate: `__BRIDGE_UI__`, an esbuild define set to `NODE_ENV !== 'production'`, which hides `#bridge-settings-section` and `#bridge-status-dots` and makes `initBridgeUI()` return early.
+
+It fixed the real bug — the Community build shipped a bridge toggle that looked functional and did nothing — but it uses the exact discriminator this epic's spec rejects by name:
+
+> "The naive 'hide the UI' or `NODE_ENV` approach fails: the teammate package is itself a minified/production build, so a `NODE_ENV`-based flag would hide the bridge in exactly the build that needs it."
+
+`__BRIDGE_UI__` is correct for today's two cases (community prod vs. the maintainer's `npm run dev` loop) but it **actively blocks the team-distribution half of this epic**: `build:team` is a minified production build, so `NODE_ENV=production` would hide the bridge UI in the one build that needs it.
+
+`__BRIDGE__` (this epic) must **replace** `__BRIDGE_UI__`, not coexist with it. Two flags with overlapping meaning and different discriminators is how this gets confusing. Phase 1 removes it.
+
+---
+
+## 1. Discovery
+
+- [ ] Re-read the spec end to end; confirm the approved design still matches the current source (bridge surface has grown since 2026-07-10 — ~35 `bridge-cmd-*` cases now)
+- [ ] Inventory every current bridge touchpoint: `installConsoleBridge()`, the three event sends, all `bridge-*` cases in `code.ts`, the 7 in `ui.ts`, and the `__BRIDGE_UI__` call sites from `btg`
+- [ ] Confirm esbuild DCE actually drops an unreferenced dynamically-imported module — spike it before building on the assumption, since the whole "zero bytes" claim rests on it
+
+## 2. Build flag foundations
+
+- [ ] `src/types/build-flags.d.ts` — replace `__BRIDGE_UI__` with `declare const __BRIDGE__: boolean;`
+- [ ] `tsconfig.json` + `tsconfig.ui.json` — confirm the ambient file is in both `include` globs
+- [ ] `esbuild.config.js` — read `STRATUSHUE_BRIDGE`, inject `__BRIDGE__` into both builds, drop the `__BRIDGE_UI__` define
+- [ ] `vitest.config.ts` — swap the `__BRIDGE_UI__` define for `__BRIDGE__: 'true'`
+- [ ] Remove `applyBridgeUIVisibility()` and its early return from `bridge-ui.ts`; retire the three `btg` tests that cover it (the HTML strip in Phase 4 makes them meaningless — the markup won't exist)
+
+## 3. Dispatch centralization (the core move)
+
+- [ ] `src/features/bridge/bridge-dispatch.ts` — new; `handleBridgeMessage(msg): Promise<boolean>`, owns the lazy `import('./bridge-handlers')` calls
+- [ ] `src/code.ts` — route `bridge-*` through a single `if (__BRIDGE__ && …)` guard before the main switch; remove all inline bridge cases
+- [ ] `src/code.ts` — guard `installConsoleBridge()`, its invocation, and the `sendBridge*` event sends behind `__BRIDGE__`
+- [ ] `src/ui/bridge/bridge-dispatch-ui.ts` — new; `handleBridgeUIMessage(message): boolean`, preserving the existing lazy imports
+- [ ] `src/ui.ts` — guard bridge routing behind one `if (__BRIDGE__ && handleBridgeUIMessage(message)) return;`
+
+## 4. HTML and manifest flavoring
+
+- [ ] `src/ui.html` — wrap `#bridge-settings-section` and `#bridge-status-dots` in `<!-- BRIDGE:START -->` / `<!-- BRIDGE:END -->` sentinels
+- [ ] `esbuild.config.js` — strip the sentinel blocks when `__BRIDGE__` is off, before CSS/JS/asset inlining
+- [ ] `manifest.team.json` — new; name `stratusHue (MCP)`, bridge `networkAccess`, `capabilities: ["inspect"]`
+- [ ] Confirm `manifest.prod.json` is untouched and `manifest.dev.json` is retained for the maintainer's `npm run dev` loop
+
+## 5. Packaging
+
+- [ ] `scripts/build-plugin-ready.js` — branch manifest on `STRATUSHUE_BRIDGE`; write the teammate README (import via Plugins → Development → Import plugin from manifest; enable the Bridge toggle in Settings)
+- [ ] `package.json` — add `build:team` and `pkg:team`; confirm `build` / `build:prod` / `pkg` / `ship` stay community-default
+
+## 6. Verification gate
+
+- [ ] Post-build assertion — scan `dist/code.js` and `dist/ui.html` for `bridge-cmd-`, `BRIDGE_RESPONSE`, `figma-console-mcp`, `new WebSocket`; **fail the build** if any survive. Wire into `build:prod` / `pkg` / `ship`
+- [ ] `src/test/smoke-dispatch.test.ts` — add a community-flavor assertion that a `bridge-*` message is treated as unknown and does not crash
+- [ ] `npm run validate:full` green on both flavors
+
+## 7. Docs and handoff
+
+- [ ] `CLAUDE.md` — rewrite the existing *Bridge & Build Flavors* subsection: it currently documents three gates including `__BRIDGE_UI__`, which this epic deletes. Add `build:team` / `pkg:team` to the Commands table
+- [ ] Update `btg` (in `.issues/closed/`) with a line noting `__BRIDGE_UI__` was superseded and removed here
+
+## Human touchpoints
+
+Only these need Levin; everything else is delegable.
+
+- [ ] **TOUCHPOINT — Community flavor spot-check in Figma:** no Bridge section in Settings, no footer dots, `networkAccess: none`, navigate features intact
+- [ ] **TOUCHPOINT — Team flavor spot-check in Figma:** Bridge toggle present, enabling it connects to a local MCP server and (optionally) the cloud relay
+- [ ] **TOUCHPOINT — Distribute the team zip** to one teammate and confirm a clean import with no repo and no npm
+
+## Done when
+
+- A community build contains **zero** bridge bytes — the post-build assertion passes, and grepping `dist/` for the four markers returns nothing
+- A team build is fully minified (`NODE_ENV=production`) **and** has a working bridge — proving the flag is independent of `NODE_ENV`
+- `__BRIDGE_UI__` appears nowhere in the source
+- A teammate imports the zip and connects to an MCP server without cloning the repo
 
 ## Out of scope
 

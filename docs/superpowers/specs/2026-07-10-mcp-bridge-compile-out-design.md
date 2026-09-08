@@ -152,3 +152,15 @@ When `__BRIDGE__` is on, the sentinels are harmless HTML comments (the build may
 - **Runtime prod/team detection.** Explicitly rejected — cannot deliver compile-out.
 - **Changing the bridge's own feature set** (command coverage, cloud relay behavior). Unchanged; this is purely a build/packaging/isolation change.
 - **Removing `manifest.dev.json`.** Retained for the maintainer's local loop.
+
+---
+
+## Addendum (2026-09-08) — `__BRIDGE_UI__` must be removed by this work
+
+Issue `btg` (closed 2026-09-07) shipped an interim gate ahead of this spec's implementation: an esbuild define `__BRIDGE_UI__`, set to `NODE_ENV !== 'production'`, which hides `#bridge-settings-section` / `#bridge-status-dots` and makes `initBridgeUI()` return early.
+
+It fixed a real bug — the Community build shipped a bridge toggle that looked functional and silently did nothing, because `manifest.prod.json` blocks every socket it could open. But it uses the exact discriminator the *Problem* section above rejects: a `NODE_ENV`-based flag hides the bridge in the minified team build, which is the one build that needs it.
+
+`__BRIDGE_UI__` is therefore not a partial implementation of this spec — it is incompatible with the team flavor. `__BRIDGE__` replaces it; the two must not coexist. Removal is Phase 2 of the `bfl` epic.
+
+Once the HTML strip (`BRIDGE:START` / `BRIDGE:END`) lands, the three `btg` unit tests covering `applyBridgeUIVisibility()` become meaningless — the markup they assert against will not exist in a community build — and should be retired alongside the function.
