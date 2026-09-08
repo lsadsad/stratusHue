@@ -14,7 +14,7 @@
     "package": "node scripts/package-plugin.js",
     "package:desktop": "node scripts/package-plugin.js \"%USERPROFILE%\\Desktop\"",
     "package:custom": "node scripts/package-plugin.js",
-    "dev": "node -e \"import fs from 'fs'; fs.copyFileSync('manifest.dev.json','manifest.json'); console.log('📋 manifest.json ← manifest.dev.json');\" && node esbuild.config.js --watch",
+    "dev": "node -e \"import fs from 'fs'; fs.copyFileSync('manifest.dev.json','manifest.json'); console.log('📋 manifest.json ← manifest.dev.json');\" && cross-env STRATUSHUE_BRIDGE=1 node esbuild.config.js --watch",
     "use-manifest:dev": "node -e \"import fs from 'fs'; fs.copyFileSync('manifest.dev.json','manifest.json'); console.log('📋 manifest.json ← manifest.dev.json');\"",
     "use-manifest:prod": "node -e \"import fs from 'fs'; fs.copyFileSync('manifest.prod.json','manifest.json'); console.log('📋 manifest.json ← manifest.prod.json');\"",
     "clean": "node -e \"import fs from 'fs'; if(fs.existsSync('dist')) fs.rmSync('dist',{recursive:true,force:true}); console.log('🧹 Cleaned dist directory')\"",
@@ -36,7 +36,9 @@
     "test:prototype:sync": "npm run sync:prototype && playwright test",
     "test:navigation:settings": "vitest --run src/test/navigation-settings.test.ts",
     "info": "node -e \"import fs from 'fs'; const files=['dist/code.js','dist/ui.js','dist/styles.css']; console.log('📊 Build Output:'); files.forEach(f => { if(fs.existsSync(f)) { const size=(fs.statSync(f).size/1024).toFixed(1); console.log('  '+f+': '+size+' KB'); } });\"",
-    "sync:prototype": "node scripts/sync-prototype.js"
+    "sync:prototype": "cross-env STRATUSHUE_BRIDGE=1 node scripts/sync-prototype.js",
+    "build:team": "node -e \"import fs from 'fs'; fs.copyFileSync('manifest.team.json','manifest.json'); console.log('📋 manifest.json ← manifest.team.json');\" && cross-env STRATUSHUE_BRIDGE=1 NODE_ENV=production node esbuild.config.js",
+    "pkg:team": "npm run build:team && cross-env STRATUSHUE_BRIDGE=1 node scripts/build-plugin-ready.js --package"
   },
   "author": "",
   "license": "",

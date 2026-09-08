@@ -1,6 +1,7 @@
 // Figma Plugin UI - TypeScript Implementation
 // Handles all UI interactions and communication with the plugin sandbox
 
+import { handleBridgeUIMessage } from './ui/bridge/bridge-dispatch-ui';
 import type { NavigationContext } from './types';
 // UI should not import plugin-side storage (which uses `figma`).
 // We request and persist UI section states via postMessage to the plugin.
@@ -132,6 +133,11 @@ function handlePluginMessage(event: MessageEvent): void {
 
   console.log('📥 Received message from plugin:', message.type, message);
 
+  // Bridge messages go through a single guarded entry point. In the community
+  // flavor __BRIDGE__ is false, so esbuild drops this branch and every bridge
+  // module with it.
+  if (__BRIDGE__ && handleBridgeUIMessage(message)) return;
+
   switch (message.type) {
     case 'selection-state': {
       // Handle emoji set updates based on selection
@@ -209,60 +215,6 @@ function handlePluginMessage(event: MessageEvent): void {
       break;
     case 'update-styled-text-state':
       updateStyledTextButtons(message.hasTextNode as boolean);
-      break;
-
-    case 'bridge-init':
-      // Sandbox sends bridge enabled state + saved pair code on startup.
-      import('./ui/bridge/bridge-ui').then(({ initBridgeUI }) => {
-        initBridgeUI(message.enabled as boolean, (message.pairCode as string) || undefined);
-      }).catch(console.error);
-      break;
-
-    case 'bridge-file-info':
-      // Sandbox pushed file identity — cache it for the FILE_INFO handshake.
-      import('./ui/bridge/bridge-client').then(({ setBridgeFileInfo }) => {
-        setBridgeFileInfo(message.fileInfo as { fileKey: string | null;[key: string]: unknown });
-      }).catch(console.error);
-      break;
-
-    case 'BRIDGE_RESPONSE':
-      // Route a sandbox command response back to the waiting WS request.
-      import('./ui/bridge/bridge-client').then(({ handleBridgeResponse }) => {
-        handleBridgeResponse(
-          message.requestId as string,
-          message.result,
-          message.error as string | undefined
-        );
-      }).catch(console.error);
-      break;
-
-    case 'bridge-console-log':
-      // Forward sandbox console captures to the bridge for WS broadcast.
-      import('./ui/bridge/bridge-client').then(({ broadcastEvent }) => {
-        broadcastEvent('CONSOLE_CAPTURE', {
-          level: message.level as string,
-          message: message.message as string,
-          timestamp: Date.now(),
-        });
-      }).catch(console.error);
-      break;
-
-    case 'bridge-selection-change':
-      import('./ui/bridge/bridge-client').then(({ broadcastEvent }) => {
-        broadcastEvent('SELECTION_CHANGE', message);
-      }).catch(console.error);
-      break;
-
-    case 'bridge-document-change':
-      import('./ui/bridge/bridge-client').then(({ broadcastEvent }) => {
-        broadcastEvent('DOCUMENT_CHANGE', message);
-      }).catch(console.error);
-      break;
-
-    case 'bridge-page-change':
-      import('./ui/bridge/bridge-client').then(({ broadcastEvent }) => {
-        broadcastEvent('PAGE_CHANGE', message);
-      }).catch(console.error);
       break;
 
     case 'styled-text-html': {

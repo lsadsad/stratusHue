@@ -1,8 +1,9 @@
 // Build-time flags replaced by esbuild `define`. See esbuild.config.js.
 //
-// __BRIDGE_UI__ — whether the MCP bridge's UI (settings section + footer status
-// dots) is exposed. False in production builds, which ship manifest.prod.json's
-// networkAccess ["none"] and therefore cannot open a bridge socket at all.
-// Interim gate for `btg`; superseded by the `__BRIDGE__` compile-out in `bfl`,
-// which removes the bridge from the bundle rather than hiding its controls.
-declare const __BRIDGE_UI__: boolean;
+// __BRIDGE__ — whether the MCP bridge is compiled into this build at all.
+// Driven by the STRATUSHUE_BRIDGE env var, deliberately independent of NODE_ENV
+// so the team flavor can be a fully minified production build and still carry
+// the bridge. With the flag false, every bridge module is reachable only from a
+// dead branch and esbuild drops it from the bundle entirely (verified: bfl
+// Discovery spike, 2026-09-08).
+declare const __BRIDGE__: boolean;

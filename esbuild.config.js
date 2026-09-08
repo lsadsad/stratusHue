@@ -99,13 +99,50 @@ function copyAssets() {
 	console.log('📦 Copied assets → dist/assets');
 }
 
-// Build-time flags. The prod build ships manifest.prod.json (networkAccess
-// ["none"]), so the bridge cannot open a socket — expose its UI only elsewhere.
-// `npm run build` (dev/prototype) leaves it on, which is what the prototype
-// Playwright specs assert against.
+// Build-time flags. STRATUSHUE_BRIDGE=1 produces the team flavor (bridge
+// compiled in); anything else produces the community flavor, from which esbuild
+// drops every bridge module via dead-code elimination.
+//
+// Deliberately NOT keyed off NODE_ENV: the team package is itself a minified
+// production build, so a NODE_ENV-based flag would strip the bridge from exactly
+// the build that needs it.
+const bridgeEnabled = process.env.STRATUSHUE_BRIDGE === '1';
 const BUILD_DEFINES = {
-  __BRIDGE_UI__: JSON.stringify(process.env.NODE_ENV !== 'production')
+  __BRIDGE__: JSON.stringify(bridgeEnabled)
 };
+
+// Community-flavor guarantee: no bridge bytes survive.
+//
+// The compile-out relies on every bridge reference sitting behind an
+// `if (__BRIDGE__)` guard. A single missed guard would silently ship bridge code
+// — including the EXECUTE_CODE escape hatch — into the AT&T-approved / Community
+// artifact. This turns that from a review question into a build failure.
+const BRIDGE_MARKERS = [
+  'bridge-cmd-',
+  'BRIDGE_RESPONSE',
+  'figma-console-mcp',
+  'new WebSocket',
+  'bridge-settings-section'
+];
+
+function assertNoBridgeInCommunityBuild() {
+  const found = [];
+  for (const file of ['dist/code.js', 'dist/ui.html']) {
+    if (!fs.existsSync(file)) continue;
+    const content = fs.readFileSync(file, 'utf8');
+    for (const marker of BRIDGE_MARKERS) {
+      if (content.includes(marker)) found.push(`${file}: ${marker}`);
+    }
+  }
+  if (found.length) {
+    console.error('\n❌ Community build contains bridge code — a __BRIDGE__ guard is missing:');
+    for (const f of found) console.error(`   ${f}`);
+    console.error('\n   Every bridge reference must sit behind `if (__BRIDGE__)` so esbuild can');
+    console.error('   drop it. Build the team flavor with STRATUSHUE_BRIDGE=1 instead.\n');
+    process.exit(1);
+  }
+  console.log('✅ Community build verified: no bridge code present');
+}
 
 async function build() {
   try {
@@ -142,6 +179,13 @@ async function build() {
     // Process HTML and inline CSS/JS
     let htmlContent = fs.readFileSync('src/ui.html', 'utf8');
 
+    // Community flavor: strip bridge markup. JS dead-code elimination handles the
+    // modules, but it cannot touch HTML — without this the settings row and the
+    // footer status dots would still ship, giving a control with nothing behind it.
+    if (!bridgeEnabled) {
+      htmlContent = htmlContent.replace(/<!-- BRIDGE:START -->[\s\S]*?<!-- BRIDGE:END -->/g, '');
+    }
+
     // Inline CSS
     const cssContent = fs.readFileSync('src/styles.css', 'utf8');
     htmlContent = htmlContent.replace(
@@ -171,6 +215,8 @@ async function build() {
 
     // Copy static assets used by the UI
     copyAssets();
+
+    if (!bridgeEnabled) assertNoBridgeInCommunityBuild();
 
     console.log('✅ Build completed successfully');
   } catch (error) {
