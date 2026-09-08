@@ -38,6 +38,8 @@ npm run test:prototype   # Playwright against prototype/plugin.html
 npm run sync:prototype   # full build then patch prototype
 npm run use-manifest:dev   # manifest.json <- manifest.dev.json
 npm run use-manifest:prod  # manifest.json <- manifest.prod.json
+npm run build:team       # team flavor — bridge compiled in, minified
+npm run pkg:team         # team flavor zip for teammates (no repo/npm needed)
 ```
 
 ## Architecture
@@ -130,7 +132,7 @@ All Figma node lookups are async: use `figma.getNodeByIdAsync(id)`, not the sync
 
 ### MCP Bridge Subsystem
 
-An opt-in WebSocket bridge that exposes the open Figma file to an MCP server. **Off by default and gated three ways** — read *Bridge & Build Flavors* below before touching it.
+An opt-in WebSocket bridge that exposes the open Figma file to an MCP server. **Compiled out of the community build entirely** — read *Bridge & Build Flavors* below before touching it.
 
 | File | Role |
 |---|---|
@@ -138,22 +140,51 @@ An opt-in WebSocket bridge that exposes the open Figma file to an MCP server. **
 | `src/ui/bridge/bridge-ui.ts` | Settings toggle, cloud pair-code row, footer status dots |
 | `src/features/bridge/bridge-handlers.ts` | Sandbox-side command handlers — variables, components, nodes, text, FigJam |
 | `src/features/bridge/file-info.ts` | `buildFileInfo()` + `PLUGIN_VERSION` for the FILE_INFO handshake |
+| `src/features/bridge/bridge-dispatch.ts` | **The single sandbox entry point.** `handleBridgeMessage(msg)` owns every `bridge-*` case |
+| `src/features/bridge/bridge-state.ts` | `isBridgeEnabled()` / `setBridgeEnabledState()` — the user's on/off flag |
+| `src/ui/bridge/bridge-dispatch-ui.ts` | **The single UI entry point.** `handleBridgeUIMessage(message)` |
 
-Sandbox routing lives in `code.ts`: `bridge-set-enabled`, `bridge-set-pair-code`, `bridge-connected`/`-disconnected`, and ~35 `bridge-cmd-*` cases that lazy-import `bridge-handlers.ts`. UI routing is a set of `bridge-*` cases in `ui.ts` that dynamically import `bridge-client.ts` — which is why `tsconfig.ui.json` type-checks the bridge modules without listing them.
+**Never add a `bridge-*` case to `code.ts` or `ui.ts` directly.** Both files hold exactly *one* reference to bridge code:
+
+```typescript
+// code.ts, before the main switch
+if (__BRIDGE__ && msg.type.startsWith('bridge')) {
+  const { handleBridgeMessage } = await import('./features/bridge/bridge-dispatch');
+  if (await handleBridgeMessage(msg)) return;
+}
+
+// ui.ts, before the main switch
+if (__BRIDGE__ && handleBridgeUIMessage(message)) return;
+```
+
+New bridge commands go in `bridge-dispatch.ts` / `bridge-dispatch-ui.ts`. That single-reference property is what lets esbuild drop the whole bridge tree — a case added to the main switch would leak bridge code into the community bundle, and the build assertion would fail the build.
 
 #### Bridge & Build Flavors
 
-Three independent gates keep the bridge inert in the Community build:
+Two flavors from one source, selected by the `STRATUSHUE_BRIDGE` env var:
 
-1. **`manifest.json` `networkAccess`** — platform-enforced by Figma, and the only one that actually stops a socket opening. `manifest.prod.json` declares `{ "allowedDomains": ["none"] }`; `manifest.dev.json` whitelists localhost 9223-9232 plus the relay and adds `"inspect"` + `enablePrivatePluginApi`. `npm run build:prod` copies the prod manifest over `manifest.json`; `npm run dev` copies the dev one.
-2. **`__BRIDGE_UI__` build flag** — esbuild `define` in `esbuild.config.js`, set to `process.env.NODE_ENV !== 'production'`. When false, `initBridgeUI()` calls `applyBridgeUIVisibility(false)` and returns without wiring anything, hiding `#bridge-settings-section` and `#bridge-status-dots`. Declared in `src/types/build-flags.d.ts`; mirrored as `true` in `vitest.config.ts` so modules referencing it load under test.
-3. **`bridgeEnabled` runtime toggle** — defaults `false` in `code.ts`, persisted in `figma.clientStorage`. Every broadcast path is guarded by it.
+| Script | `STRATUSHUE_BRIDGE` | Manifest | Bridge in bundle? |
+|---|---|---|---|
+| `build` / `build:prod` / `pkg` / `ship` | off | `manifest.prod.json` | **no — zero bytes** |
+| `build:team` / `pkg:team` | `1` | `manifest.team.json` | yes, minified |
+| `dev` | `1` | `manifest.dev.json` | yes, watch mode |
+| `sync:prototype` | `1` | — | yes (the prototype specs exercise the bridge UI) |
+
+`__BRIDGE__` is an esbuild `define` declared in `src/types/build-flags.d.ts`. It is **deliberately independent of `NODE_ENV`** — the team package is itself a minified production build, so a `NODE_ENV`-keyed flag would strip the bridge from exactly the build that needs it.
+
+Three things happen when the flag is off:
+
+1. **JS** — every bridge reference sits behind `if (__BRIDGE__)`, so esbuild's dead-code elimination drops the dispatch modules and, transitively, `bridge-handlers.ts`, `bridge-client.ts`, `bridge-ui.ts`, `bridge-state.ts` and `file-info.ts`.
+2. **HTML** — DCE cannot touch markup, so `esbuild.config.js` strips the `<!-- BRIDGE:START -->` … `<!-- BRIDGE:END -->` blocks from `ui.html`. **Any new bridge markup must go inside those sentinels.**
+3. **Manifest** — `manifest.prod.json` keeps `networkAccess: { allowedDomains: ["none"] }`.
 
 **`main` must always commit the prod manifest.** Merging a dev branch without excluding `manifest.json` reintroduces the network permissions on the AT&T-approved / Community build.
 
-Why all three. The toggle alone is not enough: `clientStorage` is keyed by plugin id — identical in `manifest.dev.json` and `manifest.prod.json` — so a user who enabled the bridge in the dev build has `bridgeEnabled: true` restored in the prod build. And the manifest alone is not enough either: it blocks the sockets but leaves a settings control that looks functional and silently does nothing, which is what `__BRIDGE_UI__` fixes (issue `btg`).
+##### The build assertion
 
-`__BRIDGE_UI__` hides the controls; the bridge code is still in the bundle. Full compile-out (a `__BRIDGE__` flag stripping it entirely, for a "provably absent" review story) is designed but **not implemented** — see issue `bfl` and `docs/superpowers/specs/2026-07-10-mcp-bridge-compile-out-design.md`. `__BRIDGE_UI__` is the interim gate and `bfl` supersedes it.
+After every community build, `assertNoBridgeInCommunityBuild()` scans `dist/code.js` and `dist/ui.html` for `bridge-cmd-`, `BRIDGE_RESPONSE`, `figma-console-mcp`, `new WebSocket` and `bridge-settings-section`, and **exits non-zero** if any survive. A missed guard is a build failure, not a review question. Verified by deliberately removing a guard — the build fails and names the leaking markers.
+
+Separately, `bridgeEnabled` in `figma.clientStorage` is the *user's* on/off switch within a build that has the bridge. Do not confuse it with `__BRIDGE__`, which decides whether the bridge exists at all.
 
 ### Error Handling (`src/core/error-handling.ts`)
 - `withErrorBoundary(fn, errorType)` — async wrapper, returns `null` on failure
