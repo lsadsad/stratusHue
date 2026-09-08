@@ -47,21 +47,31 @@ if (fs.existsSync('dist/assets')) {
     console.log('✅ Copied assets → plugin-ready/assets');
 }
 
-// Create production manifest (without source maps references)
-const manifest = {
-    "name": "stratusHue",
-    "id": "1586934885538203561",
-    "api": "1.0.0",
-    "main": "code.js",
-    "ui": "ui.html",
-    "capabilities": [],
-    "enableProposedApi": false,
-    "editorType": ["figma", "figjam"],
-    "documentAccess": "dynamic-page",
-    "networkAccess": {
-        "allowedDomains": ["none"]
-    }
-};
+// Which flavor are we packaging? Must match the STRATUSHUE_BRIDGE the build ran
+// with, or the manifest would advertise permissions the bundle cannot use (or
+// worse, withhold ones it needs).
+const isTeamFlavor = process.env.STRATUSHUE_BRIDGE === '1';
+
+// Create production manifest (without source maps references). The team flavor
+// reads manifest.team.json so the network allow-list stays in one place.
+const manifest = isTeamFlavor
+    ? { ...JSON.parse(fs.readFileSync('manifest.team.json', 'utf8')), main: 'code.js', ui: 'ui.html' }
+    : {
+        "name": "stratusHue",
+        "id": "1586934885538203561",
+        "api": "1.0.0",
+        "main": "code.js",
+        "ui": "ui.html",
+        "capabilities": [],
+        "enableProposedApi": false,
+        "editorType": ["figma", "figjam"],
+        "documentAccess": "dynamic-page",
+        "networkAccess": {
+            "allowedDomains": ["none"]
+        }
+    };
+
+console.log(`\u{1F4E6} Packaging the ${isTeamFlavor ? 'TEAM (bridge enabled)' : 'COMMUNITY (no bridge)'} flavor`);
 
 fs.writeFileSync('plugin-ready/manifest.json', JSON.stringify(manifest, null, 2));
 console.log('✅ Created plugin-ready/manifest.json');
@@ -98,7 +108,41 @@ This build is ready for:
 All assets are inlined and optimized for production use.
 `;
 
-fs.writeFileSync('plugin-ready/README.md', pluginReadyReadme);
+const teamReadme = `# stratusHue (MCP) — team build
+
+This build has the MCP bridge compiled in. The Figma Community build does not —
+it contains no bridge code at all.
+
+## Install
+
+You do not need the repo, git, or npm.
+
+1. Unzip this folder somewhere permanent (Figma reads it from disk on every launch)
+2. In Figma: **Plugins → Development → Import plugin from manifest**
+3. Select \`manifest.json\` from this folder
+4. Run it from **Plugins → Development → stratusHue (MCP)**
+
+It appears under Development, separate from any Community install — you can keep both.
+
+## Enable the bridge
+
+The bridge is off until you turn it on.
+
+1. Open the plugin, click the settings icon
+2. Turn on **Enable MCP bridge** under 🔌 Bridge
+3. The status dots appear in the footer: left is a local MCP server, right is the cloud relay
+
+For a local MCP server, it must be listening on one of ports 9223-9232 before you
+toggle the bridge on. For Claude.ai sessions, paste the 6-character pairing code
+into the Cloud relay field and hit Connect.
+
+## Updating
+
+Re-unzip over the same folder and reload the plugin in Figma. No re-import needed
+as long as the path does not change.
+`;
+
+fs.writeFileSync('plugin-ready/README.md', isTeamFlavor ? teamReadme : pluginReadyReadme);
 console.log('✅ Created plugin-ready/README.md');
 
 // Get file sizes for info

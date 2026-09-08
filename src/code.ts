@@ -4,6 +4,7 @@
 // Optimized modular architecture with error handling and performance
 
 // ===== IMPORTS =====
+import { isBridgeEnabled, setBridgeEnabledState } from './features/bridge/bridge-state';
 import { debounce, addOrReplaceDateInLayerName, addOrReplaceDateInPageTitle, getTodayDateToken } from './utils';
 // import { ThemePreference } from './core/types'; // Unused import
 import type { DateFormat, DatePosition } from './core/types';
@@ -68,8 +69,6 @@ import {
 type WithExpanded = { expanded: boolean };
 
 // ===== BRIDGE =====
-// Tracks whether the bridge client is enabled (loaded from clientStorage on init).
-let bridgeEnabled = false;
 
 // Intercept console.* in the sandbox and forward logs to the bridge UI for relay to MCP.
 function installConsoleBridge(): void {
@@ -78,7 +77,7 @@ function installConsoleBridge(): void {
   const originalError = console.error.bind(console);
 
   function forwardLog(level: string, args: unknown[]): void {
-    if (!bridgeEnabled) return;
+    if (!isBridgeEnabled()) return;
     try {
       const message = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
       figma.ui.postMessage({ type: 'bridge-console-log', level, message });
@@ -90,7 +89,7 @@ function installConsoleBridge(): void {
   console.error = (...args: unknown[]) => { originalError(...args); forwardLog('error', args); };
 }
 
-installConsoleBridge();
+if (__BRIDGE__) installConsoleBridge();
 
 // ===== VIEWPORT ANIMATION =====
 /**
@@ -163,7 +162,7 @@ const initializePlugin = withErrorBoundary(async () => {
   if (!documentChangeRegistered) {
     figma.on('documentchange', (event: DocumentChangeEvent) => {
       handleDocumentChange(event);
-      if (bridgeEnabled) sendBridgeDocumentEvent(event);
+      if (__BRIDGE__ && isBridgeEnabled()) sendBridgeDocumentEvent(event);
     });
     documentChangeRegistered = true;
   }
@@ -178,18 +177,21 @@ const initializePlugin = withErrorBoundary(async () => {
   // Restore persisted plugin mode (migrates legacy 'lint' → 'navigate').
   await loadPluginMode();
 
-  // Restore bridge enabled state and pair code
-  const storedBridgeEnabled = await figma.clientStorage.getAsync('bridgeEnabled') as boolean | undefined;
-  const storedPairCode = await figma.clientStorage.getAsync('bridgePairCode') as string | undefined;
-  bridgeEnabled = storedBridgeEnabled ?? false;
-  figma.ui.postMessage({
-    type: 'bridge-init',
-    enabled: bridgeEnabled,
-    pairCode: storedPairCode ?? '',
-  });
-  // If the bridge restores enabled, push file identity so the UI can complete
-  // the FILE_INFO handshake as soon as it reconnects to the MCP server.
-  if (bridgeEnabled) sendBridgeFileInfo();
+  // Restore bridge enabled state and pair code. The community flavor never runs
+  // this — no bridge-init is sent, so the UI never initialises its bridge module.
+  if (__BRIDGE__) {
+    const storedBridgeEnabled = await figma.clientStorage.getAsync('bridgeEnabled') as boolean | undefined;
+    const storedPairCode = await figma.clientStorage.getAsync('bridgePairCode') as string | undefined;
+    setBridgeEnabledState(storedBridgeEnabled ?? false);
+    figma.ui.postMessage({
+      type: 'bridge-init',
+      enabled: isBridgeEnabled(),
+      pairCode: storedPairCode ?? '',
+    });
+    // If the bridge restores enabled, push file identity so the UI can complete
+    // the FILE_INFO handshake as soon as it reconnects to the MCP server.
+    if (isBridgeEnabled()) sendBridgeFileInfo();
+  }
 }, ErrorType.STORAGE_ERROR);
 
 // ===== DEBOUNCED FUNCTIONS =====
@@ -222,7 +224,7 @@ const debouncedSelectionUpdate = debounce(() => {
   triggerValidationOnSelectionChange();
 
   // Broadcast to bridge clients when enabled
-  if (bridgeEnabled) sendBridgeSelectionEvent();
+  if (__BRIDGE__ && isBridgeEnabled()) sendBridgeSelectionEvent();
 }, 100);
 
 const debouncedPageChange = debounce(async () => {
@@ -237,7 +239,7 @@ const debouncedPageChange = debounce(async () => {
 
   // Broadcast to bridge clients when enabled, and refresh file identity
   // (currentPage/currentPageId changed) for the FILE_INFO handshake.
-  if (bridgeEnabled) {
+  if (__BRIDGE__ && isBridgeEnabled()) {
     sendBridgePageEvent();
     sendBridgeFileInfo();
   }
@@ -255,6 +257,14 @@ figma.ui.onmessage = async (msg) => {
   }
 
   try {
+    // Bridge messages are dispatched from a single guarded entry point. In the
+    // community flavor __BRIDGE__ is false, so esbuild drops this branch and the
+    // entire bridge module tree with it.
+    if (__BRIDGE__ && msg.type.startsWith('bridge')) {
+      const { handleBridgeMessage } = await import('./features/bridge/bridge-dispatch');
+      if (await handleBridgeMessage(msg as { type: string } & Record<string, unknown>)) return;
+    }
+
     switch (msg.type) {
       case 'get-ui-section-states': {
         try {
@@ -577,373 +587,8 @@ figma.ui.onmessage = async (msg) => {
 
       // Removed license management message handlers
 
-      // === BRIDGE ===
-      case 'bridge-set-enabled': {
-        if ('enabled' in msg && typeof msg.enabled === 'boolean') {
-          bridgeEnabled = msg.enabled;
-          await figma.clientStorage.setAsync('bridgeEnabled', msg.enabled);
-          // On enable, push file identity so the UI can send FILE_INFO on connect.
-          if (msg.enabled) sendBridgeFileInfo();
-        }
-        break;
-      }
-
-      case 'bridge-set-pair-code': {
-        if ('pairCode' in msg && typeof msg.pairCode === 'string') {
-          await figma.clientStorage.setAsync('bridgePairCode', msg.pairCode);
-        }
-        break;
-      }
-
-      case 'bridge-connected':
-      case 'bridge-disconnected':
-        // Informational — no sandbox action needed
-        break;
-
-      // ---- Bridge command dispatch ----
-      // All bridge-cmd-* types are handled by lazy-importing bridge-handlers.ts.
-      // The requestId is echoed in the BRIDGE_RESPONSE so the WS client can route
-      // the reply back to the correct MCP request.
-
-      case 'bridge-cmd-execute-code': {
-        if ('requestId' in msg && 'code' in msg && typeof msg.requestId === 'string' && typeof msg.code === 'string') {
-          const { handleBridgeExecuteCode } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeExecuteCode(msg.requestId, msg.code);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-get-file-info': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeGetFileInfo } = await import('./features/bridge/bridge-handlers');
-          handleBridgeGetFileInfo(msg.requestId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-get-variables': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeGetVariables } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeGetVariables(msg.requestId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-refresh-variables': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeGetVariables } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeGetVariables(msg.requestId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-update-variable': {
-        if ('requestId' in msg && 'variableId' in msg && 'modeId' in msg && 'value' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.variableId === 'string' && typeof msg.modeId === 'string') {
-          const { handleBridgeUpdateVariable } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeUpdateVariable(msg.requestId, msg.variableId, msg.modeId, msg.value);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-create-variable': {
-        if ('requestId' in msg && 'name' in msg && 'collectionId' in msg && 'resolvedType' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.name === 'string' &&
-            typeof msg.collectionId === 'string' && typeof msg.resolvedType === 'string') {
-          const { handleBridgeCreateVariable } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateVariable(msg.requestId, msg.name, msg.collectionId,
-            msg.resolvedType as VariableResolvedDataType,
-            'options' in msg ? msg.options as Record<string, unknown> : undefined
-          );
-        }
-        break;
-      }
-
-      case 'bridge-cmd-delete-variable': {
-        if ('requestId' in msg && 'variableId' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.variableId === 'string') {
-          const { handleBridgeDeleteVariable } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeDeleteVariable(msg.requestId, msg.variableId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-rename-variable': {
-        if ('requestId' in msg && 'variableId' in msg && 'newName' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.variableId === 'string' && typeof msg.newName === 'string') {
-          const { handleBridgeRenameVariable } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeRenameVariable(msg.requestId, msg.variableId, msg.newName);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-create-variable-collection': {
-        if ('requestId' in msg && 'name' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.name === 'string') {
-          const { handleBridgeCreateVariableCollection } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateVariableCollection(msg.requestId, msg.name,
-            'options' in msg ? msg.options as Record<string, unknown> : undefined
-          );
-        }
-        break;
-      }
-
-      case 'bridge-cmd-delete-variable-collection': {
-        if ('requestId' in msg && 'collectionId' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.collectionId === 'string') {
-          const { handleBridgeDeleteVariableCollection } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeDeleteVariableCollection(msg.requestId, msg.collectionId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-add-mode': {
-        if ('requestId' in msg && 'collectionId' in msg && 'modeName' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.collectionId === 'string' && typeof msg.modeName === 'string') {
-          const { handleBridgeAddMode } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeAddMode(msg.requestId, msg.collectionId, msg.modeName);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-rename-mode': {
-        if ('requestId' in msg && 'collectionId' in msg && 'modeId' in msg && 'newName' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.collectionId === 'string' &&
-            typeof msg.modeId === 'string' && typeof msg.newName === 'string') {
-          const { handleBridgeRenameMode } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeRenameMode(msg.requestId, msg.collectionId, msg.modeId, msg.newName);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-get-component': {
-        if ('requestId' in msg && 'nodeId' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string') {
-          const { handleBridgeGetComponent } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeGetComponent(msg.requestId, msg.nodeId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-get-local-components': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeGetLocalComponents } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeGetLocalComponents(msg.requestId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-instantiate-component': {
-        if ('requestId' in msg && 'componentKey' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.componentKey === 'string') {
-          const { handleBridgeInstantiateComponent } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeInstantiateComponent(msg.requestId, msg.componentKey,
-            'options' in msg ? msg.options as Record<string, unknown> : undefined
-          );
-        }
-        break;
-      }
-
-      case 'bridge-cmd-get-metadata': {
-        if ('requestId' in msg && 'nodeId' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string') {
-          const { handleBridgeGetMetadata } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeGetMetadata(msg.requestId, msg.nodeId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-resize-node': {
-        if ('requestId' in msg && 'nodeId' in msg && 'width' in msg && 'height' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' &&
-            typeof msg.width === 'number' && typeof msg.height === 'number') {
-          const { handleBridgeResizeNode } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeResizeNode(msg.requestId, msg.nodeId, msg.width, msg.height,
-            'withConstraints' in msg ? !!(msg.withConstraints) : true
-          );
-        }
-        break;
-      }
-
-      case 'bridge-cmd-move-node': {
-        if ('requestId' in msg && 'nodeId' in msg && 'x' in msg && 'y' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' &&
-            typeof msg.x === 'number' && typeof msg.y === 'number') {
-          const { handleBridgeMoveNode } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeMoveNode(msg.requestId, msg.nodeId, msg.x, msg.y);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-set-node-fills': {
-        if ('requestId' in msg && 'nodeId' in msg && 'fills' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && Array.isArray(msg.fills)) {
-          const { handleBridgeSetNodeFills } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeSetNodeFills(msg.requestId, msg.nodeId, msg.fills as Array<{ type: 'SOLID'; color: string; opacity?: number }>);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-set-node-strokes': {
-        if ('requestId' in msg && 'nodeId' in msg && 'strokes' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && Array.isArray(msg.strokes)) {
-          const { handleBridgeSetNodeStrokes } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeSetNodeStrokes(msg.requestId, msg.nodeId,
-            msg.strokes as Array<{ type: 'SOLID'; color: string; opacity?: number }>,
-            'strokeWeight' in msg && typeof msg.strokeWeight === 'number' ? msg.strokeWeight : undefined
-          );
-        }
-        break;
-      }
-
-      case 'bridge-cmd-clone-node': {
-        if ('requestId' in msg && 'nodeId' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string') {
-          const { handleBridgeCloneNode } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCloneNode(msg.requestId, msg.nodeId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-delete-node': {
-        if ('requestId' in msg && 'nodeId' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string') {
-          const { handleBridgeDeleteNode } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeDeleteNode(msg.requestId, msg.nodeId);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-rename-node': {
-        if ('requestId' in msg && 'nodeId' in msg && 'newName' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && typeof msg.newName === 'string') {
-          const { handleBridgeRenameNode } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeRenameNode(msg.requestId, msg.nodeId, msg.newName);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-set-text': {
-        if ('requestId' in msg && 'nodeId' in msg && 'text' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && typeof msg.text === 'string') {
-          const { handleBridgeSetText } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeSetText(msg.requestId, msg.nodeId, msg.text,
-            'fontSize' in msg && typeof msg.fontSize === 'number' ? msg.fontSize : undefined
-          );
-        }
-        break;
-      }
-
-      case 'bridge-cmd-create-child': {
-        if ('requestId' in msg && 'parentId' in msg && 'nodeType' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.parentId === 'string' && typeof msg.nodeType === 'string') {
-          const { handleBridgeCreateChild } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateChild(msg.requestId, msg.parentId,
-            msg.nodeType as 'RECTANGLE' | 'ELLIPSE' | 'FRAME' | 'TEXT' | 'LINE',
-            'properties' in msg ? msg.properties as Record<string, unknown> : undefined
-          );
-        }
-        break;
-      }
-
-      case 'bridge-cmd-set-node-description': {
-        if ('requestId' in msg && 'nodeId' in msg && 'description' in msg &&
-            typeof msg.requestId === 'string' && typeof msg.nodeId === 'string' && typeof msg.description === 'string') {
-          const { handleBridgeSetNodeDescription } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeSetNodeDescription(msg.requestId, msg.nodeId, msg.description,
-            'descriptionMarkdown' in msg && typeof msg.descriptionMarkdown === 'string' ? msg.descriptionMarkdown : undefined
-          );
-        }
-        break;
-      }
-
-      // ---- FigJam bridge commands ----
-      // Params arrive spread onto msg (see bridge-client routeCommandToSandbox); the
-      // handlers validate/extract internally, so the guard only needs requestId.
-      case 'bridge-cmd-create-sticky': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeCreateSticky } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateSticky(msg.requestId, msg as unknown as Record<string, unknown>);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-create-stickies': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeCreateStickies } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateStickies(msg.requestId, msg as unknown as Record<string, unknown>);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-create-connector': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeCreateConnector } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateConnector(msg.requestId, msg as unknown as Record<string, unknown>);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-create-section': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeCreateSection } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateSection(msg.requestId, msg as unknown as Record<string, unknown>);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-create-shape-with-text': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeCreateShapeWithText } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateShapeWithText(msg.requestId, msg as unknown as Record<string, unknown>);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-create-table': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeCreateTable } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateTable(msg.requestId, msg as unknown as Record<string, unknown>);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-create-code-block': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeCreateCodeBlock } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeCreateCodeBlock(msg.requestId, msg as unknown as Record<string, unknown>);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-get-board-contents': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeGetBoardContents } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeGetBoardContents(msg.requestId, msg as unknown as Record<string, unknown>);
-        }
-        break;
-      }
-
-      case 'bridge-cmd-get-connections': {
-        if ('requestId' in msg && typeof msg.requestId === 'string') {
-          const { handleBridgeGetConnections } = await import('./features/bridge/bridge-handlers');
-          await handleBridgeGetConnections(msg.requestId);
-        }
-        break;
-      }
-
       default:
-        // Unhandled bridge commands must still reply, or the MCP client's request
-        // hangs until it times out. Send an explicit error so the server fails fast.
-        if (msg.type.startsWith('bridge-cmd-') && 'requestId' in msg && typeof msg.requestId === 'string') {
-          figma.ui.postMessage({
-            type: 'BRIDGE_RESPONSE',
-            requestId: msg.requestId,
-            error: `Unsupported bridge command: ${msg.type}`,
-          });
-        } else {
-          console.log('Unknown message type:', msg.type);
-        }
+        console.log('Unknown message type:', msg.type);
     }
   } catch (error) {
     handleError(error);
