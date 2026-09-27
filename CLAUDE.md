@@ -328,7 +328,7 @@ Issue tracking (`.issues/`), project memory (`.memory/`), and shortHand phrases 
    - **Local conductor** — a Mac Desktop session. Owns the Mac, its Desktop sessions, Rive/Figma Desktop and the shared checkout.
    - **Cloud conductor** — the cloud session `CLOUD-issue-conductor`. Owns the Conductor Board artifact, the 2-hour watchdog Routine and cloud-dispatched sessions.
 
-   Rulings are recorded on trunk issues — the channel both conductors read. Whenever the board needs to change, the local conductor sends the cloud conductor a summary. That channel is one-way: cloud sessions cannot message back yet.
+   Rulings are recorded on trunk issues — the record both conductors read. The two conductors coordinate through rive-studio's `OPS-CHANNEL.md`, which is two-way (STATUS / ASK / replies). Entries go on `main` only, never on a feature branch: a branch entry forks the log (the `gcbr` failure). Direct session messages are nudges pointing at OPS-CHANNEL, not the channel.
 4. **Global calls go to the canon.** When a ruling applies beyond one component or repo (tooling defaults, artifact usage, how work is presented), classify it as global at ruling time and add it to this section in groundControl, then propagate. Don't record it only in one repo's memory or one issue. Component-local rulings stay on their issue or DD.
 5. **Records route by scope.** The NOT3BOOK vault (and its board) is strictly AT&T work. Personal projects keep their record in Notion (under 💙 Personal) and Todoist (under 💙_HOME). Never put personal work in the vault.
 
