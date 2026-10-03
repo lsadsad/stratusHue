@@ -318,6 +318,20 @@ After adding, run `npm run validate` to confirm the full gate passes.
 
 Issue tracking (`.issues/`), project memory (`.memory/`), and shortHand phrases live in [`docs/finePrint.md`](docs/finePrint.md). shortHand vocabulary and MCP prompts are maintained in [groundControl CLAUDE.md](https://github.com/lsadsad/groundControl/blob/main/CLAUDE.md).
 
+## House conventions
+
+> ::rule **Canonical in groundControl's CLAUDE.md; propagated into every repo's CLAUDE.md by `propagate-conventions`; edit it only in groundControl.** A copy edited downstream is drift — groundControl's `npm run check:house-conventions` (in `packages/mcp-server/`) names it. These rules hold on every surface: Mac, PC and cloud. Seeded by Levin 2026-09-27.
+
+1. **Feel mockups ship as Feel Dev Artifacts.** Every feel/motion mockup is published as a private, phone-viewable Artifact titled `<Component> Feel Dev`. The stage is pinned so a ~200 ms change stays in view on a phone; it has a slow ×N control and a reduced-motion toggle; it is linked on the owning issue. Build it to the [cloud-artifact build defaults](https://github.com/lsadsad/groundControl/blob/main/docs/conventions/CLOUD_ARTIFACTS.md) (§2: single self-contained HTML, zero external deps, mobile-first) on every surface, so a Feel Dev built in the cloud and one built on the Mac come out the same. Its JS controls must work on the phone: this rule overrides that file's §3 delivery (`SendUserFile`, read-only mobile) for Feel Devs only. Built and verified by a worker or lane session, not by a conductor.
+2. **Decisions are presented as multiple choice.** When asking Levin to decide, give options as multiple choice with the recommended option first and its reason, one decision per question.
+3. **Conductors delegate.** A conductor session plans, dispatches and relays rulings; build, artifact and verification work runs in workers or lane sessions. There are two conductors, and neither duplicates the other's surface:
+   - **Local conductor** — a Mac Desktop session. Owns the Mac, its Desktop sessions, Rive/Figma Desktop and the shared checkout.
+   - **Cloud conductor** — the cloud session `CLOUD-issue-conductor`. Owns the Conductor Board artifact, the 2-hour watchdog Routine and cloud-dispatched sessions.
+
+   Rulings are recorded on trunk issues — the record both conductors read. The two conductors coordinate through rive-studio's `OPS-CHANNEL.md`, which is two-way (STATUS / ASK / replies). Entries go on `main` only, never on a feature branch: a branch entry forks the log (the `gcbr` failure). Direct session messages are nudges pointing at OPS-CHANNEL, not the channel.
+4. **Global calls go to the canon.** When a ruling applies beyond one component or repo (tooling defaults, artifact usage, how work is presented), classify it as global at ruling time and add it to this section in groundControl, then propagate. Don't record it only in one repo's memory or one issue. Component-local rulings stay on their issue or DD.
+5. **Records route by scope.** The NOT3BOOK vault (and its board) is strictly AT&T work. Personal projects keep their record in Notion (under 💙 Personal) and Todoist (under 💙_HOME). Never put personal work in the vault.
+
 ## Session Completion
 
 **When ending a work session**, you MUST complete ALL steps below.
