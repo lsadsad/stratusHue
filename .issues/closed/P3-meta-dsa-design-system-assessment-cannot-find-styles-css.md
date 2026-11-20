@@ -4,7 +4,7 @@ category: meta
 title: "design-system-assessment integration tests can't locate src/styles.css under full vitest run"
 type: bug
 priority: 3
-status: open
+status: closed
 depends_on: []
 created: 2026-06-15
 ---
@@ -70,3 +70,11 @@ tests were **scoped out of the plugin gate** rather than reworked now.
 ## Notes
 
 - Pre-existing; unrelated to the `anc` bookmark fix.
+
+## Parked — 2026-11-20
+
+Parked, not done, in the 2026-11-20 backlog review (ruled by Levin 2026-11-20: "Take all 123").
+
+Evidence, from the review: The 06-15 decision in the body moved the tool out of the gate (`vitest.config.ts:14` excludes `tools/**`) and says "reopen the rework when the tool is needed again"; `git log origin/main -- tools/design-system-assessment` shows no tool work since. The 3-theme parser it describes is still at `token-parser.ts:32-33`; reopen when the tool is next run.
+
+Review: groundControl `docs/reviews/2026-11-20-backlog-review-other-repos.md`.

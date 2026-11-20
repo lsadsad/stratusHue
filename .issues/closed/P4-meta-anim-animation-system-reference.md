@@ -4,7 +4,7 @@ category: meta
 title: "Animation system reference — catalog of all motion in stratusHue"
 type: task
 priority: 4
-status: open
+status: closed
 depends_on: []
 created: 2026-03-28
 ---
@@ -84,3 +84,11 @@ Theme switching uses `.theme-transitioning` class (300ms) with `will-change` on 
 3. Apply via CSS selectors on inline SVG elements (`:active`, `:hover`, class toggles)
 4. Ensure `prefers-reduced-motion` / `.reduced-motion` disables it
 5. For Lottie: follow re-enabling steps in `docs/LOTTIE_SUPPORT.md`
+
+## Parked — 2026-11-20
+
+Parked, not done, in the 2026-11-20 backlog review (ruled by Levin 2026-11-20: "Take all 123").
+
+Evidence, from the review: Reference text filed as an issue, with nothing to do. The same material lives in `.cursor/rules/icons-and-animation.mdc` (10 tier/Lottie mentions) and `docs/LOTTIE_SUPPORT.md` (51). Move the body to `docs/` if wanted, then close. Reopen when the plugin gets new motion work.
+
+Review: groundControl `docs/reviews/2026-11-20-backlog-review-other-repos.md`.
