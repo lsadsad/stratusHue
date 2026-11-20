@@ -3,10 +3,11 @@ id: rel
 category: meta
 title: "Cut a release — version check, changelog, comms"
 type: task
-priority: 2
+priority: 3
 status: open
 depends_on: []
 created: 2026-03-29
+branch: claude/backlog-lower-1120
 ---
 
 ## Description
@@ -73,3 +74,11 @@ Still open on this issue: tag the release, publish to Figma Community, and the c
 
 ~~⚠️ **Blocked by `btg`**~~ — resolved 2026-09-07. The bridge settings section and status dots are
 now hidden in production builds via the `__BRIDGE_UI__` esbuild define. Publishing is unblocked.
+
+## Lowered to P3 — 2026-11-20
+
+Lowered from P2 to P3 in the 2026-11-20 backlog review. Ruled by Levin 2026-11-20: "Yes", to the question "Lower the 14 medium-priority tickets the review proposed to low?" The ticket stays open; nobody is waiting on it.
+
+Evidence, from the review: Version decided (1.6.0) and notes written: `docs/releases/v1.6.0.md` reads "Released 2026-10-03". What is left is housekeeping: `git ls-remote --tags origin` shows v1.5.0 as the newest tag, so v1.6.0 was never tagged. Unverified: whether the Figma Community listing shows 1.6.0.
+
+Review: groundControl `docs/reviews/2026-11-20-backlog-review-other-repos.md`.
