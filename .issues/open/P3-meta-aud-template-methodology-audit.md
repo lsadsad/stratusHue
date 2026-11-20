@@ -3,7 +3,7 @@ id: aud
 category: meta
 title: "Template methodology audit — analyze, review with lead, revise, finalize for build"
 type: epic
-priority: 1
+priority: 3
 status: open
 depends_on: []
 created: 2026-03-27
