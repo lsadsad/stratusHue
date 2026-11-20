@@ -3,11 +3,12 @@ id: bfl
 category: meta
 title: "MCP bridge compile-out with two build flavors"
 type: epic
-priority: 2
+priority: 3
 status: open
 depends_on: []
 created: 2026-07-13
 surface: laptop
+branch: claude/backlog-lower-1120
 ---
 
 Ship the MCP bridge to teammates without changing the AT&T-approved / Community stratusHue build — by producing two flavors from one source: a community flavor with **zero** bridge code, and a team flavor with the bridge enabled.
@@ -150,3 +151,11 @@ Phases 1-7 implemented and verified. **Community build: 95,436 bytes. Team build
 ### Still open
 
 The three human touchpoints below. Everything else is done.
+
+## Lowered to P3 — 2026-11-20
+
+Lowered from P2 to P3 in the 2026-11-20 backlog review. Ruled by Levin 2026-11-20: "Yes", to the question "Lower the 14 medium-priority tickets the review proposed to low?" The ticket stays open; nobody is waiting on it.
+
+Evidence, from the review: 24/27: the body's execution log (09-08, `ab3711c`) says phases 1-7 are built and verified; the three open boxes are Levin's spot-checks in Figma and handing the team zip to a teammate. Nobody is waiting: no commit since 09-08.
+
+Review: groundControl `docs/reviews/2026-11-20-backlog-review-other-repos.md`.
